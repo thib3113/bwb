@@ -85,6 +85,9 @@ export function App() {
 
   // Check if Web BLE is supported
   const isWebBleSupported = () => {
+    // @ts-ignore
+    if (globalThis.window && globalThis.window.BOKS_SIMULATOR_ENABLED) return true;
+
     // @ts-expect-error - navigator.bluetooth is not standard yet
     return navigator.bluetooth !== undefined;
   };

@@ -9,7 +9,7 @@ export class NfcScanStartPacket extends BoksTXPacket {
   }
 
   toPayload(): Uint8Array {
-    return new Uint8Array(this.stringToBytes(this.configKey));
+    return new Uint8Array([...this.stringToBytes(this.configKey)]);
   }
 }
 
@@ -18,16 +18,16 @@ export class NfcRegisterPacket extends BoksTXPacket {
 
   constructor(
     private configKey: string,
-    private uid: Uint8Array | number[]
+    private uidBytes: Uint8Array
   ) {
     super();
   }
 
   toPayload(): Uint8Array {
-    return new Uint8Array([
-      ...this.stringToBytes(this.configKey),
-      ...this.uid,
-    ]);
+    const payload = new Uint8Array(this.configKey.length + this.uidBytes.length);
+    payload.set(this.stringToBytes(this.configKey), 0);
+    payload.set(this.uidBytes, this.configKey.length);
+    return payload;
   }
 }
 
@@ -36,15 +36,15 @@ export class NfcUnregisterPacket extends BoksTXPacket {
 
   constructor(
     private configKey: string,
-    private uid: Uint8Array | number[]
+    private uidBytes: Uint8Array
   ) {
     super();
   }
 
   toPayload(): Uint8Array {
-    return new Uint8Array([
-      ...this.stringToBytes(this.configKey),
-      ...this.uid,
-    ]);
+    const payload = new Uint8Array(this.configKey.length + this.uidBytes.length);
+    payload.set(this.stringToBytes(this.configKey), 0);
+    payload.set(this.uidBytes, this.configKey.length);
+    return payload;
   }
 }

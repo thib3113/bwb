@@ -331,7 +331,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Opcode 0x14 - count codes
-      await bleService.sendRequest(BLEOpcode.COUNT_CODES, new Uint8Array(0));
+      await bleService.sendRequest({ opcode: BLEOpcode.COUNT_CODES, payload: new Uint8Array(0) });
       // The update itself happens in the global listener above which updates db.devices
     } catch (error) {
       console.error('Failed to refresh code count:', error);

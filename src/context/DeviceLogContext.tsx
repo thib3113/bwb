@@ -8,6 +8,7 @@ import { useBLE } from '../hooks/useBLE';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BoksLog } from '../types';
 import { DeviceLogContext, SettingsContext } from './Contexts';
+import { GetLogsCountPacket, RequestLogsPacket } from '../ble/packets/LogPackets';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
@@ -60,7 +61,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         lastReceivedLogCountRef.current = null;
       } else {
         // Fallback: Explicitly request logs count
-        const response = await sendRequest(BLEOpcode.GET_LOGS_COUNT, new Uint8Array(0));
+        const response = await sendRequest(new GetLogsCountPacket());
         const packet = Array.isArray(response) ? response[0] : response;
 
         if (packet.payload.length >= 2) {
@@ -148,7 +149,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           addListener('*', handleLogPacket);
 
           // Use sendRequest with expectResponse: false to ensure it goes through queue
-          sendRequest(BLEOpcode.REQUEST_LOGS, new Uint8Array(0), { expectResponse: false }).catch(
+          sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch(
             (err) => {
               removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
               removeListener('*', handleLogPacket);

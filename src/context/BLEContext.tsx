@@ -166,7 +166,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       opcode: BLEOpcode,
       payload: Uint8Array,
       options?: { expectResponse?: boolean; timeout?: number }
-    ) => bleService.sendRequest(opcode, payload, options),
+    ) => bleService.sendRequest({ opcode, payload }, options),
     [bleService]
   );
 

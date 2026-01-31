@@ -1,0 +1,81 @@
+name: Deploy PR to GitHub Pages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+        env:
+          BASE_URL: /pr-${{ github.event.number }}/
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: pr-${{ github.event.number }}
+          keep_files: false # We want to wipe the PR folder if it existed
+          force_orphan: false # Critical to not wipe the branch
+
+      - name: Post Preview Link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const repo = context.repo.repo;
+            const owner = context.repo.owner;
+            const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
+
+            const body = `🚀 **Deploy Preview Ready!**\n\nApp available at: [${previewUrl}](${previewUrl})`;
+
+            // Check if comment already exists
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(c => c.body.includes('Deploy Preview Ready!'));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: body
+              });
+            }

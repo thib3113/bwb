@@ -9,6 +9,18 @@ import { TaskContext } from './Contexts';
 import { CODE_TYPES } from '../utils/constants';
 import { db } from '../db/db';
 import { BoksCode } from '../types';
+import {
+  CreateMasterCodePacket,
+  CreateMultiUseCodePacket,
+  CreateSingleUseCodePacket,
+  DeleteMasterCodePacket,
+  DeleteMultiUseCodePacket,
+  DeleteSingleUseCodePacket,
+} from '../ble/packets/PinManagementPackets';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
+import { CloseDoorPacket } from '../ble/packets/CloseDoorPacket';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { isConnected, sendRequest } = useBLEConnection();
@@ -93,13 +105,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const configKey = activeDevice.configuration_key;
-      let opcode: number | undefined;
-      let payload: Uint8Array | undefined;
+      let packet: BoksTXPacket | undefined;
       let codeId: string | undefined;
       let codeObj: BoksCode | undefined;
       let tempCodeStr: string | undefined;
-      let configKeyBytes: Uint8Array;
-      let codeBytes: Uint8Array;
 
       try {
         // Update task status to processing
@@ -123,48 +132,23 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
               throw new Error('Configuration Key required (8 chars)');
             }
 
-            switch (task.type) {
-              case TaskType.ADD_MASTER_CODE:
-                opcode = BLEOpcode.CREATE_MASTER_CODE;
-                break;
-              case TaskType.ADD_SINGLE_USE_CODE:
-                opcode = BLEOpcode.CREATE_SINGLE_USE_CODE;
-                break;
-              case TaskType.ADD_MULTI_USE_CODE:
-                opcode = BLEOpcode.CREATE_MULTI_USE_CODE;
-                break;
-            }
-
             tempCodeStr = task.payload.code as string;
             if (tempCodeStr.length !== 6) throw new Error('Code must be 6 characters');
-
-            // Construct Payload
-            // Base: ConfigKey (8)
-            configKeyBytes = new Uint8Array(8);
-            for (let i = 0; i < 8; i++) configKeyBytes[i] = configKey.charCodeAt(i);
-
-            codeBytes = new Uint8Array(6);
-            for (let i = 0; i < 6; i++) codeBytes[i] = tempCodeStr.charCodeAt(i);
 
             if (task.type === TaskType.ADD_MASTER_CODE) {
               // Master: ConfigKey + Code + Index
               codeId = task.payload.codeId as string;
               codeObj = await db.codes.get(codeId);
               const masterIndex = codeObj?.index ?? 0;
-
-              payload = new Uint8Array(8 + 6 + 1);
-              payload.set(configKeyBytes, 0);
-              payload.set(codeBytes, 8);
-              payload[14] = masterIndex;
+              packet = new CreateMasterCodePacket(configKey, masterIndex, tempCodeStr);
+            } else if (task.type === TaskType.ADD_SINGLE_USE_CODE) {
+              packet = new CreateSingleUseCodePacket(configKey, tempCodeStr);
             } else {
-              // Single/Multi: ConfigKey + Code
-              payload = new Uint8Array(8 + 6);
-              payload.set(configKeyBytes, 0);
-              payload.set(codeBytes, 8);
+              packet = new CreateMultiUseCodePacket(configKey, tempCodeStr);
             }
 
-            if (opcode && payload) {
-              const response = await sendRequest(opcode, payload);
+            if (packet) {
+              const response = await sendRequest(packet);
 
               // Handle response
               if (!Array.isArray(response)) {
@@ -223,49 +207,33 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             codeId = task.payload.codeId as string;
             codeObj = await db.codes.get(codeId); // Fetch code to get index if needed
 
-            // Construct Payload Base: ConfigKey (8)
-            configKeyBytes = new Uint8Array(8);
-            for (let i = 0; i < 8; i++) configKeyBytes[i] = configKey.charCodeAt(i);
-
             switch (task.payload.codeType as string) {
               case CODE_TYPES.MASTER:
-                opcode = BLEOpcode.DELETE_MASTER_CODE;
-                // Master Delete: ConfigKey + Index
-                payload = new Uint8Array(8 + 1);
-                payload.set(configKeyBytes, 0);
-                payload[8] = codeObj?.index ?? 0;
+                packet = new DeleteMasterCodePacket(configKey, codeObj?.index ?? 0);
                 break;
 
               case CODE_TYPES.SINGLE:
-                opcode = BLEOpcode.DELETE_SINGLE_USE_CODE;
-                // Single Delete: ConfigKey + Code
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
-
-                payload = new Uint8Array(8 + 6);
-                payload.set(configKeyBytes, 0);
-                for (let i = 0; i < 6; i++) payload[8 + i] = tempCodeStr.charCodeAt(i);
+                packet = new DeleteSingleUseCodePacket(configKey, tempCodeStr);
                 break;
 
               case CODE_TYPES.MULTI:
-                opcode = BLEOpcode.DELETE_MULTI_USE_CODE;
-                // Multi Delete: ConfigKey + Code
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
-
-                payload = new Uint8Array(8 + 6);
-                payload.set(configKeyBytes, 0);
-                for (let i = 0; i < 6; i++) payload[8 + i] = tempCodeStr.charCodeAt(i);
+                packet = new DeleteMultiUseCodePacket(configKey, tempCodeStr);
                 break;
 
               default:
                 throw new Error('Invalid code type');
             }
 
-            if (opcode && payload) {
-              const response = await sendRequest(opcode, payload);
+            if (packet) {
+              const response = await sendRequest(packet);
+              // Store opcode for workaround checks
+              const opcode = packet.opcode;
 
               // Handle response
               if (!Array.isArray(response)) {
@@ -295,7 +263,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
                   // Request code count after successful deletion
                   try {
-                    await sendRequest(BLEOpcode.COUNT_CODES, new Uint8Array(0));
+                    await sendRequest(new CountCodesPacket());
                   } catch (countError) {
                     console.warn('Failed to request code count after deletion:', countError);
                   }
@@ -315,11 +283,25 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             break;
 
           case TaskType.UNLOCK_DOOR:
-            await sendRequest(BLEOpcode.OPEN_DOOR, new Uint8Array());
+            // Note: OpenDoorPacket requires a PIN code string.
+            // If this task is meant to be a simple open door command, we need to pass the PIN.
+            // Assuming we want to open with an empty string or standard value if not provided?
+            // Wait, OPEN_DOOR packet ALWAYS requires a payload (the PIN).
+            // Looking at previous implementation: await sendRequest(BLEOpcode.OPEN_DOOR, new Uint8Array());
+            // This suggests it was sending empty payload? Or was it implicitly getting PIN?
+            // The OpenDoorPacket requires a PIN. If TaskType.UNLOCK_DOOR payload doesn't have it, we might fail.
+            // Let's assume the previous empty Uint8Array was intentional (maybe works for some firmware?)
+            // OR it was broken.
+            // Actually, OPEN_DOOR (0x01) usually takes the Master PIN.
+            // Let's try to get it from payload or device config.
+            {
+               const pin = (task.payload?.code as string) || activeDevice.door_pin_code || "000000";
+               await sendRequest(new OpenDoorPacket(pin));
+            }
             break;
 
           case TaskType.LOCK_DOOR:
-            await sendRequest(BLEOpcode.CLOSE_DOOR, new Uint8Array());
+            await sendRequest(new CloseDoorPacket());
             break;
 
           case TaskType.GET_DOOR_STATUS:

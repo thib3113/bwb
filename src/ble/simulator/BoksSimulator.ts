@@ -1,7 +1,7 @@
-import { EventEmitter } from '../../../utils/EventEmitter';
-import { BLEOpcode } from '../../../utils/bleConstants';
-import { BLEPacket, createPacket } from '../../../utils/packetParser';
-import { parsePayload } from '../../../utils/payloadParser';
+import { EventEmitter } from '../../utils/EventEmitter';
+import { BLEOpcode } from '../../utils/bleConstants';
+import { BLEPacket, createPacket } from '../../utils/packetParser';
+import { parsePayload } from '../../utils/payloadParser';
 import { BLEServiceEvent } from '../../services/BoksBLEService';
 
 // State of the virtual Boks

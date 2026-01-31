@@ -7,7 +7,7 @@ export class SetConfigurationPacket extends BoksTXPacket {
   constructor(
     private configKey: string,
     private configType: number,
-    private value: number
+    private configValue: number
   ) {
     super();
   }
@@ -16,7 +16,7 @@ export class SetConfigurationPacket extends BoksTXPacket {
     return new Uint8Array([
       ...this.stringToBytes(this.configKey),
       this.configType,
-      this.value,
+      this.configValue,
     ]);
   }
 }
