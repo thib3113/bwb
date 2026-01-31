@@ -39,6 +39,9 @@ jobs:
         env:
           BASE_URL: /
 
+      - name: Create .nojekyll
+        run: touch dist/.nojekyll
+
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:

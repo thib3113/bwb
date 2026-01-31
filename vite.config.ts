@@ -6,7 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
   // Load env variables
   const env = loadEnv(mode, process.cwd(), '');
-  const baseUrl = env.BASE_URL || '/';
+  // Prioritize process.env for CI injection
+  const baseUrl = process.env.BASE_URL || env.BASE_URL || '/';
 
   return {
     server: {
