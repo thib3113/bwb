@@ -178,9 +178,8 @@ export class BLEQueue {
     if (requestOpcode === BLEOpcode.COUNT_CODES && responseOpcode === BLEOpcode.NOTIFY_CODES_COUNT)
       return true;
 
-    // Configuration / Generation
+    // Configuration
     const configOps = [
-      BLEOpcode.GENERATE_CODES,
       BLEOpcode.CREATE_MASTER_CODE,
       BLEOpcode.CREATE_SINGLE_USE_CODE,
       BLEOpcode.CREATE_MULTI_USE_CODE,
@@ -188,8 +187,6 @@ export class BLEQueue {
       BLEOpcode.DELETE_SINGLE_USE_CODE,
       BLEOpcode.DELETE_MULTI_USE_CODE,
       BLEOpcode.REACTIVATE_CODE,
-      BLEOpcode.RE_GENERATE_CODES_PART1,
-      BLEOpcode.RE_GENERATE_CODES_PART2,
     ];
 
     if (
@@ -197,8 +194,6 @@ export class BLEQueue {
       [
         BLEOpcode.CODE_OPERATION_SUCCESS,
         BLEOpcode.CODE_OPERATION_ERROR,
-        BLEOpcode.NOTIFY_CODE_GENERATION_SUCCESS,
-        BLEOpcode.NOTIFY_CODE_GENERATION_ERROR,
       ].includes(responseOpcode)
     )
       return true;

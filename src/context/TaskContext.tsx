@@ -19,7 +19,6 @@ import {
 } from '../ble/packets/PinManagementPackets';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { CloseDoorPacket } from '../ble/packets/CloseDoorPacket';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
@@ -301,7 +300,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             break;
 
           case TaskType.LOCK_DOOR:
-            await sendRequest(new CloseDoorPacket());
+            // Locking is mechanical (Strike plate), no command needed or supported
             break;
 
           case TaskType.GET_DOOR_STATUS:
