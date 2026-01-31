@@ -47,6 +47,8 @@ export default defineConfig(({ mode }) => {
           navigateFallbackDenylist: [
             // Exclude paths that don't start with our base (safety measure)
             new RegExp(`^${baseUrl === '/' ? '(?!.*)' : '(?!' + escapeRegExp(baseUrl) + ')'}`),
+            // Exclude PR deployments (e.g. /bwb/pr-1/)
+            new RegExp(`^${escapeRegExp(baseUrl)}pr-`),
           ],
           // Ensure assets in the manifest are prefixed with base URL
           modifyURLPrefix: {
