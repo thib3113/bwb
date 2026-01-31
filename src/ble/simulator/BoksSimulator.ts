@@ -12,7 +12,8 @@ import {
   LogCountPacket,
   OperationSuccessPacket,
 } from '../packets/rx/ResponsePackets';
-import { RXPacketFactory } from '../packets/rx/RXPacketFactory';
+import { PacketFactory } from '../packets/PacketFactory';
+import { OpenDoorPacket } from '../packets/OpenDoorPacket';
 
 // State of the virtual Boks
 interface BoksState {
@@ -76,7 +77,7 @@ export class BoksSimulator extends EventEmitter {
     // Note: BoksRXPacket stores raw/payload after parsing in the Factory.
     // For Simulator, we are creating the packet from scratch.
     // BoksRXPacket classes are designed for RX (App perspective).
-    // But we can reuse the create logic or just use RXPacketFactory.create
+    // But we can reuse the create logic or just use PacketFactory.create
     // if we pass raw bytes.
     // However, here we want to send notification. The Adapter expects raw bytes.
     // We can use the RX classes to help us structure data if they had a 'toPayload' method,
@@ -102,7 +103,13 @@ export class BoksSimulator extends EventEmitter {
   // --- Command Handlers ---
 
   private handleOpenDoor(payload: Uint8Array) {
-    const code = new TextDecoder().decode(payload);
+    const packet = PacketFactory.createTX(BLEOpcode.OPEN_DOOR, payload);
+    if (!packet || !(packet instanceof OpenDoorPacket)) {
+      console.warn('[Simulator] Failed to parse OpenDoor packet');
+      return;
+    }
+
+    const code = packet.pinCode;
     console.log(`[Simulator] Open Door attempt with code: ${code}`);
 
     if (this.state.pinCodes.has(code)) {

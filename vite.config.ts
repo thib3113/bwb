@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
       }),
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: null, // We will handle registration manually to support Cypress/CI constraints
         devOptions: {
           enabled: false,
         },

@@ -1,6 +1,6 @@
 import { EventEmitter } from '../utils/EventEmitter';
 import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
-import { RXPacketFactory } from '../ble/packets/rx/RXPacketFactory';
+import { PacketFactory } from '../ble/packets/PacketFactory';
 import {
   BATTERY_SERVICE_UUID,
   BLE_DEFAULT_TIMEOUT_MS,
@@ -174,7 +174,7 @@ export class BoksBLEService extends EventEmitter {
     if (parsed) {
       parsed.direction = 'RX';
       // Use Factory to create rich object
-      parsed.parsedPayload = RXPacketFactory.create(parsed.opcode, parsed.payload);
+      parsed.parsedPayload = PacketFactory.create(parsed.opcode, parsed.payload);
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);

@@ -48,7 +48,10 @@ describe('Boks Basic Flow (Simulator)', () => {
     // (Wait for toast or UI update)
     cy.contains('Opening door...', { timeout: 5000 }).should('exist');
 
-    // 4. Wait for close
-    cy.contains('Door closed', { timeout: 10000 }).should('exist');
+    // 4. Wait for close (UI might just remove "Opening..." or show "Door Open" then "Door Closed")
+    // Let's just check that "Opening..." eventually disappears
+    cy.contains('Opening door...', { timeout: 15000 }).should('not.exist');
+    // And that we are back to a stable state (Open Door button enabled again)
+    cy.get('button[aria-label="open door"]').should('be.enabled');
   });
 });

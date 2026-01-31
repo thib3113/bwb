@@ -282,19 +282,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             break;
 
           case TaskType.UNLOCK_DOOR:
-            // Note: OpenDoorPacket requires a PIN code string.
-            // If this task is meant to be a simple open door command, we need to pass the PIN.
-            // Assuming we want to open with an empty string or standard value if not provided?
-            // Wait, OPEN_DOOR packet ALWAYS requires a payload (the PIN).
-            // Looking at previous implementation: await sendRequest(BLEOpcode.OPEN_DOOR, new Uint8Array());
-            // This suggests it was sending empty payload? Or was it implicitly getting PIN?
-            // The OpenDoorPacket requires a PIN. If TaskType.UNLOCK_DOOR payload doesn't have it, we might fail.
-            // Let's assume the previous empty Uint8Array was intentional (maybe works for some firmware?)
-            // OR it was broken.
-            // Actually, OPEN_DOOR (0x01) usually takes the Master PIN.
-            // Let's try to get it from payload or device config.
             {
-               const pin = (task.payload?.code as string) || activeDevice.door_pin_code || "000000";
+               const pin = (task.payload?.code as string) || activeDevice.door_pin_code;
                await sendRequest(new OpenDoorPacket(pin));
             }
             break;

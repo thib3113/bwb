@@ -7,8 +7,17 @@ export abstract class BoksTXPacket {
   /**
    * Returns the payload byte array (Excluding Opcode, Length and Checksum)
    * This must be implemented by concrete command classes.
+   * @param configKey Optional configuration key injected by the service.
+   * @throws Error if required parameters are missing.
    */
-  abstract toPayload(): Uint8Array;
+  abstract toPayload(configKey?: string): Uint8Array;
+
+  /**
+   * Parses the payload byte array (Excluding Opcode, Length and Checksum)
+   * into the packet's properties.
+   * This allows interpreting a raw packet (e.g. for debugging or simulator).
+   */
+  abstract parse(payload: Uint8Array): void;
 
   /**
    * Constructs the full binary packet ready to be sent to the device.

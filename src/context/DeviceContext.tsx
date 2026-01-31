@@ -15,6 +15,7 @@ import {
   SIMULATOR_DEFAULT_PIN,
 } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
 
 // Ensure StorageService is exposed for debugging
 if (typeof window !== 'undefined') {
@@ -346,7 +347,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Opcode 0x14 - count codes
-      await bleService.sendRequest({ opcode: BLEOpcode.COUNT_CODES, payload: new Uint8Array(0) });
+      await bleService.sendRequest(new CountCodesPacket());
       // The update itself happens in the global listener above which updates db.devices
     } catch (error) {
       console.error('Failed to refresh code count:', error);

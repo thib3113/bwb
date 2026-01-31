@@ -7,6 +7,10 @@ import './i18n';
 import { AppProviders } from './context/AppProviders';
 import './services/StorageService';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { initPWA } from './pwa';
+
+// Initialize PWA (swears off Cypress)
+initPWA();
 
 // Simulator Helper
 // @ts-ignore

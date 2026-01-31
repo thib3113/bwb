@@ -3,8 +3,9 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   e2e: {
     baseUrl: "http://localhost:5173", // Vite default port
-    viewportWidth: 375,  // iPhone X / Standard Mobile
-    viewportHeight: 812,
+    // Pixel 7 Viewport
+    viewportWidth: 412,
+    viewportHeight: 915,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
