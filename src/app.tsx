@@ -23,6 +23,9 @@ const DebugWizardPage = lazy(() =>
 const DebugView = lazy(() =>
   import('./components/DebugView').then((module) => ({ default: module.DebugView }))
 );
+const MaintenancePage = lazy(() =>
+  import('./pages/MaintenancePage').then((module) => ({ default: module.MaintenancePage }))
+);
 
 // Lazy loading tab components
 const CodeManagerWrapper = lazy(() =>
@@ -125,6 +128,7 @@ export function App() {
               {/* Debug routes kept for direct access if needed, but removed from navigation */}
               <Route path="/debug-wizard" element={<DebugWizardPage />} />
               <Route path="/debug-view" element={<DebugView />} />
+              <Route path="/maintenance" element={<MaintenancePage />} />
               <Route path="/" element={<HomePage />}>
                 <Route index element={<Navigate to="/codes" replace />} />
                 <Route
