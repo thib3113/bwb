@@ -153,6 +153,8 @@ export function App() {
                 />
               </Route>
             </Route>
+            {/* Catch-all route for unknown paths */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       ) : (

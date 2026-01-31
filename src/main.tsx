@@ -28,8 +28,12 @@ const appElement = document.getElementById('app');
 if (appElement) {
   console.log('[Main] Rendering app...');
   // Use Vite's injected BASE_URL for routing
-  const basename = import.meta.env.BASE_URL;
-  console.log(`[Main] Using basename: ${basename}`);
+  // Strip trailing slash to ensure clean route matching
+  const basename = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL.slice(0, -1)
+    : import.meta.env.BASE_URL;
+
+  console.log(`[Main] Using basename: "${basename}"`);
 
   render(
     <ErrorBoundary>
