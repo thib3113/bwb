@@ -5,5 +5,6 @@
 	"master_code_required": "Master code required for this action",
 	"door_opening": "Opening door...",
 	"door_open_failed": "Failed to open door",
-	"battery_level": "Battery level: {{level}}%"
+	"battery_level": "Battery level: {{level}}%",
+	"maintenance": "Maintenance"
 }

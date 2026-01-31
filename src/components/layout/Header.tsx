@@ -266,7 +266,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <MaintenanceIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Maintenance" />
+                  <ListItemText primary={t('header:maintenance')} />
                 </ListItemButton>
               </ListItem>
               <Divider />
