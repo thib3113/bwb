@@ -1,7 +1,6 @@
 describe('Boks Basic Flow (Simulator)', () => {
   beforeEach(() => {
     // Visit the app
-    // @ts-expect-error
     cy.visit('/', {
       onBeforeLoad(win) {
         // Force enable simulator BEFORE app loads
@@ -10,16 +9,12 @@ describe('Boks Basic Flow (Simulator)', () => {
     });
   });
 
-  // @ts-expect-error
   it('should load the dashboard', () => {
-    // @ts-expect-error
     cy.contains('Boks BLE').should('be.visible');
   });
 
-  // @ts-expect-error
   it('should connect using the simulator', () => {
     // Check we are initially disconnected (BluetoothDisabledIcon)
-    // @ts-expect-error
     cy.get('svg[data-testid="BluetoothDisabledIcon"]').should('exist');
 
     // Click the connect button
