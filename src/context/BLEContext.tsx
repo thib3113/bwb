@@ -1,33 +1,33 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { BLEServiceEvent, BLEServiceState, BoksBLEService } from '../services/BoksBLEService';
-import { BLEPacket } from '../utils/packetParser';
-import { BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID } from '../utils/bleConstants';
-import { BLEContext } from './Contexts';
-import { useLogContext } from '../hooks/useLogContext';
-import { BluetoothDevice } from '../types';
-import { translateBLEError } from '../utils/bleUtils';
+import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
+import {BLEServiceEvent, BLEServiceState, BoksBLEService} from '../services/BoksBLEService';
+import {BLEPacket} from '../utils/packetParser';
+import {BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID} from '../utils/bleConstants';
+import {BLEContext} from './Contexts';
+import {useLogContext} from '../hooks/useLogContext';
+import {BluetoothDevice} from '../types';
+import {translateBLEError} from '../utils/bleUtils';
 
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
+import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
 
-import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
-import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import {SimulatedBluetoothAdapter} from '../ble/adapter/SimulatedBluetoothAdapter';
+import {WebBluetoothAdapter} from '../ble/adapter/WebBluetoothAdapter';
 
 export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const { log, addDebugLog } = useLogContext();
-  
+
   const bleService = useMemo(() => {
-      const service = BoksBLEService.getInstance();
-      
-      // @ts-ignore
-      const useSimulator = typeof window !== 'undefined' && (window.BOKS_SIMULATOR_ENABLED === true);
-      
-      if (useSimulator) {
-          console.warn("⚠️ USING BOKS SIMULATOR ADAPTER ⚠️");
-          service.setAdapter(new SimulatedBluetoothAdapter());
-      } else {
-          service.setAdapter(new WebBluetoothAdapter());
-      }
-      return service;
+    const service = BoksBLEService.getInstance();
+
+    // @ts-expect-error - Custom global flag
+    const useSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED === true;
+
+    if (useSimulator) {
+      console.warn('⚠️ USING BOKS SIMULATOR ADAPTER ⚠️');
+      service.setAdapter(new SimulatedBluetoothAdapter());
+    } else {
+      service.setAdapter(new WebBluetoothAdapter());
+    }
+    return service;
   }, []);
 
   const [connectionState, setConnectionState] = useState<BLEServiceState>(bleService.getState());
@@ -227,9 +227,12 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           // Legacy support: extract opcode and payload from raw frame [Op, Len, ...P, Checksum]
           const opcode = packet[0];
           const payload = packet.slice(2, packet.length - 1);
-          await bleService.sendRequest({ opcode, payload }, {
-            expectResponse: false,
-          });
+          await bleService.sendRequest(
+            { opcode, payload },
+            {
+              expectResponse: false,
+            }
+          );
         } else {
           // New architecture: Pass the packet object directly
           await bleService.sendRequest(packet, {

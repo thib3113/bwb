@@ -1,5 +1,5 @@
-import { BoksTXPacket } from './BoksTXPacket';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {BoksTXPacket} from './BoksTXPacket';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 export class SetConfigurationPacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.SET_CONFIGURATION;
@@ -15,13 +15,9 @@ export class SetConfigurationPacket extends BoksTXPacket {
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
     if (!key) {
-      throw new Error("SetConfigurationPacket: configKey is required");
+      throw new Error('SetConfigurationPacket: configKey is required');
     }
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      this.configType,
-      this.configValue,
-    ]);
+    return new Uint8Array([...this.stringToBytes(key), this.configType, this.configValue]);
   }
 
   parse(payload: Uint8Array): void {

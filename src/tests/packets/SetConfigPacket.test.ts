@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { SetConfigurationPacket } from '../../ble/packets/SetConfigurationPacket';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {describe, expect, it} from 'vitest';
+import {SetConfigurationPacket} from '../../ble/packets/SetConfigurationPacket';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('SetConfig Packet (0x16)', () => {
-  const configKey = "ABCDEFGH";
+  const configKey = 'ABCDEFGH';
 
   it('should construct SetConfig full packet for La Poste Mode (0x01)', () => {
     const configType = 0x01; // La Poste
-    const enable = 0x01;     // Enable
+    const enable = 0x01; // Enable
     const packet = new SetConfigurationPacket(configKey, configType, enable);
     const fullPacket = packet.toPacket();
 

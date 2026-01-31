@@ -1,5 +1,5 @@
-import { BLEPacket } from './packetParser';
-import { BLEOpcode } from './bleConstants';
+import {BLEPacket} from './packetParser';
+import {BLEOpcode} from './bleConstants';
 
 export type QueueMatchStrategy = (packet: BLEPacket) => 'finish' | 'continue' | 'ignore';
 
@@ -191,18 +191,12 @@ export class BLEQueue {
 
     if (
       configOps.includes(requestOpcode) &&
-      [
-        BLEOpcode.CODE_OPERATION_SUCCESS,
-        BLEOpcode.CODE_OPERATION_ERROR,
-      ].includes(responseOpcode)
+      [BLEOpcode.CODE_OPERATION_SUCCESS, BLEOpcode.CODE_OPERATION_ERROR].includes(responseOpcode)
     )
       return true;
-    
+
     // Special case: COUNT_CODES may receive NOTIFY_LOGS_COUNT
-    if (
-      requestOpcode === BLEOpcode.COUNT_CODES &&
-      responseOpcode === BLEOpcode.NOTIFY_LOGS_COUNT
-    )
+    if (requestOpcode === BLEOpcode.COUNT_CODES && responseOpcode === BLEOpcode.NOTIFY_LOGS_COUNT)
       return true;
 
     // Generic Error

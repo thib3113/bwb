@@ -1,5 +1,5 @@
-import { BoksTXPacket } from './BoksTXPacket';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {BoksTXPacket} from './BoksTXPacket';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 export class OpenDoorPacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.OPEN_DOOR;
@@ -8,9 +8,9 @@ export class OpenDoorPacket extends BoksTXPacket {
     super();
   }
 
-  toPayload(configKey?: string): Uint8Array {
+  toPayload(): Uint8Array {
     if (!this.pinCode) {
-      throw new Error("OpenDoorPacket: pinCode is required");
+      throw new Error('OpenDoorPacket: pinCode is required');
     }
     return new Uint8Array(this.stringToBytes(this.pinCode));
   }

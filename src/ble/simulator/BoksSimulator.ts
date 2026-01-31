@@ -1,19 +1,9 @@
-import { EventEmitter } from '../../utils/EventEmitter';
-import {
-  BLEOpcode,
-  SIMULATOR_DEFAULT_CONFIG_KEY,
-  SIMULATOR_DEFAULT_PIN,
-} from '../../utils/bleConstants';
-import { createPacket } from '../../utils/packetParser';
-import { BoksRXPacket } from '../packets/rx/BoksRXPacket';
-import {
-  DoorOpeningPacket,
-  DoorStatusPacket,
-  LogCountPacket,
-  OperationSuccessPacket,
-} from '../packets/rx/ResponsePackets';
-import { PacketFactory } from '../packets/PacketFactory';
-import { OpenDoorPacket } from '../packets/OpenDoorPacket';
+import {EventEmitter} from '../../utils/EventEmitter';
+import {BLEOpcode, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN,} from '../../utils/bleConstants';
+import {createPacket} from '../../utils/packetParser';
+import {BoksRXPacket} from '../packets/rx/BoksRXPacket';
+import {PacketFactory} from '../packets/PacketFactory';
+import {OpenDoorPacket} from '../packets/OpenDoorPacket';
 
 // State of the virtual Boks
 interface BoksState {
@@ -41,9 +31,12 @@ export class BoksSimulator extends EventEmitter {
   public handlePacket(opcode: number, payload: Uint8Array): void {
     console.log(`[Simulator] Received Opcode: 0x${opcode.toString(16)}`);
 
-    setTimeout(() => {
-      this.processCommand(opcode, payload);
-    }, 200 + Math.random() * 300); // Simulate processing delay (200-500ms)
+    setTimeout(
+      () => {
+        this.processCommand(opcode, payload);
+      },
+      200 + Math.random() * 300
+    ); // Simulate processing delay (200-500ms)
   }
 
   private processCommand(opcode: number, payload: Uint8Array) {
@@ -69,7 +62,7 @@ export class BoksSimulator extends EventEmitter {
       // Add other commands as needed
       default:
         console.warn(`[Simulator] Unknown opcode 0x${opcode.toString(16)}`);
-        // Optionally send ERROR_COMMAND_NOT_SUPPORTED
+      // Optionally send ERROR_COMMAND_NOT_SUPPORTED
     }
   }
 
@@ -118,7 +111,7 @@ export class BoksSimulator extends EventEmitter {
       // Simulate physical door opening delay
       setTimeout(() => {
         this.state.isOpen = true;
-        
+
         // Log Open (0x91)
         this.sendNotification(BLEOpcode.LOG_DOOR_OPEN_HISTORY, []);
 
@@ -168,10 +161,10 @@ export class BoksSimulator extends EventEmitter {
   }
 
   private handleCountCodes() {
-      // Notify Code Count 0xC3
-      // Format: [Master MSB, Master LSB, Single MSB, Single LSB]
-      // 1 Master, 0 Single
-      this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
+    // Notify Code Count 0xC3
+    // Format: [Master MSB, Master LSB, Single MSB, Single LSB]
+    // 1 Master, 0 Single
+    this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
   }
 
   private handleTestBattery() {

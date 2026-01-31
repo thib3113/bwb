@@ -1,5 +1,5 @@
-import { BoksTXPacket } from './BoksTXPacket';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {BoksTXPacket} from './BoksTXPacket';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 export class CreateMasterCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.CREATE_MASTER_CODE;
@@ -14,25 +14,30 @@ export class CreateMasterCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("CreateMasterCodePacket: configKey is required");
-    if (!this.code) throw new Error("CreateMasterCodePacket: code is required");
-    // Index 0 is valid? Assuming yes.
+    if (!key) throw new Error('CreateMasterCodePacket: configKey is required');
+    if (!this.code) throw new Error('CreateMasterCodePacket: code is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      this.index,
-      ...this.stringToBytes(this.code),
-    ]);
+    // Ensure code is 6 bytes (padded with 0 if necessary, or truncated)
+    const codeBytes = this.stringToBytes(this.code);
+    const fixedCodeBytes = new Uint8Array(6);
+    fixedCodeBytes.set(codeBytes.slice(0, 6)); // Truncate if too long
+    // If too short, remaining bytes are 0 by default in Uint8Array
+
+    // Spec: Key(8) + Code(6) + Index(1)
+    return new Uint8Array([...this.stringToBytes(key), ...fixedCodeBytes, this.index]);
   }
 
   parse(payload: Uint8Array): void {
-    // Assume configKey is 8 chars/bytes
     const KEY_LEN = 8;
-    if (payload.length < KEY_LEN + 1) return;
+    const CODE_LEN = 6;
+    if (payload.length < KEY_LEN + CODE_LEN + 1) return;
 
     this.configKey = String.fromCharCode(...payload.subarray(0, KEY_LEN));
-    this.index = payload[KEY_LEN];
-    this.code = String.fromCharCode(...payload.subarray(KEY_LEN + 1));
+    // Code is at offset 8, length 6
+    const codeBytes = payload.subarray(KEY_LEN, KEY_LEN + CODE_LEN);
+    // Remove null padding for string representation
+    this.code = String.fromCharCode(...codeBytes).replace(/\0/g, '');
+    this.index = payload[KEY_LEN + CODE_LEN];
   }
 }
 
@@ -48,22 +53,24 @@ export class CreateSingleUseCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("CreateSingleUseCodePacket: configKey is required");
-    if (!this.code) throw new Error("CreateSingleUseCodePacket: code is required");
+    if (!key) throw new Error('CreateSingleUseCodePacket: configKey is required');
+    if (!this.code) throw new Error('CreateSingleUseCodePacket: code is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      ...this.stringToBytes(this.code),
-    ]);
+    const codeBytes = this.stringToBytes(this.code);
+    const fixedCodeBytes = new Uint8Array(6);
+    fixedCodeBytes.set(codeBytes.slice(0, 6));
+
+    return new Uint8Array([...this.stringToBytes(key), ...fixedCodeBytes]);
   }
 
   parse(payload: Uint8Array): void {
-    // Assume configKey is 8 chars/bytes
     const KEY_LEN = 8;
-    if (payload.length < KEY_LEN) return;
+    const CODE_LEN = 6;
+    if (payload.length < KEY_LEN + CODE_LEN) return;
 
     this.configKey = String.fromCharCode(...payload.subarray(0, KEY_LEN));
-    this.code = String.fromCharCode(...payload.subarray(KEY_LEN));
+    const codeBytes = payload.subarray(KEY_LEN, KEY_LEN + CODE_LEN);
+    this.code = String.fromCharCode(...codeBytes).replace(/\0/g, '');
   }
 }
 
@@ -79,20 +86,23 @@ export class CreateMultiUseCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("CreateMultiUseCodePacket: configKey is required");
-    if (!this.code) throw new Error("CreateMultiUseCodePacket: code is required");
+    if (!key) throw new Error('CreateMultiUseCodePacket: configKey is required');
+    if (!this.code) throw new Error('CreateMultiUseCodePacket: code is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      ...this.stringToBytes(this.code),
-    ]);
+    const codeBytes = this.stringToBytes(this.code);
+    const fixedCodeBytes = new Uint8Array(6);
+    fixedCodeBytes.set(codeBytes.slice(0, 6));
+
+    return new Uint8Array([...this.stringToBytes(key), ...fixedCodeBytes]);
   }
 
   parse(payload: Uint8Array): void {
     const KEY_LEN = 8;
-    if (payload.length < KEY_LEN) return;
+    const CODE_LEN = 6;
+    if (payload.length < KEY_LEN + CODE_LEN) return;
     this.configKey = String.fromCharCode(...payload.subarray(0, KEY_LEN));
-    this.code = String.fromCharCode(...payload.subarray(KEY_LEN));
+    const codeBytes = payload.subarray(KEY_LEN, KEY_LEN + CODE_LEN);
+    this.code = String.fromCharCode(...codeBytes).replace(/\0/g, '');
   }
 }
 
@@ -108,12 +118,9 @@ export class DeleteMasterCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("DeleteMasterCodePacket: configKey is required");
+    if (!key) throw new Error('DeleteMasterCodePacket: configKey is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      this.index,
-    ]);
+    return new Uint8Array([...this.stringToBytes(key), this.index]);
   }
 
   parse(payload: Uint8Array): void {
@@ -136,22 +143,24 @@ export class DeleteSingleUseCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("DeleteSingleUseCodePacket: configKey is required");
-    // Code is required to identify which one to delete? Or maybe just index?
-    // Based on previous implementation: it used code.
-    if (!this.code) throw new Error("DeleteSingleUseCodePacket: code is required");
+    if (!key) throw new Error('DeleteSingleUseCodePacket: configKey is required');
+    if (!this.code) throw new Error('DeleteSingleUseCodePacket: code is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      ...this.stringToBytes(this.code),
-    ]);
+    // Spec: Key(8) + Code_Value(6)
+    const codeBytes = this.stringToBytes(this.code);
+    const fixedCodeBytes = new Uint8Array(6);
+    fixedCodeBytes.set(codeBytes.slice(0, 6));
+
+    return new Uint8Array([...this.stringToBytes(key), ...fixedCodeBytes]);
   }
 
   parse(payload: Uint8Array): void {
     const KEY_LEN = 8;
-    if (payload.length < KEY_LEN) return;
+    const CODE_LEN = 6;
+    if (payload.length < KEY_LEN + CODE_LEN) return;
     this.configKey = String.fromCharCode(...payload.subarray(0, KEY_LEN));
-    this.code = String.fromCharCode(...payload.subarray(KEY_LEN));
+    const codeBytes = payload.subarray(KEY_LEN, KEY_LEN + CODE_LEN);
+    this.code = String.fromCharCode(...codeBytes).replace(/\0/g, '');
   }
 }
 
@@ -167,19 +176,22 @@ export class DeleteMultiUseCodePacket extends BoksTXPacket {
 
   toPayload(configKey?: string): Uint8Array {
     const key = configKey ?? this.configKey;
-    if (!key) throw new Error("DeleteMultiUseCodePacket: configKey is required");
-    if (!this.code) throw new Error("DeleteMultiUseCodePacket: code is required");
+    if (!key) throw new Error('DeleteMultiUseCodePacket: configKey is required');
+    if (!this.code) throw new Error('DeleteMultiUseCodePacket: code is required');
 
-    return new Uint8Array([
-      ...this.stringToBytes(key),
-      ...this.stringToBytes(this.code),
-    ]);
+    const codeBytes = this.stringToBytes(this.code);
+    const fixedCodeBytes = new Uint8Array(6);
+    fixedCodeBytes.set(codeBytes.slice(0, 6));
+
+    return new Uint8Array([...this.stringToBytes(key), ...fixedCodeBytes]);
   }
 
   parse(payload: Uint8Array): void {
     const KEY_LEN = 8;
-    if (payload.length < KEY_LEN) return;
+    const CODE_LEN = 6;
+    if (payload.length < KEY_LEN + CODE_LEN) return;
     this.configKey = String.fromCharCode(...payload.subarray(0, KEY_LEN));
-    this.code = String.fromCharCode(...payload.subarray(KEY_LEN));
+    const codeBytes = payload.subarray(KEY_LEN, KEY_LEN + CODE_LEN);
+    this.code = String.fromCharCode(...codeBytes).replace(/\0/g, '');
   }
 }

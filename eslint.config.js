@@ -71,6 +71,7 @@ export default tseslint.config(
       'src/utils/bleConstants.ts',
       'src/utils/logParser.ts',
       'src/utils/packetParser.test.ts',
+      'src/tests/**/*.test.ts',
     ],
     rules: {
       'prettier/prettier': 'off',

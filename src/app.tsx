@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
-import { MainLayout } from './components/layout/MainLayout';
-import { lazy, Suspense, useEffect, useState } from 'react';
-import { StorageService } from './services/StorageService';
-import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useTaskConsistency } from './hooks/useTaskConsistency';
-import { useDevice } from './hooks/useDevice';
+import {useTranslation} from 'react-i18next';
+import {MainLayout} from './components/layout/MainLayout';
+import {lazy, Suspense, useEffect, useState} from 'react';
+import {StorageService} from './services/StorageService';
+import {Alert, Box, CircularProgress, Paper, Snackbar, Typography} from '@mui/material';
+import {Navigate, Route, Routes} from 'react-router-dom';
+import {useTaskConsistency} from './hooks/useTaskConsistency';
+import {useDevice} from './hooks/useDevice';
 
 // Lazy loading pages
 const HomePage = lazy(() =>
@@ -85,7 +85,7 @@ export function App() {
 
   // Check if Web BLE is supported
   const isWebBleSupported = () => {
-    // @ts-ignore
+    // @ts-expect-error - Custom global flag
     if (globalThis.window && globalThis.window.BOKS_SIMULATOR_ENABLED) return true;
 
     // @ts-expect-error - navigator.bluetooth is not standard yet

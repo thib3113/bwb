@@ -1,5 +1,4 @@
 // Base interface and generic payload for BLE payload parsing
-import { BLEOpcode } from '../bleConstants';
 
 // Interface for parsed payload
 export interface ParsedPayload {

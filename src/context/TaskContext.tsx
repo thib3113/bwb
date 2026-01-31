@@ -1,25 +1,25 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { BoksTask, TaskType } from '../types/task';
-import { useBLEConnection } from '../hooks/useBLEConnection';
-import { BLEOpcode } from '../utils/bleConstants';
-import { StorageService } from '../services/StorageService';
-import { CODE_STATUS } from '../constants/codeStatus';
-import { useDevice } from '../hooks/useDevice';
-import { TaskContext } from './Contexts';
-import { CODE_TYPES } from '../utils/constants';
-import { db } from '../db/db';
-import { BoksCode } from '../types';
+import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
+import {BoksTask, TaskType} from '../types/task';
+import {useBLEConnection} from '../hooks/useBLEConnection';
+import {BLEOpcode} from '../utils/bleConstants';
+import {StorageService} from '../services/StorageService';
+import {CODE_STATUS} from '../constants/codeStatus';
+import {useDevice} from '../hooks/useDevice';
+import {TaskContext} from './Contexts';
+import {CODE_TYPES} from '../utils/constants';
+import {db} from '../db/db';
+import {BoksCode} from '../types';
 import {
-  CreateMasterCodePacket,
-  CreateMultiUseCodePacket,
-  CreateSingleUseCodePacket,
-  DeleteMasterCodePacket,
-  DeleteMultiUseCodePacket,
-  DeleteSingleUseCodePacket,
+	CreateMasterCodePacket,
+	CreateMultiUseCodePacket,
+	CreateSingleUseCodePacket,
+	DeleteMasterCodePacket,
+	DeleteMultiUseCodePacket,
+	DeleteSingleUseCodePacket,
 } from '../ble/packets/PinManagementPackets';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
-import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
+import {CountCodesPacket} from '../ble/packets/StatusPackets';
+import {OpenDoorPacket} from '../ble/packets/OpenDoorPacket';
+import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { isConnected, sendRequest } = useBLEConnection();
@@ -283,8 +283,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
           case TaskType.UNLOCK_DOOR:
             {
-               const pin = (task.payload?.code as string) || activeDevice.door_pin_code;
-               await sendRequest(new OpenDoorPacket(pin));
+              const pin = (task.payload?.code as string) || activeDevice.door_pin_code;
+              await sendRequest(new OpenDoorPacket(pin));
             }
             break;
 
@@ -334,63 +334,61 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     if (!isConnected) return;
 
     // Get pending tasks to check if we have any before processing
-    const pendingTasks = [...tasks]
-      .filter((task) => task.status === 'pending');
+    const pendingTasks = [...tasks].filter((task) => task.status === 'pending');
 
     // Only process if we have pending tasks
     if (pendingTasks.length > 0) {
       // Process pending tasks
       const processPendingTasks = async () => {
         // Sort tasks by priority and type (DELETE before ADD)
-        const sortedPendingTasks = [...pendingTasks]
-          .sort((a, b) => {
-            // First sort by priority
-            if (a.priority !== b.priority) {
-              return a.priority - b.priority;
-            }
+        const sortedPendingTasks = [...pendingTasks].sort((a, b) => {
+          // First sort by priority
+          if (a.priority !== b.priority) {
+            return a.priority - b.priority;
+          }
 
-            // Then sort by task type: DELETE before ADD
-            const isDeleteA = a.type === TaskType.DELETE_CODE;
-            const isDeleteB = b.type === TaskType.DELETE_CODE;
+          // Then sort by task type: DELETE before ADD
+          const isDeleteA = a.type === TaskType.DELETE_CODE;
+          const isDeleteB = b.type === TaskType.DELETE_CODE;
 
-            // If one is delete and the other is not, delete comes first
-            if (isDeleteA && !isDeleteB) return -1;
-            if (!isDeleteA && isDeleteB) return 1;
+          // If one is delete and the other is not, delete comes first
+          if (isDeleteA && !isDeleteB) return -1;
+          if (!isDeleteA && isDeleteB) return 1;
 
-            // For ADD tasks, sort by opcode (ADD_MASTER_CODE, ADD_SINGLE_USE_CODE, ADD_MULTI_USE_CODE)
-            if (!isDeleteA && !isDeleteB) {
-              const getOpcodePriority = (task: BoksTask) => {
-                switch (task.type) {
-                  case TaskType.ADD_MASTER_CODE:
-                    return 1;
-                  case TaskType.ADD_SINGLE_USE_CODE:
-                    return 2;
-                  case TaskType.ADD_MULTI_USE_CODE:
-                    return 3;
-                  default:
-                    return 4;
-                }
-              };
-              return getOpcodePriority(a) - getOpcodePriority(b);
-            }
-
-            // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
-            const getDeleteOpcodePriority = (task: BoksTask) => {
-              // We need to determine the actual opcode from the codeType in payload
-              const codeType = task.payload.codeType as string;
-              switch (codeType) {
-                case CODE_TYPES.MASTER:
-                  return 1; // DELETE_MASTER_CODE (0x0C)
-                case CODE_TYPES.SINGLE:
-                  return 2; // DELETE_SINGLE_USE_CODE (0x0D)
-                case CODE_TYPES.MULTI:
-                  return 3; // DELETE_MULTI_USE_CODE (0x0E)
+          // For ADD tasks, sort by opcode (ADD_MASTER_CODE, ADD_SINGLE_USE_CODE, ADD_MULTI_USE_CODE)
+          if (!isDeleteA && !isDeleteB) {
+            const getOpcodePriority = (task: BoksTask) => {
+              switch (task.type) {
+                case TaskType.ADD_MASTER_CODE:
+                  return 1;
+                case TaskType.ADD_SINGLE_USE_CODE:
+                  return 2;
+                case TaskType.ADD_MULTI_USE_CODE:
+                  return 3;
                 default:
                   return 4;
               }
             };
-            return getDeleteOpcodePriority(a) - getDeleteOpcodePriority(b);
-          });
+            return getOpcodePriority(a) - getOpcodePriority(b);
+          }
+
+          // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
+          const getDeleteOpcodePriority = (task: BoksTask) => {
+            // We need to determine the actual opcode from the codeType in payload
+            const codeType = task.payload.codeType as string;
+            switch (codeType) {
+              case CODE_TYPES.MASTER:
+                return 1; // DELETE_MASTER_CODE (0x0C)
+              case CODE_TYPES.SINGLE:
+                return 2; // DELETE_SINGLE_USE_CODE (0x0D)
+              case CODE_TYPES.MULTI:
+                return 3; // DELETE_MULTI_USE_CODE (0x0E)
+              default:
+                return 4;
+            }
+          };
+          return getDeleteOpcodePriority(a) - getDeleteOpcodePriority(b);
+        });
 
         // Process tasks one by one
         for (const task of sortedPendingTasks) {

@@ -1,14 +1,14 @@
-import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useBLEEvents } from '../hooks/useBLEEvents';
-import { BLEPacket } from '../utils/packetParser';
-import { StorageService } from '../services/StorageService';
-import { useDevice } from '../hooks/useDevice';
-import { parseLog } from '../utils/logParser';
-import { useBLE } from '../hooks/useBLE';
-import { BLEOpcode } from '../utils/bleConstants';
-import { BoksLog } from '../types';
-import { DeviceLogContext, SettingsContext } from './Contexts';
-import { GetLogsCountPacket, RequestLogsPacket } from '../ble/packets/LogPackets';
+import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {useBLEEvents} from '../hooks/useBLEEvents';
+import {BLEPacket} from '../utils/packetParser';
+import {StorageService} from '../services/StorageService';
+import {useDevice} from '../hooks/useDevice';
+import {parseLog} from '../utils/logParser';
+import {useBLE} from '../hooks/useBLE';
+import {BLEOpcode} from '../utils/bleConstants';
+import {BoksLog} from '../types';
+import {DeviceLogContext, SettingsContext} from './Contexts';
+import {GetLogsCountPacket, RequestLogsPacket} from '../ble/packets/LogPackets';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
@@ -25,7 +25,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const hasAutoSyncedRef = useRef(false);
 
   // Check if we are in Simulator Mode
-  // @ts-ignore
+  // @ts-expect-error - Custom global flag
   const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
 
   // Global listener for log counts (can be spontaneous or requested)
@@ -86,10 +86,10 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         return new Promise<void>((resolve, reject) => {
           // Safety timeout for simulator environments
           const safetyTimeout = setTimeout(() => {
-             if (isSimulator && isSyncingRef.current) {
-                 console.warn("[DeviceLogContext] Simulator: Log sync timed out, forcing completion.");
-                 handleEndHistory();
-             }
+            if (isSimulator && isSyncingRef.current) {
+              console.warn('[DeviceLogContext] Simulator: Log sync timed out, forcing completion.');
+              handleEndHistory();
+            }
           }, 3000);
 
           const handleEndHistory = () => {
@@ -162,15 +162,13 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           addListener('*', handleLogPacket);
 
           // Use sendRequest with expectResponse: false to ensure it goes through queue
-          sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch(
-            (err) => {
-              removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
-              removeListener('*', handleLogPacket);
-              isSyncingRef.current = false;
-              setIsSyncingLogs(false);
-              reject(err);
-            }
-          );
+          sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch((err) => {
+            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+            removeListener('*', handleLogPacket);
+            isSyncingRef.current = false;
+            setIsSyncingLogs(false);
+            reject(err);
+          });
         });
       } else {
         log('No logs to retrieve', 'info');

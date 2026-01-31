@@ -1,5 +1,5 @@
-import { BLEAdapter } from './BLEAdapter';
-import { BluetoothDevice, BluetoothRemoteGATTServer } from '../../types';
+import {BLEAdapter} from './BLEAdapter';
+import {BluetoothDevice, BluetoothRemoteGATTServer} from '../../types';
 
 export class WebBluetoothAdapter implements BLEAdapter {
   private device: BluetoothDevice | null = null;
@@ -14,23 +14,23 @@ export class WebBluetoothAdapter implements BLEAdapter {
   async connect(serviceUuid: string, optionalServices: string[]): Promise<BluetoothDevice> {
     // @ts-expect-error - navigator.bluetooth
     const device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: [serviceUuid] }],
-        optionalServices,
+      filters: [{ services: [serviceUuid] }],
+      optionalServices,
     });
 
     this.device = device;
     // Note: Disconnect listener should be handled by the consumer via device.addEventListener
-    
+
     const server = await device.gatt.connect();
     this.server = server;
     this.charCache.clear();
-    
+
     return device;
   }
 
   disconnect(): void {
     if (this.server && this.server.connected) {
-        this.server.disconnect();
+      this.server.disconnect();
     }
     this.device = null;
     this.server = null;
@@ -48,22 +48,27 @@ export class WebBluetoothAdapter implements BLEAdapter {
     if (!this.server || !this.server.connected) throw new Error('Device not connected');
     const service = await this.server.getPrimaryService(serviceUuid);
     const char = await service.getCharacteristic(charUuid);
-    
+
     this.charCache.set(key, char);
     return char;
   }
 
-  async write(serviceUuid: string, charUuid: string, data: Uint8Array, withoutResponse: boolean): Promise<void> {
+  async write(
+    serviceUuid: string,
+    charUuid: string,
+    data: Uint8Array,
+    withoutResponse: boolean
+  ): Promise<void> {
     const char = await this.getCharacteristic(serviceUuid, charUuid);
     if (withoutResponse) {
-        // Try optimized write if available
-        if (char.writeValueWithoutResponse) {
-            await char.writeValueWithoutResponse(data);
-        } else {
-            await char.writeValue(data);
-        }
-    } else {
+      // Try optimized write if available
+      if (char.writeValueWithoutResponse) {
+        await char.writeValueWithoutResponse(data);
+      } else {
         await char.writeValue(data);
+      }
+    } else {
+      await char.writeValue(data);
     }
   }
 
@@ -72,20 +77,24 @@ export class WebBluetoothAdapter implements BLEAdapter {
     return await char.readValue();
   }
 
-  async startNotifications(serviceUuid: string, charUuid: string, callback: (value: DataView) => void): Promise<void> {
+  async startNotifications(
+    serviceUuid: string,
+    charUuid: string,
+    callback: (value: DataView) => void
+  ): Promise<void> {
     const char = await this.getCharacteristic(serviceUuid, charUuid);
     await char.startNotifications();
     char.addEventListener('characteristicvaluechanged', (event: any) => {
-        callback(event.target.value);
+      callback(event.target.value);
     });
   }
 
   async stopNotifications(serviceUuid: string, charUuid: string): Promise<void> {
     try {
-        const char = await this.getCharacteristic(serviceUuid, charUuid);
-        await char.stopNotifications();
-    } catch (e) {
-        // Ignore errors on stop
+      const char = await this.getCharacteristic(serviceUuid, charUuid);
+      await char.stopNotifications();
+    } catch {
+      // Ignore errors on stop
     }
   }
 }

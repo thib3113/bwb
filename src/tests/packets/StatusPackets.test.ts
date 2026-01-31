@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { AskDoorStatusPacket, TestBatteryPacket, CountCodesPacket } from '../../ble/packets/StatusPackets';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {describe, expect, it} from 'vitest';
+import {AskDoorStatusPacket, CountCodesPacket, TestBatteryPacket,} from '../../ble/packets/StatusPackets';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('Status Packets', () => {
   it('should construct AskDoorStatus (0x02) full packet', () => {

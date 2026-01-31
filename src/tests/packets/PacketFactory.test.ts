@@ -1,14 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { PacketFactory } from '../../ble/packets/PacketFactory';
-import { BLEOpcode } from '../../utils/bleConstants';
-import {
-  OperationSuccessPacket,
-  DoorStatusPacket,
-  LogCountPacket
-} from '../../ble/packets/rx/ResponsePackets';
+import {describe, expect, it} from 'vitest';
+import {PacketFactory} from '../../ble/packets/PacketFactory';
+import {BLEOpcode} from '../../utils/bleConstants';
+import {DoorStatusPacket, LogCountPacket, OperationSuccessPacket,} from '../../ble/packets/rx/ResponsePackets';
 
 describe('PacketFactory', () => {
-
   it('should create OperationSuccessPacket for 0x77', () => {
     const packet = PacketFactory.create(BLEOpcode.CODE_OPERATION_SUCCESS, new Uint8Array(0));
     expect(packet).toBeInstanceOf(OperationSuccessPacket);
@@ -32,35 +27,35 @@ describe('PacketFactory', () => {
   });
 
   it('should return null for unknown opcode', () => {
-    const packet = PacketFactory.create(0xFF, new Uint8Array(0));
+    const packet = PacketFactory.create(0XFF, new Uint8Array(0));
     expect(packet).toBeNull();
   });
 
   // TX Packet Tests
   it('should create OpenDoorPacket (TX) from payload', () => {
-    const pin = "123456";
+    const pin = '123456';
     const payload = new TextEncoder().encode(pin);
     const packet = PacketFactory.createTX(BLEOpcode.OPEN_DOOR, payload);
 
     expect(packet).toBeDefined();
     expect(packet?.opcode).toBe(BLEOpcode.OPEN_DOOR);
-    // @ts-ignore - Dynamic check
+    // @ts-expect-error - Dynamic check
     expect(packet.pinCode).toBe(pin);
   });
 
   it('should create SetConfigurationPacket (TX) from payload', () => {
-    const key = "CONFIGKY";
+    const key = 'CONFIGKY';
     const type = 1;
     const value = 99;
     const payload = new Uint8Array([...new TextEncoder().encode(key), type, value]);
 
     const packet = PacketFactory.createTX(BLEOpcode.SET_CONFIGURATION, payload);
     expect(packet).toBeDefined();
-    // @ts-ignore
+    // @ts-expect-error - Dynamic check
     expect(packet.configKey).toBe(key);
-    // @ts-ignore
+    // @ts-expect-error - Dynamic check
     expect(packet.configType).toBe(type);
-    // @ts-ignore
+    // @ts-expect-error - Dynamic check
     expect(packet.configValue).toBe(value);
   });
 });

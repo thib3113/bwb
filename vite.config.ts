@@ -1,6 +1,6 @@
-import { defineConfig, loadEnv } from 'vite';
+import {defineConfig, loadEnv} from 'vite';
 import preact from '@preact/preset-vite';
-import { VitePWA } from 'vite-plugin-pwa';
+import {VitePWA} from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -50,8 +50,8 @@ export default defineConfig(({ mode }) => {
           ],
           // Ensure assets in the manifest are prefixed with base URL
           modifyURLPrefix: {
-            '': baseUrl === '/' ? '' : baseUrl
-          }
+            '': baseUrl === '/' ? '' : baseUrl,
+          },
         },
       }),
     ],

@@ -1,43 +1,28 @@
-import { BoksRXPacket } from './rx/BoksRXPacket';
-import { BoksTXPacket } from './BoksTXPacket';
+import {BoksRXPacket} from './rx/BoksRXPacket';
+import {BoksTXPacket} from './BoksTXPacket';
 import {
-  OperationSuccessPacket,
-  OperationErrorPacket,
-  LogCountPacket,
-  DoorStatusPacket,
-  DoorOpeningPacket,
-  NfcTagFoundPacket
+	DoorOpeningPacket,
+	DoorStatusPacket,
+	LogCountPacket,
+	NfcTagFoundPacket,
+	OperationErrorPacket,
+	OperationSuccessPacket,
 } from './rx/ResponsePackets';
+import {OpenDoorPacket} from './OpenDoorPacket';
 import {
-  OpenDoorPacket
-} from './OpenDoorPacket';
-import {
-  CreateMasterCodePacket,
-  CreateSingleUseCodePacket,
-  CreateMultiUseCodePacket,
-  DeleteMasterCodePacket,
-  DeleteSingleUseCodePacket,
-  DeleteMultiUseCodePacket
+	CreateMasterCodePacket,
+	CreateMultiUseCodePacket,
+	CreateSingleUseCodePacket,
+	DeleteMasterCodePacket,
+	DeleteMultiUseCodePacket,
+	DeleteSingleUseCodePacket,
 } from './PinManagementPackets';
-import {
-  RequestLogsPacket,
-  GetLogsCountPacket
-} from './LogPackets';
-import {
-  AskDoorStatusPacket,
-  TestBatteryPacket,
-  CountCodesPacket
-} from './StatusPackets';
-import {
-  SetConfigurationPacket
-} from './SetConfigurationPacket';
-import {
-  NfcScanStartPacket,
-  NfcRegisterPacket,
-  NfcUnregisterPacket
-} from './NfcPackets';
+import {GetLogsCountPacket, RequestLogsPacket} from './LogPackets';
+import {AskDoorStatusPacket, CountCodesPacket, TestBatteryPacket} from './StatusPackets';
+import {SetConfigurationPacket} from './SetConfigurationPacket';
+import {NfcRegisterPacket, NfcScanStartPacket, NfcUnregisterPacket} from './NfcPackets';
 
-import { BLEOpcode } from '../../utils/bleConstants';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 export class PacketFactory {
   private static rxClassMap: Map<number, new (op: number) => BoksRXPacket> = new Map();

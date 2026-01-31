@@ -4,7 +4,7 @@ describe('Boks Basic Flow (Simulator)', () => {
     cy.visit('/', {
       onBeforeLoad(win) {
         // Force enable simulator BEFORE app loads
-        // @ts-ignore
+        // @ts-expect-error - Custom simulator flag
         win.BOKS_SIMULATOR_ENABLED = true;
       },
     });
@@ -41,7 +41,7 @@ describe('Boks Basic Flow (Simulator)', () => {
     // 2. Click Open Door
     // Force click in case the tooltip or something interferes
     cy.get('button[aria-label="open door"]').click({ force: true });
-    
+
     // 3. Verify Feedback
     // Since we auto-provisioned the PIN code, the door should open successfully
     // Look for "Opening..." or "Door closed"

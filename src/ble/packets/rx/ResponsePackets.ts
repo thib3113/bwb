@@ -1,5 +1,5 @@
-import { BoksRXPacket } from './BoksRXPacket';
-import { BLEOpcode } from '../../../utils/bleConstants';
+import {BoksRXPacket} from './BoksRXPacket';
+import {BLEOpcode} from '../../../utils/bleConstants';
 
 // Generic Success Response (0x77)
 export class OperationSuccessPacket extends BoksRXPacket {
@@ -9,7 +9,7 @@ export class OperationSuccessPacket extends BoksRXPacket {
     super(OperationSuccessPacket.opcode);
   }
 
-  parse(_payload: Uint8Array): void {
+  parse(): void {
     // No payload to parse for simple success
   }
 }
@@ -22,7 +22,7 @@ export class OperationErrorPacket extends BoksRXPacket {
     super(OperationErrorPacket.opcode);
   }
 
-  parse(_payload: Uint8Array): void {
+  parse(): void {
     // Usually empty, or specific error codes if documented
   }
 }
@@ -30,7 +30,7 @@ export class OperationErrorPacket extends BoksRXPacket {
 // Log Count Response (0x79)
 export class LogCountPacket extends BoksRXPacket {
   static readonly opcode = BLEOpcode.NOTIFY_LOGS_COUNT;
-  
+
   public count: number = 0;
 
   constructor() {
@@ -41,16 +41,16 @@ export class LogCountPacket extends BoksRXPacket {
     // Payload is big-endian or little-endian? Usually LE for Boks.
     // Spec usually says: [Count_LSB, Count_MSB, ...] or just byte depending on size.
     // Based on previous knowledge: often 2 bytes or 4 bytes.
-    // Let's assume 16-bit LE for now based on standard embedded practices, 
-    // but we need to check .jules spec if detailed. 
+    // Let's assume 16-bit LE for now based on standard embedded practices,
+    // but we need to check .jules spec if detailed.
     // Re-reading quirks: "returns 0 then real count".
-    
+
     // Safest approach: DataView
     if (payload.length >= 2) {
-        const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
-        this.count = view.getUint16(0, true); // Little Endian
+      const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
+      this.count = view.getUint16(0, true); // Little Endian
     } else if (payload.length === 1) {
-        this.count = payload[0];
+      this.count = payload[0];
     }
   }
 }
@@ -85,7 +85,7 @@ export class DoorOpeningPacket extends BoksRXPacket {
     super(DoorOpeningPacket.opcode);
   }
 
-  parse(_payload: Uint8Array): void {
+  parse(): void {
     // Payload usually empty or contains user index
   }
 }
@@ -94,7 +94,7 @@ export class DoorOpeningPacket extends BoksRXPacket {
 export class NfcTagFoundPacket extends BoksRXPacket {
   static readonly opcode = BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT; // 0xC5
 
-  public uid: string = "";
+  public uid: string = '';
   public uidBytes: Uint8Array = new Uint8Array(0);
 
   constructor() {
@@ -105,7 +105,7 @@ export class NfcTagFoundPacket extends BoksRXPacket {
     this.uidBytes = payload;
     // Convert to Hex String "AA:BB:CC:DD"
     this.uid = Array.from(payload)
-      .map(b => b.toString(16).padStart(2, '0').toUpperCase())
+      .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
       .join(':');
   }
 }

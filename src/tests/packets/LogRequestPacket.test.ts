@@ -1,9 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { GetLogsCountPacket, RequestLogsPacket } from '../../ble/packets/LogPackets';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {describe, expect, it} from 'vitest';
+import {GetLogsCountPacket, RequestLogsPacket} from '../../ble/packets/LogPackets';
+import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('Log Packets', () => {
-  
   it('should construct GetLogsCount (0x07) full packet', () => {
     const packet = new GetLogsCountPacket();
     const fullPacket = packet.toPacket();

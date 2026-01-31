@@ -1,55 +1,54 @@
-import { useEffect, useMemo, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import pReact from 'preact';
 import {
-  AppBar,
-  Badge,
-  Box,
-  CircularProgress,
-  Divider,
-  Drawer,
-  FormControl,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Toolbar,
-  Tooltip,
-  Typography,
-  useMediaQuery,
+	AppBar,
+	Badge,
+	Box,
+	CircularProgress,
+	Divider,
+	Drawer,
+	FormControl,
+	IconButton,
+	List,
+	ListItem,
+	ListItemButton,
+	ListItemIcon,
+	ListItemText,
+	MenuItem,
+	Select,
+	SelectChangeEvent,
+	Toolbar,
+	Tooltip,
+	Typography,
+	useMediaQuery,
 } from '@mui/material';
 import {
-  BatteryAlert,
-  BatteryFull,
-  BatteryStd,
-  Bluetooth,
-  BluetoothDisabled,
-  BugReport as BugReportIcon,
-  Build as BuildIcon,
-  Home as HomeIcon,
-  Info as InfoIcon,
-  MeetingRoom as MeetingRoomIcon,
-  Menu as MenuIcon,
-  Refresh,
-  Settings as SettingsIcon,
+	BatteryAlert,
+	BatteryFull,
+	BatteryStd,
+	Bluetooth,
+	BluetoothDisabled,
+	BugReport as BugReportIcon,
+	Build as BuildIcon,
+	Home as HomeIcon,
+	Info as InfoIcon,
+	MeetingRoom as MeetingRoomIcon,
+	Menu as MenuIcon,
+	Refresh,
+	Settings as SettingsIcon,
 } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import pkg from '../../../package.json';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import { useDevice } from '../../hooks/useDevice';
-import { useBLEConnection } from '../../hooks/useBLEConnection';
-import { useDoor } from '../../hooks/useDoor';
-import { useBLELogs } from '../../hooks/useBLELogs';
-import { useTaskContext } from '../../hooks/useTaskContext';
-import { useCodeLogic } from '../../hooks/useCodeLogic';
+import {useNavigate} from 'react-router-dom';
+import {useTheme} from '@mui/material/styles';
+import {useDevice} from '../../hooks/useDevice';
+import {useBLEConnection} from '../../hooks/useBLEConnection';
+import {useDoor} from '../../hooks/useDoor';
+import {useBLELogs} from '../../hooks/useBLELogs';
+import {useCodeLogic} from '../../hooks/useCodeLogic';
 
-import { runTask } from '../../utils/uiUtils';
-import { translateBLEError } from '../../utils/bleUtils';
+import {runTask} from '../../utils/uiUtils';
+import {translateBLEError} from '../../utils/bleUtils';
 
 interface HeaderProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;

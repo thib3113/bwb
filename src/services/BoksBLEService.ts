@@ -1,26 +1,19 @@
-import { EventEmitter } from '../utils/EventEmitter';
-import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
-import { PacketFactory } from '../ble/packets/PacketFactory';
+import {EventEmitter} from '../utils/EventEmitter';
+import {BLEPacket, createPacket, parsePacket} from '../utils/packetParser';
+import {PacketFactory} from '../ble/packets/PacketFactory';
 import {
-  BATTERY_SERVICE_UUID,
-  BLE_DEFAULT_TIMEOUT_MS,
-  BLEOpcode,
-  DEVICE_INFO_SERVICE_UUID,
-  NOTIFY_CHAR_UUID,
-  SERVICE_UUID,
-  WRITE_CHAR_UUID,
+	BATTERY_SERVICE_UUID,
+	BLEOpcode,
+	DEVICE_INFO_SERVICE_UUID,
+	NOTIFY_CHAR_UUID,
+	SERVICE_UUID,
+	WRITE_CHAR_UUID,
 } from '../utils/bleConstants';
-import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
-import { parsePayload, ParsedPayload } from '../utils/payloadParser';
-import {
-  BluetoothDevice,
-  BluetoothRemoteGATTCharacteristic,
-  BluetoothRemoteGATTServer,
-  BluetoothRemoteGATTService,
-} from '../types';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
-import { BLEAdapter } from '../ble/adapter/BLEAdapter';
-import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import {BLECommandOptions, BLEQueue} from '../utils/BLEQueue';
+import {ParsedPayload} from '../utils/payloadParser';
+import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
+import {BLEAdapter} from '../ble/adapter/BLEAdapter';
+import {WebBluetoothAdapter} from '../ble/adapter/WebBluetoothAdapter';
 
 class DescriptionPayload implements ParsedPayload {
   constructor(
@@ -57,7 +50,7 @@ export class BoksBLEService extends EventEmitter {
   private static instance: BoksBLEService;
 
   private adapter: BLEAdapter; // The pluggable transport layer
-  
+
   private state: BLEServiceState = 'disconnected';
   private queue: BLEQueue;
   private lastSentOpcode: number | null = null;
@@ -71,7 +64,7 @@ export class BoksBLEService extends EventEmitter {
     this.queue = new BLEQueue(async (request) => {
       this.lastSentOpcode = request.opcode;
       this.lastSentTimestamp = Date.now();
-      
+
       // Packet creation
       const packet = createPacket(request.opcode, request.payload);
       const buffer = packet;
@@ -92,11 +85,11 @@ export class BoksBLEService extends EventEmitter {
    * Inject a specific adapter (e.g., Simulator)
    */
   setAdapter(adapter: BLEAdapter) {
-      if (this.state !== 'disconnected') {
-          console.warn("Changing adapter while connected is risky. Disconnecting first.");
-          this.disconnect();
-      }
-      this.adapter = adapter;
+    if (this.state !== 'disconnected') {
+      console.warn('Changing adapter while connected is risky. Disconnecting first.');
+      this.disconnect();
+    }
+    this.adapter = adapter;
   }
 
   getLastSentOpcode(): number | null {
@@ -130,15 +123,15 @@ export class BoksBLEService extends EventEmitter {
       const device = await this.adapter.connect(SERVICE_UUID, optionalServices);
 
       this.setState('connecting');
-      
+
       // Setup disconnect listener (requires device reference from adapter)
-      if(device && device.addEventListener) {
-          device.addEventListener('gattserverdisconnected', () => this.handleDisconnect());
+      if (device && device.addEventListener) {
+        device.addEventListener('gattserverdisconnected', () => this.handleDisconnect());
       }
 
       // Subscribe to notifications via adapter
       await this.adapter.startNotifications(SERVICE_UUID, NOTIFY_CHAR_UUID, (data) => {
-          this.handleNotification(data);
+        this.handleNotification(data);
       });
 
       this.setState('connected');
@@ -222,11 +215,7 @@ export class BoksBLEService extends EventEmitter {
     }
   }
 
-  async readCharacteristic(
-    serviceUuid: string,
-    charUuid: string,
-    timeoutMs: number = BLE_DEFAULT_TIMEOUT_MS
-  ): Promise<DataView> {
+  async readCharacteristic(serviceUuid: string, charUuid: string): Promise<DataView> {
     // Fake TX packet for logs
     const uuidBytes = new TextEncoder().encode(charUuid.substring(0, 8));
     this.emit(BLEServiceEvent.PACKET_SENT, {
@@ -245,32 +234,32 @@ export class BoksBLEService extends EventEmitter {
     } as BLEPacket);
 
     try {
-        const value = await this.adapter.read(serviceUuid, charUuid);
-        
-        // Fake RX packet for logs
-        const rawBytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
-        this.emit(
-            BLEServiceEvent.PACKET_RECEIVED,
-            {
-              opcode: BLEOpcode.INTERNAL_GATT_OPERATION,
-              payload: rawBytes,
-              raw: new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...rawBytes]),
-              direction: 'RX',
-              isValidChecksum: true,
-              uuid: charUuid,
-              parsedPayload: new DescriptionPayload(
-                BLEOpcode.INTERNAL_GATT_OPERATION,
-                rawBytes,
-                new Uint8Array(0),
-                `Read Response: ${rawBytes.length} bytes`
-              ),
-            } as BLEPacket,
-            BLEOpcode.INTERNAL_GATT_OPERATION
-        );
-        return value;
+      const value = await this.adapter.read(serviceUuid, charUuid);
+
+      // Fake RX packet for logs
+      const rawBytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+      this.emit(
+        BLEServiceEvent.PACKET_RECEIVED,
+        {
+          opcode: BLEOpcode.INTERNAL_GATT_OPERATION,
+          payload: rawBytes,
+          raw: new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...rawBytes]),
+          direction: 'RX',
+          isValidChecksum: true,
+          uuid: charUuid,
+          parsedPayload: new DescriptionPayload(
+            BLEOpcode.INTERNAL_GATT_OPERATION,
+            rawBytes,
+            new Uint8Array(0),
+            `Read Response: ${rawBytes.length} bytes`
+          ),
+        } as BLEPacket,
+        BLEOpcode.INTERNAL_GATT_OPERATION
+      );
+      return value;
     } catch (error) {
-        console.error(`[BLEService] Error reading characteristic ${charUuid}:`, error);
-        throw error;
+      console.error(`[BLEService] Error reading characteristic ${charUuid}:`, error);
+      throw error;
     }
   }
 

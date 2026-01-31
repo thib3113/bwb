@@ -1,8 +1,8 @@
-// @ts-ignore
-import { registerSW } from 'virtual:pwa-register';
+// @ts-expect-error - Virtual module
+import {registerSW} from 'virtual:pwa-register';
 
 // Check for Cypress
-// @ts-ignore
+// @ts-expect-error - Custom global flag
 const isCypress = typeof window !== 'undefined' && window.Cypress;
 
 export function initPWA() {
@@ -10,8 +10,8 @@ export function initPWA() {
     if (isCypress) {
       console.log('[PWA] Cypress detected, skipping Service Worker registration');
       // Optionally unregister existing SW if any
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        for(let registration of registrations) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
           registration.unregister();
           console.log('[PWA] Unregistered existing SW for Cypress');
         }

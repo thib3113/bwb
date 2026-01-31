@@ -1,7 +1,7 @@
 // Abstract base class for all RX packets
 export abstract class BoksRXPacket {
   static readonly opcode: number;
-  
+
   // Base properties common to all (if any)
   constructor(public readonly opcode: number) {}
 

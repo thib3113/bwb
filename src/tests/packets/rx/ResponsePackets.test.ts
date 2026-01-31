@@ -1,13 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { 
-  LogCountPacket, 
-  DoorStatusPacket, 
-  NfcTagFoundPacket 
-} from '../../../ble/packets/rx/ResponsePackets';
-import { BLEOpcode } from '../../../utils/bleConstants';
+import {describe, expect, it} from 'vitest';
+import {DoorStatusPacket, LogCountPacket, NfcTagFoundPacket,} from '../../../ble/packets/rx/ResponsePackets';
+import {BLEOpcode} from '../../../utils/bleConstants';
 
 describe('RX Packets Parsing', () => {
-  
   it('should parse LogCountPacket (Uint16)', () => {
     const packet = new LogCountPacket();
     // 5 logs: [0x05, 0x00] (Little Endian)
@@ -32,8 +27,8 @@ describe('RX Packets Parsing', () => {
   it('should parse NfcTagFoundPacket', () => {
     const packet = new NfcTagFoundPacket();
     // UID: AABBCCDD
-    packet.parse(new Uint8Array([0xAA, 0xBB, 0xCC, 0xDD]));
-    expect(packet.uid).toBe("AA:BB:CC:DD");
-    expect(packet.uidBytes).toEqual(new Uint8Array([0xAA, 0xBB, 0xCC, 0xDD]));
+    packet.parse(new Uint8Array([0XAA, 0XBB, 0XCC, 0XDD]));
+    expect(packet.uid).toBe('AA:BB:CC:DD');
+    expect(packet.uidBytes).toEqual(new Uint8Array([0XAA, 0XBB, 0XCC, 0XDD]));
   });
 });
