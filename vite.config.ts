@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
         includeAssets: ['favicon.ico', 'icon.png', 'icon-192.png'],
         // Ensure SW scope matches the base URL
         scope: baseUrl,
+        // Ensure the manifest link in index.html is correct? No, Vite handles it if we use `manifest: false` and manual link.
+        // But we need to ensure the SW is generated with correct paths.
         workbox: {
           // Prevent SW from caching generic files that might collide if not hashed (though Vite hashes assets)
           // and ensure navigation falls back to index.html within the scope
@@ -45,7 +47,11 @@ export default defineConfig(({ mode }) => {
           navigateFallbackDenylist: [
             // Exclude paths that don't start with our base (safety measure)
             new RegExp(`^${baseUrl === '/' ? '(?!.*)' : '(?!' + escapeRegExp(baseUrl) + ')'}`),
-          ]
+          ],
+          // Ensure assets in the manifest are prefixed with base URL
+          modifyURLPrefix: {
+            '': baseUrl === '/' ? '' : baseUrl
+          }
         },
       }),
     ],
