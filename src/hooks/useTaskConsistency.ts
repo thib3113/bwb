@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { db } from '../db/db';
 import { useTaskContext } from '../hooks/useTaskContext';
-import { useBLE } from './useBLE';
 import { TaskType } from '../types/task';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { CODE_TYPES } from '../utils/constants';
@@ -15,11 +14,10 @@ import { CODE_TYPES } from '../utils/constants';
  */
 export const useTaskConsistency = (deviceId: string | null) => {
   const { addTask, tasks } = useTaskContext();
-  const { isConnected } = useBLE();
 
   useEffect(() => {
     const checkAndRecreateTasks = async () => {
-      if (!deviceId || !isConnected) return;
+      if (!deviceId) return;
 
       try {
         // 1. Get all codes for this device with pending status
@@ -112,5 +110,5 @@ export const useTaskConsistency = (deviceId: string | null) => {
     };
 
     checkAndRecreateTasks();
-  }, [deviceId, addTask, tasks, isConnected]);
+  }, [deviceId, addTask, tasks]);
 };
