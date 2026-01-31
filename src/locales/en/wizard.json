@@ -1,0 +1,63 @@
+{
+	"title": "Help Us",
+	"steps": {
+		"step1": "Connection",
+		"step2": "Open/Battery",
+		"step3": "Questions",
+		"step4": "Advanced",
+		"step5": "Summary"
+	},
+	"connect": {
+		"title": "Step 1: Connect to Boks Device",
+		"desc": "Please ensure your Boks device is powered on and in range.",
+		"button": "Connect to Device",
+		"success": "Successfully Connected",
+		"ready": "Ready to proceed with diagnostics"
+	},
+	"door": {
+		"title": "Step 2: Door Opening & Battery Status",
+		"desc": "Test the opening mechanism and check the battery level.",
+		"open": "Open Door",
+		"opening": "Opening...",
+		"success": "Door opened successfully!",
+		"pin_placeholder": "Enter PIN (6 characters)"
+	},
+	"battery": {
+		"wait": "Please open the door to trigger diagnostics.",
+		"waiting_close": "Waiting for door to close...",
+		"analyzing": "Analyzing battery...",
+		"standard_level": "Standard Level (BLE)",
+		"proprietary_data": "Proprietary Data",
+		"voltage_last": "Voltage (Last)",
+		"temperature": "Temperature",
+		"analysis": "Analysis",
+		"detected_type": "Detected Type"
+	},
+	"questions": {
+		"title": "Step 3: Contextual Questions",
+		"desc": "This information helps us refine the diagnostics.",
+		"has_scale": "Does your Boks have an integrated scale?",
+		"anything_special": "Do you think your Boks has something special (behavior, physical ports...)?"
+	},
+	"advanced": {
+		"title": "Step 4: Advanced Debugging",
+		"warning": "This section allows for in-depth data collection.",
+		"tutorial_title": "How to?",
+		"tutorial_desc": "For a deeper analysis, use nRF Connect for Mobile.",
+		"explorer_title": "Service Explorer (Manual)",
+		"explorer_desc": "If you know specific UUIDs, enter them here.",
+		"explore_button": "Start Exploration (Reconnect)",
+		"exploring": "Exploring..."
+	},
+	"recap": {
+		"title": "Step 5: Summary & Contribution",
+		"desc": "Here is the collected data. Share it if you see anomalies!",
+		"interesting_found": "Unusual elements detected. Your data is valuable!",
+		"open_issue": "Open an issue on GitHub",
+		"copy_first": "Copy the JSON below first"
+	},
+	"finished": {
+		"title": "Finished",
+		"desc": "You have completed the debug wizard."
+	}
+}

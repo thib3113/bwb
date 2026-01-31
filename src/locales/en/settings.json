@@ -1,0 +1,46 @@
+{
+	"title": "Settings",
+	"theme": {
+		"label": "Theme",
+		"system": "System Default",
+		"light": "Light",
+		"dark": "Dark"
+	},
+	"auto_import": "Auto-Sync (Logs & Codes)",
+	"configuration_key": {
+		"label": "Configuration Key",
+		"helper": "Used for sensitive operations"
+	},
+	"door_pin_code": "Door PIN Code",
+	"toggle_pin_visibility": "Toggle PIN Visibility",
+	"toggle_key_visibility": "Toggle Key Visibility",
+	"saved": "Settings saved",
+	"advanced_title": "Advanced",
+	"export_config": "Export Configuration",
+	"import_config": "Import Configuration",
+	"export_instructions": "Copy this JSON to backup your configuration.",
+	"import_instructions": "Paste your configuration JSON here.",
+	"import_button": "Import",
+	"export_success": "Configuration exported successfully",
+	"export_failed": "Failed to export configuration",
+	"import_success": "Configuration imported successfully",
+	"import_failed": "Failed to import configuration",
+	"invalid_json": "Invalid JSON",
+	"invalid_structure": "Invalid configuration structure",
+	"developer_mode": "Developer Mode",
+	"copy_to_clipboard": "Copy to clipboard",
+	"cancel": "Cancel",
+	"save": "Save",
+	"about": {
+		"title": "About Boks Web BLE",
+		"description": "An open-source web interface for Boks smart parcel boxes.",
+		"bluetooth_description": "This application allows you to control your Boks parcel box via Bluetooth Low Energy (BLE) directly from your browser.",
+		"version": "Version",
+		"links": "Links",
+		"github": "GitHub Repository",
+		"credits": "Credits",
+		"credits_description": "This project is the result of a reverse engineering effort to understand and interoperate with the Boks system.",
+		"disclaimer": "Disclaimer: This is an unofficial client and is not affiliated with Boks.",
+		"github_issues": "Report an Issue"
+	}
+}

@@ -1,0 +1,131 @@
+/* LogViewer.css */
+
+.log-viewer {
+  background-color: var(--mui-background-paper, white);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-viewer {
+    background-color: var(--mui-background-paper, #1e1e1e);
+  }
+}
+
+.log-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.log-viewer-title {
+  margin: 0;
+  color: var(--mui-text-primary, #333);
+  border-bottom: 1px solid var(--mui-divider, #eee);
+  padding-bottom: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-viewer-title {
+    color: var(--mui-text-primary, #ecf0f1);
+    border-bottom: 1px solid var(--mui-divider, #34495e);
+  }
+}
+
+.log-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.log-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  background-color: var(--mui-primary-main, #4a90e2);
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s;
+}
+
+.log-button:hover {
+  background-color: var(--mui-primary-dark, #357abd);
+}
+
+.log-button.clear {
+  background-color: var(--mui-error-main, #e74c3c);
+}
+
+.log-button.clear:hover {
+  background-color: var(--mui-error-dark, #c0392b);
+}
+
+.log-container {
+  background-color: var(--mui-background-paper, #2c3e50);
+  color: var(--mui-text-primary, #ecf0f1);
+  border-radius: 4px;
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-container {
+    background-color: var(--mui-background-paper, #1e1e1e);
+    color: var(--mui-text-primary, #ecf0f1);
+  }
+}
+
+.log-entry {
+  margin-bottom: 4px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--mui-divider, #34495e);
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-entry {
+    border-bottom: 1px solid var(--mui-divider, #34495e);
+  }
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.log-timestamp {
+  color: var(--mui-text-secondary, #95a5a6);
+  margin-right: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-timestamp {
+    color: var(--mui-text-secondary, #bbb);
+  }
+}
+
+.log-info {
+  color: var(--mui-secondary-main, #50e3c2);
+}
+
+.log-error {
+  color: var(--mui-error-main, #e74c3c);
+}
+
+.log-success {
+  color: var(--mui-success-main, #2ecc71);
+}
+
+.log-warning {
+  color: var(--mui-warning-main, #f39c12);
+}
+
+.log-debug {
+  color: #9b59b6;
+}

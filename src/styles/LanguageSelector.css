@@ -1,0 +1,26 @@
+/* LanguageSelector.css */
+
+.language-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.language-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-left: 12px;
+  padding-right: 32px;
+}
+
+.language-option {
+  color: #333;
+}

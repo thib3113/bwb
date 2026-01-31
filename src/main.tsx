@@ -1,0 +1,38 @@
+import 'preact/debug';
+import { render } from 'preact';
+import { BrowserRouter } from 'react-router-dom';
+import { App } from './app';
+import './index.css';
+import './i18n';
+import { AppProviders } from './context/AppProviders';
+import './services/StorageService';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+// Simulator Helper
+// @ts-ignore
+window.enableBoksSimulator = () => {
+    // @ts-ignore
+    window.BOKS_SIMULATOR_ENABLED = true;
+    console.log("✅ Boks Simulator Enabled! Reloading...");
+    setTimeout(() => window.location.reload(), 500);
+};
+
+console.log('[Main] Preact debug initialized');
+
+const appElement = document.getElementById('app');
+
+if (appElement) {
+  console.log('[Main] Rendering app...');
+  render(
+    <ErrorBoundary>
+      <BrowserRouter basename="/">
+        <AppProviders>
+          <App />
+        </AppProviders>
+      </BrowserRouter>
+    </ErrorBoundary>,
+    appElement
+  );
+} else {
+  console.error('Failed to find #app element');
+}

@@ -1,0 +1,49 @@
+{
+	"title": "Paramètres",
+	"theme": {
+		"label": "Thème",
+		"system": "Par défaut du système",
+		"light": "Clair",
+		"dark": "Sombre"
+	},
+	"auto_import": "Synchronisation automatique (Logs et Codes)",
+	"configuration_key": {
+		"label": "Clé de configuration",
+		"helper": "Utilisée pour les opérations sensibles"
+	},
+	"door_pin_code": "Code PIN de la porte",
+	"toggle_pin_visibility": "Afficher/Masquer le PIN",
+	"toggle_key_visibility": "Afficher/Masquer la Clé",
+	"saved": "Paramètres enregistrés",
+	"advanced_title": "Avancé",
+	"export_config": "Exporter la configuration",
+	"import_config": "Importer la configuration",
+	"export_instructions": "Copiez ce JSON pour sauvegarder votre configuration.",
+	"import_instructions": "Collez votre JSON de configuration ici.",
+	"import_button": "Importer",
+	"export_success": "Configuration exportée avec succès",
+	"export_failed": "Échec de l'exportation",
+	"import_success": "Configuration importée avec succès",
+	"import_failed": "Échec de l'importation",
+	"invalid_json": "JSON invalide",
+	"invalid_structure": "Structure de configuration invalide",
+	"developer_mode": "Mode Développeur",
+	"copy_to_clipboard": "Copier dans le presse-papiers",
+	"cancel": "Annuler",
+	"save": "Enregistrer",
+	"about": {
+		"title": "À propos",
+		"description": "Une interface web open-source pour les boîtes à colis intelligentes Boks.",
+		"bluetooth_description": "Cette application vous permet de contrôler votre boîte à colis Boks via Bluetooth Low Energy (BLE) directement depuis votre navigateur.",
+		"version": "Version",
+		"links": "Liens",
+		"github": "Dépôt GitHub",
+		"credits": "Crédits",
+		"credits_description": "Ce projet est le résultat d'un effort de rétro-ingénierie visant à comprendre et interagir avec le système Boks.",
+		"disclaimer": "Avertissement : Il s'agit d'un client non officiel qui n'est pas affilié à Boks.",
+		"support_title": "Soutenez le projet",
+		"support_description": "Si vous trouvez cet outil utile, envisagez de faire un don pour soutenir son développement.",
+		"donate_link": "Faire un don",
+		"github_issues": "Signaler un bug"
+	}
+}

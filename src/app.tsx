@@ -1,0 +1,188 @@
+import { useTranslation } from 'react-i18next';
+import { MainLayout } from './components/layout/MainLayout';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { StorageService } from './services/StorageService';
+import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useTaskConsistency } from './hooks/useTaskConsistency';
+import { useDevice } from './hooks/useDevice';
+
+// Lazy loading pages
+const HomePage = lazy(() =>
+  import('./pages/HomePage').then((module) => ({ default: module.HomePage }))
+);
+const AboutPage = lazy(() =>
+  import('./pages/AboutPage').then((module) => ({ default: module.AboutPage }))
+);
+const MyBoksPage = lazy(() =>
+  import('./pages/MyBoksPage').then((module) => ({ default: module.MyBoksPage }))
+);
+const DebugWizardPage = lazy(() =>
+  import('./pages/DebugWizardPage').then((module) => ({ default: module.DebugWizardPage }))
+);
+const DebugView = lazy(() =>
+  import('./components/DebugView').then((module) => ({ default: module.DebugView }))
+);
+
+// Lazy loading tab components
+const CodeManagerWrapper = lazy(() =>
+  import('./components/codes/CodeManagerWrapper').then((module) => ({
+    default: module.CodeManagerWrapper,
+  }))
+);
+const LogViewerWrapperComponent = lazy(() =>
+  import('./components/log/LogViewerWrapper').then((module) => ({
+    default: module.LogViewerWrapper,
+  }))
+);
+const SettingsContentWrapper = lazy(() =>
+  import('./components/settings/SettingsContentWrapper').then((module) => ({
+    default: module.SettingsContentWrapper,
+  }))
+);
+
+const LoadingFallback = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100%',
+      minHeight: '50vh',
+    }}
+  >
+    <CircularProgress />
+  </Box>
+);
+
+export function App() {
+  const { activeDeviceId } = useDevice();
+  useTaskConsistency(activeDeviceId);
+
+  const { t } = useTranslation();
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'info' as 'success' | 'error' | 'info' | 'warning',
+  });
+
+  useEffect(() => {
+    // Expose StorageService for debugging
+    if (globalThis.window) {
+      window.boksDebug = {
+        mockData: StorageService.mockData,
+      };
+      console.log('StorageService exposed to window.boksDebug');
+    }
+  }, []);
+
+  // Check if user is on iOS
+  const isIOS = () => {
+    // noinspection JSDeprecatedSymbols
+    const userAgent = navigator.userAgent || navigator.vendor || globalThis.window.opera || '';
+    return /iPad|iPhone|iPod/.test(userAgent) && !globalThis.window.MSStream;
+  };
+
+  // Check if Web BLE is supported
+  const isWebBleSupported = () => {
+    // @ts-expect-error - navigator.bluetooth is not standard yet
+    return navigator.bluetooth !== undefined;
+  };
+
+  const showNotification = (
+    message: string,
+    severity: 'success' | 'error' | 'info' | 'warning' = 'info'
+  ) => {
+    setNotification({ open: true, message, severity });
+  };
+
+  const hideNotification = () => {
+    setNotification((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {isWebBleSupported() ? (
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route
+              element={
+                <MainLayout
+                  showNotification={showNotification}
+                  hideNotification={hideNotification}
+                />
+              }
+            >
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/my-boks" element={<MyBoksPage />} />
+              {/* Debug routes kept for direct access if needed, but removed from navigation */}
+              <Route path="/debug-wizard" element={<DebugWizardPage />} />
+              <Route path="/debug-view" element={<DebugView />} />
+              <Route path="/" element={<HomePage />}>
+                <Route index element={<Navigate to="/codes" replace />} />
+                <Route
+                  path="codes"
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <CodeManagerWrapper />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="logs"
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <LogViewerWrapperComponent />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="settings"
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <SettingsContentWrapper />
+                    </Suspense>
+                  }
+                />
+              </Route>
+            </Route>
+          </Routes>
+        </Suspense>
+      ) : (
+        <Paper sx={{ textAlign: 'center', p: 3, color: 'error.main' }}>
+          <Typography variant="h5" component="h1">
+            {t('common:web_ble_not_supported_title')}
+          </Typography>
+          <Typography variant="body1" component="p">
+            {t('common:web_ble_not_supported_message')}
+          </Typography>
+          {isIOS() && (
+            <Typography variant="body2" component="p">
+              {t('common:web_ble_not_supported_ios')}
+            </Typography>
+          )}
+        </Paper>
+      )}
+
+      {/* Global notification system */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+}
