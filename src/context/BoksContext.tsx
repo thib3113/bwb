@@ -6,6 +6,8 @@ import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
 import { BoksLog } from '../types';
 import { BoksContext } from './Contexts';
+import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
+import { RequestLogsPacket } from '../ble/packets/LogPackets';
 
 interface BoksProviderProps {
   children: ReactNode;
@@ -119,14 +121,8 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         log('Door open timeout', 'warning');
       }, 120000); // 2 minutes
 
-      // Prepare payload
-      const payload = new Uint8Array(6);
-      for (let i = 0; i < 6; i++) {
-        payload[i] = code.charCodeAt(i);
-      }
-
       try {
-        const response = await sendRequest(BLEOpcode.OPEN_DOOR, payload);
+        const response = await sendRequest(new OpenDoorPacket(code));
 
         if (!Array.isArray(response)) {
           if (response.opcode === BLEOpcode.VALID_OPEN_CODE) {
@@ -180,7 +176,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
       ];
 
       // Request logs and wait for stream end
-      const packets = await sendRequest(BLEOpcode.REQUEST_LOGS, new Uint8Array(0), {
+      const packets = await sendRequest(new RequestLogsPacket(), {
         timeout: 60000, // 60s max for full sync
         strategy: (packet) => {
           if (packet.opcode === BLEOpcode.LOG_END_HISTORY) return 'finish';

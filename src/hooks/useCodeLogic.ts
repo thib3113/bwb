@@ -11,6 +11,7 @@ import { BoksCode, BoksLog, CodeStatus } from '../types';
 import { BLEOpcode, EMPTY_ARRAY } from '../utils/bleConstants';
 import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
 import { runTask } from '../utils/uiUtils';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
 
 export interface CodeMetadata {
   lastUsed?: Date;
@@ -55,7 +56,7 @@ export const useCodeLogic = (
 
     await runTask(
       async () => {
-        const response = await sendRequest(BLEOpcode.COUNT_CODES, new Uint8Array());
+        const response = await sendRequest(new CountCodesPacket());
         const packet = Array.isArray(response) ? response[0] : response;
         console.log(
           `[CodeManager] Response to 0x14 received: Opcode=0x${packet.opcode.toString(16)}, Payload=`,

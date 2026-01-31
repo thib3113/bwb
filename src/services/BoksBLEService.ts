@@ -1,5 +1,6 @@
 import { EventEmitter } from '../utils/EventEmitter';
 import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
+import { PacketFactory } from '../ble/packets/PacketFactory';
 import {
   BATTERY_SERVICE_UUID,
   BLE_DEFAULT_TIMEOUT_MS,
@@ -172,7 +173,8 @@ export class BoksBLEService extends EventEmitter {
 
     if (parsed) {
       parsed.direction = 'RX';
-      parsed.parsedPayload = parsePayload(parsed.opcode, parsed.payload, parsed.raw);
+      // Use Factory to create rich object
+      parsed.parsedPayload = PacketFactory.create(parsed.opcode, parsed.payload);
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);
@@ -198,14 +200,25 @@ export class BoksBLEService extends EventEmitter {
     }
   }
 
+  /**
+   * Sends a request to the device.
+   * @param request The packet object (recommended) or raw opcode/payload.
+   * @param options Command options.
+   * @param configKey Configuration key for authenticated commands. Only used if request is a BoksTXPacket.
+   */
   async sendRequest(
     request: BoksTXPacket | { opcode: BLEOpcode; payload: Uint8Array },
-    options?: BLECommandOptions
+    options?: BLECommandOptions,
+    configKey?: string
   ): Promise<BLEPacket | BLEPacket[]> {
-    if (request instanceof BoksTXPacket) {
-      return this.queue.add(request.opcode, request.toPayload(), options);
+    // Safer check than instanceof to avoid issues with multiple instances or HMR
+    if ('toPayload' in request && typeof (request as BoksTXPacket).toPayload === 'function') {
+      // Generate payload using the injected configKey
+      const payload = (request as BoksTXPacket).toPayload(configKey);
+      return this.queue.add(request.opcode, payload, options);
     } else {
-      return this.queue.add(request.opcode, request.payload, options);
+      const rawRequest = request as { opcode: BLEOpcode; payload: Uint8Array };
+      return this.queue.add(rawRequest.opcode, rawRequest.payload, options);
     }
   }
 

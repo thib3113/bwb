@@ -7,6 +7,10 @@ import './i18n';
 import { AppProviders } from './context/AppProviders';
 import './services/StorageService';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { initPWA } from './pwa';
+
+// Initialize PWA (swears off Cypress)
+initPWA();
 
 // Simulator Helper
 // @ts-ignore
@@ -23,9 +27,17 @@ const appElement = document.getElementById('app');
 
 if (appElement) {
   console.log('[Main] Rendering app...');
+  // Use Vite's injected BASE_URL for routing
+  // Strip trailing slash to ensure clean route matching
+  const basename = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL.slice(0, -1)
+    : import.meta.env.BASE_URL;
+
+  console.log(`[Main] Using basename: "${basename}"`);
+
   render(
     <ErrorBoundary>
-      <BrowserRouter basename="/">
+      <BrowserRouter basename={basename}>
         <AppProviders>
           <App />
         </AppProviders>

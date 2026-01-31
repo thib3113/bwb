@@ -336,6 +336,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         <Tooltip title={isConnected ? t('open_door') : t('connect_to_open_door')}>
           <span>
             <IconButton
+              aria-label="open door"
               color="inherit"
               onClick={handleOpenDoor}
               disabled={isOpening || !isConnected}
@@ -358,6 +359,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
         {/* Connection Button */}
         <IconButton
+          aria-label="connect"
           color="inherit"
           onClick={handleConnectClick}
           disabled={isConnecting}
