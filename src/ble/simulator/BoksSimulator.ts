@@ -1,5 +1,9 @@
 import { EventEmitter } from '../../utils/EventEmitter';
-import { BLEOpcode } from '../../utils/bleConstants';
+import {
+  BLEOpcode,
+  SIMULATOR_DEFAULT_CONFIG_KEY,
+  SIMULATOR_DEFAULT_PIN,
+} from '../../utils/bleConstants';
 import { createPacket } from '../../utils/packetParser';
 import { BoksRXPacket } from '../packets/rx/BoksRXPacket';
 import {
@@ -22,10 +26,10 @@ export class BoksSimulator extends EventEmitter {
   private state: BoksState = {
     isOpen: false,
     pinCodes: new Map([
-      ['123456', 'master'], // Default Master Code
+      [SIMULATOR_DEFAULT_PIN, 'master'], // Default Master Code
     ]),
     logs: [],
-    configKey: 'AABBCCDD', // Default Config Key
+    configKey: SIMULATOR_DEFAULT_CONFIG_KEY, // Default Config Key
   };
 
   constructor() {

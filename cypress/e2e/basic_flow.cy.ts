@@ -30,22 +30,25 @@ describe('Boks Basic Flow (Simulator)', () => {
     cy.contains('Codes (Total:', { timeout: 10000 }).should('be.visible');
   });
 
-  it('should attempt to open the door (Master Code Check)', () => {
+  it('should open the door via simulator (Auto-Provisioned)', () => {
     // 1. Connect
     cy.get('button[aria-label="connect"]').click();
     cy.get('svg[data-testid="BluetoothIcon"]', { timeout: 10000 }).should('exist');
 
-    // Wait a bit for device context to settle (just in case)
+    // Wait a bit for device context to settle
     cy.wait(500);
 
     // 2. Click Open Door
     // Force click in case the tooltip or something interferes
     cy.get('button[aria-label="open door"]').click({ force: true });
     
-    // 3. Verify Logic
-    // We expect an error message because no master code is set.
-    // We check for the Alert component specifically.
-    cy.get('.MuiAlert-message', { timeout: 5000 }).should('exist');
-    cy.get('.MuiAlert-message').should('contain', 'Master code required');
+    // 3. Verify Feedback
+    // Since we auto-provisioned the PIN code, the door should open successfully
+    // Look for "Opening..." or "Door closed"
+    // (Wait for toast or UI update)
+    cy.contains('Opening door...', { timeout: 5000 }).should('exist');
+
+    // 4. Wait for close
+    cy.contains('Door closed', { timeout: 10000 }).should('exist');
   });
 });

@@ -1,7 +1,7 @@
 import { BLEAdapter } from './BLEAdapter';
 import { BluetoothDevice } from '../../types';
 import { BoksSimulator } from '../simulator/BoksSimulator';
-import { BLEOpcode } from '../../utils/bleConstants';
+import { BLEOpcode, SIMULATOR_BLE_ID } from '../../utils/bleConstants';
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
   private simulator: BoksSimulator;
@@ -35,7 +35,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     }, 500);
 
     return {
-        id: 'SIMULATOR-001',
+        id: SIMULATOR_BLE_ID,
         name: 'Boks Simulator',
         gatt: { connected: true }
     } as unknown as BluetoothDevice;
@@ -50,7 +50,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
   getDevice(): BluetoothDevice | null {
     if (!this.isConnected) return null;
     return {
-        id: 'SIMULATOR-001',
+        id: SIMULATOR_BLE_ID,
         name: 'Boks Simulator',
         gatt: { connected: true }
     } as unknown as BluetoothDevice;

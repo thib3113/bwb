@@ -6,7 +6,14 @@ import { BluetoothDevice, BoksDevice, UserRole } from '../types';
 import { DeviceSecrets } from '../types/db';
 import { DeviceContext } from './Contexts';
 import { BLEServiceEvent, BoksBLEService } from '../services/BoksBLEService';
-import { BATTERY_LEVEL_CHAR_UUID, BATTERY_SERVICE_UUID, BLEOpcode } from '../utils/bleConstants';
+import {
+  BATTERY_LEVEL_CHAR_UUID,
+  BATTERY_SERVICE_UUID,
+  BLEOpcode,
+  SIMULATOR_BLE_ID,
+  SIMULATOR_DEFAULT_CONFIG_KEY,
+  SIMULATOR_DEFAULT_PIN,
+} from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
 
 // Ensure StorageService is exposed for debugging
@@ -170,18 +177,26 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         } else {
           // Add new device
           targetId = crypto.randomUUID();
+
+          // Special handling for Simulator
+          const isSimulator = bleName === SIMULATOR_BLE_ID;
+          const initialFriendlyName = isSimulator ? 'Boks Simulator' : friendlyName;
+          const initialPin = isSimulator ? SIMULATOR_DEFAULT_PIN : undefined;
+
           await db.devices.add({
             id: targetId,
             ble_name: bleName,
-            friendly_name: friendlyName,
+            friendly_name: initialFriendlyName,
+            door_pin_code: initialPin,
             role: UserRole.Admin, // Default role for locally discovered devices
             sync_status: 'created',
             last_connected_at: Date.now(),
           });
 
-          // Initialize empty secrets for new device
+          // Initialize secrets (auto-fill for simulator)
           await db.device_secrets.add({
             device_id: targetId,
+            configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined,
           });
         }
 

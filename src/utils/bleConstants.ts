@@ -18,6 +18,11 @@ export const DEVICE_INFO_CHARS = {
   'Manufacturer Name': '00002a29-0000-1000-8000-00805f9b34fb',
 } as const;
 
+// Simulator Constants
+export const SIMULATOR_BLE_ID = 'SIMULATOR-001';
+export const SIMULATOR_DEFAULT_CONFIG_KEY = 'AABBCCDD';
+export const SIMULATOR_DEFAULT_PIN = '123456';
+
 // Opcodes Enum
 export enum BLEOpcode {
   OPEN_DOOR = 0x01,
