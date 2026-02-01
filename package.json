@@ -28,7 +28,8 @@
     "react-i18next": "^16.5.0",
     "react-router-dom": "^7.11.0",
     "vite-plugin-pwa": "^1.2.0",
-    "workbox-window": "^7.4.0"
+    "workbox-window": "^7.4.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx-source": "^7.27.1",

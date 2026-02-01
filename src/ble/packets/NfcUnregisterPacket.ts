@@ -1,8 +1,20 @@
 import {BoksTXPacket} from './BoksTXPacket';
 import {BLEOpcode} from '../../utils/bleConstants';
+import {z} from 'zod';
 
 export class NfcUnregisterPacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.UNREGISTER_NFC_TAG;
+
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    uidBytes: z.string().regex(/^[0-9A-Fa-f]+$/, 'Must be hex string').transform((val) => {
+        const bytes = new Uint8Array(Math.ceil(val.length / 2));
+        for (let i = 0; i < bytes.length; i++) {
+            bytes[i] = parseInt(val.substring(i * 2, i * 2 + 2), 16);
+        }
+        return bytes;
+    }),
+  });
 
   constructor(
     public configKey: string = '',
