@@ -1,8 +1,15 @@
 import { BLE_PACKET_CHECKSUM_MASK } from '../../utils/bleConstants';
+import { z } from 'zod';
 
 // Abstract base class for all TX packets
 export abstract class BoksTXPacket {
   abstract readonly opcode: number;
+
+  /**
+   * Optional Zod schema for validation and form generation.
+   * If not provided, the packet is considered to have no configurable payload.
+   */
+  static schema?: z.ZodObject<any>;
 
   /**
    * Returns the payload byte array (Excluding Opcode, Length and Checksum)

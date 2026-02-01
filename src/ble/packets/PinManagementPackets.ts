@@ -1,8 +1,15 @@
 import {BoksTXPacket} from './BoksTXPacket';
 import {BLEOpcode} from '../../utils/bleConstants';
+import {z} from 'zod';
 
 export class CreateMasterCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.CREATE_MASTER_CODE;
+
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    index: z.coerce.number().min(0).max(255),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+  });
 
   constructor(
     public configKey: string = '',
@@ -44,6 +51,11 @@ export class CreateMasterCodePacket extends BoksTXPacket {
 export class CreateSingleUseCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.CREATE_SINGLE_USE_CODE;
 
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+  });
+
   constructor(
     public configKey: string = '',
     public code: string = ''
@@ -77,6 +89,11 @@ export class CreateSingleUseCodePacket extends BoksTXPacket {
 export class CreateMultiUseCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.CREATE_MULTI_USE_CODE;
 
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+  });
+
   constructor(
     public configKey: string = '',
     public code: string = ''
@@ -109,6 +126,11 @@ export class CreateMultiUseCodePacket extends BoksTXPacket {
 export class DeleteMasterCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.DELETE_MASTER_CODE;
 
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    index: z.coerce.number().min(0).max(255),
+  });
+
   constructor(
     public configKey: string = '',
     public index: number = 0
@@ -133,6 +155,11 @@ export class DeleteMasterCodePacket extends BoksTXPacket {
 
 export class DeleteSingleUseCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.DELETE_SINGLE_USE_CODE;
+
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+  });
 
   constructor(
     public configKey: string = '',
@@ -166,6 +193,11 @@ export class DeleteSingleUseCodePacket extends BoksTXPacket {
 
 export class DeleteMultiUseCodePacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.DELETE_MULTI_USE_CODE;
+
+  static schema = z.object({
+    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+  });
 
   constructor(
     public configKey: string = '',

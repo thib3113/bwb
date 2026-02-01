@@ -93,4 +93,8 @@ export class PacketFactory {
     packet.parse(payload);
     return packet;
   }
+
+  static getRegisteredTXPackets(): Map<number, new () => BoksTXPacket> {
+    return this.txClassMap;
+  }
 }
