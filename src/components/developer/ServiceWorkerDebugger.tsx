@@ -32,20 +32,20 @@ export const ServiceWorkerDebugger = () => {
   const handleUpdate = async (reg: ServiceWorkerRegistration) => {
     try {
       await reg.update();
-      setMessage('Update requested');
+      setMessage(t('settings:developer.sw_update_requested'));
       fetchRegistrations();
     } catch (e) {
-      setMessage('Update failed: ' + e);
+      setMessage(t('settings:developer.sw_update_failed', { error: String(e) }));
     }
   };
 
   const handleUnregister = async (reg: ServiceWorkerRegistration) => {
     try {
       const result = await reg.unregister();
-      setMessage(result ? 'Unregistered successfully' : 'Unregister failed');
+      setMessage(result ? t('settings:developer.sw_unregister_success') : t('settings:developer.sw_unregister_failed'));
       fetchRegistrations();
     } catch (e) {
-      setMessage('Unregister error: ' + e);
+      setMessage(t('settings:developer.sw_unregister_error', { error: String(e) }));
     }
   };
 
@@ -54,7 +54,7 @@ export const ServiceWorkerDebugger = () => {
   };
 
   if (!('serviceWorker' in navigator)) {
-    return <Alert severity="warning">Service Worker API not supported</Alert>;
+    return <Alert severity="warning">{t('settings:developer.sw_not_supported')}</Alert>;
   }
 
   return (
@@ -67,19 +67,19 @@ export const ServiceWorkerDebugger = () => {
 
         {registrations.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            {t('settings:developer.no_records')} (No active registrations)
+            {t('settings:developer.sw_no_active')}
           </Typography>
         ) : (
           registrations.map((reg, index) => (
             <Box key={index} sx={{ mb: 2, p: 1, border: '1px solid #ddd', borderRadius: 1 }}>
               <Typography variant="subtitle2">
-                Scope: {reg.scope}
+                {t('settings:developer.sw_scope', { scope: reg.scope })}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t('settings:developer.sw_status', {
-                  status: reg.installing ? 'Installing' :
-                          reg.waiting ? 'Waiting' :
-                          reg.active ? 'Active' : 'Unknown'
+                  status: reg.installing ? t('settings:developer.sw_installing') :
+                          reg.waiting ? t('settings:developer.sw_waiting') :
+                          reg.active ? t('settings:developer.sw_active') : t('settings:developer.sw_unknown')
                 })}
               </Typography>
 

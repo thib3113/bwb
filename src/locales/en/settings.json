@@ -101,6 +101,18 @@
 		"sw_status": "Status: {{status}}",
 		"sw_check_update": "Check for Update",
 		"sw_unregister": "Unregister SW",
-		"sw_reload": "Reload Page"
+		"sw_reload": "Reload Page",
+		"sw_update_requested": "Update requested",
+		"sw_update_failed": "Update failed: {{error}}",
+		"sw_unregister_success": "Unregistered successfully",
+		"sw_unregister_failed": "Unregister failed",
+		"sw_unregister_error": "Unregister error: {{error}}",
+		"sw_scope": "Scope: {{scope}}",
+		"sw_installing": "Installing",
+		"sw_waiting": "Waiting",
+		"sw_active": "Active",
+		"sw_unknown": "Unknown",
+		"sw_not_supported": "Service Worker API not supported",
+		"sw_no_active": "No active registrations"
 	}
 }

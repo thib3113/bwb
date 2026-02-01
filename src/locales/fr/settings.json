@@ -104,6 +104,18 @@
 		"sw_status": "Statut : {{status}}",
 		"sw_check_update": "Chercher une mise à jour",
 		"sw_unregister": "Désinstaller le SW",
-		"sw_reload": "Recharger la page"
+		"sw_reload": "Recharger la page",
+		"sw_update_requested": "Mise à jour demandée",
+		"sw_update_failed": "Échec de la mise à jour : {{error}}",
+		"sw_unregister_success": "Désinstallé avec succès",
+		"sw_unregister_failed": "Échec de la désinstallation",
+		"sw_unregister_error": "Erreur de désinstallation : {{error}}",
+		"sw_scope": "Périmètre : {{scope}}",
+		"sw_installing": "Installation",
+		"sw_waiting": "En attente",
+		"sw_active": "Actif",
+		"sw_unknown": "Inconnu",
+		"sw_not_supported": "API Service Worker non supportée",
+		"sw_no_active": "Aucune inscription active"
 	}
 }
