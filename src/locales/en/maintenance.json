@@ -4,7 +4,7 @@
   "scripts": {
     "clean_master_codes": {
       "title": "Clean Master Codes",
-      "description": "Deletes all master codes (indexes 0-255). Retries index if deletion successful."
+      "description": "Deletes all master codes."
     }
   },
   "status": {

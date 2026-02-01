@@ -4,7 +4,7 @@
   "scripts": {
     "clean_master_codes": {
       "title": "Nettoyer Codes Maîtres",
-      "description": "Supprime tous les codes maîtres (index 0-255). Réessaie l'index si la suppression réussit."
+      "description": "Supprime tous les codes permanents (maîtres)."
     }
   },
   "status": {
