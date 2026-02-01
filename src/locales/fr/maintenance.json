@@ -3,8 +3,8 @@
   "description": "Exécuter des scripts de maintenance sur l'appareil Boks connecté.",
   "scripts": {
     "clean_master_codes": {
-      "title": "Nettoyer Codes Maîtres",
-      "description": "Supprime tous les codes permanents (maîtres)."
+      "title": "Nettoyer Codes Permanents",
+      "description": "Supprime tous les codes permanents."
     }
   },
   "status": {
@@ -12,8 +12,8 @@
     "missing_config_key": "Clé de configuration manquante pour cet appareil.",
     "finished": "Script terminé avec succès.",
     "fetching_count": "Récupération du nombre de codes...",
-    "initial_count": "Nombre initial de codes maîtres : {{count}}",
-    "no_codes": "Aucun code maître trouvé. Terminé.",
+    "initial_count": "Nombre initial de codes permanents : {{count}}",
+    "no_codes": "Aucun code permanent trouvé. Terminé.",
     "stopping_early": "Compteur atteint 0. Arrêt anticipé.",
     "deleting_index": "Suppression de l'index {{index}} (Compte : {{count}})...",
     "retry_index": "Compte descendu à {{count}}. Nouvel essai index {{index}}...",
