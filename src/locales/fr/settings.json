@@ -45,5 +45,23 @@
 		"support_description": "Si vous trouvez cet outil utile, envisagez de faire un don pour soutenir son développement.",
 		"donate_link": "Faire un don",
 		"github_issues": "Signaler un bug"
+	},
+	"developer": {
+		"menu_title": "Développeur",
+		"page_title": "Options Développeur",
+		"disable_mode": "Désactiver le mode Dev",
+		"simulators_tools": "Simulateurs & Outils",
+		"enable_simulator": "Activer le simulateur Bluetooth (Recharge la page)",
+		"load_mock_data": "Charger les données de test",
+		"mock_data_helper": "Réinitialise la BD et charge des données de test pour 'Mock Boks'.",
+		"db_editor": "Éditeur de Base de Données",
+		"db_editor_helper": "Voir et inspecter les données IndexedDB locales",
+		"select_table": "Sélectionner une table",
+		"enabled_success": "Mode développeur activé !",
+		"mock_data_confirm": "Ceci effacera les données existantes pour l'appareil de test. Continuer ?",
+		"mock_data_success": "Données de test chargées avec succès. Vous devrez peut-être rafraîchir.",
+		"mock_data_failed": "Échec du chargement des données de test",
+		"loading": "Chargement...",
+		"no_records": "Aucun enregistrement trouvé."
 	}
 }

@@ -12,11 +12,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useDeveloperContext } from '../context/DeveloperContext';
 import { DBEditor } from '../components/developer/DBEditor';
 import { StorageService } from '../services/StorageService';
 
 export const DeveloperPage = () => {
+  const { t } = useTranslation(['settings']);
   const navigate = useNavigate();
   const { isDeveloperMode, disableDeveloperMode } = useDeveloperContext();
   const [simulatorEnabled, setSimulatorEnabled] = useState(false);
@@ -41,9 +43,9 @@ export const DeveloperPage = () => {
     const checked = event.target.checked;
     setSimulatorEnabled(checked);
     if (checked) {
-        localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+      localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
     } else {
-        localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
+      localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
     }
     // Reload to apply changes
     window.location.reload();
@@ -51,49 +53,52 @@ export const DeveloperPage = () => {
 
   const handleMockData = async () => {
     try {
-      if (confirm('This will wipe existing data for the mock device. Continue?')) {
+      if (confirm(t('settings:developer.mock_data_confirm'))) {
         await StorageService.mockData();
-        alert('Mock data loaded successfully. You may need to refresh.');
+        alert(t('settings:developer.mock_data_success'));
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to load mock data');
+      alert(t('settings:developer.mock_data_failed'));
     }
   };
 
   return (
     <Container maxWidth="md" sx={{ py: 2 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Developer Options</Typography>
+        <Typography variant="h4">{t('settings:developer.page_title')}</Typography>
         <Button variant="outlined" color="error" onClick={handleDisable}>
-          Disable Dev Mode
+          {t('settings:developer.disable_mode')}
         </Button>
       </Box>
 
       <Card sx={{ mb: 3 }}>
-        <CardHeader title="Simulators & Tools" />
+        <CardHeader title={t('settings:developer.simulators_tools')} />
         <Divider />
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControlLabel
               control={<Switch checked={simulatorEnabled} onChange={handleSimulatorToggle} />}
-              label="Enable Bluetooth Simulator (Reloads Page)"
+              label={t('settings:developer.enable_simulator')}
             />
 
             <Box>
-                <Button variant="contained" onClick={handleMockData}>
-                Load Mock Data
-                </Button>
-                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
-                    Resets DB and loads test data for 'Mock Boks'.
-                </Typography>
+              <Button variant="contained" onClick={handleMockData}>
+                {t('settings:developer.load_mock_data')}
+              </Button>
+              <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
+                {t('settings:developer.mock_data_helper')}
+              </Typography>
             </Box>
           </Box>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader title="Database Editor" subheader="View and inspect local IndexedDB data" />
+        <CardHeader
+          title={t('settings:developer.db_editor')}
+          subheader={t('settings:developer.db_editor_helper')}
+        />
         <Divider />
         <CardContent>
           <DBEditor />

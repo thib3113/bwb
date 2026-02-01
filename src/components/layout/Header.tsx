@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, useRef} from 'react';
 import pReact from 'preact';
 import {
 	AppBar,
@@ -66,6 +66,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
   const { isDeveloperMode, enableDeveloperMode } = useDeveloperContext();
   const [devClickCount, setDevClickCount] = useState(0);
+  const devClickTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { isConnected, isConnecting, connect, disconnect, getBatteryInfo } = useBLEConnection();
 
@@ -87,10 +88,18 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     const newCount = devClickCount + 1;
     setDevClickCount(newCount);
 
+    if (devClickTimerRef.current) {
+      clearTimeout(devClickTimerRef.current);
+    }
+
     if (newCount >= 7) {
       enableDeveloperMode();
-      showNotification('Developer mode enabled!', 'success');
+      showNotification(t('settings:developer.enabled_success'), 'success');
       setDevClickCount(0);
+    } else {
+      devClickTimerRef.current = setTimeout(() => {
+        setDevClickCount(0);
+      }, 3000);
     }
   };
 
@@ -317,7 +326,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                       <ListItemIcon>
                         <DeveloperIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Developer" />
+                      <ListItemText primary={t('settings:developer.menu_title')} />
                     </ListItemButton>
                   </ListItem>
                 </>
@@ -333,7 +342,6 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                 sx={{
                   cursor: isDeveloperMode ? 'default' : 'pointer',
                   userSelect: 'none',
-                  position: 'relative',
                   display: 'inline-block',
                   background: devClickCount > 0
                     ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
