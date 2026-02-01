@@ -12,10 +12,12 @@ import {
   Alert,
 } from '@mui/material';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { PacketFactory } from '../../ble/packets/PacketFactory';
 import { useBLE } from '../../hooks/useBLE';
 import { BoksTXPacket } from '../../ble/packets/BoksTXPacket';
 import { BLEOpcode } from '../../utils/bleConstants';
+import { PacketLogger } from './PacketLogger';
 
 // Helper to get friendly names for opcodes
 const getOpcodeName = (opcode: number): string => {
@@ -23,11 +25,13 @@ const getOpcodeName = (opcode: number): string => {
 };
 
 export const BluetoothDebugger = () => {
+  const { t } = useTranslation(['settings']);
   const { sendPacket, isConnected } = useBLE();
   const [selectedOpcode, setSelectedOpcode] = useState<number | ''>('');
   // Store form values as a simple Record
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Get list of registered TX packets
   const registeredPackets = useMemo(() => {
@@ -55,15 +59,19 @@ export const BluetoothDebugger = () => {
     setSelectedOpcode(event.target.value);
     setFormData({});
     setValidationError(null);
+    setSuccessMessage(null);
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setValidationError(null);
+    setSuccessMessage(null);
   };
 
   const handleSend = async () => {
     if (!SelectedPacketClass) return;
+    setValidationError(null);
+    setSuccessMessage(null);
 
     try {
       let packetData: any = {};
@@ -85,30 +93,28 @@ export const BluetoothDebugger = () => {
       const packet = new SelectedPacketClass();
 
       // Populate properties.
-      // Assumption: Constructor args match schema keys, OR public properties match schema keys.
-      // Since we can't easily rely on constructor parameter order dynamically without reflection,
-      // we assume the properties are public and assignable.
       Object.assign(packet, packetData);
 
       await sendPacket(packet);
       console.log('Packet sent successfully', packet);
+      setSuccessMessage(t('settings:developer.packet_sent_success'));
     } catch (e: any) {
       console.error('Failed to send packet', e);
-      setValidationError(e.message || 'Unknown error');
+      setValidationError(e.message || t('settings:developer.packet_send_error'));
     }
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Alert severity={isConnected ? 'success' : 'warning'}>
-        {isConnected ? 'Connected to device' : 'Not connected (Packets will be queued or fail)'}
+        {isConnected ? t('settings:developer.enabled_success') : t('settings:developer.not_connected_warning')}
       </Alert>
 
       <FormControl fullWidth>
-        <InputLabel>Select Packet Type</InputLabel>
+        <InputLabel>{t('settings:developer.packet_type_label')}</InputLabel>
         <Select
           value={selectedOpcode}
-          label="Select Packet Type"
+          label={t('settings:developer.packet_type_label')}
           onChange={handleOpcodeChange}
         >
           {registeredPackets.map(([opcode]) => (
@@ -122,7 +128,7 @@ export const BluetoothDebugger = () => {
       {SelectedPacketClass && (
         <Paper variant="outlined" sx={{ p: 2 }}>
           <Typography variant="h6" gutterBottom>
-            Packet Parameters
+            {t('settings:developer.packet_parameters_title')}
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -130,21 +136,14 @@ export const BluetoothDebugger = () => {
               Object.keys(schemaShape).length > 0 ? (
                 Object.keys(schemaShape).map((key) => {
                   const fieldSchema = schemaShape[key];
-                  // Determine input type (basic heuristic)
-                  // We can inspect fieldSchema._def to guess type, or just default to text
-                  // If it's a ZodNumber, use type="number"
 
                   // This is a rough check for Zod types
                   let isNumber = false;
                   let typeName = fieldSchema._def.typeName;
                    // Handle optional/nullable wrappers if needed, for now stick to basics
-                   // or ZodCoerce
                   if (typeName === 'ZodNumber' || (typeName === 'ZodEffects' && fieldSchema._def.schema?._def.typeName === 'ZodNumber')) {
                       isNumber = true;
                   }
-
-                  // Check if it is a coerce number
-                  // In Zod 3.x, z.coerce.number() creates a ZodNumber with coerce: true flag, typeName is still ZodNumber
 
                   return (
                     <TextField
@@ -160,22 +159,28 @@ export const BluetoothDebugger = () => {
                   );
                 })
               ) : (
-                <Typography color="text.secondary">No parameters required for this packet.</Typography>
+                <Typography color="text.secondary">{t('settings:developer.no_parameters')}</Typography>
               )
             ) : (
-              <Typography color="text.secondary">No schema defined for this packet.</Typography>
+              <Typography color="text.secondary">{t('settings:developer.no_schema')}</Typography>
             )}
 
             {validationError && (
                 <Alert severity="error">{validationError}</Alert>
             )}
+             {successMessage && (
+                <Alert severity="success">{successMessage}</Alert>
+            )}
 
             <Button variant="contained" onClick={handleSend} disabled={!isConnected && !window.BOKS_SIMULATOR_ENABLED}>
-              Send Packet
+              {t('settings:developer.send_packet')}
             </Button>
           </Box>
         </Paper>
       )}
+
+      {/* Packet Logger Integration */}
+      <PacketLogger />
     </Box>
   );
 };

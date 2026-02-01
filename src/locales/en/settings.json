@@ -80,6 +80,16 @@
 		"mock_data_success": "Mock data loaded successfully. You may need to refresh.",
 		"mock_data_failed": "Failed to load mock data",
 		"loading": "Loading...",
-		"no_records": "No records found."
+		"no_records": "No records found.",
+		"bluetooth_debugger_title": "Bluetooth Debugger",
+		"packet_type_label": "Select Packet Type",
+		"packet_parameters_title": "Packet Parameters",
+		"no_parameters": "No parameters required for this packet.",
+		"no_schema": "No schema defined for this packet.",
+		"send_packet": "Send Packet",
+		"not_connected_warning": "Not connected (Packets will be queued or fail)",
+		"packet_sent_success": "Packet sent successfully",
+		"packet_send_error": "Failed to send packet",
+		"packet_logger_title": "Packet Logger (Volatile)"
 	}
 }

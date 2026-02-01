@@ -83,6 +83,16 @@
 		"mock_data_success": "Données de test chargées avec succès. Vous devrez peut-être rafraîchir.",
 		"mock_data_failed": "Échec du chargement des données de test",
 		"loading": "Chargement...",
-		"no_records": "Aucun enregistrement trouvé."
+		"no_records": "Aucun enregistrement trouvé.",
+		"bluetooth_debugger_title": "Debugger Bluetooth",
+		"packet_type_label": "Sélectionner le type de paquet",
+		"packet_parameters_title": "Paramètres du paquet",
+		"no_parameters": "Aucun paramètre requis pour ce paquet.",
+		"no_schema": "Aucun schéma défini pour ce paquet.",
+		"send_packet": "Envoyer le paquet",
+		"not_connected_warning": "Non connecté (Les paquets seront mis en file d'attente ou échoueront)",
+		"packet_sent_success": "Paquet envoyé avec succès",
+		"packet_send_error": "Échec de l'envoi du paquet",
+		"packet_logger_title": "Journal des Paquets (Volatile)"
 	}
 }
