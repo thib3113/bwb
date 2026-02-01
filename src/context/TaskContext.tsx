@@ -1,4 +1,4 @@
-import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
+import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {BoksTask, TaskType} from '../types/task';
 import {useBLEConnection} from '../hooks/useBLEConnection';
 import {BLEOpcode} from '../utils/bleConstants';
@@ -329,17 +329,29 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     [sendRequest, activeDevice?.id, activeDevice?.configuration_key]
   );
 
+  // Ref for tracking processing state
+  const isProcessingRef = useRef(false);
+
   // Task runner - processes pending tasks when connected
+  // This effect relies on the state update chain:
+  // 1. Effect runs, finds pending task.
+  // 2. Marks isProcessing = true.
+  // 3. Executes task.
+  // 4. executeTask updates state (e.g. 'processing' -> 'completed').
+  // 5. finally block marks isProcessing = false.
+  // 6. State update triggers Effect again.
+  // 7. Effect finds next pending task...
   useEffect(() => {
     if (!isConnected) return;
+    if (isProcessingRef.current) return;
 
-    // Get pending tasks to check if we have any before processing
-    const pendingTasks = [...tasks].filter((task) => task.status === 'pending');
+    // Get pending tasks
+    const pendingTasks = tasks.filter((task) => task.status === 'pending');
+    if (pendingTasks.length === 0) return;
 
-    // Only process if we have pending tasks
-    if (pendingTasks.length > 0) {
-      // Process pending tasks
-      const processPendingTasks = async () => {
+    const processNextTask = async () => {
+      isProcessingRef.current = true;
+      try {
         // Sort tasks by priority and type (DELETE before ADD)
         const sortedPendingTasks = [...pendingTasks].sort((a, b) => {
           // First sort by priority
@@ -390,16 +402,18 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           return getDeleteOpcodePriority(a) - getDeleteOpcodePriority(b);
         });
 
-        // Process tasks one by one
-        for (const task of sortedPendingTasks) {
-          // Wait for the task to complete before processing the next one
-          await executeTask(task);
+        // Execute only the first task in the queue
+        const nextTask = sortedPendingTasks[0];
+        if (nextTask) {
+          await executeTask(nextTask);
         }
-      };
+      } finally {
+        isProcessingRef.current = false;
+      }
+    };
 
-      processPendingTasks();
-    }
-  }, [isConnected, tasks]); // Removed executeTask from dependencies to prevent unnecessary re-renders
+    processNextTask();
+  }, [isConnected, tasks]);
   // executeTask is stable due to useCallback and its dependencies, so it won't change between renders
 
   const value = useMemo(
