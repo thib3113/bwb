@@ -12,7 +12,7 @@
     "step_1": "Select your Boks device to check compatibility.",
     "step_2": "Prepare the device for update (this will reboot the device).",
     "step_3": "Flash the new firmware.",
-    "reboot_wait": "Rebooting into bootloader... please wait.",
+    "reboot_wait": "Rebooting into bootloader... Please reconnect to continue.",
     "reboot_manual": "Update complete! Please manually reboot your Boks if it doesn't restart automatically.",
     "select_file": "Select Firmware (.zip)"
   },

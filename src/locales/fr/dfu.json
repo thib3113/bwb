@@ -12,7 +12,7 @@
     "step_1": "Sélectionnez votre Boks pour vérifier la compatibilité.",
     "step_2": "Préparer l'appareil pour la mise à jour (cela va le redémarrer).",
     "step_3": "Flasher le nouveau firmware.",
-    "reboot_wait": "Redémarrage en mode bootloader... veuillez patienter.",
+    "reboot_wait": "Redémarrage en mode bootloader... Veuillez vous reconnecter pour continuer.",
     "reboot_manual": "Mise à jour terminée ! Veuillez redémarrer manuellement votre Boks si nécessaire.",
     "select_file": "Choisir le Firmware (.zip)"
   },
