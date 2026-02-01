@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import {
@@ -37,7 +37,6 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
   const { isConnected } = useBLEConnection();
   const { isSyncingLogs, requestLogs } = useBLELogs();
   const { logCount } = useLogCount();
-  const [parsedLogs, setParsedLogs] = useState<ParsedLogDisplay[]>([]);
 
   /**
    * Note on performance: High-volume optimization (like virtualization) is not implemented here
@@ -55,6 +54,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       .toArray()
       .then((logs) => logs.sort((a, b) => Number(b.timestamp) - Number(a.timestamp)));
   }, [activeDevice?.id]);
+
   const logs = useMemo(() => {
     const results = (logsQuery ?? EMPTY_ARRAY) as BoksLog[];
     console.log(`[LogViewer] raw logs count: ${results.length}`, results);
@@ -62,9 +62,12 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
   }, [logsQuery]);
 
   // Parse logs using the new log parser utility
-  const parseLogsForCodeUsage = useCallback(() => {
+  // Optimized: Using useMemo instead of useEffect + useState to avoid double render.
+  const parsedLogs = useMemo(() => {
+    if (logs.length === 0) return [];
+
     try {
-      console.log(`[LogViewer] Starting parseLogsForCodeUsage with ${logs.length} logs`);
+      console.log(`[LogViewer] Starting parseLogs with ${logs.length} logs`);
       const parsed: ParsedLogDisplay[] = parseLogs(logs).map((parsedLog) => {
         const date = new Date(parsedLog.timestamp);
         const fullDate = date.toLocaleString(i18n.language);
@@ -72,22 +75,19 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
         return {
           ...parsedLog,
           fullDate,
-          // We don't overwrite details here. LogItem handles display.
-          // But wait, LogViewer used to set `event` to translated description.
           event: t(parsedLog.description),
         };
       });
 
       console.log(`[LogViewer] Parsing finished. parsedLogs: ${parsed.length}`, parsed);
-      setParsedLogs(parsed);
+      return parsed;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(t('parse_error'), errorMessage);
-      if (showNotification) {
-        showNotification(t('parse_error') + ': ' + errorMessage, 'error');
-      }
+      // Side effect (notification) removed from render phase.
+      return [];
     }
-  }, [logs, i18n.language, t, showNotification]);
+  }, [logs, i18n.language, t]);
 
   // Refresh logs function
   const refreshLogs = useCallback(async () => {
@@ -106,16 +106,6 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       errorMsg: t('refresh_failed'),
     });
   }, [isConnected, requestLogs, showNotification, hideNotification, t]);
-
-  // Auto-analyze logs when logs change
-  useEffect(() => {
-    if (logs.length > 0) {
-      const timer = setTimeout(() => {
-        parseLogsForCodeUsage();
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [logs, parseLogsForCodeUsage]);
 
   return (
     <Box sx={{ p: 2, mb: 2, width: '100%' }}>
