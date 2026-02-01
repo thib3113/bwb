@@ -10,12 +10,21 @@ import {
   BATTERY_LEVEL_CHAR_UUID,
   BATTERY_SERVICE_UUID,
   BLEOpcode,
+  DEVICE_INFO_CHARS,
+  DEVICE_INFO_SERVICE_UUID,
   SIMULATOR_BLE_ID,
   SIMULATOR_DEFAULT_CONFIG_KEY,
   SIMULATOR_DEFAULT_PIN,
 } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { SetConfigurationPacket } from '../ble/packets/SetConfigurationPacket';
+
+// Hardware Revisions Map (Internal Firmware Revision -> Hardware Version)
+const PCB_VERSIONS: Record<string, string> = {
+  '10/125': '4.0',
+  '10/cd': '3.0',
+};
 
 // Ensure StorageService is exposed for debugging
 if (typeof window !== 'undefined') {
@@ -192,6 +201,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             role: UserRole.Admin, // Default role for locally discovered devices
             sync_status: 'created',
             last_connected_at: Date.now(),
+            la_poste_activated: false, // Default to false
           });
 
           // Initialize secrets (auto-fill for simulator)
@@ -204,23 +214,68 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         // Set as active device
         setActiveDeviceId(targetId);
 
-        // Try to get battery level automatically after connection (Standard BLE Service)
+        // Read Device Info & Battery
         setTimeout(async () => {
           try {
             const bleService = BoksBLEService.getInstance();
             if (bleService.getState() === 'connected') {
-              const val = await bleService.readCharacteristic(
-                BATTERY_SERVICE_UUID,
-                BATTERY_LEVEL_CHAR_UUID
-              );
-              const level = val.getUint8(0);
-              console.log(`[DeviceContext] Standard Battery Level read: ${level}%`);
-              await updateDeviceBatteryLevel(targetId, level);
+              // 1. Battery
+              try {
+                const val = await bleService.readCharacteristic(
+                  BATTERY_SERVICE_UUID,
+                  BATTERY_LEVEL_CHAR_UUID
+                );
+                const level = val.getUint8(0);
+                console.log(`[DeviceContext] Standard Battery Level read: ${level}%`);
+                await updateDeviceBatteryLevel(targetId, level);
+              } catch (e) {
+                console.warn('[DeviceContext] Failed to read battery:', e);
+              }
+
+              // 2. Firmware & Software Revision
+              const updates: Partial<BoksDevice> = {};
+              const decoder = new TextDecoder();
+
+              try {
+                const fwData = await bleService.readCharacteristic(
+                  DEVICE_INFO_SERVICE_UUID,
+                  DEVICE_INFO_CHARS['Firmware Revision']
+                );
+                const fwRev = decoder.decode(fwData).replace(/\0/g, '').trim();
+                console.log(`[DeviceContext] Firmware Revision: ${fwRev}`);
+                updates.firmware_revision = fwRev;
+
+                // Map to Hardware Version
+                if (PCB_VERSIONS[fwRev]) {
+                  updates.hardware_version = PCB_VERSIONS[fwRev];
+                  console.log(
+                    `[DeviceContext] Mapped HW Version: ${updates.hardware_version} from FW ${fwRev}`
+                  );
+                }
+              } catch (e) {
+                console.warn('[DeviceContext] Failed to read FW Revision:', e);
+              }
+
+              try {
+                const swData = await bleService.readCharacteristic(
+                  DEVICE_INFO_SERVICE_UUID,
+                  DEVICE_INFO_CHARS['Software Revision']
+                );
+                const swRev = decoder.decode(swData).replace(/\0/g, '').trim();
+                console.log(`[DeviceContext] Software Revision: ${swRev}`);
+                updates.software_revision = swRev;
+              } catch (e) {
+                console.warn('[DeviceContext] Failed to read SW Revision:', e);
+              }
+
+              if (Object.keys(updates).length > 0) {
+                await db.devices.update(targetId, updates);
+              }
             }
           } catch (error) {
-            console.warn('Failed to read standard battery level after connection:', error);
+            console.warn('Failed to read device info after connection:', error);
           }
-        }, 2000);
+        }, 1500); // Wait 1.5s to let connection stabilize
       } catch (error) {
         console.error('Failed to register device:', error);
         throw error;
@@ -354,6 +409,37 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // Function to toggle La Poste
+  const toggleLaPoste = useCallback(
+    async (enable: boolean) => {
+      if (!activeDeviceIdRef.current) return;
+      const deviceId = activeDeviceIdRef.current;
+
+      try {
+        const secrets = await db.device_secrets.get(deviceId);
+        if (!secrets?.configuration_key) throw new Error('Configuration Key required');
+
+        const bleService = BoksBLEService.getInstance();
+        const packet = new SetConfigurationPacket(
+          secrets.configuration_key,
+          0x01, // Type: La Poste
+          enable ? 0x01 : 0x00
+        );
+
+        await bleService.sendRequest(packet);
+
+        // Update local DB state
+        await db.devices.update(deviceId, {
+          la_poste_activated: enable,
+        });
+      } catch (error) {
+        console.error('Failed to toggle La Poste:', error);
+        throw error;
+      }
+    },
+    []
+  );
+
   const value = useMemo(
     () => ({
       knownDevices,
@@ -368,6 +454,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCount,
       updateDeviceBatteryLevel,
+      toggleLaPoste,
     }),
     [
       knownDevices,
@@ -382,6 +469,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCount,
       updateDeviceBatteryLevel,
+      toggleLaPoste,
     ]
   );
 

@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useDevice } from '../hooks/useDevice';
 import { useBLEConnection } from '../hooks/useBLEConnection';
 import { DeviceSettings } from '../components/my-boks/DeviceSettings';
+import { NfcTagsTab } from '../components/my-boks/NfcTagsTab';
 import { useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { compareVersions } from '../utils/version';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -91,6 +93,12 @@ export const MyBoksPage = () => {
   // Determine if we should show the list view
   const showListView = knownDevices.length > 1 && !selectedDeviceId && !activeDevice;
 
+  const showNfc =
+    activeDevice &&
+    activeDevice.hardware_version === '4.0' &&
+    activeDevice.software_revision &&
+    compareVersions(activeDevice.software_revision, '4.3.3') >= 0;
+
   // Determine the title
   let title = t('common:my_boks'); // Default to plural
   if (activeDevice && knownDevices.length === 1) {
@@ -166,6 +174,7 @@ export const MyBoksPage = () => {
         <Tabs value={value} onChange={handleChange} aria-label="my boks tabs">
           <Tab label={t('settings:title')} {...a11yProps(0)} />
           <Tab label={t('common:users.title')} {...a11yProps(1)} />
+          {showNfc && <Tab label="Tags NFC" {...a11yProps(2)} />}
         </Tabs>
       </Box>
 
@@ -181,6 +190,11 @@ export const MyBoksPage = () => {
           </Typography>
         </Box>
       </TabPanel>
+      {showNfc && (
+        <TabPanel value={value} index={2}>
+          <NfcTagsTab />
+        </TabPanel>
+      )}
     </Box>
   );
 };

@@ -8,7 +8,8 @@ import {useBLE} from '../hooks/useBLE';
 import {BLEOpcode} from '../utils/bleConstants';
 import {BoksLog} from '../types';
 import {DeviceLogContext, SettingsContext} from './Contexts';
-import {GetLogsCountPacket, RequestLogsPacket} from '../ble/packets/LogPackets';
+import {GetLogsCountPacket} from '../ble/packets/GetLogsCountPacket';
+import {RequestLogsPacket} from '../ble/packets/RequestLogsPacket';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);

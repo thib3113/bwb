@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie';
 import { BoksCode, BoksLog, BoksSettings } from '../types';
-import { BoksDevice, BoksUser, DeviceSecrets } from '../types/db';
+import { BoksDevice, BoksNfcTag, BoksUser, DeviceSecrets } from '../types/db';
 import { STORAGE_KEYS } from '../utils/constants';
 
 export class BoksDatabase extends Dexie {
@@ -10,6 +10,7 @@ export class BoksDatabase extends Dexie {
   logs!: Table<BoksLog, string>;
   users!: Table<BoksUser, string>;
   settings!: Table<BoksSettings, string>;
+  nfc_tags!: Table<BoksNfcTag, string>;
 
   constructor() {
     super(STORAGE_KEYS.DATABASE_NAME);
@@ -22,6 +23,7 @@ export class BoksDatabase extends Dexie {
       codes: '&id, device_id, author_id, status, updated_at',
       logs: '&id, device_id, timestamp, updated_at',
       settings: '&key, updated_at',
+      nfc_tags: '&id, device_id, updated_at',
     });
 
     console.log(

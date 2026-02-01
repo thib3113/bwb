@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import {GetLogsCountPacket, RequestLogsPacket} from '../../ble/packets/LogPackets';
+import {GetLogsCountPacket} from '../../ble/packets/GetLogsCountPacket';
+import {RequestLogsPacket} from '../../ble/packets/RequestLogsPacket';
 import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('Log Packets', () => {
