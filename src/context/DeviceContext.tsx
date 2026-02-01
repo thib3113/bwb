@@ -410,35 +410,32 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Function to toggle La Poste
-  const toggleLaPoste = useCallback(
-    async (enable: boolean) => {
-      if (!activeDeviceIdRef.current) return;
-      const deviceId = activeDeviceIdRef.current;
+  const toggleLaPoste = useCallback(async (enable: boolean) => {
+    if (!activeDeviceIdRef.current) return;
+    const deviceId = activeDeviceIdRef.current;
 
-      try {
-        const secrets = await db.device_secrets.get(deviceId);
-        if (!secrets?.configuration_key) throw new Error('Configuration Key required');
+    try {
+      const secrets = await db.device_secrets.get(deviceId);
+      if (!secrets?.configuration_key) throw new Error('Configuration Key required');
 
-        const bleService = BoksBLEService.getInstance();
-        const packet = new SetConfigurationPacket(
-          secrets.configuration_key,
-          0x01, // Type: La Poste
-          enable ? 0x01 : 0x00
-        );
+      const bleService = BoksBLEService.getInstance();
+      const packet = new SetConfigurationPacket(
+        secrets.configuration_key,
+        0x01, // Type: La Poste
+        enable ? 0x01 : 0x00
+      );
 
-        await bleService.sendRequest(packet);
+      await bleService.sendRequest(packet);
 
-        // Update local DB state
-        await db.devices.update(deviceId, {
-          la_poste_activated: enable,
-        });
-      } catch (error) {
-        console.error('Failed to toggle La Poste:', error);
-        throw error;
-      }
-    },
-    []
-  );
+      // Update local DB state
+      await db.devices.update(deviceId, {
+        la_poste_activated: enable,
+      });
+    } catch (error) {
+      console.error('Failed to toggle La Poste:', error);
+      throw error;
+    }
+  }, []);
 
   const value = useMemo(
     () => ({

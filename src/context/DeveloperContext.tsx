@@ -37,7 +37,9 @@ export const DeveloperProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <DeveloperContext.Provider value={{ isDeveloperMode, enableDeveloperMode, disableDeveloperMode }}>
+    <DeveloperContext.Provider
+      value={{ isDeveloperMode, enableDeveloperMode, disableDeveloperMode }}
+    >
       {children}
     </DeveloperContext.Provider>
   );

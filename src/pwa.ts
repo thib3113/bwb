@@ -1,5 +1,5 @@
 // @ts-expect-error - Virtual module
-import {registerSW} from 'virtual:pwa-register';
+import { registerSW } from 'virtual:pwa-register';
 
 // Check for Cypress
 // @ts-expect-error - Custom global flag

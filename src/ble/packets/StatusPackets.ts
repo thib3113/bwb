@@ -1,6 +1,6 @@
-import {BoksTXPacket} from './BoksTXPacket';
-import {BLEOpcode} from '../../utils/bleConstants';
-import {z} from 'zod';
+import { BoksTXPacket } from './BoksTXPacket';
+import { BLEOpcode } from '../../utils/bleConstants';
+import { z } from 'zod';
 
 export class AskDoorStatusPacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.ASK_DOOR_STATUS;

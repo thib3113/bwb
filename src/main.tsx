@@ -1,19 +1,22 @@
 import 'preact/debug';
-import {render} from 'preact';
-import {BrowserRouter} from 'react-router-dom';
-import {App} from './app';
+import { render } from 'preact';
+import { BrowserRouter } from 'react-router-dom';
+import { App } from './app';
 import './index.css';
 import './i18n';
-import {AppProviders} from './context/AppProviders';
+import { AppProviders } from './context/AppProviders';
 import './services/StorageService';
-import {ErrorBoundary} from './components/ErrorBoundary';
-import {initPWA} from './pwa';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { initPWA } from './pwa';
 
 // Initialize PWA (swears off Cypress)
 initPWA();
 
 // Check for Simulator Persistence
-if (globalThis.localStorage && globalThis.localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true') {
+if (
+  globalThis.localStorage &&
+  globalThis.localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
+) {
   // @ts-expect-error - Custom global flag
   window.BOKS_SIMULATOR_ENABLED = true;
   console.warn('⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️');

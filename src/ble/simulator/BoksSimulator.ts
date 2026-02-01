@@ -1,10 +1,14 @@
-import {EventEmitter} from '../../utils/EventEmitter';
-import {BLEOpcode, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN,} from '../../utils/bleConstants';
-import {createPacket} from '../../utils/packetParser';
-import {BoksRXPacket} from '../packets/rx/BoksRXPacket';
-import {PacketFactory} from '../packets/PacketFactory';
-import {OpenDoorPacket} from '../packets/OpenDoorPacket';
-import {DeleteMasterCodePacket} from '../packets/PinManagementPackets';
+import { EventEmitter } from '../../utils/EventEmitter';
+import {
+  BLEOpcode,
+  SIMULATOR_DEFAULT_CONFIG_KEY,
+  SIMULATOR_DEFAULT_PIN,
+} from '../../utils/bleConstants';
+import { createPacket } from '../../utils/packetParser';
+import { BoksRXPacket } from '../packets/rx/BoksRXPacket';
+import { PacketFactory } from '../packets/PacketFactory';
+import { OpenDoorPacket } from '../packets/OpenDoorPacket';
+import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
 // State of the virtual Boks
 interface BoksState {
@@ -157,33 +161,33 @@ export class BoksSimulator extends EventEmitter {
     let singleCount = 0;
 
     for (const type of this.state.pinCodes.values()) {
-        if (type === 'master') masterCount++;
-        else if (type === 'single') singleCount++;
+      if (type === 'master') masterCount++;
+      else if (type === 'single') singleCount++;
     }
 
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
       (masterCount >> 8) & 0xff,
       masterCount & 0xff,
       (singleCount >> 8) & 0xff,
-      singleCount & 0xff
+      singleCount & 0xff,
     ]);
   }
 
   private handleDeleteMasterCode(payload: Uint8Array) {
-      const packet = new DeleteMasterCodePacket();
-      packet.parse(payload);
+    const packet = new DeleteMasterCodePacket();
+    packet.parse(payload);
 
-      // Basic simulation:
-      // If Index == 0 AND Master code exists -> Success and Remove.
-      // Else -> Error.
+    // Basic simulation:
+    // If Index == 0 AND Master code exists -> Success and Remove.
+    // Else -> Error.
 
-      // We assume SIMULATOR_DEFAULT_PIN is at Index 0.
-      if (packet.index === 0 && this.state.pinCodes.has(SIMULATOR_DEFAULT_PIN)) {
-          this.state.pinCodes.delete(SIMULATOR_DEFAULT_PIN);
-          this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
-      } else {
-          this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
-      }
+    // We assume SIMULATOR_DEFAULT_PIN is at Index 0.
+    if (packet.index === 0 && this.state.pinCodes.has(SIMULATOR_DEFAULT_PIN)) {
+      this.state.pinCodes.delete(SIMULATOR_DEFAULT_PIN);
+      this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+    } else {
+      this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
+    }
   }
 
   private handleTestBattery() {

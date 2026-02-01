@@ -10,6 +10,7 @@ import frWizard from './locales/fr/wizard.json';
 import frLogs from './locales/fr/logs.json';
 import frHeader from './locales/fr/header.json';
 import frMaintenance from './locales/fr/maintenance.json';
+import frDfu from './locales/fr/dfu.json';
 
 // English
 import enCommon from './locales/en/common.json';
@@ -19,6 +20,7 @@ import enWizard from './locales/en/wizard.json';
 import enLogs from './locales/en/logs.json';
 import enHeader from './locales/en/header.json';
 import enMaintenance from './locales/en/maintenance.json';
+import enDfu from './locales/en/dfu.json';
 
 const resources = {
   fr: {
@@ -29,6 +31,7 @@ const resources = {
     logs: frLogs,
     header: frHeader,
     maintenance: frMaintenance,
+    dfu: frDfu,
   },
   en: {
     common: enCommon,
@@ -38,6 +41,7 @@ const resources = {
     logs: enLogs,
     header: enHeader,
     maintenance: enMaintenance,
+    dfu: enDfu,
   },
 };
 
@@ -54,7 +58,7 @@ i18n
       caches: ['localStorage'],
       lookupLocalStorage: 'i18nextLng',
     },
-    ns: ['common', 'codes', 'settings', 'wizard', 'logs', 'header', 'maintenance'],
+    ns: ['common', 'codes', 'settings', 'wizard', 'logs', 'header', 'maintenance', 'dfu'],
     defaultNS: 'common',
     interpolation: {
       escapeValue: false,

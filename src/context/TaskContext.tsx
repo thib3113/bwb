@@ -1,25 +1,25 @@
-import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {BoksTask, TaskType} from '../types/task';
-import {useBLEConnection} from '../hooks/useBLEConnection';
-import {BLEOpcode} from '../utils/bleConstants';
-import {StorageService} from '../services/StorageService';
-import {CODE_STATUS} from '../constants/codeStatus';
-import {useDevice} from '../hooks/useDevice';
-import {TaskContext} from './Contexts';
-import {CODE_TYPES} from '../utils/constants';
-import {db} from '../db/db';
-import {BoksCode} from '../types';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BoksTask, TaskType } from '../types/task';
+import { useBLEConnection } from '../hooks/useBLEConnection';
+import { BLEOpcode } from '../utils/bleConstants';
+import { StorageService } from '../services/StorageService';
+import { CODE_STATUS } from '../constants/codeStatus';
+import { useDevice } from '../hooks/useDevice';
+import { TaskContext } from './Contexts';
+import { CODE_TYPES } from '../utils/constants';
+import { db } from '../db/db';
+import { BoksCode } from '../types';
 import {
-	CreateMasterCodePacket,
-	CreateMultiUseCodePacket,
-	CreateSingleUseCodePacket,
-	DeleteMasterCodePacket,
-	DeleteMultiUseCodePacket,
-	DeleteSingleUseCodePacket,
+  CreateMasterCodePacket,
+  CreateMultiUseCodePacket,
+  CreateSingleUseCodePacket,
+  DeleteMasterCodePacket,
+  DeleteMultiUseCodePacket,
+  DeleteSingleUseCodePacket,
 } from '../ble/packets/PinManagementPackets';
-import {CountCodesPacket} from '../ble/packets/StatusPackets';
-import {OpenDoorPacket} from '../ble/packets/OpenDoorPacket';
-import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { isConnected, sendRequest } = useBLEConnection();

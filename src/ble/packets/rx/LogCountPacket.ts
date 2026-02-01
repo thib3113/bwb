@@ -1,5 +1,5 @@
-import {BoksRXPacket} from './BoksRXPacket';
-import {BLEOpcode} from '../../../utils/bleConstants';
+import { BoksRXPacket } from './BoksRXPacket';
+import { BLEOpcode } from '../../../utils/bleConstants';
 
 export class LogCountPacket extends BoksRXPacket {
   static readonly opcode = BLEOpcode.NOTIFY_LOGS_COUNT;

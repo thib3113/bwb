@@ -1,0 +1,49 @@
+{
+  "title": "Firmware Update",
+  "warnings": {
+    "legal": "The firmware file must be provided by the user. Updating firmware carries inherent risks.",
+    "risk": "Flashing firmware can potentially damage your device if interrupted.",
+    "nrf52833": "Device (nRF52833): Can be rebooted normally if the update fails.",
+    "nrf52811": "Device (nRF52811): Requires a successful flash to restart if the update fails.",
+    "bricking": "Warning: Do not close this page during the update process.",
+    "https": "Web Bluetooth requires a secure HTTPS connection."
+  },
+  "instructions": {
+    "step_1": "Select your Boks device to check compatibility.",
+    "step_2": "Prepare the device for update (this will reboot the device).",
+    "step_3": "Flash the new firmware.",
+    "reboot_wait": "Rebooting into bootloader... please wait.",
+    "reboot_manual": "Update complete! Please manually reboot your Boks if it doesn't restart automatically.",
+    "select_file": "Select Firmware (.zip)"
+  },
+  "status": {
+    "ready": "Ready to update",
+    "searching": "Searching for devices...",
+    "preparing": "Preparing device...",
+    "success": "Update successful!",
+    "error": "Error occurred",
+    "flashing": "Flashing firmware..."
+  },
+  "labels": {
+    "battery": "Battery Level",
+    "version": "Current Version",
+    "hw": "Hardware Revision",
+    "target_version": "Target Version: {{version}}",
+    "device_name": "Device Name"
+  },
+  "buttons": {
+    "connect": "Connect",
+    "prepare": "Prepare Update",
+    "flash": "Start Update",
+    "reconnect": "Reconnect",
+    "finalize": "Finalize",
+    "disconnect": "Disconnect",
+    "clear": "Clear"
+  },
+  "errors": {
+    "fw_load": "Failed to load firmware file.",
+    "bluetooth": "Bluetooth error or cancelled.",
+    "compatibility": "Device not compatible or battery too low.",
+    "unknown": "Unknown error"
+  }
+}

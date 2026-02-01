@@ -171,8 +171,7 @@ export const NfcTagsTab = () => {
               </Alert>
             )}
 
-            {(scanStatus === NfcScanStatus.FOUND ||
-              scanStatus === NfcScanStatus.ERROR_EXISTS) &&
+            {(scanStatus === NfcScanStatus.FOUND || scanStatus === NfcScanStatus.ERROR_EXISTS) &&
               scannedUid && (
                 <Box sx={{ width: '100%', mt: 2 }}>
                   <Alert severity="success" sx={{ mb: 2 }}>

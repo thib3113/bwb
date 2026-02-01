@@ -1,0 +1,49 @@
+{
+  "title": "Mise à jour du Firmware",
+  "warnings": {
+    "legal": "Le fichier du firmware doit être fourni par l'utilisateur. La mise à jour comporte des risques.",
+    "risk": "Flasher le firmware peut endommager votre appareil si le processus est interrompu.",
+    "nrf52833": "Appareil (nRF52833) : Peut être redémarré normalement en cas d'échec.",
+    "nrf52811": "Appareil (nRF52811) : Nécessite un flash réussi pour redémarrer en cas d'échec.",
+    "bricking": "Attention : Ne fermez pas cette page pendant la mise à jour.",
+    "https": "Le Web Bluetooth nécessite une connexion HTTPS sécurisée."
+  },
+  "instructions": {
+    "step_1": "Sélectionnez votre Boks pour vérifier la compatibilité.",
+    "step_2": "Préparer l'appareil pour la mise à jour (cela va le redémarrer).",
+    "step_3": "Flasher le nouveau firmware.",
+    "reboot_wait": "Redémarrage en mode bootloader... veuillez patienter.",
+    "reboot_manual": "Mise à jour terminée ! Veuillez redémarrer manuellement votre Boks si nécessaire.",
+    "select_file": "Choisir le Firmware (.zip)"
+  },
+  "status": {
+    "ready": "Prêt pour la mise à jour",
+    "searching": "Recherche d'appareils...",
+    "preparing": "Préparation de l'appareil...",
+    "success": "Mise à jour réussie !",
+    "error": "Une erreur est survenue",
+    "flashing": "Flash en cours..."
+  },
+  "labels": {
+    "battery": "Niveau de batterie",
+    "version": "Version actuelle",
+    "hw": "Révision Matérielle",
+    "target_version": "Version cible : {{version}}",
+    "device_name": "Nom de l'appareil"
+  },
+  "buttons": {
+    "connect": "Se connecter",
+    "prepare": "Préparer",
+    "flash": "Lancer la mise à jour",
+    "reconnect": "Se reconnecter",
+    "finalize": "Finaliser",
+    "disconnect": "Déconnecter",
+    "clear": "Effacer"
+  },
+  "errors": {
+    "fw_load": "Échec du chargement du fichier firmware.",
+    "bluetooth": "Erreur Bluetooth ou action annulée.",
+    "compatibility": "Appareil incompatible ou batterie trop faible.",
+    "unknown": "Erreur inconnue"
+  }
+}

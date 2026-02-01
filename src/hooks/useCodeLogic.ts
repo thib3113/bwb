@@ -1,17 +1,17 @@
-import {useCallback, useMemo} from 'react';
-import {useLiveQuery} from 'dexie-react-hooks';
-import {useTranslation} from 'react-i18next';
-import {db} from '../db/db';
-import {StorageService} from '../services/StorageService';
-import {CODE_STATUS} from '../constants/codeStatus';
-import {useDevice} from './useDevice';
-import {useCodeCount} from './useCodeCount';
-import {useBLEConnection} from './useBLEConnection';
-import {BoksCode, BoksLog, CodeStatus} from '../types';
-import {EMPTY_ARRAY} from '../utils/bleConstants';
-import {APP_DEFAULTS, CODE_TYPES} from '../utils/constants';
-import {runTask} from '../utils/uiUtils';
-import {CountCodesPacket} from '../ble/packets/StatusPackets';
+import { useCallback, useMemo } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useTranslation } from 'react-i18next';
+import { db } from '../db/db';
+import { StorageService } from '../services/StorageService';
+import { CODE_STATUS } from '../constants/codeStatus';
+import { useDevice } from './useDevice';
+import { useCodeCount } from './useCodeCount';
+import { useBLEConnection } from './useBLEConnection';
+import { BoksCode, BoksLog, CodeStatus } from '../types';
+import { EMPTY_ARRAY } from '../utils/bleConstants';
+import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
+import { runTask } from '../utils/uiUtils';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
 
 export interface CodeMetadata {
   lastUsed?: Date;

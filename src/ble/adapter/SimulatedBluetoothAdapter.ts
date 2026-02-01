@@ -1,7 +1,7 @@
-import {BLEAdapter} from './BLEAdapter';
-import {BluetoothDevice} from '../../types';
-import {BoksSimulator} from '../simulator/BoksSimulator';
-import {BLEOpcode, SIMULATOR_BLE_ID} from '../../utils/bleConstants';
+import { BLEAdapter } from './BLEAdapter';
+import { BluetoothDevice } from '../../types';
+import { BoksSimulator } from '../simulator/BoksSimulator';
+import { BLEOpcode, SIMULATOR_BLE_ID } from '../../utils/bleConstants';
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
   private simulator: BoksSimulator;

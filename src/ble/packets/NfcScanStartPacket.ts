@@ -1,6 +1,6 @@
-import {BoksTXPacket} from './BoksTXPacket';
-import {BLEOpcode} from '../../utils/bleConstants';
-import {z} from 'zod';
+import { BoksTXPacket } from './BoksTXPacket';
+import { BLEOpcode } from '../../utils/bleConstants';
+import { z } from 'zod';
 
 export class NfcScanStartPacket extends BoksTXPacket {
   readonly opcode = BLEOpcode.REGISTER_NFC_TAG_SCAN_START;

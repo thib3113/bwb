@@ -1,11 +1,11 @@
-import {useTranslation} from 'react-i18next';
-import {MainLayout} from './components/layout/MainLayout';
-import {lazy, Suspense, useEffect, useState} from 'react';
-import {StorageService} from './services/StorageService';
-import {Alert, Box, CircularProgress, Paper, Snackbar, Typography} from '@mui/material';
-import {Navigate, Route, Routes} from 'react-router-dom';
-import {useTaskConsistency} from './hooks/useTaskConsistency';
-import {useDevice} from './hooks/useDevice';
+import { useTranslation } from 'react-i18next';
+import { MainLayout } from './components/layout/MainLayout';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { StorageService } from './services/StorageService';
+import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useTaskConsistency } from './hooks/useTaskConsistency';
+import { useDevice } from './hooks/useDevice';
 
 // Lazy loading pages
 const HomePage = lazy(() =>
@@ -28,6 +28,9 @@ const MaintenancePage = lazy(() =>
 );
 const DeveloperPage = lazy(() =>
   import('./pages/DeveloperPage').then((module) => ({ default: module.DeveloperPage }))
+);
+const DfuUpdatePage = lazy(() =>
+  import('./pages/DfuUpdatePage').then((module) => ({ default: module.DfuUpdatePage }))
 );
 
 // Lazy loading tab components
@@ -133,6 +136,7 @@ export function App() {
               <Route path="/debug-view" element={<DebugView />} />
               <Route path="/maintenance" element={<MaintenancePage />} />
               <Route path="/developer" element={<DeveloperPage />} />
+              <Route path="/update" element={<DfuUpdatePage />} />
               <Route path="/" element={<HomePage />}>
                 <Route index element={<Navigate to="/codes" replace />} />
                 <Route

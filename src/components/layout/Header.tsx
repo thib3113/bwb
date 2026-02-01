@@ -1,57 +1,57 @@
-import {useEffect, useMemo, useState, useRef} from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import pReact from 'preact';
 import {
-	AppBar,
-	Badge,
-	Box,
-	CircularProgress,
-	Divider,
-	Drawer,
-	FormControl,
-	IconButton,
-	List,
-	ListItem,
-	ListItemButton,
-	ListItemIcon,
-	ListItemText,
-	MenuItem,
-	Select,
-	SelectChangeEvent,
-	Toolbar,
-	Tooltip,
-	Typography,
-	useMediaQuery,
+  AppBar,
+  Badge,
+  Box,
+  CircularProgress,
+  Divider,
+  Drawer,
+  FormControl,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Toolbar,
+  Tooltip,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 import {
-	BatteryAlert,
-	BatteryFull,
-	BatteryStd,
-	Bluetooth,
-	BluetoothDisabled,
-	BugReport as BugReportIcon,
-	Build as BuildIcon,
-	Handyman as MaintenanceIcon,
-	Home as HomeIcon,
-	Info as InfoIcon,
-	MeetingRoom as MeetingRoomIcon,
-	Menu as MenuIcon,
-	Refresh,
-	Settings as SettingsIcon,
+  BatteryAlert,
+  BatteryFull,
+  BatteryStd,
+  Bluetooth,
+  BluetoothDisabled,
+  BugReport as BugReportIcon,
+  Build as BuildIcon,
+  Handyman as MaintenanceIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  MeetingRoom as MeetingRoomIcon,
+  Menu as MenuIcon,
+  Refresh,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import pkg from '../../../package.json';
-import {useNavigate} from 'react-router-dom';
-import {useTheme} from '@mui/material/styles';
-import {useDevice} from '../../hooks/useDevice';
-import {useBLEConnection} from '../../hooks/useBLEConnection';
-import {useDoor} from '../../hooks/useDoor';
-import {useBLELogs} from '../../hooks/useBLELogs';
-import {useCodeLogic} from '../../hooks/useCodeLogic';
-import {useDeveloperContext} from '../../context/DeveloperContext';
-import {DeveloperMode as DeveloperIcon} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
+import { useDevice } from '../../hooks/useDevice';
+import { useBLEConnection } from '../../hooks/useBLEConnection';
+import { useDoor } from '../../hooks/useDoor';
+import { useBLELogs } from '../../hooks/useBLELogs';
+import { useCodeLogic } from '../../hooks/useCodeLogic';
+import { useDeveloperContext } from '../../context/DeveloperContext';
+import { DeveloperMode as DeveloperIcon } from '@mui/icons-material';
 
-import {runTask} from '../../utils/uiUtils';
-import {translateBLEError} from '../../utils/bleUtils';
+import { runTask } from '../../utils/uiUtils';
+import { translateBLEError } from '../../utils/bleUtils';
 
 interface HeaderProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -345,9 +345,10 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   WebkitTapHighlightColor: 'transparent',
                   outline: 'none',
                   display: 'inline-block',
-                  background: devClickCount > 0
-                    ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
-                    : 'inherit',
+                  background:
+                    devClickCount > 0
+                      ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
+                      : 'inherit',
                   backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   color: devClickCount > 0 ? 'transparent' : 'inherit',

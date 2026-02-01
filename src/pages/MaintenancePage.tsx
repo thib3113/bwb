@@ -12,7 +12,7 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper
+  Paper,
 } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,10 @@ interface ScriptDefinition {
   id: string;
   titleKey: string;
   descriptionKey: string;
-  run: (ctx: ScriptContext, services: { bleService: BoksBLEService; configKey: string }) => Promise<void>;
+  run: (
+    ctx: ScriptContext,
+    services: { bleService: BoksBLEService; configKey: string }
+  ) => Promise<void>;
 }
 
 // --- Helper Components ---
@@ -121,15 +124,21 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
         )}
 
         {logs.length > 0 && (
-           <Paper variant="outlined" sx={{ p: 1, bgcolor: 'background.default', maxHeight: 100, overflow: 'auto' }}>
-             <List dense disablePadding>
-               {logs.map((l, i) => (
-                 <ListItem key={i} disablePadding>
-                   <ListItemText primary={l} primaryTypographyProps={{ variant: 'caption', fontFamily: 'monospace' }} />
-                 </ListItem>
-               ))}
-             </List>
-           </Paper>
+          <Paper
+            variant="outlined"
+            sx={{ p: 1, bgcolor: 'background.default', maxHeight: 100, overflow: 'auto' }}
+          >
+            <List dense disablePadding>
+              {logs.map((l, i) => (
+                <ListItem key={i} disablePadding>
+                  <ListItemText
+                    primary={l}
+                    primaryTypographyProps={{ variant: 'caption', fontFamily: 'monospace' }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
         )}
       </CardContent>
       <CardActions>
@@ -160,7 +169,7 @@ const getMasterCount = async (bleService: BoksBLEService): Promise<number> => {
 
   // Parse payload [MasterMSB, MasterLSB, SingleMSB, SingleLSB]
   if (response.payload.length < 2) {
-      throw new Error('Invalid payload length for CODES_COUNT');
+    throw new Error('Invalid payload length for CODES_COUNT');
   }
 
   const masterCount = (response.payload[0] << 8) | response.payload[1];
@@ -191,7 +200,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
       setProgress(percent);
 
       // Deletion Loop for current index (handling multiple codes on same index)
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         checkStop();
 
@@ -212,7 +221,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
             shouldContinue = true; // Success implies there was a code, so there might be another
           } else if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
             // Error means likely empty or invalid index, so we stop retrying this index
-             log(t('status.error_index', { index: i }));
+            log(t('status.error_index', { index: i }));
             shouldContinue = false;
           }
         } catch (e: unknown) {
@@ -243,17 +252,14 @@ export const MaintenancePage = () => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 2, pb: 10 }}>
-       <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom>
         {t('title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" paragraph>
         {t('description')}
       </Typography>
 
-      <ScriptCard
-        script={cleanMasterCodesScript}
-      />
-
+      <ScriptCard script={cleanMasterCodesScript} />
     </Container>
   );
 };

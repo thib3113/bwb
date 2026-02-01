@@ -1,5 +1,5 @@
-import {BLEAdapter} from './BLEAdapter';
-import {BluetoothDevice, BluetoothRemoteGATTServer} from '../../types';
+import { BLEAdapter } from './BLEAdapter';
+import { BluetoothDevice, BluetoothRemoteGATTServer } from '../../types';
 
 export class WebBluetoothAdapter implements BLEAdapter {
   private device: BluetoothDevice | null = null;

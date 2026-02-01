@@ -1,4 +1,4 @@
-import {BluetoothDevice} from '../../types';
+import { BluetoothDevice } from '../../types';
 
 export interface BLEAdapter {
   isAvailable(): boolean;

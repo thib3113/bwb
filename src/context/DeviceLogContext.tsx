@@ -1,15 +1,15 @@
-import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {useBLEEvents} from '../hooks/useBLEEvents';
-import {BLEPacket} from '../utils/packetParser';
-import {StorageService} from '../services/StorageService';
-import {useDevice} from '../hooks/useDevice';
-import {parseLog} from '../utils/logParser';
-import {useBLE} from '../hooks/useBLE';
-import {BLEOpcode} from '../utils/bleConstants';
-import {BoksLog} from '../types';
-import {DeviceLogContext, SettingsContext} from './Contexts';
-import {GetLogsCountPacket} from '../ble/packets/GetLogsCountPacket';
-import {RequestLogsPacket} from '../ble/packets/RequestLogsPacket';
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useBLEEvents } from '../hooks/useBLEEvents';
+import { BLEPacket } from '../utils/packetParser';
+import { StorageService } from '../services/StorageService';
+import { useDevice } from '../hooks/useDevice';
+import { parseLog } from '../utils/logParser';
+import { useBLE } from '../hooks/useBLE';
+import { BLEOpcode } from '../utils/bleConstants';
+import { BoksLog } from '../types';
+import { DeviceLogContext, SettingsContext } from './Contexts';
+import { GetLogsCountPacket } from '../ble/packets/GetLogsCountPacket';
+import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
