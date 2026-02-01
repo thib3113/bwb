@@ -97,7 +97,7 @@ export const MyBoksPage = () => {
     activeDevice &&
     activeDevice.hardware_version === '4.0' &&
     activeDevice.software_revision &&
-    compareVersions(activeDevice.software_revision, '4.3.3') > 0;
+    compareVersions(activeDevice.software_revision, '4.3.3') >= 0;
 
   // Determine the title
   let title = t('common:my_boks'); // Default to plural

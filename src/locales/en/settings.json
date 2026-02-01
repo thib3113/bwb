@@ -11,6 +11,7 @@
 		"label": "Configuration Key",
 		"helper": "Used for sensitive operations"
 	},
+	"activate_la_poste": "Activate La Poste Opening",
 	"door_pin_code": "Door PIN Code",
 	"toggle_pin_visibility": "Toggle PIN Visibility",
 	"toggle_key_visibility": "Toggle Key Visibility",
