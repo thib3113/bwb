@@ -56,6 +56,7 @@ export const DfuUpdatePage = () => {
 
   // State
   const [firmwareBlob, setFirmwareBlob] = useState<ArrayBuffer | null>(null);
+  const [firmwareName, setFirmwareName] = useState<string>('');
   const [bluetoothDevice, setBluetoothDevice] = useState<BluetoothDevice | null>(null);
   const [status, setStatus] = useState<string>(t('status.ready'));
   const [statusType, setStatusType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
@@ -104,6 +105,7 @@ export const DfuUpdatePage = () => {
       try {
         const buffer = await file.arrayBuffer();
         setFirmwareBlob(buffer);
+        setFirmwareName(file.name);
         log(`Firmware loaded: ${file.name} (${buffer.byteLength} bytes)`);
         setCanConnect(true);
       } catch (e) {
@@ -409,8 +411,6 @@ export const DfuUpdatePage = () => {
       <Stack spacing={2} sx={{ mb: 3 }}>
         {!navigator.bluetooth && <Alert severity="error">{t('warnings.https')}</Alert>}
         <Alert severity="warning">{t('warnings.legal')}</Alert>
-        <Alert severity="info">{t('warnings.nrf52833')}</Alert>
-        <Alert severity="warning">{t('warnings.nrf52811')}</Alert>
       </Stack>
 
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -434,7 +434,7 @@ export const DfuUpdatePage = () => {
                 sx={{ height: 60, borderStyle: 'dashed' }}
                 disabled={isFlashing}
               >
-                {firmwareBlob ? t('status.ready') : t('instructions.select_file')}
+                {firmwareBlob ? firmwareName : t('instructions.select_file')}
               </Button>
             </label>
             {firmwareBlob && (

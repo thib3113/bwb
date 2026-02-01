@@ -3,8 +3,6 @@
   "warnings": {
     "legal": "Le fichier du firmware doit être fourni par l'utilisateur. La mise à jour comporte des risques.",
     "risk": "Flasher le firmware peut endommager votre appareil si le processus est interrompu.",
-    "nrf52833": "Appareil : Boks V4 (avec NFC / nRF52833). Peut être redémarré normalement en cas d'échec.",
-    "nrf52811": "Appareil : Boks V2/V3 (nRF52811). Nécessite un flash réussi pour redémarrer en cas d'échec.",
     "bricking": "Attention : Ne fermez pas cette page pendant la mise à jour.",
     "https": "Le Web Bluetooth nécessite une connexion HTTPS sécurisée."
   },
@@ -19,7 +17,7 @@
   "status": {
     "ready": "Prêt pour la mise à jour",
     "searching": "Recherche d'appareils...",
-    "preparing": "Préparation de l'appareil...",
+    "preparing": "Cliquez sur 'Préparer' pour redémarrer l'appareil",
     "success": "Mise à jour réussie !",
     "error": "Une erreur est survenue",
     "flashing": "Flash en cours...",
@@ -59,7 +57,7 @@
     },
     "troubleshoot": {
       "q": "La mise à jour a échoué, que faire ?",
-      "a": "Si vous avez une Boks V4 (NFC), retirez simplement la batterie et remettez-la pour redémarrer normalement. Si vous avez une Boks V2/V3, l'appareil restera en mode Bootloader jusqu'à ce qu'un firmware valide soit flashé avec succès. Réessayez la mise à jour."
+      "a": "Si vous avez une Boks V4 (NFC / nRF52833), retirez simplement la batterie et remettez-la pour redémarrer normalement.\n\nSi vous avez une Boks V2/V3 (nRF52811), l'appareil restera en mode Bootloader jusqu'à ce qu'un firmware valide soit flashé avec succès. Il nécessite un flash réussi pour redémarrer en cas d'échec. Réessayez la mise à jour."
     }
   }
 }
