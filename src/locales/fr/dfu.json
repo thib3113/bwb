@@ -10,9 +10,12 @@
     "step_1": "Sélectionnez votre Boks pour vérifier la compatibilité.",
     "step_2": "Préparer l'appareil pour la mise à jour (cela va le redémarrer).",
     "step_3": "Faire la mise à jour.",
-    "reboot_wait": "Redémarrage en mode mise à jour... Veuillez vous reconnecter pour continuer.",
+    "reboot_wait": "Redémarrage en mode mise à jour... Veuillez vous reconnecter à l'appareil nommé 'DfuTarg' pour continuer.",
     "reboot_manual": "Mise à jour terminée ! Veuillez redémarrer manuellement votre Boks si nécessaire.",
     "select_file": "Choisir le Firmware (.zip)"
+  },
+  "logs": {
+    "placeholder": "Les journaux apparaîtront ici..."
   },
   "status": {
     "ready": "Prêt pour la mise à jour",

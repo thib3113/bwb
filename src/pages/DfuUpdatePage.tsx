@@ -552,7 +552,7 @@ export const DfuUpdatePage = () => {
       >
         {logs.length === 0 && (
           <Typography variant="caption" sx={{ opacity: 0.5 }}>
-            Logs will appear here...
+            {t('logs.placeholder')}
           </Typography>
         )}
         {logs.map((line, i) => (
