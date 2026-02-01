@@ -1,7 +1,7 @@
 /**
  * UI Utility functions
  */
-import { UI_NOTIFICATION_DELAY_MS, UI_MINIMUM_DURATION_MS } from './bleConstants';
+import { UI_MINIMUM_DURATION_MS } from './bleConstants';
 
 interface RunTaskOptions {
   showNotification: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -25,11 +25,11 @@ export async function runTask<T>(
   }
 
   try {
-    const result = await task();
+    const result = await (loadingMsg
+      ? withMinimumDuration(task(), UI_MINIMUM_DURATION_MS)
+      : task());
 
     if (successMsg) {
-      // Small delay before success to avoid MUI Snackbar transition bugs
-      await new Promise((r) => setTimeout(r, UI_NOTIFICATION_DELAY_MS));
       showNotification(successMsg, 'success');
     } else {
       hideNotification();
