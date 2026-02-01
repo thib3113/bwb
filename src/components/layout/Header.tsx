@@ -354,7 +354,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   transition: 'background 0.2s ease',
                 }}
               >
-                v{pkg.version}
+                v{pkg.version}-{__COMMIT_HASH__}
               </Typography>
             </Box>
           </Box>
