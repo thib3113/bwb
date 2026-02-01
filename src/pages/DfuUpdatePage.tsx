@@ -22,11 +22,11 @@ import { BluetoothDevice } from '../types';
 
 // Hardcoded Constants from requirements
 const BOKS_SERVICE_UUID = 'a7630001-f491-4f21-95ea-846ba586e361';
-const DFU_SERVICE_UUID = 0XFE59;
-const BATTERY_SERVICE_UUID = 0X180F;
-const DEVICE_INFO_SERVICE_UUID = 0X180A;
-const SW_REV_CHAR_UUID = 0X2A28;
-const HW_REV_CHAR_UUID = 0X2A26;
+const DFU_SERVICE_UUID = 0xfe59;
+const BATTERY_SERVICE_UUID = 0x180f;
+const DEVICE_INFO_SERVICE_UUID = 0x180a;
+const SW_REV_CHAR_UUID = 0x2a28;
+const HW_REV_CHAR_UUID = 0x2a26;
 const BATTERY_THRESHOLD = 20;
 
 const DFU_ERRORS: Record<number, string> = {
@@ -37,11 +37,11 @@ const DFU_ERRORS: Record<number, string> = {
   0x05: 'Invalid Object (Corrupt or wrong type)',
   0x07: 'Unsupported type',
   0x08: 'Operation not permitted (Wrong state)',
-  0X0A: 'Payload size exceeded',
-  0X0B: 'Hash failed (Integrity error)',
-  0X0C: 'Signature failed (Authentication error)',
-  0X0D: 'Hardware version error (Wrong firmware for this PCB)',
-  0X0E: 'Software version error (Downgrade blocked)',
+  0x0a: 'Payload size exceeded',
+  0x0b: 'Hash failed (Integrity error)',
+  0x0c: 'Signature failed (Authentication error)',
+  0x0d: 'Hardware version error (Wrong firmware for this PCB)',
+  0x0e: 'Software version error (Downgrade blocked)',
 };
 
 export const DfuUpdatePage = () => {
@@ -50,6 +50,7 @@ export const DfuUpdatePage = () => {
   const { disconnect: disconnectGlobal } = useBLEConnection();
 
   // URL Parameters
+  const targetPcb = searchParams.get('target_pcb');
   const targetSoftware = searchParams.get('target_software');
   const targetInternalRev = searchParams.get('target_internal_rev');
 
@@ -148,7 +149,7 @@ export const DfuUpdatePage = () => {
       // @ts-expect-error - standard UUID
       const batSvc = await server.getPrimaryService(BATTERY_SERVICE_UUID);
       // @ts-expect-error - standard UUID
-      const batChar = await batSvc.getCharacteristic(0X2A19);
+      const batChar = await batSvc.getCharacteristic(0x2a19);
       const val = await debugRead(batChar, 'Battery');
       const level = val.getUint8(0);
       setDeviceInfo((prev) => ({ ...prev, battery: `${level}%` }));
@@ -182,6 +183,11 @@ export const DfuUpdatePage = () => {
       const currentHw = new TextDecoder().decode(val).trim();
       setDeviceInfo((prev) => ({ ...prev, hw: `${currentHw}` }));
       if (targetInternalRev && currentHw !== targetInternalRev) hwOk = false;
+      // Optional: Check against target_pcb if provided, though typically 'internal rev' is more precise
+      if (targetPcb && !currentHw.includes(targetPcb)) {
+        // We log a warning but don't strictly block unless internal rev mismatches
+        log(`Warning: PCB mismatch? Expected ${targetPcb}, got ${currentHw}`, 'warning');
+      }
     } catch {
       setDeviceInfo((prev) => ({ ...prev, hw: 'Unknown' }));
     }
