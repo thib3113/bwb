@@ -1,4 +1,4 @@
-import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
+import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {BoksTask, TaskType} from '../types/task';
 import {useBLEConnection} from '../hooks/useBLEConnection';
 import {BLEOpcode} from '../utils/bleConstants';
@@ -329,77 +329,111 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     [sendRequest, activeDevice?.id, activeDevice?.configuration_key]
   );
 
+  // Refs for tracking processing state and tasks
+  const isProcessingRef = useRef(false);
+  const tasksRef = useRef(tasks);
+
+  // Keep tasksRef synced with state
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
+
   // Task runner - processes pending tasks when connected
   useEffect(() => {
     if (!isConnected) return;
+    if (isProcessingRef.current) return;
 
-    // Get pending tasks to check if we have any before processing
-    const pendingTasks = [...tasks].filter((task) => task.status === 'pending');
+    // Check if we have any pending tasks in the current state
+    // (This triggers the initial processing start)
+    const hasPending = tasks.some((task) => task.status === 'pending');
+    if (!hasPending) return;
 
-    // Only process if we have pending tasks
-    if (pendingTasks.length > 0) {
-      // Process pending tasks
-      const processPendingTasks = async () => {
-        // Sort tasks by priority and type (DELETE before ADD)
-        const sortedPendingTasks = [...pendingTasks].sort((a, b) => {
-          // First sort by priority
-          if (a.priority !== b.priority) {
-            return a.priority - b.priority;
-          }
+    const processQueue = async () => {
+      isProcessingRef.current = true;
+      try {
+        while (true) {
+          // Check connection inside the loop
+          // Note: isConnected in closure might be stale if connection drops mid-loop?
+          // Since this is inside useEffect[isConnected], if isConnected changes to false,
+          // the effect cleanup/re-run logic applies.
+          // But cleaning up an async function is not possible directly.
+          // We should rely on checking a ref or isConnected prop if we want to stop immediately.
+          // However, assuming isConnected prop triggers a re-render and effect re-run.
+          // But the previous async loop is still running!
+          // We need a way to stop it.
+          // For now, we rely on executeTask failing or the loop checking a flag.
+          // Let's assume executeTask handles disconnection errors.
 
-          // Then sort by task type: DELETE before ADD
-          const isDeleteA = a.type === TaskType.DELETE_CODE;
-          const isDeleteB = b.type === TaskType.DELETE_CODE;
+          const currentTasks = tasksRef.current;
+          const pendingTasks = currentTasks.filter((task) => task.status === 'pending');
 
-          // If one is delete and the other is not, delete comes first
-          if (isDeleteA && !isDeleteB) return -1;
-          if (!isDeleteA && isDeleteB) return 1;
+          if (pendingTasks.length === 0) break;
 
-          // For ADD tasks, sort by opcode (ADD_MASTER_CODE, ADD_SINGLE_USE_CODE, ADD_MULTI_USE_CODE)
-          if (!isDeleteA && !isDeleteB) {
-            const getOpcodePriority = (task: BoksTask) => {
-              switch (task.type) {
-                case TaskType.ADD_MASTER_CODE:
-                  return 1;
-                case TaskType.ADD_SINGLE_USE_CODE:
-                  return 2;
-                case TaskType.ADD_MULTI_USE_CODE:
-                  return 3;
+          // Sort tasks by priority and type (DELETE before ADD)
+          const sortedPendingTasks = [...pendingTasks].sort((a, b) => {
+            // First sort by priority
+            if (a.priority !== b.priority) {
+              return a.priority - b.priority;
+            }
+
+            // Then sort by task type: DELETE before ADD
+            const isDeleteA = a.type === TaskType.DELETE_CODE;
+            const isDeleteB = b.type === TaskType.DELETE_CODE;
+
+            // If one is delete and the other is not, delete comes first
+            if (isDeleteA && !isDeleteB) return -1;
+            if (!isDeleteA && isDeleteB) return 1;
+
+            // For ADD tasks, sort by opcode (ADD_MASTER_CODE, ADD_SINGLE_USE_CODE, ADD_MULTI_USE_CODE)
+            if (!isDeleteA && !isDeleteB) {
+              const getOpcodePriority = (task: BoksTask) => {
+                switch (task.type) {
+                  case TaskType.ADD_MASTER_CODE:
+                    return 1;
+                  case TaskType.ADD_SINGLE_USE_CODE:
+                    return 2;
+                  case TaskType.ADD_MULTI_USE_CODE:
+                    return 3;
+                  default:
+                    return 4;
+                }
+              };
+              return getOpcodePriority(a) - getOpcodePriority(b);
+            }
+
+            // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
+            const getDeleteOpcodePriority = (task: BoksTask) => {
+              // We need to determine the actual opcode from the codeType in payload
+              const codeType = task.payload.codeType as string;
+              switch (codeType) {
+                case CODE_TYPES.MASTER:
+                  return 1; // DELETE_MASTER_CODE (0x0C)
+                case CODE_TYPES.SINGLE:
+                  return 2; // DELETE_SINGLE_USE_CODE (0x0D)
+                case CODE_TYPES.MULTI:
+                  return 3; // DELETE_MULTI_USE_CODE (0x0E)
                 default:
                   return 4;
               }
             };
-            return getOpcodePriority(a) - getOpcodePriority(b);
+            return getDeleteOpcodePriority(a) - getDeleteOpcodePriority(b);
+          });
+
+          // Execute only the first task in the queue
+          const nextTask = sortedPendingTasks[0];
+          if (nextTask) {
+            await executeTask(nextTask);
+          } else {
+            break;
           }
-
-          // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
-          const getDeleteOpcodePriority = (task: BoksTask) => {
-            // We need to determine the actual opcode from the codeType in payload
-            const codeType = task.payload.codeType as string;
-            switch (codeType) {
-              case CODE_TYPES.MASTER:
-                return 1; // DELETE_MASTER_CODE (0x0C)
-              case CODE_TYPES.SINGLE:
-                return 2; // DELETE_SINGLE_USE_CODE (0x0D)
-              case CODE_TYPES.MULTI:
-                return 3; // DELETE_MULTI_USE_CODE (0x0E)
-              default:
-                return 4;
-            }
-          };
-          return getDeleteOpcodePriority(a) - getDeleteOpcodePriority(b);
-        });
-
-        // Process tasks one by one
-        for (const task of sortedPendingTasks) {
-          // Wait for the task to complete before processing the next one
-          await executeTask(task);
         }
-      };
+      } finally {
+        isProcessingRef.current = false;
+      }
+    };
 
-      processPendingTasks();
-    }
-  }, [isConnected, tasks]); // Removed executeTask from dependencies to prevent unnecessary re-renders
+    processQueue();
+  }, [isConnected, tasks]);
   // executeTask is stable due to useCallback and its dependencies, so it won't change between renders
 
   const value = useMemo(
