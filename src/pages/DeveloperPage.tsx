@@ -118,8 +118,18 @@ export const DeveloperPage = () => {
                 control={<Switch checked={simulatorEnabled} onChange={handleSimulatorToggle} />}
                 label={t('settings:developer.enable_simulator')}
               />
+            </Box>
+          </CardContent>
+        </Card>
 
-              <Box>
+        {/* Service Worker Debugger */}
+        <ServiceWorkerDebugger />
+      </CustomTabPanel>
+
+      <CustomTabPanel value={tabValue} index={1}>
+        <Card>
+          <CardContent>
+             <Box sx={{ mb: 4 }}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Button variant="contained" onClick={handleMockData}>
                     {t('settings:developer.load_mock_data')}
@@ -135,18 +145,8 @@ export const DeveloperPage = () => {
                 <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
                   {t('settings:developer.mock_data_helper')}
                 </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+             </Box>
 
-        {/* Service Worker Debugger */}
-        <ServiceWorkerDebugger />
-      </CustomTabPanel>
-
-      <CustomTabPanel value={tabValue} index={1}>
-        <Card>
-          <CardContent>
              <Typography variant="h6" gutterBottom>{t('settings:developer.db_editor')}</Typography>
              <Typography variant="body2" color="text.secondary" paragraph>{t('settings:developer.db_editor_helper')}</Typography>
             <DBEditor />
