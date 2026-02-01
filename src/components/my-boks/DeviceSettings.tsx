@@ -169,10 +169,10 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
               }}
             />
 
-            {/* La Poste Activation - Only for HW 4.0 and SW > 4.2.0 */}
+            {/* La Poste Activation - Only for HW 4.0 and SW >= 4.2.0 */}
             {activeDevice.hardware_version === '4.0' &&
               activeDevice.software_revision &&
-              compareVersions(activeDevice.software_revision, '4.2.0') > 0 && (
+              compareVersions(activeDevice.software_revision, '4.2.0') >= 0 && (
                 <Box>
                   <FormControlLabel
                     control={
