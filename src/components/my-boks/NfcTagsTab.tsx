@@ -65,7 +65,7 @@ export const NfcTagsTab = () => {
         await unregisterTag(tag);
       } catch (e) {
         console.error(e);
-        alert('Failed to delete tag');
+        alert(t('settings:nfc.error_delete_failed'));
       }
     }
   };
@@ -80,9 +80,9 @@ export const NfcTagsTab = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">NFC Tags</Typography>
+        <Typography variant="h6">{t('settings:nfc.title')}</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-          Add Tag
+          {t('settings:nfc.add_tag')}
         </Button>
       </Box>
 
@@ -111,8 +111,10 @@ export const NfcTagsTab = () => {
                     </Typography>
                     <br />
                     {tag.last_seen_at
-                      ? `Last seen: ${new Date(tag.last_seen_at).toLocaleString()}`
-                      : 'Never seen'}
+                      ? t('settings:nfc.last_seen', {
+                          date: new Date(tag.last_seen_at).toLocaleString(),
+                        })
+                      : t('settings:nfc.never_seen')}
                   </>
                 }
               />
@@ -121,13 +123,13 @@ export const NfcTagsTab = () => {
         </List>
       ) : (
         <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 4 }}>
-          No NFC tags registered.
+          {t('settings:nfc.no_tags')}
         </Typography>
       )}
 
       {/* Add Tag Dialog */}
       <Dialog open={openAddDialog} onClose={handleCloseAdd} fullWidth maxWidth="sm">
-        <DialogTitle>Add NFC Tag</DialogTitle>
+        <DialogTitle>{t('settings:nfc.dialog_title')}</DialogTitle>
         <DialogContent>
           <Box
             sx={{
@@ -139,33 +141,31 @@ export const NfcTagsTab = () => {
             }}
           >
             {scanStatus === NfcScanStatus.IDLE && (
-              <Typography>Click "Start Scan" and present the tag to the Boks.</Typography>
+              <Typography>{t('settings:nfc.instructions_idle')}</Typography>
             )}
 
             {scanStatus === NfcScanStatus.SCANNING && (
               <>
                 <CircularProgress />
-                <Typography>Scanning... (6s)</Typography>
+                <Typography>{t('settings:nfc.instructions_scanning')}</Typography>
               </>
             )}
 
             {scanStatus === NfcScanStatus.TIMEOUT && (
-              <Alert severity="warning">Scan timed out. Please try again.</Alert>
+              <Alert severity="warning">{t('settings:nfc.error_timeout')}</Alert>
             )}
 
             {scanStatus === NfcScanStatus.ERROR && (
-              <Alert severity="error">An error occurred during scan.</Alert>
+              <Alert severity="error">{t('settings:nfc.error_generic')}</Alert>
             )}
 
             {scanStatus === NfcScanStatus.ERROR_EXISTS && (
               <Alert severity="info">
-                Tag already exists on device!
+                {t('settings:nfc.error_exists')}
                 {scannedUid && (
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="caption">UID: {scannedUid}</Typography>
-                    <Typography>
-                      You can register it locally if it's not in the list.
-                    </Typography>
+                    <Typography>{t('settings:nfc.instructions_exists_local')}</Typography>
                   </Box>
                 )}
               </Alert>
@@ -176,12 +176,12 @@ export const NfcTagsTab = () => {
               scannedUid && (
                 <Box sx={{ width: '100%', mt: 2 }}>
                   <Alert severity="success" sx={{ mb: 2 }}>
-                    Tag Found: {scannedUid}
+                    {t('settings:nfc.tag_found', { uid: scannedUid })}
                   </Alert>
                   <TextField
                     autoFocus
                     margin="dense"
-                    label="Tag Name"
+                    label={t('settings:nfc.input_label')}
                     fullWidth
                     value={tagName}
                     onChange={(e) => setTagName(e.target.value)}
@@ -191,17 +191,17 @@ export const NfcTagsTab = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseAdd}>Cancel</Button>
+          <Button onClick={handleCloseAdd}>{t('common:cancel')}</Button>
           {scanStatus === NfcScanStatus.IDLE ||
           scanStatus === NfcScanStatus.TIMEOUT ||
           scanStatus === NfcScanStatus.ERROR ? (
             <Button onClick={handleStartScan} variant="contained">
-              Start Scan
+              {t('settings:nfc.button_start_scan')}
             </Button>
           ) : null}
           {(scanStatus === NfcScanStatus.FOUND || scanStatus === NfcScanStatus.ERROR_EXISTS) && (
             <Button onClick={handleRegister} variant="contained" disabled={!tagName}>
-              Add Tag
+              {t('settings:nfc.add_tag')}
             </Button>
           )}
         </DialogActions>
