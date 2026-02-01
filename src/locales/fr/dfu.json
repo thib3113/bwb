@@ -31,7 +31,9 @@
     "version": "Version actuelle",
     "hw": "Révision Matérielle",
     "target_version": "Version cible : {{version}}",
-    "device_name": "Nom de l'appareil"
+    "device_name": "Nom de l'appareil",
+    "unknown": "Inconnu",
+    "not_available": "N/D"
   },
   "buttons": {
     "connect": "Se connecter",

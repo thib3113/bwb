@@ -31,7 +31,9 @@
     "version": "Current Version",
     "hw": "Hardware Revision",
     "target_version": "Target Version: {{version}}",
-    "device_name": "Device Name"
+    "device_name": "Device Name",
+    "unknown": "Unknown",
+    "not_available": "N/A"
   },
   "buttons": {
     "connect": "Connect",

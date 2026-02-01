@@ -22,11 +22,13 @@ import { BluetoothDevice } from '../types';
 
 // Hardcoded Constants from requirements
 const BOKS_SERVICE_UUID = 'a7630001-f491-4f21-95ea-846ba586e361';
-const DFU_SERVICE_UUID = 0xfe59;
-const BATTERY_SERVICE_UUID = 0x180f;
-const DEVICE_INFO_SERVICE_UUID = 0x180a;
-const SW_REV_CHAR_UUID = 0x2a28;
-const HW_REV_CHAR_UUID = 0x2a26;
+const DFU_SERVICE_UUID = 0XFE59;
+const BATTERY_SERVICE_UUID = 0X180F;
+const DEVICE_INFO_SERVICE_UUID = 0X180A;
+const GENERIC_ACCESS_SERVICE_UUID = 0x1800;
+const DEVICE_NAME_CHAR_UUID = 0x2a00;
+const SW_REV_CHAR_UUID = 0X2A28;
+const HW_REV_CHAR_UUID = 0X2A26;
 const BATTERY_THRESHOLD = 20;
 
 const DFU_ERRORS: Record<number, string> = {
@@ -37,11 +39,11 @@ const DFU_ERRORS: Record<number, string> = {
   0x05: 'Invalid Object (Corrupt or wrong type)',
   0x07: 'Unsupported type',
   0x08: 'Operation not permitted (Wrong state)',
-  0x0a: 'Payload size exceeded',
-  0x0b: 'Hash failed (Integrity error)',
-  0x0c: 'Signature failed (Authentication error)',
-  0x0d: 'Hardware version error (Wrong firmware for this PCB)',
-  0x0e: 'Software version error (Downgrade blocked)',
+  0X0A: 'Payload size exceeded',
+  0X0B: 'Hash failed (Integrity error)',
+  0X0C: 'Signature failed (Authentication error)',
+  0X0D: 'Hardware version error (Wrong firmware for this PCB)',
+  0X0E: 'Software version error (Downgrade blocked)',
 };
 
 export const DfuUpdatePage = () => {
@@ -130,7 +132,7 @@ export const DfuUpdatePage = () => {
   };
 
   const readInfo = async (server: BluetoothRemoteGATTServer) => {
-    const deviceName = bluetoothDevice?.name || 'Unknown';
+    const deviceName = bluetoothDevice?.name || t('labels.unknown');
     let localDfuMode = false;
 
     if (deviceName.includes('DfuTarg')) {
@@ -139,7 +141,18 @@ export const DfuUpdatePage = () => {
       setDeviceInfo((prev) => ({ ...prev, name: t('status.device_in_dfu') }));
     } else {
       setIsDfuModeActive(false);
-      setDeviceInfo((prev) => ({ ...prev, name: deviceName }));
+      // Try to read device name from characteristic
+      try {
+        // @ts-expect-error - standard UUID
+        const gapSvc = await server.getPrimaryService(GENERIC_ACCESS_SERVICE_UUID);
+        // @ts-expect-error - standard UUID
+        const nameChar = await gapSvc.getCharacteristic(DEVICE_NAME_CHAR_UUID);
+        const val = await debugRead(nameChar, 'Device Name');
+        const realName = new TextDecoder().decode(val).trim();
+        setDeviceInfo((prev) => ({ ...prev, name: realName || deviceName }));
+      } catch {
+        setDeviceInfo((prev) => ({ ...prev, name: deviceName }));
+      }
     }
 
     let batteryOk = true;
@@ -151,13 +164,13 @@ export const DfuUpdatePage = () => {
       // @ts-expect-error - standard UUID
       const batSvc = await server.getPrimaryService(BATTERY_SERVICE_UUID);
       // @ts-expect-error - standard UUID
-      const batChar = await batSvc.getCharacteristic(0x2a19);
+      const batChar = await batSvc.getCharacteristic(0X2A19);
       const val = await debugRead(batChar, 'Battery');
       const level = val.getUint8(0);
       setDeviceInfo((prev) => ({ ...prev, battery: `${level}%` }));
       if (level < BATTERY_THRESHOLD) batteryOk = false;
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, battery: 'N/A' }));
+      setDeviceInfo((prev) => ({ ...prev, battery: t('labels.not_available') }));
       log('Battery info unavailable', localDfuMode ? 'debug' : 'info');
     }
 
@@ -172,7 +185,7 @@ export const DfuUpdatePage = () => {
       setDeviceInfo((prev) => ({ ...prev, version: currentVer }));
       if (targetSoftware && currentVer === targetSoftware) versionMatch = true;
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, version: 'Unknown' }));
+      setDeviceInfo((prev) => ({ ...prev, version: t('labels.unknown') }));
     }
 
     // Read HW Version
@@ -191,7 +204,7 @@ export const DfuUpdatePage = () => {
         log(`Warning: PCB mismatch? Expected ${targetPcb}, got ${currentHw}`, 'warning');
       }
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, hw: 'Unknown' }));
+      setDeviceInfo((prev) => ({ ...prev, hw: t('labels.unknown') }));
     }
 
     return { batteryOk, versionMatch, hwOk };
@@ -214,6 +227,7 @@ export const DfuUpdatePage = () => {
           DFU_SERVICE_UUID,
           BATTERY_SERVICE_UUID,
           DEVICE_INFO_SERVICE_UUID,
+          GENERIC_ACCESS_SERVICE_UUID,
         ],
       });
 
