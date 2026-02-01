@@ -19,7 +19,7 @@
 		"last_seen": "Vu le : {{date}}",
 		"never_seen": "Jamais vu",
 		"dialog_title": "Ajouter un Tag NFC",
-		"instructions_idle": "Cliquez sur \"Démarrer le scan\" et présentez le badge au Boks.",
+		"instructions_idle": "Cliquez sur \"Démarrer le scan\" et présentez le badge à la Boks.",
 		"instructions_scanning": "Scan en cours... (6s)",
 		"error_timeout": "Délai de scan dépassé. Veuillez réessayer.",
 		"error_generic": "Une erreur est survenue pendant le scan.",
