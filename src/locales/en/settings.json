@@ -90,6 +90,7 @@
 		"not_connected_warning": "Not connected (Packets will be queued or fail)",
 		"packet_sent_success": "Packet sent successfully",
 		"packet_send_error": "Failed to send packet",
-		"packet_logger_title": "Packet Logger (Volatile)"
+		"packet_logger_title": "Logs",
+		"clear_logs": "Clear"
 	}
 }

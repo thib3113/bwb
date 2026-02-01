@@ -29,7 +29,7 @@ export const PacketLogger = () => {
           onClick={clearDebugLogs}
           size="small"
         >
-          {t('settings:developer.clear_db')}
+          {t('settings:developer.clear_logs')}
         </Button>
       </Box>
 
