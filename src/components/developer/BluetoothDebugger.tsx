@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -23,6 +23,10 @@ import { PacketLogger } from './PacketLogger';
 const getOpcodeName = (opcode: number): string => {
   return BLEOpcode[opcode] || `UNKNOWN_OPCODE_${opcode}`;
 };
+
+// Global in-memory storage for field values across component re-renders
+// Key: field name (e.g., 'pinCode', 'configKey'), Value: last entered value
+const fieldMemory: Record<string, string> = {};
 
 export const BluetoothDebugger = () => {
   const { t } = useTranslation(['settings']);
@@ -55,15 +59,34 @@ export const BluetoothDebugger = () => {
     return null;
   }, [SelectedPacketClass]);
 
+  // When schema changes (new packet selected), pre-fill from memory
+  useEffect(() => {
+    if (!schemaShape) {
+      setFormData({});
+      return;
+    }
+
+    const newFormData: Record<string, string> = {};
+    Object.keys(schemaShape).forEach((key) => {
+      // Use stored value if exists, otherwise empty string
+      newFormData[key] = fieldMemory[key] || '';
+    });
+    setFormData(newFormData);
+  }, [schemaShape]);
+
   const handleOpcodeChange = (event: any) => {
     setSelectedOpcode(event.target.value);
-    setFormData({});
+    // formData reset is handled by the useEffect above
     setValidationError(null);
     setSuccessMessage(null);
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Update local state
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Update global memory
+    fieldMemory[field] = value;
+
     setValidationError(null);
     setSuccessMessage(null);
   };

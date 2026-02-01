@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useDeveloperContext } from '../context/DeveloperContext';
 import { DBEditor } from '../components/developer/DBEditor';
 import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
+import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
 import { StorageService } from '../services/StorageService';
 
 interface TabPanelProps {
@@ -102,9 +103,9 @@ export const DeveloperPage = () => {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="developer tabs">
-          <Tab label="General" />
-          <Tab label="Database" />
-          <Tab label="Bluetooth" />
+          <Tab label={t('settings:developer.tabs.general')} />
+          <Tab label={t('settings:developer.tabs.database')} />
+          <Tab label={t('settings:developer.tabs.bluetooth')} />
         </Tabs>
       </Box>
 
@@ -138,6 +139,9 @@ export const DeveloperPage = () => {
             </Box>
           </CardContent>
         </Card>
+
+        {/* Service Worker Debugger */}
+        <ServiceWorkerDebugger />
       </CustomTabPanel>
 
       <CustomTabPanel value={tabValue} index={1}>

@@ -91,6 +91,16 @@
 		"packet_sent_success": "Packet sent successfully",
 		"packet_send_error": "Failed to send packet",
 		"packet_logger_title": "Logs",
-		"clear_logs": "Clear"
+		"clear_logs": "Clear",
+		"tabs": {
+			"general": "General",
+			"database": "Database",
+			"bluetooth": "Bluetooth"
+		},
+		"sw_title": "Service Worker",
+		"sw_status": "Status: {{status}}",
+		"sw_check_update": "Check for Update",
+		"sw_unregister": "Unregister SW",
+		"sw_reload": "Reload Page"
 	}
 }
