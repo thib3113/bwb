@@ -111,7 +111,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           </Alert>
         )}
 
-        {running && (
+        {(running || logs.length > 0) && (
           <Box sx={{ width: '100%', mb: 2 }}>
             <LinearProgress variant="determinate" value={progress} />
             <Typography variant="body2" color="text.secondary" align="right">
@@ -120,7 +120,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           </Box>
         )}
 
-        {running && (
+        {logs.length > 0 && (
            <Paper variant="outlined" sx={{ p: 1, bgcolor: 'background.default', maxHeight: 100, overflow: 'auto' }}>
              <List dense disablePadding>
                {logs.map((l, i) => (
@@ -190,48 +190,47 @@ const cleanMasterCodesScript: ScriptDefinition = {
       const percent = (i / totalIndexes) * 100;
       setProgress(percent);
 
-      if (currentCount === 0) {
-        log(t('status.stopping_early'));
-        break;
-      }
-
-      // Deletion Loop for current index
-      let retry = true;
-      while (retry) {
+      // Deletion Loop for current index (handling multiple codes on same index)
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
         checkStop();
-        retry = false;
-
-        const prevCount = currentCount;
 
         log(t('status.deleting_index', { index: i, count: currentCount }));
 
         const deletePacket = new DeleteMasterCodePacket(configKey, i);
-        // We expect SUCCESS (0x77) or ERROR (0x78)
+        let shouldContinue = false;
+
         try {
-             const response = (await bleService.sendRequest(deletePacket, { expectResponse: true }, configKey)) as BLEPacket;
+          const response = (await bleService.sendRequest(
+            deletePacket,
+            { expectResponse: true },
+            configKey
+          )) as BLEPacket;
 
-             if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
-                 // Likely empty index, move on
-             } else if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-                 // Success
-             }
-        } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : String(e);
-            log(t('status.error', { message: `Index ${i}: ${msg}` }));
-        }
-
-        // Fetch count again to see if we should retry
-        currentCount = await getMasterCount(bleService);
-
-        if (currentCount < prevCount) {
-          log(t('status.retry_index', { count: currentCount, index: i }));
-          retry = true; // Retry this index because codes might have shifted or multiple codes existed
-          if (currentCount === 0) {
-              retry = false;
+          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
+            log(t('status.success_index', { index: i }));
+            shouldContinue = true; // Success implies there was a code, so there might be another
+          } else if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
+            // Error means likely empty or invalid index, so we stop retrying this index
+             log(t('status.error_index', { index: i }));
+            shouldContinue = false;
           }
-        } else {
-            // Count didn't drop, move to next index
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          log(t('status.error', { message: `Index ${i}: ${msg}` }));
+          shouldContinue = false; // Stop on unexpected protocol error
         }
+
+        if (!shouldContinue) {
+          break; // Exit inner loop, move to next index
+        }
+      }
+
+      // After finishing an index (cleaning it out), check global count
+      currentCount = await getMasterCount(bleService);
+      if (currentCount === 0) {
+        log(t('status.stopping_early'));
+        break; // Stop outer loop
       }
     }
   },

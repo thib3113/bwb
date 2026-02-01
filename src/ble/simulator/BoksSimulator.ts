@@ -4,6 +4,7 @@ import {createPacket} from '../../utils/packetParser';
 import {BoksRXPacket} from '../packets/rx/BoksRXPacket';
 import {PacketFactory} from '../packets/PacketFactory';
 import {OpenDoorPacket} from '../packets/OpenDoorPacket';
+import {DeleteMasterCodePacket} from '../packets/PinManagementPackets';
 
 // State of the virtual Boks
 interface BoksState {
@@ -29,14 +30,14 @@ export class BoksSimulator extends EventEmitter {
 
   // Process an incoming TX packet (from App to Boks)
   public handlePacket(opcode: number, payload: Uint8Array): void {
-    console.log(`[Simulator] Received Opcode: 0x${opcode.toString(16)}`);
+    // console.log(`[Simulator] Received Opcode: 0x${opcode.toString(16)}`);
 
     setTimeout(
       () => {
         this.processCommand(opcode, payload);
       },
-      200 + Math.random() * 300
-    ); // Simulate processing delay (200-500ms)
+      50 // Fast response for tests
+    );
   }
 
   private processCommand(opcode: number, payload: Uint8Array) {
@@ -59,6 +60,9 @@ export class BoksSimulator extends EventEmitter {
       case BLEOpcode.COUNT_CODES:
         this.handleCountCodes();
         break;
+      case BLEOpcode.DELETE_MASTER_CODE:
+        this.handleDeleteMasterCode(payload);
+        break;
       // Add other commands as needed
       default:
         console.warn(`[Simulator] Unknown opcode 0x${opcode.toString(16)}`);
@@ -67,28 +71,11 @@ export class BoksSimulator extends EventEmitter {
   }
 
   private sendPacket(packet: BoksRXPacket) {
-    // Note: BoksRXPacket stores raw/payload after parsing in the Factory.
-    // For Simulator, we are creating the packet from scratch.
-    // BoksRXPacket classes are designed for RX (App perspective).
-    // But we can reuse the create logic or just use PacketFactory.create
-    // if we pass raw bytes.
-    // However, here we want to send notification. The Adapter expects raw bytes.
-    // We can use the RX classes to help us structure data if they had a 'toPayload' method,
-    // but they are RX (Parser) classes.
-    // So we'll construct the payload manually here or use helper methods,
-    // and then wrap it in the standard packet structure.
-
-    // Better approach: Use createPacket(opcode, payload) util
-    // We can interpret the RX classes as "What we want to send".
-    // For now, let's keep using createPacket but ensure consistency.
     const packetRaw = createPacket(packet.opcode, packet.payload);
     this.emit('notification', packetRaw);
   }
 
   private sendNotification(opcode: number, payload: number[] | Uint8Array) {
-    // This is the lower level send.
-    // We try to use the higher level sendPacket if possible for complex types.
-    // But for simple notifications, this is fine.
     const packetRaw = createPacket(opcode, payload);
     this.emit('notification', packetRaw);
   }
@@ -163,8 +150,40 @@ export class BoksSimulator extends EventEmitter {
   private handleCountCodes() {
     // Notify Code Count 0xC3
     // Format: [Master MSB, Master LSB, Single MSB, Single LSB]
-    // 1 Master, 0 Single
-    this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
+
+    // Original implementation hardcoded 1 master code.
+    // Now we calculate from map.
+    let masterCount = 0;
+    let singleCount = 0;
+
+    for (const type of this.state.pinCodes.values()) {
+        if (type === 'master') masterCount++;
+        else if (type === 'single') singleCount++;
+    }
+
+    this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
+      (masterCount >> 8) & 0xff,
+      masterCount & 0xff,
+      (singleCount >> 8) & 0xff,
+      singleCount & 0xff
+    ]);
+  }
+
+  private handleDeleteMasterCode(payload: Uint8Array) {
+      const packet = new DeleteMasterCodePacket();
+      packet.parse(payload);
+
+      // Basic simulation:
+      // If Index == 0 AND Master code exists -> Success and Remove.
+      // Else -> Error.
+
+      // We assume SIMULATOR_DEFAULT_PIN is at Index 0.
+      if (packet.index === 0 && this.state.pinCodes.has(SIMULATOR_DEFAULT_PIN)) {
+          this.state.pinCodes.delete(SIMULATOR_DEFAULT_PIN);
+          this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+      } else {
+          this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
+      }
   }
 
   private handleTestBattery() {
