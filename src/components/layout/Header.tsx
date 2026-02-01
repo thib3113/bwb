@@ -47,6 +47,8 @@ import {useBLEConnection} from '../../hooks/useBLEConnection';
 import {useDoor} from '../../hooks/useDoor';
 import {useBLELogs} from '../../hooks/useBLELogs';
 import {useCodeLogic} from '../../hooks/useCodeLogic';
+import {useDeveloperContext} from '../../context/DeveloperContext';
+import {DeveloperMode as DeveloperIcon} from '@mui/icons-material';
 
 import {runTask} from '../../utils/uiUtils';
 import {translateBLEError} from '../../utils/bleUtils';
@@ -62,6 +64,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const { isDeveloperMode, enableDeveloperMode } = useDeveloperContext();
+  const [devClickCount, setDevClickCount] = useState(0);
+
   const { isConnected, isConnecting, connect, disconnect, getBatteryInfo } = useBLEConnection();
 
   const { openDoor, doorStatus, isOpening } = useDoor();
@@ -74,6 +79,24 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
   const [isRefreshingLogs, setIsRefreshingLogs] = useState(false);
   const [waitingForClose, setWaitingForClose] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleVersionClick = (e: pReact.TargetedMouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    if (isDeveloperMode) return;
+
+    const newCount = devClickCount + 1;
+    setDevClickCount(newCount);
+
+    if (newCount >= 7) {
+      enableDeveloperMode();
+      showNotification('Developer mode enabled!', 'success');
+      setDevClickCount(0);
+    }
+  };
+
+  // Calculate percentage for visual feedback (0 to 100%)
+  // Clicks 1 to 7 map to ~14% to 100%
+  const devProgress = Math.min(100, (devClickCount / 7) * 100);
 
   // Calculate count of codes with pending_add or pending_delete status
   const pendingCodesCount = useMemo(() => {
@@ -286,10 +309,41 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemText primary={t('settings:about.title')} />
                 </ListItemButton>
               </ListItem>
+              {isDeveloperMode && (
+                <>
+                  <Divider />
+                  <ListItem disablePadding>
+                    <ListItemButton onClick={handleNavigation('/developer')}>
+                      <ListItemIcon>
+                        <DeveloperIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Developer" />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+              )}
             </List>
             <Divider />
             <Box sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                onClick={handleVersionClick}
+                sx={{
+                  cursor: isDeveloperMode ? 'default' : 'pointer',
+                  userSelect: 'none',
+                  position: 'relative',
+                  display: 'inline-block',
+                  background: devClickCount > 0
+                    ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
+                    : 'inherit',
+                  backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
+                  WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
+                  color: devClickCount > 0 ? 'transparent' : 'inherit',
+                  transition: 'background 0.2s ease',
+                }}
+              >
                 v{pkg.version}
               </Typography>
             </Box>
