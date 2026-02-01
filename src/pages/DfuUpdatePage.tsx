@@ -354,12 +354,6 @@ export const DfuUpdatePage = () => {
           const total = e.totalBytes || image.imageData.byteLength;
           const pVal = (e.validatedBytes / total) * 100;
           setProgress(pVal);
-
-          if (pVal < 100) {
-            // Optional: Update status text sparingly to avoid React render thrashing
-          } else {
-            setStatus('100% - Finishing up...');
-          }
         }
       );
 
