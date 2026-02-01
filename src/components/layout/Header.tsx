@@ -342,6 +342,8 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                 sx={{
                   cursor: isDeveloperMode ? 'default' : 'pointer',
                   userSelect: 'none',
+                  WebkitTapHighlightColor: 'transparent',
+                  outline: 'none',
                   display: 'inline-block',
                   background: devClickCount > 0
                     ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
