@@ -1,0 +1,27 @@
+{
+  "title": "Maintenance",
+  "description": "Exécuter des scripts de maintenance sur l'appareil Boks connecté.",
+  "scripts": {
+    "clean_master_codes": {
+      "title": "Nettoyer Codes Permanents",
+      "description": "Supprime tous les codes permanents."
+    }
+  },
+  "status": {
+    "not_connected": "Appareil non connecté",
+    "missing_config_key": "Clé de configuration manquante pour cet appareil.",
+    "finished": "Script terminé avec succès.",
+    "fetching_count": "Récupération du nombre de codes...",
+    "initial_count": "Nombre initial de codes permanents : {{count}}",
+    "no_codes": "Aucun code permanent trouvé. Terminé.",
+    "stopping_early": "Compteur atteint 0. Arrêt anticipé.",
+    "deleting_index": "Suppression de l'index {{index}} (Compte : {{count}})...",
+    "retry_index": "Compte descendu à {{count}}. Nouvel essai index {{index}}...",
+    "stopped_user": "Script arrêté par l'utilisateur",
+    "error": "Erreur : {{message}}",
+    "success_index": "Commande de suppression envoyée pour l'index {{index}}.",
+    "error_index": "L'index {{index}} a renvoyé une erreur (Vide ?), on continue."
+  },
+  "run": "Lancer",
+  "progress": "{{percent}}%"
+}

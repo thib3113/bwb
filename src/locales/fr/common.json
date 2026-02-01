@@ -85,7 +85,7 @@
 	"settings": {
 		"title": "Paramètres"
 	},
-	"master_code_required": "Code maître requis pour cette action"
+	"master_code_required": "Code permanent requis pour cette action"
 ,
 	"no_active_device": "Aucun appareil actif sélectionné",
 	"coming_soon": "Gestion des utilisateurs bientôt disponible"

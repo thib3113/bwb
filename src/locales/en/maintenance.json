@@ -1,0 +1,27 @@
+{
+  "title": "Maintenance",
+  "description": "Execute maintenance scripts on the connected Boks device.",
+  "scripts": {
+    "clean_master_codes": {
+      "title": "Clean Master Codes",
+      "description": "Deletes all master codes."
+    }
+  },
+  "status": {
+    "not_connected": "Device not connected",
+    "missing_config_key": "Configuration Key is missing for this device.",
+    "finished": "Script finished successfully.",
+    "fetching_count": "Fetching initial code count...",
+    "initial_count": "Initial Master Code Count: {{count}}",
+    "no_codes": "No master codes found. Finished.",
+    "stopping_early": "Count reached 0. Stopping early.",
+    "deleting_index": "Deleting Index {{index}} (Count: {{count}})...",
+    "retry_index": "Count dropped to {{count}}. Retrying index {{index}}...",
+    "stopped_user": "Script stopped by user",
+    "error": "Error: {{message}}",
+    "success_index": "Index {{index}} deletion command sent.",
+    "error_index": "Index {{index}} returned Error (Empty?), moving on."
+  },
+  "run": "Run",
+  "progress": "{{percent}}%"
+}

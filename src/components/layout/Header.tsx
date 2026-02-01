@@ -30,6 +30,7 @@ import {
 	BluetoothDisabled,
 	BugReport as BugReportIcon,
 	Build as BuildIcon,
+	Handyman as MaintenanceIcon,
 	Home as HomeIcon,
 	Info as InfoIcon,
 	MeetingRoom as MeetingRoomIcon,
@@ -258,6 +259,14 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                     <BugReportIcon />
                   </ListItemIcon>
                   <ListItemText primary="Packet Logger" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleNavigation('/maintenance')}>
+                  <ListItemIcon>
+                    <MaintenanceIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={t('header:maintenance')} />
                 </ListItemButton>
               </ListItem>
               <Divider />
