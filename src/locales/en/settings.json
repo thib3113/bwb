@@ -42,5 +42,25 @@
 		"credits_description": "This project is the result of a reverse engineering effort to understand and interoperate with the Boks system.",
 		"disclaimer": "Disclaimer: This is an unofficial client and is not affiliated with Boks.",
 		"github_issues": "Report an Issue"
+	},
+	"developer": {
+		"menu_title": "Developer",
+		"page_title": "Developer Options",
+		"disable_mode": "Disable Dev Mode",
+		"simulators_tools": "Simulators & Tools",
+		"enable_simulator": "Enable Bluetooth Simulator (Reloads Page)",
+		"load_mock_data": "Load Mock Data",
+		"clear_db": "Clear Database",
+		"clear_db_confirm": "Are you sure you want to delete the entire database? This cannot be undone.",
+		"mock_data_helper": "Resets DB and loads test data for 'Mock Boks'.",
+		"db_editor": "Database Editor",
+		"db_editor_helper": "View and inspect local IndexedDB data",
+		"select_table": "Select Table",
+		"enabled_success": "Developer mode enabled!",
+		"mock_data_confirm": "This will wipe existing data for the mock device. Continue?",
+		"mock_data_success": "Mock data loaded successfully. You may need to refresh.",
+		"mock_data_failed": "Failed to load mock data",
+		"loading": "Loading...",
+		"no_records": "No records found."
 	}
 }

@@ -12,6 +12,13 @@ import {initPWA} from './pwa';
 // Initialize PWA (swears off Cypress)
 initPWA();
 
+// Check for Simulator Persistence
+if (globalThis.localStorage && globalThis.localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true') {
+  // @ts-expect-error - Custom global flag
+  window.BOKS_SIMULATOR_ENABLED = true;
+  console.warn('⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️');
+}
+
 // Simulator Helper
 // @ts-expect-error - Custom global flag
 window.enableBoksSimulator = () => {

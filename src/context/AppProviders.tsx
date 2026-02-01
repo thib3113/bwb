@@ -1,5 +1,6 @@
 import { ComponentChildren } from 'preact';
 import { AppThemeProvider } from './ThemeContext';
+import { DeveloperProvider } from './DeveloperContext';
 import { SettingsProvider } from './SettingsContext';
 import { DeviceProvider } from './DeviceContext';
 import { LogProvider } from './LogContext';
@@ -18,7 +19,8 @@ interface AppProvidersProps {
 export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <AppThemeProvider>
-      <SettingsProvider>
+      <DeveloperProvider>
+        <SettingsProvider>
         <DeviceProvider>
           <LogProvider>
             <BLEProvider>
@@ -36,7 +38,8 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
             </BLEProvider>
           </LogProvider>
         </DeviceProvider>
-      </SettingsProvider>
+        </SettingsProvider>
+      </DeveloperProvider>
     </AppThemeProvider>
   );
 };
