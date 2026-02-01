@@ -162,7 +162,6 @@ export const BLE_DEFAULT_TIMEOUT_MS = 5000;
 export const BLE_COMMAND_DELAY_MS = 250;
 
 // UI Delay constants
-export const UI_NOTIFICATION_DELAY_MS = 100;
 export const UI_MINIMUM_DURATION_MS = 500;
 
 // Debug Wizard constants
