@@ -3,8 +3,8 @@
   "warnings": {
     "legal": "Le fichier du firmware doit être fourni par l'utilisateur. La mise à jour comporte des risques.",
     "risk": "Flasher le firmware peut endommager votre appareil si le processus est interrompu.",
-    "nrf52833": "Appareil (nRF52833) : Peut être redémarré normalement en cas d'échec.",
-    "nrf52811": "Appareil (nRF52811) : Nécessite un flash réussi pour redémarrer en cas d'échec.",
+    "nrf52833": "Appareil : Boks V4 (avec NFC / nRF52833). Peut être redémarré normalement en cas d'échec.",
+    "nrf52811": "Appareil : Boks V2/V3 (nRF52811). Nécessite un flash réussi pour redémarrer en cas d'échec.",
     "bricking": "Attention : Ne fermez pas cette page pendant la mise à jour.",
     "https": "Le Web Bluetooth nécessite une connexion HTTPS sécurisée."
   },
@@ -22,7 +22,8 @@
     "preparing": "Préparation de l'appareil...",
     "success": "Mise à jour réussie !",
     "error": "Une erreur est survenue",
-    "flashing": "Flash en cours..."
+    "flashing": "Flash en cours...",
+    "device_in_dfu": "Appareil en mode DFU"
   },
   "labels": {
     "battery": "Niveau de batterie",
@@ -45,5 +46,20 @@
     "bluetooth": "Erreur Bluetooth ou action annulée.",
     "compatibility": "Appareil incompatible ou batterie trop faible.",
     "unknown": "Erreur inconnue"
+  },
+  "faq": {
+    "title": "Aide & FAQ",
+    "process": {
+      "q": "Comment fonctionne la mise à jour ?",
+      "a": "1. Chargez le fichier firmware.\n2. Connectez-vous à votre Boks.\n3. Le système va redémarrer votre Boks en mode 'Bootloader'.\n4. Vous devrez vous reconnecter au Bootloader.\n5. Le nouveau firmware sera transféré et installé."
+    },
+    "risks": {
+      "q": "Quels sont les risques ?",
+      "a": "La mise à jour du firmware implique la réécriture de la mémoire de l'appareil. Si l'alimentation est coupée ou la connexion interrompue pendant le transfert, l'appareil peut devenir inopérant. Assurez-vous que votre batterie est chargée."
+    },
+    "troubleshoot": {
+      "q": "La mise à jour a échoué, que faire ?",
+      "a": "Si vous avez une Boks V4 (NFC), retirez simplement la batterie et remettez-la pour redémarrer normalement. Si vous avez une Boks V2/V3, l'appareil restera en mode Bootloader jusqu'à ce qu'un firmware valide soit flashé avec succès. Réessayez la mise à jour."
+    }
   }
 }

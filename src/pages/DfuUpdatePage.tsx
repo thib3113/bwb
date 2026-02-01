@@ -9,7 +9,11 @@ import {
   Container,
   Stack,
   Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { SecureDfu, SecureDfuPackage } from '@thib3113/web-bluetooth-dfu';
@@ -553,6 +557,37 @@ export const DfuUpdatePage = () => {
           <div key={i}>{line}</div>
         ))}
       </Paper>
+
+      {/* FAQ Section */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          {t('faq.title')}
+        </Typography>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography fontWeight="bold">{t('faq.process.q')}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.process.a')}</Typography>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography fontWeight="bold">{t('faq.risks.q')}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.risks.a')}</Typography>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography fontWeight="bold">{t('faq.troubleshoot.q')}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.troubleshoot.a')}</Typography>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
     </Container>
   );
 };
