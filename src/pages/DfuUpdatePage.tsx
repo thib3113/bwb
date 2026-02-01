@@ -300,7 +300,7 @@ export const DfuUpdatePage = () => {
 
         // Switch to reconnect UI
         setCanConnect(true);
-        setActionLabel('connect'); // Next click will be connect
+        setActionLabel('reconnect'); // Next click will be connect
         setCanStart(false);
       } else {
         // If somehow we are already in flash mode
@@ -394,7 +394,7 @@ export const DfuUpdatePage = () => {
   };
 
   const handleAction = () => {
-    if (actionLabel === 'connect') {
+    if (actionLabel === 'connect' || actionLabel === 'reconnect') {
       connect();
     } else {
       startAction();
@@ -529,9 +529,11 @@ export const DfuUpdatePage = () => {
           >
             {actionLabel === 'connect'
               ? t('buttons.connect')
-              : actionLabel === 'flash'
-                ? t('buttons.flash')
-                : t('buttons.prepare')}
+              : actionLabel === 'reconnect'
+                ? t('buttons.reconnect')
+                : actionLabel === 'flash'
+                  ? t('buttons.flash')
+                  : t('buttons.prepare')}
           </Button>
         </Stack>
       </Paper>
