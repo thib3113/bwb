@@ -15,6 +15,10 @@ export class CodeHistoryPayload implements ParsedPayload {
   error_code?: number;
   error_internal_code?: number;
 
+  // NFC fields
+  tag_type?: number;
+  tag_uid?: string;
+
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     this.opcode = opcode;
     this.payload = payload;
@@ -64,6 +68,20 @@ export class CodeHistoryPayload implements ParsedPayload {
       this.error_subtype = specificPayload[0];
       this.error_code = specificPayload[1];
       this.error_internal_code = specificPayload[2];
+    } else if (
+      [BLEOpcode.LOG_EVENT_NFC_OPENING, BLEOpcode.LOG_EVENT_NFC_REGISTERING].includes(opcode)
+    ) {
+      // Payload: [TagType, UID_Len, ...UID]
+      if (specificPayload.length >= 2) {
+        this.tag_type = specificPayload[0];
+        const uidLen = specificPayload[1];
+        if (specificPayload.length >= 2 + uidLen) {
+          const uidBytes = specificPayload.subarray(2, 2 + uidLen);
+          this.tag_uid = Array.from(uidBytes)
+            .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+            .join(':');
+        }
+      }
     }
   }
 
@@ -72,6 +90,7 @@ export class CodeHistoryPayload implements ParsedPayload {
     if (this.code) parts.push(`Code: ${this.code}`);
     if (this.macAddress) parts.push(`MAC: ${this.macAddress}`);
     if (this.reason_code !== undefined) parts.push(`Reason: ${this.reason_code}`);
+    if (this.tag_uid) parts.push(`UID: ${this.tag_uid} (Type: ${this.tag_type})`);
     return `Log 0x${this.opcode.toString(16)} (${parts.join(', ')})`;
   }
 
@@ -88,6 +107,10 @@ export class CodeHistoryPayload implements ParsedPayload {
       details.error_subtype = this.error_subtype;
       details.error_code = this.error_code;
       details.error_internal_code = this.error_internal_code;
+    }
+    if (this.tag_uid) {
+      details.tag_uid = this.tag_uid;
+      details.tag_type = this.tag_type;
     }
 
     return details;

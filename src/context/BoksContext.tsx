@@ -7,7 +7,7 @@ import { StorageService } from '../services/StorageService';
 import { BoksLog } from '../types';
 import { BoksContext } from './Contexts';
 import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { RequestLogsPacket } from '../ble/packets/LogPackets';
+import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 
 interface BoksProviderProps {
   children: ReactNode;

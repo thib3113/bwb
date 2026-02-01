@@ -1,5 +1,7 @@
 import {describe, expect, it} from 'vitest';
-import {NfcRegisterPacket, NfcScanStartPacket, NfcUnregisterPacket,} from '../../ble/packets/NfcPackets';
+import {NfcRegisterPacket} from '../../ble/packets/NfcRegisterPacket';
+import {NfcScanStartPacket} from '../../ble/packets/NfcScanStartPacket';
+import {NfcUnregisterPacket} from '../../ble/packets/NfcUnregisterPacket';
 import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('NFC Packets (Full Suite)', () => {

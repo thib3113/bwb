@@ -215,6 +215,14 @@ export function formatDetails(details: Record<string, unknown>): string {
     parts.push(`Reason: ${details.reason}`);
   }
 
+  // Handle NFC
+  if (details.tag_uid) {
+    parts.push(`UID: ${details.tag_uid}`);
+    if (details.tag_type !== undefined) {
+      parts.push(`Type: ${details.tag_type}`);
+    }
+  }
+
   // Handle payload if no specific fields found
   if (parts.length === 0 && details.payload) {
     parts.push(String(details.payload));

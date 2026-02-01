@@ -5,8 +5,10 @@ import {
   Card,
   CardContent,
   Divider,
+  FormControlLabel,
   IconButton,
   InputAdornment,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -14,6 +16,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useDevice } from '../../hooks/useDevice';
 import { UserRole } from '../../types';
+import { compareVersions } from '../../utils/version';
 
 interface DeviceSettingsProps {
   deviceId: string;
@@ -21,7 +24,7 @@ interface DeviceSettingsProps {
 
 export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const { t } = useTranslation(['common', 'settings']);
-  const { activeDevice, updateDeviceDetails, removeDevice } = useDevice();
+  const { activeDevice, updateDeviceDetails, removeDevice, toggleLaPoste } = useDevice();
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({
     key: !activeDevice?.configuration_key,
     pin: !activeDevice?.door_pin_code,
@@ -57,6 +60,15 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       } catch (error) {
         console.error('Failed to update device details:', error);
       }
+    }
+  };
+
+  const handleLaPosteChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      await toggleLaPoste(event.target.checked);
+    } catch (error) {
+      console.error('Failed to toggle La Poste:', error);
+      // Revert if failed (state will naturally revert on re-render if hook didn't update)
     }
   };
 
@@ -156,6 +168,24 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
                 },
               }}
             />
+
+            {/* La Poste Activation - Only for HW 4.0 and SW > 4.2.0 */}
+            {activeDevice.hardware_version === '4.0' &&
+              activeDevice.software_revision &&
+              compareVersions(activeDevice.software_revision, '4.2.0') > 0 && (
+                <Box>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={activeDevice.la_poste_activated || false}
+                        onChange={handleLaPosteChange}
+                      />
+                    }
+                    label={t('settings:activate_la_poste')}
+                  />
+                </Box>
+              )}
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
               <Button size="small" color="error" variant="outlined" onClick={handleRemoveDevice}>
                 {t('devices.forget')}

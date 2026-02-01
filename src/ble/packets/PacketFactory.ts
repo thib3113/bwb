@@ -1,13 +1,11 @@
 import {BoksRXPacket} from './rx/BoksRXPacket';
 import {BoksTXPacket} from './BoksTXPacket';
-import {
-	DoorOpeningPacket,
-	DoorStatusPacket,
-	LogCountPacket,
-	NfcTagFoundPacket,
-	OperationErrorPacket,
-	OperationSuccessPacket,
-} from './rx/ResponsePackets';
+import {OperationSuccessPacket} from './rx/OperationSuccessPacket';
+import {OperationErrorPacket} from './rx/OperationErrorPacket';
+import {LogCountPacket} from './rx/LogCountPacket';
+import {DoorStatusPacket} from './rx/DoorStatusPacket';
+import {DoorOpeningPacket} from './rx/DoorOpeningPacket';
+import {NfcScanResultPacket} from './rx/NfcScanResultPacket';
 import {OpenDoorPacket} from './OpenDoorPacket';
 import {
 	CreateMasterCodePacket,
@@ -17,11 +15,13 @@ import {
 	DeleteMultiUseCodePacket,
 	DeleteSingleUseCodePacket,
 } from './PinManagementPackets';
-import {GetLogsCountPacket, RequestLogsPacket} from './LogPackets';
+import {RequestLogsPacket} from './RequestLogsPacket';
+import {GetLogsCountPacket} from './GetLogsCountPacket';
 import {AskDoorStatusPacket, CountCodesPacket, TestBatteryPacket} from './StatusPackets';
 import {SetConfigurationPacket} from './SetConfigurationPacket';
-import {NfcRegisterPacket, NfcScanStartPacket, NfcUnregisterPacket} from './NfcPackets';
-
+import {NfcScanStartPacket} from './NfcScanStartPacket';
+import {NfcRegisterPacket} from './NfcRegisterPacket';
+import {NfcUnregisterPacket} from './NfcUnregisterPacket';
 import {BLEOpcode} from '../../utils/bleConstants';
 
 export class PacketFactory {
@@ -36,7 +36,9 @@ export class PacketFactory {
     this.registerRX(BLEOpcode.NOTIFY_DOOR_STATUS, DoorStatusPacket);
     this.registerRX(BLEOpcode.ANSWER_DOOR_STATUS, DoorStatusPacket);
     this.registerRX(BLEOpcode.VALID_OPEN_CODE, DoorOpeningPacket);
-    this.registerRX(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT, NfcTagFoundPacket);
+    this.registerRX(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT, NfcScanResultPacket);
+    this.registerRX(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS, NfcScanResultPacket);
+    this.registerRX(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT, NfcScanResultPacket);
 
     // TX Packets
     this.registerTX(BLEOpcode.OPEN_DOOR, OpenDoorPacket);

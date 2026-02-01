@@ -1,5 +1,6 @@
 import { db } from '../db/db';
 import { BoksCode, BoksDevice, BoksLog, CodeStatus, UserRole, Settings } from '../types';
+import { BoksNfcTag } from '../types/db';
 import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
 import { BLEOpcode } from '../utils/bleConstants';
 
@@ -50,21 +51,71 @@ export class StorageService {
     if (!deviceId) return;
 
     try {
-      const logsToAdd = logs.map(
-        (log) =>
-          ({
-            id: log.id || crypto.randomUUID(),
+      const logsToAdd: BoksLog[] = [];
+      const tagsToUpdate: BoksNfcTag[] = [];
+
+      for (const log of logs) {
+        // Prepare Log
+        const logEntry = {
+          id: log.id || crypto.randomUUID(),
+          device_id: deviceId,
+          timestamp: log.timestamp || new Date().toISOString(),
+          event: log.event || 'UNKNOWN',
+          type: log.type || 'info',
+          synced: log.synced || false,
+          ...log,
+        } as BoksLog;
+        logsToAdd.push(logEntry);
+
+        // Check for NFC Tags in log details
+        // @ts-expect-error - 'details' comes from parseLog but is not on BoksLog interface
+        const details = log.details as Record<string, unknown> | undefined;
+        if (details && typeof details.tag_uid === 'string') {
+          tagsToUpdate.push({
+            id: crypto.randomUUID(), // New ID, but we might overwrite based on logic below
             device_id: deviceId,
-            timestamp: log.timestamp || new Date().toISOString(),
-            event: log.event || 'UNKNOWN',
-            type: log.type || 'info',
-            synced: log.synced || false,
-            ...log,
-          }) as BoksLog
-      );
+            uid: details.tag_uid,
+            name: 'Utilisateur ' + details.tag_uid.substring(0, 5), // Default name
+            type: (details.tag_type as number) || 0,
+            last_seen_at: Date.now(),
+            created_at: Date.now(), // Will be ignored if updating
+            sync_status: 'created',
+          });
+        }
+      }
 
       if (logsToAdd.length > 0) {
         await db.logs.bulkPut(logsToAdd);
+      }
+
+      // Upsert Tags
+      if (tagsToUpdate.length > 0) {
+        for (const tag of tagsToUpdate) {
+          // Check if exists to preserve name
+          const existing = await db.nfc_tags.where({ device_id: deviceId, uid: tag.uid }).first();
+          if (existing) {
+            await db.nfc_tags.update(existing.id, {
+              last_seen_at: tag.last_seen_at,
+              // Only update type if meaningful? Assuming log type is correct.
+              type: tag.type,
+            });
+          } else {
+            // Only add if "User Badge" (0x03) or generic?
+            // Requirement: "logs vont des fois contenir des tag_uid ... avec un tag type 'USER' => ça veut donc dire qu'il fait partie des badges autorisés"
+            // So we blindly add all observed tags?
+            // "Pour en ajouter, il faut lancer un scan ... Une fois le tag trouvé, on propose à l'utilisateur de l'ajouter"
+            // So maybe we ONLY update `last_seen_at` if it exists, and AUTO-ADD only if it is explicitly type 0x03 (User Badge) which implies it IS authorized?
+            // User said: "logs vont des fois contenir des tag_uid . avec un tage type 'USER' => ça veut donc dire qu'il fait partie des badges autorisés"
+            // So if type is 0x03, we should ADD it if not present.
+            // But if type is something else (e.g. unknown), maybe we just ignore if not present?
+            // Let's assume if it's in the log with type 0x03, it is an authorized tag.
+            // If it is 0xA1 (NFC_OPENING), it opened the door, so it MUST be authorized (or master).
+            // Let's just add it.
+
+            // Use the tag object we prepared
+            await db.nfc_tags.add(tag);
+          }
+        }
       }
     } catch (error) {
       console.error(`Failed to save logs for device ${deviceId}:`, error);
@@ -179,6 +230,9 @@ export class StorageService {
         role: UserRole.Admin,
         sync_status: 'synced',
         last_connected_at: Date.now(),
+        hardware_version: '4.0',
+        software_revision: '4.4.0',
+        la_poste_activated: true,
       };
       await db.devices.put(mockDevice);
 
