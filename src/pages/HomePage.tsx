@@ -57,6 +57,8 @@ export const HomePage = () => {
       {/* Content Area */}
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         <Outlet context={{ showNotification, hideNotification }} />
+        {/* Spacer for BottomNavigation */}
+        <Box sx={{ height: 160 }} />
       </Box>
 
       {/* Bottom Navigation */}
