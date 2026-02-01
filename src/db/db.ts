@@ -33,7 +33,7 @@ export class BoksDatabase extends Dexie {
 
     // Automatic updated_at hooks (Conditional to allow manual override during sync)
     this.tables.forEach((table) => {
-      table.hook('creating', (_primKey, obj) => {
+      table.hook('creating', (_primKey, obj, transaction) => {
         console.log(`[DB Hook] Creating in ${table.name}`, obj);
         const entity = obj as { updated_at?: number; device_id?: string };
         if (!entity.updated_at) {
@@ -44,17 +44,26 @@ export class BoksDatabase extends Dexie {
         // Prevent infinite loop: Don't update devices table if we are already in devices table
         if (entity.device_id && table.name !== 'devices') {
           console.log(`[DB Hook] Cascading update to device ${entity.device_id}`);
-          // Use setTimeout to break out of the current transaction scope completely
-          // This avoids "objectStore not found" errors and "reading 'global'" errors from Dexie internals
-          setTimeout(() => {
-            this.devices.update(entity.device_id, { updated_at: Date.now() }).catch((err) => {
-              console.error('[DB Hook] Failed to update device:', err);
+          // Use transaction.on('complete') to schedule the update after the current transaction commits
+          // This avoids "objectStore not found" errors without using setTimeout
+          if (transaction) {
+            transaction.on('complete', () => {
+              this.devices.update(entity.device_id!, { updated_at: Date.now() }).catch((err) => {
+                console.error('[DB Hook] Failed to update device:', err);
+              });
             });
-          }, 0);
+          } else {
+            // Fallback if no transaction context (unlikely in hook)
+            this.devices
+              .update(entity.device_id, { updated_at: Date.now() })
+              .catch((err) => {
+                console.error('[DB Hook] Failed to update device (no tx):', err);
+              });
+          }
         }
       });
 
-      table.hook('updating', (modifications, _primKey, obj) => {
+      table.hook('updating', (modifications, _primKey, obj, transaction) => {
         console.log(`[DB Hook] Updating in ${table.name}`, modifications);
         const mods = modifications as Record<string, unknown>;
         const entity = obj as { device_id?: string };
@@ -70,11 +79,18 @@ export class BoksDatabase extends Dexie {
         const deviceId = (mods.device_id as string) || entity.device_id;
         if (deviceId && table.name !== 'devices') {
           console.log(`[DB Hook] Cascading update to device ${deviceId}`);
-          setTimeout(() => {
-            this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
-              console.error('[DB Hook] Failed to update device:', err);
+
+          if (transaction) {
+            transaction.on('complete', () => {
+              this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
+                console.error('[DB Hook] Failed to update device:', err);
+              });
             });
-          }, 0);
+          } else {
+            this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
+              console.error('[DB Hook] Failed to update device (no tx):', err);
+            });
+          }
         }
 
         return newMods;
