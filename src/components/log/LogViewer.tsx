@@ -46,13 +46,15 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
 
   // Load logs using useLiveQuery - sorted in descending order (newest first)
   const logsQuery = useLiveQuery(() => {
-    if (!activeDevice?.id) return [];
-    console.log(`[LogViewer] Querying logs for device_id: ${activeDevice.id}`);
+    const deviceId = activeDevice?.id;
+    if (!deviceId) return [];
+    console.log(`[LogViewer] Querying logs for device_id: ${deviceId}`);
     return db.logs
-      .where('device_id')
-      .equals(activeDevice.id)
-      .toArray()
-      .then((logs) => logs.sort((a, b) => Number(b.timestamp) - Number(a.timestamp)));
+      .orderBy('timestamp')
+      .reverse()
+      .filter((log) => log.device_id === deviceId)
+      .limit(50)
+      .toArray();
   }, [activeDevice?.id]);
 
   const logs = useMemo(() => {
