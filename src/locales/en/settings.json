@@ -50,6 +50,8 @@
 		"simulators_tools": "Simulators & Tools",
 		"enable_simulator": "Enable Bluetooth Simulator (Reloads Page)",
 		"load_mock_data": "Load Mock Data",
+		"clear_db": "Clear Database",
+		"clear_db_confirm": "Are you sure you want to delete the entire database? This cannot be undone.",
 		"mock_data_helper": "Resets DB and loads test data for 'Mock Boks'.",
 		"db_editor": "Database Editor",
 		"db_editor_helper": "View and inspect local IndexedDB data",

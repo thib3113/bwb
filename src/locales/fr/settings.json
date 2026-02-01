@@ -53,6 +53,8 @@
 		"simulators_tools": "Simulateurs & Outils",
 		"enable_simulator": "Activer le simulateur Bluetooth (Recharge la page)",
 		"load_mock_data": "Charger les données de test",
+		"clear_db": "Vider la base de données",
+		"clear_db_confirm": "Êtes-vous sûr de vouloir supprimer TOUTES les données ? Cette action est irréversible.",
 		"mock_data_helper": "Réinitialise la BD et charge des données de test pour 'Mock Boks'.",
 		"db_editor": "Éditeur de Base de Données",
 		"db_editor_helper": "Voir et inspecter les données IndexedDB locales",

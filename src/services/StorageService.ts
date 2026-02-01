@@ -123,6 +123,20 @@ export class StorageService {
   }
 
   /**
+   * Clear entire database (Developer Mode)
+   */
+  static async clearAllData(): Promise<void> {
+    try {
+      await db.delete();
+      console.log('Database deleted successfully.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to clear database:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Save a setting (upsert)
    */
   static async saveSetting<K extends keyof Settings>(key: K, value: Settings[K]): Promise<void> {
