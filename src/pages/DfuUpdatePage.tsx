@@ -348,7 +348,11 @@ export const DfuUpdatePage = () => {
 
       const dfu = new SecureDfu();
       // @ts-expect-error - library types might be slightly off or permissive
-      dfu.packetReceiptNotification = 15;
+      dfu.enableSmartSpeed = true;
+      // @ts-expect-error - library types might be slightly off or permissive
+      dfu.packetSize = 100;
+      // @ts-expect-error - library types might be slightly off or permissive
+      dfu.packetReceiptNotification = 12;
       // @ts-expect-error - library types
       dfu.forceRestart = true;
 
