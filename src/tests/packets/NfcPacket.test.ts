@@ -50,4 +50,17 @@ describe('NFC Packets (Full Suite)', () => {
     expect(fullPacket.slice(11, 15)).toEqual(new Uint8Array(uidBytes));
     expect(fullPacket.length).toBe(16);
   });
+
+  it('should generate exact hardcoded binary for NfcScanStartPacket', () => {
+    // 0x17 (Op) + 0x08 (Len) + "12345678" + Checksum 0xC3
+    const configKey = '12345678';
+    const packet = new NfcScanStartPacket(configKey);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    const expectedHex = "17 08 31 32 33 34 35 36 37 38 C3";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
 });

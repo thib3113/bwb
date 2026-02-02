@@ -26,4 +26,17 @@ describe('OpenDoorPacket (0x01)', () => {
     for (let i = 0; i < 8; i++) sum += fullPacket[i];
     expect(fullPacket[8]).toBe(sum & 0XFF);
   });
+
+  it('should generate exact hardcoded binary for "1234"', () => {
+    // Opcode: 0x01, Len: 0x04, Payload: "1234" (0x31-34), Checksum: 0xCF
+    const pin = '1234';
+    const packet = new OpenDoorPacket(pin);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    const expectedHex = "01 04 31 32 33 34 CF";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
 });

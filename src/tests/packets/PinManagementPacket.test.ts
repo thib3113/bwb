@@ -60,4 +60,19 @@ describe('Pin Management Packets (Full Suite)', () => {
     expect(fullPacket[10]).toBe(index);
     expect(fullPacket.length).toBe(12);
   });
+
+  it('should generate exact hardcoded binary for CreateMasterCodePacket', () => {
+    // 0x11 (Op) + 0x0F (Len) + "AABBCCDD" + "1234\0\0" + 0x01 (Index) + Checksum 0xFF
+    const configKey = 'AABBCCDD';
+    const code = '1234';
+    const index = 1;
+    const packet = new CreateMasterCodePacket(configKey, index, code);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    const expectedHex = "11 0F 41 41 42 42 43 43 44 44 31 32 33 34 00 00 01 FF";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
 });
