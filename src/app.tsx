@@ -3,7 +3,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { StorageService } from './services/StorageService';
 import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTaskConsistency } from './hooks/useTaskConsistency';
 import { useDevice } from './hooks/useDevice';
 
@@ -67,6 +67,7 @@ const LoadingFallback = () => (
 export function App() {
   const { activeDeviceId } = useDevice();
   useTaskConsistency(activeDeviceId);
+  const navigate = useNavigate();
 
   const { t } = useTranslation();
   const [notification, setNotification] = useState({
@@ -83,7 +84,18 @@ export function App() {
       };
       console.log('StorageService exposed to window.boksDebug');
     }
-  }, []);
+
+    // Check for trampoline redirect from 404.html hack (GitHub Pages SPA)
+    // Example: /?page=update&target_pcb=...
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectPage = searchParams.get('page');
+    if (redirectPage === 'update') {
+      // Remove 'page' param but keep others
+      searchParams.delete('page');
+      const newQuery = searchParams.toString();
+      navigate(`/update${newQuery ? '?' + newQuery : ''}`, { replace: true });
+    }
+  }, [navigate]);
 
   // Check if user is on iOS
   const isIOS = () => {
