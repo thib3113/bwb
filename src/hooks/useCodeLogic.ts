@@ -11,6 +11,7 @@ import { BoksCode, BoksLog, CodeStatus } from '../types';
 import { EMPTY_ARRAY } from '../utils/bleConstants';
 import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
 import { runTask } from '../utils/uiUtils';
+import { sortCodes } from '../utils/codeUtils';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
 
 export interface CodeMetadata {
@@ -76,59 +77,7 @@ export const useCodeLogic = (
 
   // Helper function to sort codes by priority and creation date
   const sortCodesByPriority = useCallback((codes: BoksCode[]) => {
-    const sorted = [...codes].sort((a, b) => {
-      // Helper function to get priority group
-      const getPriority = (code: BoksCode) => {
-        // Priority 1: Pending codes (PENDING_ADD, PENDING_DELETE)
-        if (code.status === CODE_STATUS.PENDING_ADD || code.status === CODE_STATUS.PENDING_DELETE) {
-          return 1;
-        }
-        // Priority 2: Active codes (ON_DEVICE and not used)
-        if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-          // For single-use codes, check if they've been used
-          if (code.type === CODE_TYPES.SINGLE) {
-            // Note: We can't use deriveCodeMetadata here due to circular dependency
-            // For now, we'll just check if it's a single-use code
-          }
-          // For multi-use codes, check if they've been fully used
-          if (code.type === CODE_TYPES.MULTI) {
-            // If uses >= maxUses, they're considered used (priority 3)
-            if (
-              code.uses !== undefined &&
-              code.maxUses !== undefined &&
-              code.uses >= code.maxUses
-            ) {
-              return 3;
-            }
-          }
-          // Otherwise, they're active (priority 2)
-          return 2;
-        }
-        // Priority 3: Used codes (default case)
-        return 3;
-      };
-
-      // Get priorities for both codes
-      const priorityA = getPriority(a);
-      const priorityB = getPriority(b);
-
-      // If priorities are different, sort by priority
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
-      }
-
-      // If priorities are the same, sort by creation date (descending - newest first)
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-
-      // Handle potential NaN values
-      if (isNaN(dateA) && isNaN(dateB)) return 0;
-      if (isNaN(dateA)) return 1;
-      if (isNaN(dateB)) return -1;
-
-      return dateB - dateA;
-    });
-    return sorted;
+    return sortCodes(codes);
   }, []);
 
   // Helper function to check for index conflicts in permanent codes
