@@ -22,13 +22,13 @@ import { BluetoothDevice } from '../types';
 
 // Hardcoded Constants from requirements
 const BOKS_SERVICE_UUID = 'a7630001-f491-4f21-95ea-846ba586e361';
-const DFU_SERVICE_UUID = 0XFE59;
-const BATTERY_SERVICE_UUID = 0X180F;
-const DEVICE_INFO_SERVICE_UUID = 0X180A;
+const DFU_SERVICE_UUID = 0xfe59;
+const BATTERY_SERVICE_UUID = 0x180f;
+const DEVICE_INFO_SERVICE_UUID = 0x180a;
 const GENERIC_ACCESS_SERVICE_UUID = 0x1800;
-const DEVICE_NAME_CHAR_UUID = 0x2a00;
-const SW_REV_CHAR_UUID = 0X2A28;
-const HW_REV_CHAR_UUID = 0X2A26;
+const DEVICE_NAME_CHAR_UUID = 0X2A00;
+const SW_REV_CHAR_UUID = 0x2a28;
+const HW_REV_CHAR_UUID = 0x2a26;
 const BATTERY_THRESHOLD = 20;
 
 const DFU_ERRORS: Record<number, string> = {
@@ -39,11 +39,11 @@ const DFU_ERRORS: Record<number, string> = {
   0x05: 'Invalid Object (Corrupt or wrong type)',
   0x07: 'Unsupported type',
   0x08: 'Operation not permitted (Wrong state)',
-  0X0A: 'Payload size exceeded',
-  0X0B: 'Hash failed (Integrity error)',
-  0X0C: 'Signature failed (Authentication error)',
-  0X0D: 'Hardware version error (Wrong firmware for this PCB)',
-  0X0E: 'Software version error (Downgrade blocked)',
+  0x0a: 'Payload size exceeded',
+  0x0b: 'Hash failed (Integrity error)',
+  0x0c: 'Signature failed (Authentication error)',
+  0x0d: 'Hardware version error (Wrong firmware for this PCB)',
+  0x0e: 'Software version error (Downgrade blocked)',
 };
 
 export const DfuUpdatePage = () => {
@@ -164,7 +164,7 @@ export const DfuUpdatePage = () => {
       // @ts-expect-error - standard UUID
       const batSvc = await server.getPrimaryService(BATTERY_SERVICE_UUID);
       // @ts-expect-error - standard UUID
-      const batChar = await batSvc.getCharacteristic(0X2A19);
+      const batChar = await batSvc.getCharacteristic(0x2a19);
       const val = await debugRead(batChar, 'Battery');
       const level = val.getUint8(0);
       setDeviceInfo((prev) => ({ ...prev, battery: `${level}%` }));
@@ -464,20 +464,28 @@ export const DfuUpdatePage = () => {
 
           {/* Status & Progress */}
           <Box>
-            <Typography
-              variant="h6"
-              color={
-                statusType === 'error'
-                  ? 'error'
-                  : statusType === 'success'
-                    ? 'success.main'
-                    : 'text.primary'
-              }
-              gutterBottom
-              align="center"
-            >
-              {status}
-            </Typography>
+            {/* Hide status text if it just duplicates the button action (e.g. "Device ready", "Click to prepare") */}
+            {/* Show only if it's an active process or error/success feedback */}
+            {(isFlashing ||
+              statusType === 'error' ||
+              statusType === 'success' ||
+              status.includes('...')) && (
+              <Typography
+                variant="h6"
+                color={
+                  statusType === 'error'
+                    ? 'error'
+                    : statusType === 'success'
+                      ? 'success.main'
+                      : 'text.primary'
+                }
+                gutterBottom
+                align="center"
+              >
+                {status}
+              </Typography>
+            )}
+
             {isFlashing && (
               <Box sx={{ width: '100%', mt: 2 }}>
                 <LinearProgress variant="determinate" value={progress} />

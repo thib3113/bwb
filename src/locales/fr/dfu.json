@@ -18,9 +18,9 @@
     "placeholder": "Les journaux apparaîtront ici..."
   },
   "status": {
-    "ready": "Prêt pour la mise à jour",
+    "ready": "Appareil prêt.",
     "searching": "Recherche d'appareils...",
-    "preparing": "Cliquez sur 'Préparer' pour redémarrer l'appareil",
+    "preparing": "Cliquez sur 'Redémarrer en mode mise à jour' pour continuer.",
     "success": "Mise à jour réussie !",
     "error": "Une erreur est survenue",
     "flashing": "Flash en cours...",

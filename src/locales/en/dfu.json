@@ -18,9 +18,9 @@
     "placeholder": "Logs will appear here..."
   },
   "status": {
-    "ready": "Ready to update",
+    "ready": "Device ready.",
     "searching": "Searching for devices...",
-    "preparing": "Click 'Prepare' to reboot your device",
+    "preparing": "Click 'Reboot to update mode' to continue.",
     "success": "Update successful!",
     "error": "Error occurred",
     "flashing": "Flashing firmware...",
