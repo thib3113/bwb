@@ -1,0 +1,68 @@
+{
+  "title": "Firmware Update",
+  "warnings": {
+    "legal": "The firmware file must be provided by the user. Updating firmware carries inherent risks.",
+    "risk": "Flashing firmware can potentially damage your device if interrupted.",
+    "bricking": "Warning: Do not close this page during the update process.",
+    "https": "Web Bluetooth requires a secure HTTPS connection."
+  },
+  "instructions": {
+    "step_1": "Select your Boks device to check compatibility.",
+    "step_2": "Prepare the device for update (this will reboot the device).",
+    "step_3": "Perform the update.",
+    "reboot_wait": "Rebooting into update mode... Please reconnect to the device named 'DfuTarg' to continue.",
+    "reboot_manual": "Update complete! Please manually reboot your Boks if it doesn't restart automatically.",
+    "select_file": "Select Firmware (.zip)"
+  },
+  "logs": {
+    "placeholder": "Logs will appear here..."
+  },
+  "status": {
+    "ready": "Device ready.",
+    "searching": "Searching for devices...",
+    "preparing": "Click 'Reboot to update mode' to continue.",
+    "success": "Update successful!",
+    "error": "Error occurred",
+    "flashing": "Flashing firmware...",
+    "device_in_dfu": "Device in DFU Mode"
+  },
+  "labels": {
+    "battery": "Battery Level",
+    "version": "Current Version",
+    "hw": "Hardware Revision",
+    "target_version": "Target Version: {{version}}",
+    "device_name": "Device Name",
+    "unknown": "Unknown",
+    "not_available": "N/A"
+  },
+  "buttons": {
+    "connect": "Connect",
+    "prepare": "Reboot to update mode",
+    "flash": "Start update",
+    "reconnect": "Reconnect",
+    "finalize": "Finalize",
+    "disconnect": "Disconnect",
+    "clear": "Clear"
+  },
+  "errors": {
+    "fw_load": "Failed to load firmware file.",
+    "bluetooth": "Bluetooth error or cancelled.",
+    "compatibility": "Device not compatible or battery too low.",
+    "unknown": "Unknown error"
+  },
+  "faq": {
+    "title": "Help & FAQ",
+    "process": {
+      "q": "How does the update process work?",
+      "a": "1. Load the firmware file.\n2. Connect to your Boks.\n3. The system will reboot your Boks into 'Bootloader' mode.\n4. You will need to reconnect to the Bootloader.\n5. The new firmware will be transferred and installed."
+    },
+    "risks": {
+      "q": "What are the risks?",
+      "a": "Updating firmware involves rewriting the device's memory. If power is lost or the connection is broken during the transfer, the device may become unresponsive. Ensure your battery is charged."
+    },
+    "troubleshoot": {
+      "q": "My update failed, what now?",
+      "a": "If you have a Boks V4 (NFC / nRF52833), simply remove the battery and insert it again to restart normally.\n\nIf you have a Boks V2/V3 (nRF52811), the device will stay in Bootloader mode until a valid firmware is successfully flashed. It requires a successful flash to restart if the update fails. Try the update again."
+    }
+  }
+}

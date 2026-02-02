@@ -1,5 +1,5 @@
-import {BoksRXPacket} from './BoksRXPacket';
-import {BLEOpcode} from '../../../utils/bleConstants';
+import { BoksRXPacket } from './BoksRXPacket';
+import { BLEOpcode } from '../../../utils/bleConstants';
 
 export class DoorStatusPacket extends BoksRXPacket {
   static readonly opcode_push = BLEOpcode.NOTIFY_DOOR_STATUS;

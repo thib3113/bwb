@@ -1,5 +1,5 @@
-import {BoksRXPacket} from './BoksRXPacket';
-import {BLEOpcode} from '../../../utils/bleConstants';
+import { BoksRXPacket } from './BoksRXPacket';
+import { BLEOpcode } from '../../../utils/bleConstants';
 
 export enum NfcScanResultStatus {
   FOUND = 'found',
@@ -22,9 +22,12 @@ export class NfcScanResultPacket extends BoksRXPacket {
   }
 
   get status(): NfcScanResultStatus {
-    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT) return NfcScanResultStatus.FOUND;
-    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS) return NfcScanResultStatus.ALREADY_EXISTS;
-    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT) return NfcScanResultStatus.TIMEOUT;
+    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT)
+      return NfcScanResultStatus.FOUND;
+    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS)
+      return NfcScanResultStatus.ALREADY_EXISTS;
+    if (this.opcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT)
+      return NfcScanResultStatus.TIMEOUT;
     return NfcScanResultStatus.UNKNOWN;
   }
 

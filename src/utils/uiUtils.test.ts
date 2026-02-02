@@ -54,7 +54,10 @@ describe('runTask', () => {
     });
 
     // Should not show loading
-    expect(showNotification).not.toHaveBeenCalledWith(expect.stringContaining('Loading'), expect.anything());
+    expect(showNotification).not.toHaveBeenCalledWith(
+      expect.stringContaining('Loading'),
+      expect.anything()
+    );
 
     // Should not wait for min duration or the old 100ms delay.
     // Since task is immediate, it should resolve almost immediately.

@@ -21,23 +21,23 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
     <AppThemeProvider>
       <DeveloperProvider>
         <SettingsProvider>
-        <DeviceProvider>
-          <LogProvider>
-            <BLEProvider>
-              <BoksProvider>
-                <ErrorProvider>
-                  <SessionProvider>
-                    <TaskProvider>
-                      <CodeProvider>
-                        <DeviceLogProvider>{children}</DeviceLogProvider>
-                      </CodeProvider>
-                    </TaskProvider>
-                  </SessionProvider>
-                </ErrorProvider>
-              </BoksProvider>
-            </BLEProvider>
-          </LogProvider>
-        </DeviceProvider>
+          <DeviceProvider>
+            <LogProvider>
+              <BLEProvider>
+                <BoksProvider>
+                  <ErrorProvider>
+                    <SessionProvider>
+                      <TaskProvider>
+                        <CodeProvider>
+                          <DeviceLogProvider>{children}</DeviceLogProvider>
+                        </CodeProvider>
+                      </TaskProvider>
+                    </SessionProvider>
+                  </ErrorProvider>
+                </BoksProvider>
+              </BLEProvider>
+            </LogProvider>
+          </DeviceProvider>
         </SettingsProvider>
       </DeveloperProvider>
     </AppThemeProvider>

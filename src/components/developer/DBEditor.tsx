@@ -18,7 +18,7 @@ import {
   TextField,
   IconButton,
   Stack,
-  Alert
+  Alert,
 } from '@mui/material';
 import { ExpandMore, Edit, Delete, Save, Cancel } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +26,11 @@ import { useTranslation } from 'react-i18next';
 const DBRowEditor = ({
   tableName,
   item,
-  primaryKey
+  primaryKey,
 }: {
   tableName: string;
   item: any;
-  primaryKey: any
+  primaryKey: any;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(JSON.stringify(item, null, 2));
@@ -83,12 +83,7 @@ const DBRowEditor = ({
           >
             Cancel
           </Button>
-          <Button
-            startIcon={<Save />}
-            onClick={handleSave}
-            variant="contained"
-            size="small"
-          >
+          <Button startIcon={<Save />} onClick={handleSave} variant="contained" size="small">
             Save
           </Button>
         </Stack>
@@ -149,11 +144,7 @@ const DBTableViewer = ({ tableName }: { tableName: string }) => {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <DBRowEditor
-                  tableName={tableName}
-                  item={item}
-                  primaryKey={pk}
-                />
+                <DBRowEditor tableName={tableName} item={item} primaryKey={pk} />
               </AccordionDetails>
             </Accordion>
           </ListItem>

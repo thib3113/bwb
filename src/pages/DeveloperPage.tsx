@@ -129,26 +129,34 @@ export const DeveloperPage = () => {
       <CustomTabPanel value={tabValue} index={1}>
         <Card>
           <CardContent>
-             <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button variant="contained" onClick={handleMockData}>
-                    {t('settings:developer.load_mock_data')}
-                  </Button>
-                  <Button variant="outlined" color="error" onClick={() => {
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button variant="contained" onClick={handleMockData}>
+                  {t('settings:developer.load_mock_data')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
                     if (confirm(t('settings:developer.clear_db_confirm'))) {
                       StorageService.clearAllData();
                     }
-                  }}>
-                    {t('settings:developer.clear_db')}
-                  </Button>
-                </Box>
-                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
-                  {t('settings:developer.mock_data_helper')}
-                </Typography>
-             </Box>
+                  }}
+                >
+                  {t('settings:developer.clear_db')}
+                </Button>
+              </Box>
+              <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
+                {t('settings:developer.mock_data_helper')}
+              </Typography>
+            </Box>
 
-             <Typography variant="h6" gutterBottom>{t('settings:developer.db_editor')}</Typography>
-             <Typography variant="body2" color="text.secondary" paragraph>{t('settings:developer.db_editor_helper')}</Typography>
+            <Typography variant="h6" gutterBottom>
+              {t('settings:developer.db_editor')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              {t('settings:developer.db_editor_helper')}
+            </Typography>
             <DBEditor />
           </CardContent>
         </Card>
@@ -157,12 +165,13 @@ export const DeveloperPage = () => {
       <CustomTabPanel value={tabValue} index={2}>
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>Bluetooth Debugger</Typography>
+            <Typography variant="h6" gutterBottom>
+              Bluetooth Debugger
+            </Typography>
             <BluetoothDebugger />
           </CardContent>
         </Card>
       </CustomTabPanel>
-
     </Container>
   );
 };

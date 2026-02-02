@@ -1,7 +1,9 @@
-import {defineConfig, loadEnv} from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import preact from '@preact/preset-vite';
-import {VitePWA} from 'vite-plugin-pwa';
-import {execSync} from 'child_process';
+import { VitePWA } from 'vite-plugin-pwa';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -68,6 +70,18 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+      {
+        name: 'copy-index-to-404',
+        closeBundle() {
+          const distDir = path.resolve(__dirname, 'dist');
+          const indexHtml = path.join(distDir, 'index.html');
+          const fallbackHtml = path.join(distDir, '404.html');
+          if (fs.existsSync(indexHtml)) {
+            fs.copyFileSync(indexHtml, fallbackHtml);
+            console.log('Copied index.html to 404.html for GitHub Pages SPA routing');
+          }
+        },
+      },
     ],
     base: baseUrl,
   };

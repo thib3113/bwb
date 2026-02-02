@@ -54,11 +54,9 @@ export class BoksDatabase extends Dexie {
             });
           } else {
             // Fallback if no transaction context (unlikely in hook)
-            this.devices
-              .update(entity.device_id, { updated_at: Date.now() })
-              .catch((err) => {
-                console.error('[DB Hook] Failed to update device (no tx):', err);
-              });
+            this.devices.update(entity.device_id, { updated_at: Date.now() }).catch((err) => {
+              console.error('[DB Hook] Failed to update device (no tx):', err);
+            });
           }
         }
       });

@@ -39,7 +39,7 @@ describe('useTaskConsistency', () => {
       name: 'Test Code',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1'
+      author_id: 'user-1',
     });
 
     // 2. Render hook
@@ -47,14 +47,16 @@ describe('useTaskConsistency', () => {
 
     // 3. Verify addTask is called
     await waitFor(() => {
-      expect(mockAddTask).toHaveBeenCalledWith(expect.objectContaining({
-        type: TaskType.ADD_SINGLE_USE_CODE,
-        deviceId: deviceId,
-        payload: expect.objectContaining({
-          code: '123456',
-          codeId: 'code-1'
+      expect(mockAddTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: TaskType.ADD_SINGLE_USE_CODE,
+          deviceId: deviceId,
+          payload: expect.objectContaining({
+            code: '123456',
+            codeId: 'code-1',
+          }),
         })
-      }));
+      );
     });
   });
 
@@ -69,7 +71,7 @@ describe('useTaskConsistency', () => {
       name: 'Delete Me',
       created_at: new Date().toISOString(),
       sync_status: 'synced',
-      author_id: 'user-1'
+      author_id: 'user-1',
     });
 
     // 2. Render hook
@@ -77,16 +79,18 @@ describe('useTaskConsistency', () => {
 
     // 3. Verify addTask is called
     await waitFor(() => {
-      expect(mockAddTask).toHaveBeenCalledWith(expect.objectContaining({
-        type: TaskType.DELETE_CODE,
-        deviceId: deviceId,
-        priority: 0,
-        payload: expect.objectContaining({
-          code: '654321',
-          codeId: 'code-2',
-          codeType: CODE_TYPES.MULTI
+      expect(mockAddTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: TaskType.DELETE_CODE,
+          deviceId: deviceId,
+          priority: 0,
+          payload: expect.objectContaining({
+            code: '654321',
+            codeId: 'code-2',
+            codeType: CODE_TYPES.MULTI,
+          }),
         })
-      }));
+      );
     });
   });
 
@@ -104,20 +108,22 @@ describe('useTaskConsistency', () => {
       name: 'Master Key',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1'
+      author_id: 'user-1',
     });
 
     renderHook(() => useTaskConsistency(deviceId), { wrapper });
 
     await waitFor(() => {
-      expect(mockAddTask).toHaveBeenCalledWith(expect.objectContaining({
-        type: TaskType.ADD_MASTER_CODE,
-        deviceId: deviceId,
-        payload: expect.objectContaining({
-          code: '999999',
-          codeId: 'code-master'
+      expect(mockAddTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: TaskType.ADD_MASTER_CODE,
+          deviceId: deviceId,
+          payload: expect.objectContaining({
+            code: '999999',
+            codeId: 'code-master',
+          }),
         })
-      }));
+      );
     });
   });
 });

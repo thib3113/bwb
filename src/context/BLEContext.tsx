@@ -1,16 +1,16 @@
-import {ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
-import {BLEServiceEvent, BLEServiceState, BoksBLEService} from '../services/BoksBLEService';
-import {BLEPacket} from '../utils/packetParser';
-import {BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID} from '../utils/bleConstants';
-import {BLEContext} from './Contexts';
-import {useLogContext} from '../hooks/useLogContext';
-import {BluetoothDevice} from '../types';
-import {translateBLEError} from '../utils/bleUtils';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { BLEServiceEvent, BLEServiceState, BoksBLEService } from '../services/BoksBLEService';
+import { BLEPacket } from '../utils/packetParser';
+import { BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID } from '../utils/bleConstants';
+import { BLEContext } from './Contexts';
+import { useLogContext } from '../hooks/useLogContext';
+import { BluetoothDevice } from '../types';
+import { translateBLEError } from '../utils/bleUtils';
 
-import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 
-import {SimulatedBluetoothAdapter} from '../ble/adapter/SimulatedBluetoothAdapter';
-import {WebBluetoothAdapter} from '../ble/adapter/WebBluetoothAdapter';
+import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
+import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
 
 export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const { log, addDebugLog } = useLogContext();

@@ -1,4 +1,15 @@
-import { Box, Button, Table, TableBody, TableCell, TableHead, TableRow, Typography, Paper, Chip } from '@mui/material';
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Chip,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useBLE } from '../../hooks/useBLE';
 import { BLEOpcode, OPCODE_NAMES } from '../../utils/bleConstants';
@@ -49,7 +60,13 @@ export const PacketLogger = () => {
                 packetLogs.map((log) => (
                   <TableRow key={log.id} hover>
                     <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}>
-                      {new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })}
+                      {new Date(log.timestamp).toLocaleTimeString([], {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        fractionalSecondDigits: 3,
+                      })}
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -62,7 +79,9 @@ export const PacketLogger = () => {
                     <TableCell sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
                       {getOpcodeName(log.opcode)}
                     </TableCell>
-                    <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.75rem', wordBreak: 'break-all' }}>
+                    <TableCell
+                      sx={{ fontFamily: 'monospace', fontSize: '0.75rem', wordBreak: 'break-all' }}
+                    >
                       {log.payload || '-'}
                     </TableCell>
                   </TableRow>

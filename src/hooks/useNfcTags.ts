@@ -67,19 +67,19 @@ export const useNfcTags = () => {
         nfcPacket.parse(packet.payload);
 
         switch (nfcPacket.status) {
-            case NfcScanResultStatus.TIMEOUT:
-                setScanStatus(NfcScanStatus.TIMEOUT);
-                break;
-            case NfcScanResultStatus.ALREADY_EXISTS:
-                setScanStatus(NfcScanStatus.ERROR_EXISTS);
-                if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
-                break;
-            case NfcScanResultStatus.FOUND:
-                setScanStatus(NfcScanStatus.FOUND);
-                if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
-                break;
-            default:
-                setScanStatus(NfcScanStatus.ERROR);
+          case NfcScanResultStatus.TIMEOUT:
+            setScanStatus(NfcScanStatus.TIMEOUT);
+            break;
+          case NfcScanResultStatus.ALREADY_EXISTS:
+            setScanStatus(NfcScanStatus.ERROR_EXISTS);
+            if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
+            break;
+          case NfcScanResultStatus.FOUND:
+            setScanStatus(NfcScanStatus.FOUND);
+            if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
+            break;
+          default:
+            setScanStatus(NfcScanStatus.ERROR);
         }
       }
     };
@@ -105,9 +105,7 @@ export const useNfcTags = () => {
         const key = await getConfigKey();
 
         // Convert UID string back to bytes
-        const uidBytes = new Uint8Array(
-          scannedUid.split(':').map((s) => parseInt(s, 16))
-        );
+        const uidBytes = new Uint8Array(scannedUid.split(':').map((s) => parseInt(s, 16)));
 
         // Send 0x18
         const packet = new NfcRegisterPacket(key, uidBytes);
@@ -117,20 +115,20 @@ export const useNfcTags = () => {
         // Check if exists
         const existing = await db.nfc_tags.where({ device_id: deviceId, uid: scannedUid }).first();
         if (existing) {
-             await db.nfc_tags.update(existing.id, {
-                name,
-                updated_at: Date.now()
-             });
+          await db.nfc_tags.update(existing.id, {
+            name,
+            updated_at: Date.now(),
+          });
         } else {
-            await db.nfc_tags.add({
-                id: crypto.randomUUID(),
-                device_id: deviceId,
-                uid: scannedUid,
-                name,
-                type: BoksNfcTagType.USER_BADGE, // Default to User Badge for manual add
-                created_at: Date.now(),
-                sync_status: 'created'
-            });
+          await db.nfc_tags.add({
+            id: crypto.randomUUID(),
+            device_id: deviceId,
+            uid: scannedUid,
+            name,
+            type: BoksNfcTagType.USER_BADGE, // Default to User Badge for manual add
+            created_at: Date.now(),
+            sync_status: 'created',
+          });
         }
 
         setScanStatus(NfcScanStatus.IDLE);
@@ -145,30 +143,28 @@ export const useNfcTags = () => {
 
   const unregisterTag = useCallback(
     async (tag: BoksNfcTag) => {
-        if (!deviceId) return;
-        try {
-            const key = await getConfigKey();
-            const uidBytes = new Uint8Array(
-                tag.uid.split(':').map((s) => parseInt(s, 16))
-            );
+      if (!deviceId) return;
+      try {
+        const key = await getConfigKey();
+        const uidBytes = new Uint8Array(tag.uid.split(':').map((s) => parseInt(s, 16)));
 
-            // Send 0x19
-            const packet = new NfcUnregisterPacket(key, uidBytes);
-            await sendRequest(packet);
+        // Send 0x19
+        const packet = new NfcUnregisterPacket(key, uidBytes);
+        await sendRequest(packet);
 
-            // Remove from DB
-            await db.nfc_tags.delete(tag.id);
-        } catch(e) {
-            console.error("Failed to unregister tag", e);
-            throw e;
-        }
+        // Remove from DB
+        await db.nfc_tags.delete(tag.id);
+      } catch (e) {
+        console.error('Failed to unregister tag', e);
+        throw e;
+      }
     },
     [deviceId, getConfigKey, sendRequest]
   );
 
   const resetScan = useCallback(() => {
-      setScanStatus(NfcScanStatus.IDLE);
-      setScannedUid(null);
+    setScanStatus(NfcScanStatus.IDLE);
+    setScannedUid(null);
   }, []);
 
   return {
@@ -178,6 +174,6 @@ export const useNfcTags = () => {
     startScan,
     registerTag,
     unregisterTag,
-    resetScan
+    resetScan,
   };
 };

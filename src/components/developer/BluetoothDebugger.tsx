@@ -101,15 +101,17 @@ export const BluetoothDebugger = () => {
 
       // If we have a schema, validate and parse
       if (SelectedPacketClass.schema) {
-         // Validate with Zod (using safeParse to handle errors gracefully)
-         const result = SelectedPacketClass.schema.safeParse(formData);
+        // Validate with Zod (using safeParse to handle errors gracefully)
+        const result = SelectedPacketClass.schema.safeParse(formData);
 
-         if (!result.success) {
-            const errorMsg = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-            setValidationError(errorMsg);
-            return;
-         }
-         packetData = result.data;
+        if (!result.success) {
+          const errorMsg = result.error.errors
+            .map((e) => `${e.path.join('.')}: ${e.message}`)
+            .join(', ');
+          setValidationError(errorMsg);
+          return;
+        }
+        packetData = result.data;
       }
 
       // Instantiate the packet
@@ -130,7 +132,9 @@ export const BluetoothDebugger = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Alert severity={isConnected ? 'success' : 'warning'}>
-        {isConnected ? t('settings:developer.enabled_success') : t('settings:developer.not_connected_warning')}
+        {isConnected
+          ? t('settings:developer.enabled_success')
+          : t('settings:developer.not_connected_warning')}
       </Alert>
 
       <FormControl fullWidth>
@@ -162,10 +166,14 @@ export const BluetoothDebugger = () => {
 
                   // This is a rough check for Zod types
                   let isNumber = false;
-                  let typeName = fieldSchema._def.typeName;
-                   // Handle optional/nullable wrappers if needed, for now stick to basics
-                  if (typeName === 'ZodNumber' || (typeName === 'ZodEffects' && fieldSchema._def.schema?._def.typeName === 'ZodNumber')) {
-                      isNumber = true;
+                  const typeName = fieldSchema._def.typeName;
+                  // Handle optional/nullable wrappers if needed, for now stick to basics
+                  if (
+                    typeName === 'ZodNumber' ||
+                    (typeName === 'ZodEffects' &&
+                      fieldSchema._def.schema?._def.typeName === 'ZodNumber')
+                  ) {
+                    isNumber = true;
                   }
 
                   return (
@@ -182,20 +190,22 @@ export const BluetoothDebugger = () => {
                   );
                 })
               ) : (
-                <Typography color="text.secondary">{t('settings:developer.no_parameters')}</Typography>
+                <Typography color="text.secondary">
+                  {t('settings:developer.no_parameters')}
+                </Typography>
               )
             ) : (
               <Typography color="text.secondary">{t('settings:developer.no_schema')}</Typography>
             )}
 
-            {validationError && (
-                <Alert severity="error">{validationError}</Alert>
-            )}
-             {successMessage && (
-                <Alert severity="success">{successMessage}</Alert>
-            )}
+            {validationError && <Alert severity="error">{validationError}</Alert>}
+            {successMessage && <Alert severity="success">{successMessage}</Alert>}
 
-            <Button variant="contained" onClick={handleSend} disabled={!isConnected && !window.BOKS_SIMULATOR_ENABLED}>
+            <Button
+              variant="contained"
+              onClick={handleSend}
+              disabled={!isConnected && !window.BOKS_SIMULATOR_ENABLED}
+            >
               {t('settings:developer.send_packet')}
             </Button>
           </Box>

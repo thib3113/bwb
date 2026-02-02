@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  Alert,
-  Divider,
-} from '@mui/material';
+import { Box, Button, Card, CardContent, Typography, Alert, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -42,7 +34,11 @@ export const ServiceWorkerDebugger = () => {
   const handleUnregister = async (reg: ServiceWorkerRegistration) => {
     try {
       const result = await reg.unregister();
-      setMessage(result ? t('settings:developer.sw_unregister_success') : t('settings:developer.sw_unregister_failed'));
+      setMessage(
+        result
+          ? t('settings:developer.sw_unregister_success')
+          : t('settings:developer.sw_unregister_failed')
+      );
       fetchRegistrations();
     } catch (e) {
       setMessage(t('settings:developer.sw_unregister_error', { error: String(e) }));
@@ -60,10 +56,16 @@ export const ServiceWorkerDebugger = () => {
   return (
     <Card sx={{ mt: 2 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>{t('settings:developer.sw_title')}</Typography>
+        <Typography variant="h6" gutterBottom>
+          {t('settings:developer.sw_title')}
+        </Typography>
         <Divider sx={{ mb: 2 }} />
 
-        {message && <Alert severity="info" sx={{ mb: 2 }} onClose={() => setMessage(null)}>{message}</Alert>}
+        {message && (
+          <Alert severity="info" sx={{ mb: 2 }} onClose={() => setMessage(null)}>
+            {message}
+          </Alert>
+        )}
 
         {registrations.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
@@ -77,9 +79,13 @@ export const ServiceWorkerDebugger = () => {
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t('settings:developer.sw_status', {
-                  status: reg.installing ? t('settings:developer.sw_installing') :
-                          reg.waiting ? t('settings:developer.sw_waiting') :
-                          reg.active ? t('settings:developer.sw_active') : t('settings:developer.sw_unknown')
+                  status: reg.installing
+                    ? t('settings:developer.sw_installing')
+                    : reg.waiting
+                      ? t('settings:developer.sw_waiting')
+                      : reg.active
+                        ? t('settings:developer.sw_active')
+                        : t('settings:developer.sw_unknown'),
                 })}
               </Typography>
 
@@ -107,15 +113,15 @@ export const ServiceWorkerDebugger = () => {
         )}
 
         <Box sx={{ mt: 2 }}>
-           <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              startIcon={<RefreshIcon />}
-              onClick={handleReload}
-            >
-              {t('settings:developer.sw_reload')}
-            </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            startIcon={<RefreshIcon />}
+            onClick={handleReload}
+          >
+            {t('settings:developer.sw_reload')}
+          </Button>
         </Box>
       </CardContent>
     </Card>

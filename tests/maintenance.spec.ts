@@ -20,7 +20,9 @@ test.describe('Maintenance Page', () => {
     await expect(page.locator('svg[data-testid="BluetoothIcon"]')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to maintenance page and run clean master codes script', async ({ page }) => {
+  test('should navigate to maintenance page and run clean master codes script', async ({
+    page,
+  }) => {
     // 1. Open Menu
     // Assuming the menu button has aria-label="menu" (standard MUI)
     // Using loose match or check strictness if needed.

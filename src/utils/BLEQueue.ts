@@ -1,5 +1,5 @@
-import {BLEPacket} from './packetParser';
-import {BLEOpcode} from './bleConstants';
+import { BLEPacket } from './packetParser';
+import { BLEOpcode } from './bleConstants';
 
 export type QueueMatchStrategy = (packet: BLEPacket) => 'finish' | 'continue' | 'ignore';
 
