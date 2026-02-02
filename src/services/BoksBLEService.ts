@@ -66,7 +66,7 @@ export class BoksBLEService extends EventEmitter {
       this.lastSentOpcode = request.opcode;
       this.lastSentTimestamp = Date.now();
 
-      // Prevent sending invalid opcodes
+      // Prevent sending invalid opcodes (Safety Guard)
       if (request.opcode === 0) {
         throw new Error('[BLEService] Attempted to send packet with Opcode 0x00 (UNPARSABLE).');
       }
