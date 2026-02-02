@@ -44,7 +44,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           destination_dir: pr-${{ github.event.number }}
-          keep_files: false # We want to wipe the PR folder if it existed
+          keep_files: true # Keep existing files (main site and other PRs)
           force_orphan: false # Critical to not wipe the branch
 
       - name: Post Preview Link
