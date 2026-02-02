@@ -168,7 +168,12 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   // Function to register a device (called upon successful BLE connection)
   const registerDevice = useCallback(
     async (bleDevice: BluetoothDevice) => {
-      const bleName = bleDevice.id;
+      const bleName = bleDevice.name;
+
+      if (!bleName) {
+        throw new Error('Device name is required for registration');
+      }
+
       const friendlyName = bleDevice.name || `Boks ${bleName.substring(0, 8)}`;
 
       try {
