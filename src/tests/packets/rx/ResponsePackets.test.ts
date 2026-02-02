@@ -5,6 +5,14 @@ import {NfcScanResultPacket} from '../../../ble/packets/rx/NfcScanResultPacket';
 import {BLEOpcode} from '../../../utils/bleConstants';
 
 describe('RX Packets Parsing', () => {
+  it('should have correct static opcodes', () => {
+    // Verify static getters resolve correctly at runtime
+    expect(LogCountPacket.opcode).toBe(BLEOpcode.NOTIFY_LOGS_COUNT);
+    expect(DoorStatusPacket.opcode_push).toBe(BLEOpcode.NOTIFY_DOOR_STATUS);
+    expect(DoorStatusPacket.opcode_pull).toBe(BLEOpcode.ANSWER_DOOR_STATUS);
+    expect(NfcScanResultPacket.opcodes).toContain(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT);
+  });
+
   it('should parse LogCountPacket (Uint16)', () => {
     const packet = new LogCountPacket();
     // 5 logs: [0x05, 0x00] (Little Endian)

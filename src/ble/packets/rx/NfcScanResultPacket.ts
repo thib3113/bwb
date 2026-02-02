@@ -9,11 +9,13 @@ export enum NfcScanResultStatus {
 }
 
 export class NfcScanResultPacket extends BoksRXPacket {
-  static readonly opcodes = [
-    BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT,
-    BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS,
-    BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT,
-  ];
+  static get opcodes() {
+    return [
+      BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT,
+      BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS,
+      BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT,
+    ];
+  }
 
   public uid: string | null = null;
 
