@@ -65,8 +65,21 @@ export class BoksBLEService extends EventEmitter {
       this.lastSentOpcode = request.opcode;
       this.lastSentTimestamp = Date.now();
 
+      // Prevent sending invalid opcodes
+      if (request.opcode === 0) {
+        throw new Error('[BLEService] Attempted to send packet with Opcode 0x00 (UNPARSABLE).');
+      }
+
       // Packet creation
-      const packet = createPacket(request.opcode, request.payload);
+      let packet: Uint8Array;
+
+      // Use pre-calculated packet if available (from BoksTXPacket.toPacket())
+      if (request.packet) {
+        packet = request.packet;
+      } else {
+        // Fallback for raw requests
+        packet = createPacket(request.opcode, request.payload);
+      }
       const buffer = packet;
 
       // Notify about sending (UI logs)
@@ -205,10 +218,35 @@ export class BoksBLEService extends EventEmitter {
     configKey?: string
   ): Promise<BLEPacket | BLEPacket[]> {
     // Safer check than instanceof to avoid issues with multiple instances or HMR
-    if ('toPayload' in request && typeof (request as BoksTXPacket).toPayload === 'function') {
-      // Generate payload using the injected configKey
-      const payload = (request as BoksTXPacket).toPayload(configKey);
-      return this.queue.add(request.opcode, payload, options);
+    if ('toPacket' in request && typeof (request as BoksTXPacket).toPacket === 'function') {
+      // Use the robust class method that includes safety checks and checksums
+      // We inject configKey into toPayload implicitly via the object logic or we might need to support it?
+      // BoksTXPacket.toPayload accepts configKey. But toPacket calls toPayload() without args.
+      // We need to fix this slightly or rely on the fact that 'configKey' is usually passed in constructor for most packets.
+      // For legacy consistency, let's keep the existing logic but pass the full packet to queue.
+
+      // Actually, BoksTXPacket.toPacket() does NOT accept arguments.
+      // So the configKey must be set on the instance before calling toPacket().
+      // PinManagement packets use constructor args.
+      // Let's verify if toPayload needs injection.
+      // CreateMasterCodePacket: toPayload(configKey?).
+      // If we use toPacket(), we lose the injection capability unless we set it.
+
+      // COMPROMISE: We use the existing flow but we enforce opcode check here too.
+      // And ideally we should update BoksTXPacket to support injection in toPacket if needed, but that's a larger refactor.
+      // Wait, BoksTXPacket.toPacket() calls this.toPayload().
+      // If the specific packet relies on argument injection (which PinManagement does NOT, it uses constructor), we are fine.
+      // Only BoksTXPacket.toPayload signature has optional configKey.
+      // Let's see PinManagementPackets.ts: toPayload(configKey?).
+      // It says: const key = configKey ?? this.configKey;
+
+      // So if we don't pass configKey to toPacket -> toPayload, it falls back to this.configKey.
+      // Since usage is `new CreateMasterCodePacket(key, ...)`, this.configKey IS set.
+      // So calling `toPacket()` is safe and preferred.
+
+      const packetBytes = (request as BoksTXPacket).toPacket();
+      // We pass the full packet bytes to the queue to avoid reconstruction
+      return this.queue.add(request.opcode, (request as BoksTXPacket).toPayload(configKey), options, packetBytes);
     } else {
       const rawRequest = request as { opcode: BLEOpcode; payload: Uint8Array };
       return this.queue.add(rawRequest.opcode, rawRequest.payload, options);

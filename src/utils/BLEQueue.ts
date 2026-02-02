@@ -17,6 +17,7 @@ export interface BLECommandRequest {
   timestamp: number;
   options?: BLECommandOptions;
   accumulatedPackets: BLEPacket[];
+  packet?: Uint8Array; // Optional pre-constructed packet
 }
 
 export class BLEQueue {
@@ -85,7 +86,8 @@ export class BLEQueue {
   public add(
     opcode: BLEOpcode,
     payload: Uint8Array,
-    options?: BLECommandOptions
+    options?: BLECommandOptions,
+    packet?: Uint8Array
   ): Promise<BLEPacket | BLEPacket[]> {
     return new Promise((resolve, reject) => {
       this.queue.push({
@@ -96,6 +98,7 @@ export class BLEQueue {
         timestamp: Date.now(),
         options,
         accumulatedPackets: [],
+        packet,
       });
       this.processNext();
     });
