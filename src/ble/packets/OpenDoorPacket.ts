@@ -3,7 +3,7 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class OpenDoorPacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.OPEN_DOOR;
   }
 

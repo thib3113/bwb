@@ -3,7 +3,7 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class CreateMasterCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.CREATE_MASTER_CODE;
   }
 
@@ -51,7 +51,7 @@ export class CreateMasterCodePacket extends BoksTXPacket {
 }
 
 export class CreateSingleUseCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.CREATE_SINGLE_USE_CODE;
   }
 
@@ -91,7 +91,7 @@ export class CreateSingleUseCodePacket extends BoksTXPacket {
 }
 
 export class CreateMultiUseCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.CREATE_MULTI_USE_CODE;
   }
 
@@ -130,7 +130,7 @@ export class CreateMultiUseCodePacket extends BoksTXPacket {
 }
 
 export class DeleteMasterCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.DELETE_MASTER_CODE;
   }
 
@@ -162,7 +162,7 @@ export class DeleteMasterCodePacket extends BoksTXPacket {
 }
 
 export class DeleteSingleUseCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.DELETE_SINGLE_USE_CODE;
   }
 
@@ -202,7 +202,7 @@ export class DeleteSingleUseCodePacket extends BoksTXPacket {
 }
 
 export class DeleteMultiUseCodePacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.DELETE_MULTI_USE_CODE;
   }
 

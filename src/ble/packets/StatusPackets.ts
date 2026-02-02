@@ -3,7 +3,7 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class AskDoorStatusPacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.ASK_DOOR_STATUS;
   }
 
@@ -19,7 +19,7 @@ export class AskDoorStatusPacket extends BoksTXPacket {
 }
 
 export class TestBatteryPacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.TEST_BATTERY;
   }
 
@@ -35,7 +35,7 @@ export class TestBatteryPacket extends BoksTXPacket {
 }
 
 export class CountCodesPacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.COUNT_CODES;
   }
 

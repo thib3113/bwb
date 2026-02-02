@@ -3,7 +3,7 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class NfcUnregisterPacket extends BoksTXPacket {
-  get opcode() {
+  static get opcode() {
     return BLEOpcode.UNREGISTER_NFC_TAG;
   }
 

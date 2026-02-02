@@ -3,7 +3,15 @@ import { z } from 'zod';
 
 // Abstract base class for all TX packets
 export abstract class BoksTXPacket {
-  abstract readonly opcode: number;
+  // Static abstract-like property (to be implemented by subclasses)
+  static get opcode(): number {
+    throw new Error('Opcode not implemented');
+  }
+
+  // Helper to access the static opcode from an instance
+  get opcode(): number {
+    return (this.constructor as typeof BoksTXPacket).opcode;
+  }
 
   /**
    * Optional Zod schema for validation and form generation.
@@ -35,6 +43,7 @@ export abstract class BoksTXPacket {
     // 2 bytes header (Opcode + Length) + Payload + 1 byte Checksum
     const packet = new Uint8Array(2 + payload.length + 1);
 
+    // Dynamic access to static opcode
     packet[0] = this.opcode;
     packet[1] = payload.length;
     packet.set(payload, 2);
