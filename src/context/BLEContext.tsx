@@ -8,6 +8,7 @@ import { BluetoothDevice } from '../types';
 import { translateBLEError } from '../utils/bleUtils';
 
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
+import { RawTXPacket } from '../ble/packets/RawTXPacket';
 
 import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
@@ -166,7 +167,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       opcode: BLEOpcode,
       payload: Uint8Array,
       options?: { expectResponse?: boolean; timeout?: number }
-    ) => bleService.sendRequest({ opcode, payload }, options),
+    ) => bleService.sendRequest(new RawTXPacket(opcode, payload), options),
     [bleService]
   );
 

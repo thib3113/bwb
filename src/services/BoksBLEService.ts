@@ -14,6 +14,7 @@ import { ParsedPayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
 
 class DescriptionPayload implements ParsedPayload {
   constructor(
@@ -213,7 +214,7 @@ export class BoksBLEService extends EventEmitter {
    * @param configKey Configuration key for authenticated commands. Only used if request is a BoksTXPacket.
    */
   async sendRequest(
-    request: BoksTXPacket | { opcode: BLEOpcode; payload: Uint8Array },
+    request: BoksTXPacket,
     options?: BLECommandOptions,
     configKey?: string
   ): Promise<BLEPacket | BLEPacket[]> {
@@ -248,27 +249,26 @@ export class BoksBLEService extends EventEmitter {
       // We pass the full packet bytes to the queue to avoid reconstruction
       return this.queue.add(request.opcode, (request as BoksTXPacket).toPayload(configKey), options, packetBytes);
     } else {
-      const rawRequest = request as { opcode: BLEOpcode; payload: Uint8Array };
-      return this.queue.add(rawRequest.opcode, rawRequest.payload, options);
+      // Should not happen if types are strict, but for runtime safety:
+      throw new Error('[BLEService] sendRequest requires a valid BoksTXPacket instance.');
     }
   }
 
   async readCharacteristic(serviceUuid: string, charUuid: string): Promise<DataView> {
-    // Fake TX packet for logs
-    const uuidBytes = new TextEncoder().encode(charUuid.substring(0, 8));
+    // Use GattOperationPacket for structured logging
+    const logPacket = new GattOperationPacket(charUuid, `Read Char: ${charUuid}`);
+    // We construct the "fake" TX packet to emit
+    const uuidBytes = new TextEncoder().encode(charUuid); // Full UUID for consistency
+    const rawTx = new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]);
+
     this.emit(BLEServiceEvent.PACKET_SENT, {
       opcode: BLEOpcode.INTERNAL_GATT_OPERATION,
       payload: uuidBytes,
-      raw: new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]),
+      raw: rawTx,
       direction: 'TX',
       isValidChecksum: true,
       uuid: charUuid,
-      parsedPayload: new DescriptionPayload(
-        BLEOpcode.INTERNAL_GATT_OPERATION,
-        uuidBytes,
-        new Uint8Array(0),
-        `Read Char: ${charUuid}`
-      ),
+      parsedPayload: logPacket, // Attach the packet object as payload info
     } as BLEPacket);
 
     try {
