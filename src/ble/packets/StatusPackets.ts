@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class AskDoorStatusPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.ASK_DOOR_STATUS;
+  get opcode() {
+    return BLEOpcode.ASK_DOOR_STATUS;
+  }
 
   static schema = z.object({});
 
@@ -17,7 +19,9 @@ export class AskDoorStatusPacket extends BoksTXPacket {
 }
 
 export class TestBatteryPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.TEST_BATTERY;
+  get opcode() {
+    return BLEOpcode.TEST_BATTERY;
+  }
 
   static schema = z.object({});
 
@@ -31,7 +35,9 @@ export class TestBatteryPacket extends BoksTXPacket {
 }
 
 export class CountCodesPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.COUNT_CODES;
+  get opcode() {
+    return BLEOpcode.COUNT_CODES;
+  }
 
   static schema = z.object({});
 

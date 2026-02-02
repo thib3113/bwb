@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class SetConfigurationPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.SET_CONFIGURATION;
+  get opcode() {
+    return BLEOpcode.SET_CONFIGURATION;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
