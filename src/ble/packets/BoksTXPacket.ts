@@ -39,12 +39,22 @@ export abstract class BoksTXPacket {
    * Format: [Opcode, Length, ...Payload, Checksum]
    */
   public toPacket(): Uint8Array {
+    const opcode = this.opcode;
+    if (!opcode && opcode !== 0) {
+      throw new Error(`[BoksTXPacket] Opcode is undefined or null for ${this.constructor.name}`);
+    }
+    if (opcode === 0) {
+      throw new Error(
+        `[BoksTXPacket] Invalid Opcode 0x00 for ${this.constructor.name}. Check BLEOpcode initialization.`
+      );
+    }
+
     const payload = this.toPayload();
     // 2 bytes header (Opcode + Length) + Payload + 1 byte Checksum
     const packet = new Uint8Array(2 + payload.length + 1);
 
     // Dynamic access to static opcode
-    packet[0] = this.opcode;
+    packet[0] = opcode;
     packet[1] = payload.length;
     packet.set(payload, 2);
 
