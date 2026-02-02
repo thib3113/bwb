@@ -63,4 +63,34 @@ describe('NFC Packets (Full Suite)', () => {
     const expectedHex = "17 08 31 32 33 34 35 36 37 38 C3";
     expect(toHex(binary)).toBe(expectedHex);
   });
+
+  it('should generate exact hardcoded binary for NfcRegisterPacket', () => {
+    // 0x18 (Op) + 0x0D (Len=13) + "ABCDEFGH" + 0x04 (LenUID) + "AABBCCDD" + Checksum
+    const configKey = 'ABCDEFGH';
+    const uidBytes = [0XAA, 0XBB, 0XCC, 0XDD];
+    const packet = new NfcRegisterPacket(configKey, new Uint8Array(uidBytes));
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 24 + 13 + 548 (Key) + 4 + 782 (UID) = 1371 -> 1371 % 256 = 91 -> 0x5B
+    const expectedHex = "18 0D 41 42 43 44 45 46 47 48 04 AA BB CC DD 5B";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for NfcUnregisterPacket', () => {
+    // 0x19 (Op) + 0x0D (Len=13) + "ABCDEFGH" + 0x04 (LenUID) + "AABBCCDD" + Checksum
+    const configKey = 'ABCDEFGH';
+    const uidBytes = [0XAA, 0XBB, 0XCC, 0XDD];
+    const packet = new NfcUnregisterPacket(configKey, new Uint8Array(uidBytes));
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 25 + 13 + 548 + 4 + 782 = 1372 -> 1372 % 256 = 92 -> 0x5C
+    const expectedHex = "19 0D 41 42 43 44 45 46 47 48 04 AA BB CC DD 5C";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
 });

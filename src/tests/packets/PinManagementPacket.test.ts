@@ -1,8 +1,11 @@
 import {describe, expect, it} from 'vitest';
 import {
-	CreateMasterCodePacket,
-	CreateSingleUseCodePacket,
-	DeleteMasterCodePacket,
+  CreateMasterCodePacket,
+  CreateSingleUseCodePacket,
+  CreateMultiUseCodePacket,
+  DeleteMasterCodePacket,
+  DeleteSingleUseCodePacket,
+  DeleteMultiUseCodePacket,
 } from '../../ble/packets/PinManagementPackets';
 import {BLEOpcode} from '../../utils/bleConstants';
 
@@ -73,6 +76,81 @@ describe('Pin Management Packets (Full Suite)', () => {
       Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
 
     const expectedHex = "11 0F 41 41 42 42 43 43 44 44 31 32 33 34 00 00 01 FF";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for CreateSingleUseCodePacket', () => {
+    // 0x12 (Op) + 0x0E (Len=14) + "AABBCCDD" + "1234\0\0" + Checksum
+    const configKey = 'AABBCCDD';
+    const code = '1234';
+    const packet = new CreateSingleUseCodePacket(configKey, code);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 18 + 14 + 532 (Key) + 202 (Code) = 766 -> 0xFE
+    const expectedHex = "12 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FE";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for CreateMultiUseCodePacket', () => {
+    // 0x13 (Op) + 0x0E (Len=14) + "AABBCCDD" + "1234\0\0" + Checksum
+    const configKey = 'AABBCCDD';
+    const code = '1234';
+    const packet = new CreateMultiUseCodePacket(configKey, code);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 19 + 14 + 532 + 202 = 767 -> 0xFF
+    const expectedHex = "13 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FF";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for DeleteMasterCodePacket', () => {
+    // 0x0C (Op) + 0x09 (Len) + "AABBCCDD" + 0x01 (Index) + Checksum
+    const configKey = 'AABBCCDD';
+    const index = 1;
+    const packet = new DeleteMasterCodePacket(configKey, index);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 12 + 9 + 532 + 1 = 554 -> 554 % 256 = 42 -> 0x2A
+    const expectedHex = "0C 09 41 41 42 42 43 43 44 44 01 2A";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for DeleteSingleUseCodePacket', () => {
+    // 0x0D (Op) + 0x0E (Len=14) + "AABBCCDD" + "1234\0\0" + Checksum
+    const configKey = 'AABBCCDD';
+    const code = '1234';
+    const packet = new DeleteSingleUseCodePacket(configKey, code);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 13 + 14 + 532 + 202 = 761 -> 761 % 256 = 249 -> 0xF9
+    const expectedHex = "0D 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 F9";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
+
+  it('should generate exact hardcoded binary for DeleteMultiUseCodePacket', () => {
+    // 0x0E (Op) + 0x0E (Len=14) + "AABBCCDD" + "1234\0\0" + Checksum
+    const configKey = 'AABBCCDD';
+    const code = '1234';
+    const packet = new DeleteMultiUseCodePacket(configKey, code);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 14 + 14 + 532 + 202 = 762 -> 762 % 256 = 250 -> 0xFA
+    const expectedHex = "0E 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FA";
     expect(toHex(binary)).toBe(expectedHex);
   });
 });
