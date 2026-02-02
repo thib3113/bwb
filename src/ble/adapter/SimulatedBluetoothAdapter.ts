@@ -36,7 +36,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
     return {
       id: SIMULATOR_BLE_ID,
-      name: 'Boks Simulator',
+      name: SIMULATOR_BLE_ID,
       gatt: { connected: true },
     } as unknown as BluetoothDevice;
   }
@@ -51,7 +51,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     if (!this.isConnected) return null;
     return {
       id: SIMULATOR_BLE_ID,
-      name: 'Boks Simulator',
+      name: SIMULATOR_BLE_ID,
       gatt: { connected: true },
     } as unknown as BluetoothDevice;
   }
