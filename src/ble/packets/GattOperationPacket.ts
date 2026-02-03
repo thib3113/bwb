@@ -1,13 +1,18 @@
 import { BoksTXPacket } from './BoksTXPacket';
 import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
+import { ParsedPayload } from '../../utils/payloads/base';
 
 /**
  * A virtual packet used to represent internal GATT operations (Read/Write Char)
  * in the packet log stream. These are not real Boks Protocol packets sent over the wire,
  * but useful for debugging.
  */
-export class GattOperationPacket extends BoksTXPacket {
+export class GattOperationPacket extends BoksTXPacket implements ParsedPayload {
+  // Required by ParsedPayload
+  public payload: Uint8Array = new Uint8Array(0);
+  public raw: Uint8Array = new Uint8Array(0);
+
   static get opcode() {
     return BLEOpcode.INTERNAL_GATT_OPERATION;
   }
@@ -22,6 +27,18 @@ export class GattOperationPacket extends BoksTXPacket {
     public description: string = ''
   ) {
     super();
+  }
+
+  // ParsedPayload methods
+  toString(): string {
+    return this.description || `GATT Op: ${this.uuid}`;
+  }
+
+  toDetails(): Record<string, unknown> {
+    return {
+      uuid: this.uuid,
+      description: this.description,
+    };
   }
 
   toPayload(): Uint8Array {
