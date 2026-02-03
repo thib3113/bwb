@@ -31,6 +31,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     // Simulate spontaneous notifications after connection
     setTimeout(() => {
       // Code Count: 1 Master Code. Big Endian [0, 1].
+      // The simulator helper 'sendNotification' uses 'createPacket', which now handles 0xC3 length correctly.
       this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
     }, 500);
 

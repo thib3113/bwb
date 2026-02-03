@@ -34,8 +34,6 @@ export class BoksSimulator extends EventEmitter {
 
   // Process an incoming TX packet (from App to Boks)
   public handlePacket(opcode: number, payload: Uint8Array): void {
-    // console.log(`[Simulator] Received Opcode: 0x${opcode.toString(16)}`);
-
     setTimeout(
       () => {
         this.processCommand(opcode, payload);
@@ -70,11 +68,8 @@ export class BoksSimulator extends EventEmitter {
       // Add other commands as needed
       default:
         console.warn(`[Simulator] Unknown opcode 0x${opcode.toString(16)}`);
-      // Optionally send ERROR_COMMAND_NOT_SUPPORTED
     }
   }
-
-  // sendPacket method removed as it was unused and relied on non-existent 'payload' property on RX packets
 
   private sendNotification(opcode: number, payload: number[] | Uint8Array) {
     // Emit event for tests to verify what the Simulator is sending (RX)
@@ -89,6 +84,7 @@ export class BoksSimulator extends EventEmitter {
       );
     }
 
+    // Use shared createPacket which now handles 0xC3 length logic
     const packetRaw = createPacket(opcode, payload);
     this.emit('notification', packetRaw);
   }
@@ -162,10 +158,8 @@ export class BoksSimulator extends EventEmitter {
 
   private handleCountCodes() {
     // Notify Code Count 0xC3
-    // Format: [Master MSB, Master LSB, Single MSB, Single LSB]
+    // Format: [Master MSB, Master LSB, Single MSB, Single LSB] (Big Endian)
 
-    // Original implementation hardcoded 1 master code.
-    // Now we calculate from map.
     let masterCount = 0;
     let singleCount = 0;
 
@@ -186,10 +180,7 @@ export class BoksSimulator extends EventEmitter {
     const packet = new DeleteMasterCodePacket();
     packet.parse(payload);
 
-    // Basic simulation:
-    // If Index == 0 AND Master code exists -> Success and Remove.
-    // Else -> Error.
-
+    // Basic simulation
     // We assume SIMULATOR_DEFAULT_PIN is at Index 0.
     if (packet.index === 0 && this.state.pinCodes.has(SIMULATOR_DEFAULT_PIN)) {
       this.state.pinCodes.delete(SIMULATOR_DEFAULT_PIN);
