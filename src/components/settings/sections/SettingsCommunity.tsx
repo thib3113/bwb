@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { GITHUB_ISSUES_URL, GITHUB_REPO_URL } from '../../../utils/constants';
 
 export const SettingsCommunity: React.FC = () => {
-  const { t } = useTranslation(['common', 'settings', 'community']);
+  const { t } = useTranslation(['common', 'settings', 'community'] as any);
 
   return (
     <>

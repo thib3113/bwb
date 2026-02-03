@@ -160,7 +160,7 @@ export const DBEditor = () => {
   const tables = db.tables.map((t) => t.name);
 
   const handleChange = (event: SelectChangeEvent) => {
-    setSelectedTable(event.target.value as string);
+    setSelectedTable((event.target as HTMLInputElement).value as string);
   };
 
   return (

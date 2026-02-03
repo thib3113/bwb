@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BoksTask, TaskType } from '../types/task';
+import { BoksTask, TaskType, AddCodePayload } from '../types/task';
 import { useBLEConnection } from '../hooks/useBLEConnection';
 import { BLEOpcode } from '../utils/bleConstants';
 import { StorageService } from '../services/StorageService';
@@ -29,6 +29,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<BoksTask[]>([]);
 
   // Add a new task to the queue
+  // Retry a failed task
   const addTask = useCallback(
     (taskData: Omit<BoksTask, 'id' | 'createdAt' | 'attempts' | 'status'>) => {
       // For ADD_MASTER_CODE tasks, automatically add a DELETE_CODE task first
@@ -44,10 +45,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           type: TaskType.DELETE_CODE,
           priority: 0, // Highest priority
           payload: {
-            ...taskData.payload,
+            ...(taskData.payload as AddCodePayload),
             codeType: 'master',
           },
-        };
+        } as unknown as BoksTask;
 
         // Create the add task
         const addTask: BoksTask = {
@@ -57,7 +58,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           attempts: 0,
           status: 'pending',
           sync_status: 'created',
-        };
+        } as unknown as BoksTask;
 
         // Add both tasks to the queue
         setTasks((prevTasks) => [...prevTasks, deleteTask, addTask]);
@@ -70,7 +71,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           attempts: 0,
           status: 'pending',
           sync_status: 'created',
-        };
+        } as unknown as BoksTask;
 
         setTasks((prevTasks) => [...prevTasks, task]);
       }
@@ -78,7 +79,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // Retry a failed task
   const retryTask = useCallback((taskId: string) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
@@ -297,7 +297,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             break;
 
           default:
-            throw new Error(`Unsupported task type: ${task.type}`);
+            throw new Error(`Unsupported task type: ${(task as any).type}`);
         }
 
         // Mark task as completed

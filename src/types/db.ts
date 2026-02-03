@@ -1,8 +1,9 @@
 import { SyncStatus, UserRole } from './index';
 
 export interface BoksUser {
-  id: string; // Supabase User ID
+  id: string;
   email?: string;
+  is_offline?: boolean;
   premium_until?: string | number | null;
   theme?: string;
   language?: string;
@@ -10,15 +11,16 @@ export interface BoksUser {
 }
 
 export interface BoksDevice {
-  id: string; // UUID
-  ble_name: string; // Unique Identifier from BLE (MAC or UUID)
+  id: string;
+  ble_name: string;
   friendly_name: string;
+  door_pin_code?: string;
   role: UserRole;
   sync_status: SyncStatus;
   last_connected_at?: number;
   last_sync_at?: number;
   updated_at?: number;
-  premium_until?: string | number | null; // Date de fin premium (Cloud ou simulé)
+  premium_until?: string | number | null;
 
   // Counters
   master_code_count?: number;
@@ -38,8 +40,9 @@ export interface BoksDevice {
 }
 
 export interface DeviceSecrets {
-  device_id: string; // PK (FK to devices.id)
+  device_id: string;
   configuration_key?: string;
+  door_pin_code?: string;
   updated_at?: number;
 }
 
@@ -50,9 +53,9 @@ export enum BoksNfcTagType {
 }
 
 export interface BoksNfcTag {
-  id: string; // UUID
-  device_id: string; // FK to BoksDevice.id
-  uid: string; // Hex string (e.g. "04:A3:...")
+  id: string;
+  device_id: string;
+  uid: string;
   name: string;
   type: BoksNfcTagType | number;
   last_seen_at?: number;

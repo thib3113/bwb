@@ -33,6 +33,8 @@ interface LogViewerProps {
 
 export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps) => {
   const { t, i18n } = useTranslation(['logs', 'common']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
   const { activeDevice } = useDevice();
   const { isConnected } = useBLEConnection();
   const { isSyncingLogs, requestLogs } = useBLELogs();
@@ -77,7 +79,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
         return {
           ...parsedLog,
           fullDate,
-          event: t(parsedLog.description),
+          event: tAny(parsedLog.description),
         };
       });
 
@@ -85,7 +87,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       return parsed;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(t('parse_error'), errorMessage);
+      console.error(tAny('parse_error'), errorMessage);
       // Side effect (notification) removed from render phase.
       return [];
     }
@@ -95,7 +97,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
   const refreshLogs = useCallback(async () => {
     if (!isConnected) {
       if (showNotification) {
-        showNotification(t('not_connected'), 'error');
+        showNotification(tAny('not_connected'), 'error');
       }
       return;
     }
@@ -103,9 +105,9 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
     await runTask(requestLogs, {
       showNotification,
       hideNotification,
-      loadingMsg: t('refresh_started'),
-      successMsg: t('refresh_success'),
-      errorMsg: t('refresh_failed'),
+      loadingMsg: tAny('refresh_started'),
+      successMsg: tAny('refresh_success'),
+      errorMsg: tAny('refresh_failed'),
     });
   }, [isConnected, requestLogs, showNotification, hideNotification, t]);
 
@@ -113,7 +115,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
     <Box sx={{ p: 2, mb: 2, width: '100%' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h5" component="h2">
-          {t('title')} {logCount !== null && logCount > 0 && `(${logCount})`}
+          {tAny('title')} {logCount !== null && logCount > 0 && `(${logCount})`}
         </Typography>
         <Button
           variant="outlined"
@@ -121,13 +123,13 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           onClick={refreshLogs}
           disabled={!isConnected || isSyncingLogs}
         >
-          {t('refresh')}
+          {tAny('refresh')}
         </Button>
       </Box>
 
       {!isConnected && !activeDevice && logs.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          {t('connect_to_view')}
+          {tAny('connect_to_view')}
         </Alert>
       )}
 
@@ -146,8 +148,8 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>{t('timestamp')}</TableCell>
-                <TableCell>{t('event_label')}</TableCell>
+                <TableCell>{tAny('timestamp')}</TableCell>
+                <TableCell>{tAny('event_label')}</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -182,8 +184,8 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
         ) : (
           <Typography align="center" sx={{ fontStyle: 'italic', py: 2 }} component="p">
             {isConnected || activeDevice
-              ? t('no_logs_when_connected')
-              : t('no_logs_when_disconnected')}
+              ? tAny('no_logs_when_connected')
+              : tAny('no_logs_when_disconnected')}
           </Typography>
         )}
       </Box>

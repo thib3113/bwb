@@ -38,21 +38,23 @@ export const DebugWizardStep1Connection: React.FC<DebugWizardStep1ConnectionProp
   onRetryFetch,
 }) => {
   const { t } = useTranslation(['wizard', 'common']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
 
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
-        {t('connect.title')}
+        {tAny('connect.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('connect.desc')}
+        {tAny('connect.desc')}
       </Typography>
 
       {!isConnected ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 4 }}>
           {error && (
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-              {error.startsWith('errors.') ? t(`common:${error}`) : error}
+              {error.startsWith('errors.') ? tAny(`common:${error}`) : error}
             </Alert>
           )}
           <Button
@@ -64,7 +66,7 @@ export const DebugWizardStep1Connection: React.FC<DebugWizardStep1ConnectionProp
             onClick={() => connect()}
             disabled={isConnecting}
           >
-            {isConnecting ? t('common:connecting') : t('connect.button')}
+            {isConnecting ? tAny('common:connecting') : tAny('connect.button')}
           </Button>
         </Box>
       ) : (
@@ -74,10 +76,10 @@ export const DebugWizardStep1Connection: React.FC<DebugWizardStep1ConnectionProp
               <CheckCircleIcon color="success" fontSize="large" />
               <Box>
                 <Typography variant="h6" color="success.main">
-                  {t('connect.success')}
+                  {tAny('connect.success')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {t('connect.ready')}
+                  {tAny('connect.ready')}
                 </Typography>
               </Box>
             </Stack>

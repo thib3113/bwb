@@ -65,7 +65,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
 
   const handleLaPosteChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      await toggleLaPoste(event.target.checked);
+      await toggleLaPoste((event.target as HTMLInputElement).checked);
     } catch (error) {
       console.error('Failed to toggle La Poste:', error);
       // Revert if failed (state will naturally revert on re-render if hook didn't update)

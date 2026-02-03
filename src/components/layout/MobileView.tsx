@@ -47,7 +47,7 @@ export const MobileView = ({
 
   const activeTab = getActiveTab();
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: Event, newValue: number) => {
     switch (newValue) {
       case 0:
         navigate('/codes');

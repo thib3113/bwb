@@ -47,14 +47,17 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
   analysis,
 }) => {
   const { t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
-        {t('wizard:door.title')}
+        {tAny('wizard:door.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('wizard:door.desc')}
+        {tAny('wizard:door.desc')}
       </Typography>
 
       <Stack spacing={3}>
@@ -63,12 +66,12 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
           <CardContent>
             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
               <MeetingRoomIcon color="primary" />
-              <Typography variant="h6">{t('wizard:door.open')}</Typography>
+              <Typography variant="h6">{tAny('wizard:door.open')}</Typography>
             </Stack>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
-                label={t('codes:pin_label')}
+                label={tAny('codes:pin_label')}
                 variant="outlined"
                 size="small"
                 value={pinCode || ''}
@@ -79,7 +82,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                     updateDebugWizardState({ pinCode: val });
                   }
                 }}
-                placeholder={t('wizard:door.pin_placeholder')}
+                placeholder={tAny('wizard:door.pin_placeholder')}
                 type="text"
                 fullWidth
                 inputProps={{ maxLength: 6 }}
@@ -93,11 +96,11 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                   isOpening ? <CircularProgress size={20} color="inherit" /> : <MeetingRoomIcon />
                 }
               >
-                {isOpening ? t('wizard:door.opening') : t('wizard:door.open')}
+                {isOpening ? tAny('wizard:door.opening') : tAny('wizard:door.open')}
               </Button>
 
               {openDoorSuccess && !openDoorError && (
-                <Alert severity="success">{t('wizard:door.success')}</Alert>
+                <Alert severity="success">{tAny('wizard:door.success')}</Alert>
               )}
 
               {openDoorError && <Alert severity="error">{openDoorError}</Alert>}
@@ -110,23 +113,23 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
           <CardContent>
             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
               <BatteryFullIcon color="primary" />
-              <Typography variant="h6">{t('battery_level')}</Typography>
+              <Typography variant="h6">{tAny('battery_level')}</Typography>
             </Stack>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {!batteryData && !waitingForClose && !isReadingBattery && !isPreparing && (
-                <Alert severity="info">{t('wizard:battery.wait')}</Alert>
+                <Alert severity="info">{tAny('wizard:battery.wait')}</Alert>
               )}
 
               {waitingForClose && (
                 <Alert severity="info" icon={<CircularProgress size={20} />}>
-                  {t('wizard:battery.waiting_close')}
+                  {tAny('wizard:battery.waiting_close')}
                 </Alert>
               )}
 
               {(isReadingBattery || isPreparing) && (
                 <Alert severity="info" icon={<CircularProgress size={20} />}>
-                  {t('wizard:battery.analyzing')}
+                  {tAny('wizard:battery.analyzing')}
                 </Alert>
               )}
 
@@ -144,7 +147,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                   {/* Standard Level */}
                   <Box display="flex" justifyContent="space-between" mb={1}>
                     <Typography variant="body2" color="text.primary">
-                      {t('wizard:battery.standard_level')}:
+                      {tAny('wizard:battery.standard_level')}:
                     </Typography>
                     <Typography variant="body2" fontWeight="bold" color="text.primary">
                       {batteryData.standardLevel !== null ? `${batteryData.standardLevel}%` : 'N/A'}
@@ -156,14 +159,14 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                     <>
                       <Divider sx={{ my: 1 }} />
                       <Typography variant="subtitle2" gutterBottom color="text.primary">
-                        {t('wizard:battery.proprietary_data')} ({batteryData.parsed.format})
+                        {tAny('wizard:battery.proprietary_data')} ({batteryData.parsed.format})
                       </Typography>
 
                       {/* Display Level if available (Format 1 & 4 bytes) */}
                       {batteryData.parsed.level !== undefined && (
                         <Box display="flex" justifyContent="space-between">
                           <Typography variant="body2" color="text.primary">
-                            {t('battery_level')} (Proprietary):
+                            {tAny('battery_level')} (Proprietary):
                           </Typography>
                           <Typography variant="body2" fontWeight="bold" color="text.primary">
                             {batteryData.parsed.level}%
@@ -222,7 +225,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                       {batteryData.parsed.last_mV !== undefined && (
                         <Box display="flex" justifyContent="space-between">
                           <Typography variant="body2" color="text.primary">
-                            {t('wizard:battery.voltage_last')}:
+                            {tAny('wizard:battery.voltage_last')}:
                           </Typography>
                           <Typography variant="body2" fontWeight="bold" color="text.primary">
                             {batteryData.parsed.last_mV !== null
@@ -257,7 +260,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                       {batteryData.parsed.temp_C !== undefined && (
                         <Box display="flex" justifyContent="space-between">
                           <Typography variant="body2" color="text.primary">
-                            {t('wizard:battery.temperature')}:
+                            {tAny('wizard:battery.temperature')}:
                           </Typography>
                           <Typography variant="body2" fontWeight="bold" color="text.primary">
                             {batteryData.parsed.temp_C !== null
@@ -280,10 +283,10 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                           }}
                         >
                           <Typography variant="caption" display="block" color="text.secondary">
-                            {t('wizard:battery.analysis')}:
+                            {tAny('wizard:battery.analysis')}:
                           </Typography>
                           <Typography variant="body2" gutterBottom color="text.primary">
-                            {t('wizard:battery.detected_type')}:{' '}
+                            {tAny('wizard:battery.detected_type')}:{' '}
                             <strong>{analysis.detectedText}</strong>
                           </Typography>
                           <Typography

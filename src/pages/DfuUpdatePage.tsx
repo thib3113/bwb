@@ -1,3 +1,4 @@
+/// <reference types="web-bluetooth" />
 import { useState, useRef, useEffect } from 'react';
 import {
   Box,
@@ -47,7 +48,7 @@ const DFU_ERRORS: Record<number, string> = {
 };
 
 export const DfuUpdatePage = () => {
-  const { t } = useTranslation(['dfu']);
+  const { t } = useTranslation(['dfu' as any]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
   const [searchParams] = useSearchParams();
@@ -109,7 +110,7 @@ export const DfuUpdatePage = () => {
       const file = target.files[0];
       try {
         const buffer = await file.arrayBuffer();
-        setFirmwareBlob(buffer);
+        setFirmwareBlob(buffer as unknown as any);
         setFirmwareName(file.name);
         log(`Firmware loaded: ${file.name} (${buffer.byteLength} bytes)`);
         setCanConnect(true);
@@ -130,7 +131,7 @@ export const DfuUpdatePage = () => {
 
   const debugRead = async (characteristic: BluetoothRemoteGATTCharacteristic, label: string) => {
     const value = await characteristic.readValue();
-    log(`[BLE RX] ${label}: ${buf2hex(value.buffer)}`, 'debug');
+    log(`[BLE RX] ${label}: ${buf2hex(value.buffer as ArrayBuffer)}`, 'debug');
     return value;
   };
 
@@ -146,9 +147,7 @@ export const DfuUpdatePage = () => {
       setIsDfuModeActive(false);
       // Try to read device name from characteristic
       try {
-        // @ts-expect-error - standard UUID
         const gapSvc = await server.getPrimaryService(GENERIC_ACCESS_SERVICE_UUID);
-        // @ts-expect-error - standard UUID
         const nameChar = await gapSvc.getCharacteristic(DEVICE_NAME_CHAR_UUID);
         const val = await debugRead(nameChar, 'Device Name');
         const realName = new TextDecoder().decode(val).trim();
@@ -216,7 +215,6 @@ export const DfuUpdatePage = () => {
       setStatus(tAny('status.searching'));
       setStatusType('info');
 
-      // @ts-expect-error - navigator.bluetooth is not typed
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ services: [BOKS_SERVICE_UUID] }, { services: [DFU_SERVICE_UUID] }],
         optionalServices: [
@@ -229,7 +227,8 @@ export const DfuUpdatePage = () => {
       });
 
       log(`Connected to ${device.name}`);
-      setBluetoothDevice(device);
+      setBluetoothDevice(device as unknown as BluetoothDevice);
+      if (!device.gatt) throw new Error('No GATT server');
       const server = await device.gatt.connect();
 
       let isRealDfu = false;
@@ -344,16 +343,11 @@ export const DfuUpdatePage = () => {
       log(`Flash ready: ${image.type} (${image.imageData.byteLength} bytes)`);
 
       const dfu = new SecureDfu();
-      // @ts-expect-error - library types might be slightly off or permissive
       dfu.enableSmartSpeed = true;
-      // @ts-expect-error - library types might be slightly off or permissive
       dfu.packetSize = 100;
-      // @ts-expect-error - library types might be slightly off or permissive
       dfu.packetReceiptNotification = 12;
-      // @ts-expect-error - library types
       dfu.forceRestart = true;
 
-      // @ts-expect-error - Event type
       dfu.addEventListener('log', (e: { message: string }) => {
         const msg = e.message || String(e);
         let enhancedMsg = msg;
@@ -370,7 +364,6 @@ export const DfuUpdatePage = () => {
         }
       });
 
-      // @ts-expect-error - Event type
       dfu.addEventListener(
         'progress',
         (e: { totalBytes: number; sentBytes: number; validatedBytes: number }) => {
@@ -380,7 +373,7 @@ export const DfuUpdatePage = () => {
         }
       );
 
-      await dfu.update(bluetoothDevice, image.initData, image.imageData);
+      await dfu.update(bluetoothDevice as any, image.initData, image.imageData);
 
       log('Flash successful! Rebooting device...');
       setStatus(tAny('status.success'));
@@ -424,7 +417,7 @@ export const DfuUpdatePage = () => {
 
       {/* Warnings */}
       <Stack spacing={2} sx={{ mb: 3 }}>
-        {/* @ts-expect-error - navigator.bluetooth */}
+        {/* navigator.bluetooth check */}
         {!navigator.bluetooth && <Alert severity="error">{tAny('warnings.https')}</Alert>}
         <Alert severity="warning">{tAny('warnings.legal')}</Alert>
       </Stack>
