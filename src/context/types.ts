@@ -2,6 +2,7 @@ import { BLEPacket } from '../utils/packetParser';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BLECommandOptions } from '../utils/BLEQueue';
 import { BLEConnectionState, BluetoothDevice, BoksDevice, BoksCode, Settings } from '../types';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BatteryAnalysis, BatteryData } from '../hooks/useBatteryDiagnostics';
 import { HardwareInference } from '../utils/bleUtils';
 import { BoksTask } from '../types/task';
@@ -16,7 +17,7 @@ export interface BLEContextType {
   error: string | null;
   connect: (customServices?: string[]) => Promise<void>;
   disconnect: () => void;
-  sendPacket: (packet: Uint8Array) => Promise<void>;
+  sendPacket: (packet: BoksTXPacket | Uint8Array) => Promise<void>;
   sendRequest: (
     opcode: BLEOpcode,
     payload: Uint8Array,

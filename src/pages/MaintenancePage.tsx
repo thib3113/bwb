@@ -46,7 +46,8 @@ interface ScriptDefinition {
 // --- Helper Components ---
 
 const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
-  const { t } = useTranslation(['maintenance']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { t } = useTranslation(['maintenance'] as any);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
   const [running, setRunning] = useState(false);
@@ -252,7 +253,8 @@ const cleanMasterCodesScript: ScriptDefinition = {
 // --- Page Component ---
 
 export const MaintenancePage = () => {
-  const { t } = useTranslation(['maintenance']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { t } = useTranslation(['maintenance'] as any);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
 
