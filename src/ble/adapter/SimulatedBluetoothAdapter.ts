@@ -30,8 +30,8 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
     // Simulate spontaneous notifications after connection
     setTimeout(() => {
-      // Code Count
-      this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [1, 0, 0, 0]);
+      // Code Count: 1 Master Code. Big Endian [0, 1].
+      this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
     }, 500);
 
     return {
@@ -59,15 +59,22 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
   async write(_serviceUuid: string, _charUuid: string, data: Uint8Array): Promise<void> {
     if (!this.isConnected) throw new Error('Simulator not connected');
 
-    // Check packet structure [Opcode, Len, ...Payload, Checksum]
-    // Simulator expects [Opcode, ...Payload] effectively, or handles the raw packet.
-    // Our BoksSimulator.handlePacket takes (opcode, payload).
-    // Let's decode the standard packet structure here.
-
     if (data.length < 2) return; // Invalid
     const opcode = data[0];
     const len = data[1];
     const payload = data.slice(2, 2 + len);
+
+    // Emit event for tests to verify what the App is sending (TX)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('boks-tx', {
+          detail: {
+            opcode,
+            payload: Array.from(payload),
+          },
+        })
+      );
+    }
 
     // Pass to simulator
     this.simulator.handlePacket(opcode, payload);
