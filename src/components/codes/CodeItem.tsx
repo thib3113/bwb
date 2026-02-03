@@ -21,12 +21,20 @@ interface CodeItemProps {
     used?: boolean;
     usedDate?: Date;
   };
+  hasIndexConflict?: boolean;
   onCopy: (code: string) => void;
   onEdit: (code: BoksCode) => void;
   onDelete: (id: string) => void;
 }
 
-export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemProps) => {
+export const CodeItem = ({
+  code,
+  metadata,
+  hasIndexConflict,
+  onCopy,
+  onEdit,
+  onDelete,
+}: CodeItemProps) => {
   const { t } = useTranslation('codes');
 
   const isPendingDelete = code.status === CODE_STATUS.PENDING_DELETE;

@@ -64,8 +64,9 @@ export const DeveloperPage = () => {
     navigate('/');
   };
 
-  const handleSimulatorToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = event.target.checked;
+  const handleSimulatorToggle = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const checked = target.checked;
     setSimulatorEnabled(checked);
     if (checked) {
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
@@ -88,7 +89,7 @@ export const DeveloperPage = () => {
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: Event, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -115,7 +116,12 @@ export const DeveloperPage = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Typography variant="h6">{t('settings:developer.simulators_tools')}</Typography>
               <FormControlLabel
-                control={<Switch checked={simulatorEnabled} onChange={handleSimulatorToggle} />}
+                control={
+                  <Switch
+                    checked={simulatorEnabled}
+                    onChange={(e) => handleSimulatorToggle(e as unknown as Event)}
+                  />
+                }
                 label={t('settings:developer.enable_simulator')}
               />
             </Box>

@@ -1,7 +1,9 @@
+import { CodeCreationData } from '../types';
 import { BLEPacket } from '../utils/packetParser';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BLECommandOptions } from '../utils/BLEQueue';
 import { BLEConnectionState, BluetoothDevice, BoksDevice, BoksCode, Settings } from '../types';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BatteryAnalysis, BatteryData } from '../hooks/useBatteryDiagnostics';
 import { HardwareInference } from '../utils/bleUtils';
 import { BoksTask } from '../types/task';
@@ -16,10 +18,10 @@ export interface BLEContextType {
   error: string | null;
   connect: (customServices?: string[]) => Promise<void>;
   disconnect: () => void;
-  sendPacket: (packet: Uint8Array) => Promise<void>;
+  sendPacket: (packet: BoksTXPacket | Uint8Array) => Promise<void>;
   sendRequest: (
-    opcode: BLEOpcode,
-    payload: Uint8Array,
+    packetOrOpcode: BoksTXPacket | BLEOpcode,
+    payloadOrOptions?: Uint8Array | BLECommandOptions,
     options?: BLECommandOptions
   ) => Promise<BLEPacket | BLEPacket[]>;
   getDeviceInfo: () => Promise<string | null>;
@@ -42,7 +44,7 @@ export interface BoksContextType {
 }
 
 export interface CodeContextType {
-  createCode: (codeData: Partial<BoksCode>) => Promise<void>;
+  createCode: (codeData: CodeCreationData) => Promise<void>;
   deleteCode: (codeData: Partial<BoksCode> | string) => Promise<void>;
   onCodeUsed: (callback: (code: string) => void) => void;
 }
@@ -60,6 +62,7 @@ export interface DeviceContextType {
   setActiveDevice: (deviceId: string | null) => void;
   refreshCodeCount: () => Promise<void>;
   updateDeviceBatteryLevel: (deviceId: string, batteryLevel: number) => Promise<void>;
+  toggleLaPoste: (enable: boolean) => Promise<void>;
 }
 
 export interface DeviceLogContextType {
@@ -133,8 +136,8 @@ export interface SettingsContextType {
 }
 
 export interface TaskContextType {
-  addTask: (task: Omit<BoksTask, 'id' | 'createdAt' | 'attempts' | 'status'>) => Promise<void>;
-  retryTask: (taskId: string) => Promise<void>;
+  addTask: (task: Omit<BoksTask, 'id' | 'createdAt' | 'attempts' | 'status'>) => void;
+  retryTask: (taskId: string) => void;
   tasks: BoksTask[];
 }
 

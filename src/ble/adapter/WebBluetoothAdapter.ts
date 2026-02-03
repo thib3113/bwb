@@ -12,8 +12,7 @@ export class WebBluetoothAdapter implements BLEAdapter {
   }
 
   async connect(serviceUuid: string, optionalServices: string[]): Promise<BluetoothDevice> {
-    // @ts-expect-error - navigator.bluetooth
-    const device = await navigator.bluetooth.requestDevice({
+    const device = await (navigator as any).bluetooth.requestDevice({
       filters: [{ services: [serviceUuid] }],
       optionalServices,
     });
@@ -21,6 +20,7 @@ export class WebBluetoothAdapter implements BLEAdapter {
     this.device = device;
     // Note: Disconnect listener should be handled by the consumer via device.addEventListener
 
+    if (!device.gatt) throw new Error('No GATT');
     const server = await device.gatt.connect();
     this.server = server;
     this.charCache.clear();

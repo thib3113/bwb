@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class CreateMasterCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.CREATE_MASTER_CODE;
+  static get opcode() {
+    return BLEOpcode.CREATE_MASTER_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
@@ -49,7 +51,9 @@ export class CreateMasterCodePacket extends BoksTXPacket {
 }
 
 export class CreateSingleUseCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.CREATE_SINGLE_USE_CODE;
+  static get opcode() {
+    return BLEOpcode.CREATE_SINGLE_USE_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
@@ -87,7 +91,9 @@ export class CreateSingleUseCodePacket extends BoksTXPacket {
 }
 
 export class CreateMultiUseCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.CREATE_MULTI_USE_CODE;
+  static get opcode() {
+    return BLEOpcode.CREATE_MULTI_USE_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
@@ -124,7 +130,9 @@ export class CreateMultiUseCodePacket extends BoksTXPacket {
 }
 
 export class DeleteMasterCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.DELETE_MASTER_CODE;
+  static get opcode() {
+    return BLEOpcode.DELETE_MASTER_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
@@ -154,7 +162,9 @@ export class DeleteMasterCodePacket extends BoksTXPacket {
 }
 
 export class DeleteSingleUseCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.DELETE_SINGLE_USE_CODE;
+  static get opcode() {
+    return BLEOpcode.DELETE_SINGLE_USE_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
@@ -192,7 +202,9 @@ export class DeleteSingleUseCodePacket extends BoksTXPacket {
 }
 
 export class DeleteMultiUseCodePacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.DELETE_MULTI_USE_CODE;
+  static get opcode() {
+    return BLEOpcode.DELETE_MULTI_USE_CODE;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),

@@ -41,22 +41,22 @@ export class PacketFactory {
     this.registerRX(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT, NfcScanResultPacket);
 
     // TX Packets
-    this.registerTX(BLEOpcode.OPEN_DOOR, OpenDoorPacket);
-    this.registerTX(BLEOpcode.CREATE_MASTER_CODE, CreateMasterCodePacket);
-    this.registerTX(BLEOpcode.CREATE_SINGLE_USE_CODE, CreateSingleUseCodePacket);
-    this.registerTX(BLEOpcode.CREATE_MULTI_USE_CODE, CreateMultiUseCodePacket);
-    this.registerTX(BLEOpcode.DELETE_MASTER_CODE, DeleteMasterCodePacket);
-    this.registerTX(BLEOpcode.DELETE_SINGLE_USE_CODE, DeleteSingleUseCodePacket);
-    this.registerTX(BLEOpcode.DELETE_MULTI_USE_CODE, DeleteMultiUseCodePacket);
-    this.registerTX(BLEOpcode.REQUEST_LOGS, RequestLogsPacket);
-    this.registerTX(BLEOpcode.GET_LOGS_COUNT, GetLogsCountPacket);
-    this.registerTX(BLEOpcode.ASK_DOOR_STATUS, AskDoorStatusPacket);
-    this.registerTX(BLEOpcode.TEST_BATTERY, TestBatteryPacket);
-    this.registerTX(BLEOpcode.COUNT_CODES, CountCodesPacket);
-    this.registerTX(BLEOpcode.SET_CONFIGURATION, SetConfigurationPacket);
-    this.registerTX(BLEOpcode.REGISTER_NFC_TAG_SCAN_START, NfcScanStartPacket);
-    this.registerTX(BLEOpcode.REGISTER_NFC_TAG, NfcRegisterPacket);
-    this.registerTX(BLEOpcode.UNREGISTER_NFC_TAG, NfcUnregisterPacket);
+    this.registerPacket(OpenDoorPacket);
+    this.registerPacket(CreateMasterCodePacket);
+    this.registerPacket(CreateSingleUseCodePacket);
+    this.registerPacket(CreateMultiUseCodePacket);
+    this.registerPacket(DeleteMasterCodePacket);
+    this.registerPacket(DeleteSingleUseCodePacket);
+    this.registerPacket(DeleteMultiUseCodePacket);
+    this.registerPacket(RequestLogsPacket);
+    this.registerPacket(GetLogsCountPacket);
+    this.registerPacket(AskDoorStatusPacket);
+    this.registerPacket(TestBatteryPacket);
+    this.registerPacket(CountCodesPacket);
+    this.registerPacket(SetConfigurationPacket);
+    this.registerPacket(NfcScanStartPacket);
+    this.registerPacket(NfcRegisterPacket);
+    this.registerPacket(NfcUnregisterPacket);
   }
 
   static registerRX(opcode: number, ctor: new (op: number) => BoksRXPacket) {
@@ -65,6 +65,14 @@ export class PacketFactory {
 
   static registerTX(opcode: number, ctor: new () => BoksTXPacket) {
     this.txClassMap.set(opcode, ctor);
+  }
+
+  /**
+   * Registers a TX packet class by inferring its opcode from the static property.
+   * This is preferred over registerTX as it avoids duplication and potential mismatch.
+   */
+  static registerPacket(ctor: typeof BoksTXPacket & (new () => BoksTXPacket)) {
+    this.txClassMap.set(ctor.opcode, ctor);
   }
 
   // Backwards compatibility or RX preference

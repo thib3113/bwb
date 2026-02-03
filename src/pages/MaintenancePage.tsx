@@ -46,7 +46,10 @@ interface ScriptDefinition {
 // --- Helper Components ---
 
 const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
-  const { t } = useTranslation(['maintenance']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { t } = useTranslation(['maintenance'] as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
@@ -57,13 +60,13 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
     // Basic checks
     const bleService = BoksBLEService.getInstance();
     if (bleService.getState() !== 'connected') {
-      setError(t('status.not_connected'));
+      setError(tAny('status.not_connected'));
       return;
     }
 
     const configKey = activeDevice?.configuration_key;
     if (!configKey) {
-      setError(t('status.missing_config_key'));
+      setError(tAny('status.missing_config_key'));
       return;
     }
 
@@ -86,13 +89,13 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
         },
         { bleService, configKey }
       );
-      log(t('status.finished'));
+      log(tAny('status.finished'));
       setProgress(100);
     } catch (err: unknown) {
       console.error(err);
       const msg = err instanceof Error ? err.message : String(err);
-      setError(t('status.error', { message: msg }));
-      log(t('status.error', { message: msg }));
+      setError(tAny('status.error', { message: msg }));
+      log(tAny('status.error', { message: msg }));
     } finally {
       setRunning(false);
     }
@@ -102,10 +105,10 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Typography variant="h6" component="div">
-          {t(script.titleKey)}
+          {tAny(script.titleKey)}
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {t(script.descriptionKey)}
+          {tAny(script.descriptionKey)}
         </Typography>
 
         {error && (
@@ -118,7 +121,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           <Box sx={{ width: '100%', mb: 2 }}>
             <LinearProgress variant="determinate" value={progress} />
             <Typography variant="body2" color="text.secondary" align="right">
-              {t('progress', { percent: Math.round(progress) })}
+              {tAny('progress', { percent: Math.round(progress) })}
             </Typography>
           </Box>
         )}
@@ -149,7 +152,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           onClick={handleRun}
           disabled={running}
         >
-          {t('run')}
+          {tAny('run')}
         </Button>
       </CardActions>
     </Card>
@@ -181,12 +184,14 @@ const cleanMasterCodesScript: ScriptDefinition = {
   titleKey: 'scripts.clean_master_codes.title',
   descriptionKey: 'scripts.clean_master_codes.description',
   run: async ({ setProgress, log, checkStop, t }, { bleService, configKey }) => {
-    log(t('status.fetching_count'));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tAny = t as any;
+    log(tAny('status.fetching_count'));
     let currentCount = await getMasterCount(bleService);
-    log(t('status.initial_count', { count: currentCount }));
+    log(tAny('status.initial_count', { count: currentCount }));
 
     if (currentCount === 0) {
-      log(t('status.no_codes'));
+      log(tAny('status.no_codes'));
       return;
     }
 
@@ -204,7 +209,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
       while (true) {
         checkStop();
 
-        log(t('status.deleting_index', { index: i, count: currentCount }));
+        log(tAny('status.deleting_index', { index: i, count: currentCount }));
 
         const deletePacket = new DeleteMasterCodePacket(configKey, i);
         let shouldContinue = false;
@@ -217,16 +222,16 @@ const cleanMasterCodesScript: ScriptDefinition = {
           )) as BLEPacket;
 
           if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-            log(t('status.success_index', { index: i }));
+            log(tAny('status.success_index', { index: i }));
             shouldContinue = true; // Success implies there was a code, so there might be another
           } else if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
             // Error means likely empty or invalid index, so we stop retrying this index
-            log(t('status.error_index', { index: i }));
+            log(tAny('status.error_index', { index: i }));
             shouldContinue = false;
           }
         } catch (e: unknown) {
           const msg = e instanceof Error ? e.message : String(e);
-          log(t('status.error', { message: `Index ${i}: ${msg}` }));
+          log(tAny('status.error', { message: `Index ${i}: ${msg}` }));
           shouldContinue = false; // Stop on unexpected protocol error
         }
 
@@ -238,7 +243,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
       // After finishing an index (cleaning it out), check global count
       currentCount = await getMasterCount(bleService);
       if (currentCount === 0) {
-        log(t('status.stopping_early'));
+        log(tAny('status.stopping_early'));
         break; // Stop outer loop
       }
     }
@@ -248,15 +253,18 @@ const cleanMasterCodesScript: ScriptDefinition = {
 // --- Page Component ---
 
 export const MaintenancePage = () => {
-  const { t } = useTranslation(['maintenance']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { t } = useTranslation(['maintenance'] as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 2, pb: 10 }}>
       <Typography variant="h4" gutterBottom>
-        {t('title')}
+        {tAny('title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" paragraph>
-        {t('description')}
+        {tAny('description')}
       </Typography>
 
       <ScriptCard script={cleanMasterCodesScript} />

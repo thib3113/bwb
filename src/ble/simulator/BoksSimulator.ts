@@ -74,10 +74,7 @@ export class BoksSimulator extends EventEmitter {
     }
   }
 
-  private sendPacket(packet: BoksRXPacket) {
-    const packetRaw = createPacket(packet.opcode, packet.payload);
-    this.emit('notification', packetRaw);
-  }
+  // sendPacket method removed as it was unused and relied on non-existent 'payload' property on RX packets
 
   private sendNotification(opcode: number, payload: number[] | Uint8Array) {
     const packetRaw = createPacket(opcode, payload);

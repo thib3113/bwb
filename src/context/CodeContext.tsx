@@ -107,14 +107,15 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
 
   // Delete a code from the device (Refactored to use TaskContext)
   const deleteCode = useCallback(
-    async (codeData: BoksCode) => {
+    async (codeData: any) => {
       const deviceId = activeDevice?.id;
-      if (!deviceId || !codeData.id) {
+      const codeId = typeof codeData === 'string' ? codeData : codeData.id;
+      if (!deviceId || !codeId) {
         throw new Error('No active device or code ID');
       }
 
       // Mark code as pending delete
-      await StorageService.updateCodeStatus(deviceId, codeData.id, CODE_STATUS.PENDING_DELETE);
+      await StorageService.updateCodeStatus(deviceId, codeId, CODE_STATUS.PENDING_DELETE);
 
       // Add to task queue
       await addTask({

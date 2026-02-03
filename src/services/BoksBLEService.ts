@@ -14,6 +14,7 @@ import { ParsedPayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
 
 class DescriptionPayload implements ParsedPayload {
   constructor(
@@ -65,8 +66,21 @@ export class BoksBLEService extends EventEmitter {
       this.lastSentOpcode = request.opcode;
       this.lastSentTimestamp = Date.now();
 
+      // Prevent sending invalid opcodes (Safety Guard)
+      if ((request.opcode as number) === 0) {
+        throw new Error('[BLEService] Attempted to send packet with Opcode 0x00 (UNPARSABLE).');
+      }
+
       // Packet creation
-      const packet = createPacket(request.opcode, request.payload);
+      let packet: Uint8Array;
+
+      // Use pre-calculated packet if available (from BoksTXPacket.toPacket())
+      if (request.packet) {
+        packet = request.packet;
+      } else {
+        // Fallback for raw requests
+        packet = createPacket(request.opcode, request.payload);
+      }
       const buffer = packet;
 
       // Notify about sending (UI logs)
@@ -167,7 +181,17 @@ export class BoksBLEService extends EventEmitter {
     if (parsed) {
       parsed.direction = 'RX';
       // Use Factory to create rich object
-      parsed.parsedPayload = PacketFactory.create(parsed.opcode, parsed.payload);
+      const richPacket = PacketFactory.create(parsed.opcode, parsed.payload);
+      if (richPacket) {
+        // We cast because BoksRXPacket doesn't implement ParsedPayload interface formally yet,
+        // but we can wrap it or ensure it does.
+        // Or we just attach it as unknown/any to parsedPayload for logs.
+        // Actually, parsedPayload expects ParsedPayload interface.
+        // Let's assume PacketFactory returns something compatible or we wrap it.
+        // Ideally BoksRXPacket should implement ParsedPayload or we have a wrapper.
+        // For now, we will cast to any to satisfy TS, assuming the logger handles it.
+        parsed.parsedPayload = richPacket as unknown as ParsedPayload;
+      }
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);
@@ -200,37 +224,38 @@ export class BoksBLEService extends EventEmitter {
    * @param configKey Configuration key for authenticated commands. Only used if request is a BoksTXPacket.
    */
   async sendRequest(
-    request: BoksTXPacket | { opcode: BLEOpcode; payload: Uint8Array },
+    request: BoksTXPacket,
     options?: BLECommandOptions,
     configKey?: string
   ): Promise<BLEPacket | BLEPacket[]> {
-    // Safer check than instanceof to avoid issues with multiple instances or HMR
-    if ('toPayload' in request && typeof (request as BoksTXPacket).toPayload === 'function') {
-      // Generate payload using the injected configKey
-      const payload = (request as BoksTXPacket).toPayload(configKey);
-      return this.queue.add(request.opcode, payload, options);
+    // Strict enforcing of BoksTXPacket
+    // We check for toPacket method existence to support different instances/prototypes in HMR
+    if ('toPacket' in request && typeof request.toPacket === 'function') {
+      // Calculate packet bytes using the class method (includes opcode check and checksum)
+      const packetBytes = request.toPacket();
+
+      // Pass the opcode and payload (legacy support for logging/queue) AND the full binary
+      return this.queue.add(request.opcode, request.toPayload(configKey), options, packetBytes);
     } else {
-      const rawRequest = request as { opcode: BLEOpcode; payload: Uint8Array };
-      return this.queue.add(rawRequest.opcode, rawRequest.payload, options);
+      throw new Error('[BLEService] sendRequest requires a valid BoksTXPacket instance.');
     }
   }
 
   async readCharacteristic(serviceUuid: string, charUuid: string): Promise<DataView> {
-    // Fake TX packet for logs
-    const uuidBytes = new TextEncoder().encode(charUuid.substring(0, 8));
+    // Use GattOperationPacket for structured logging
+    const logPacket = new GattOperationPacket(charUuid, `Read Char: ${charUuid}`);
+    // We construct the "fake" TX packet to emit
+    const uuidBytes = new TextEncoder().encode(charUuid); // Full UUID for consistency
+    const rawTx = new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]);
+
     this.emit(BLEServiceEvent.PACKET_SENT, {
       opcode: BLEOpcode.INTERNAL_GATT_OPERATION,
       payload: uuidBytes,
-      raw: new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]),
+      raw: rawTx,
       direction: 'TX',
       isValidChecksum: true,
       uuid: charUuid,
-      parsedPayload: new DescriptionPayload(
-        BLEOpcode.INTERNAL_GATT_OPERATION,
-        uuidBytes,
-        new Uint8Array(0),
-        `Read Char: ${charUuid}`
-      ),
+      parsedPayload: logPacket, // Attach the packet object as payload info
     } as BLEPacket);
 
     try {

@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class OpenDoorPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.OPEN_DOOR;
+  static get opcode() {
+    return BLEOpcode.OPEN_DOOR;
+  }
 
   static schema = z.object({
     pinCode: z.string().min(1, 'PIN Code is required'),

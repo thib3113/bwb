@@ -10,6 +10,8 @@ interface OnboardingViewProps {
 
 export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
   const { t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
   const theme = useTheme();
   const { connect, isConnecting } = useBLEConnection();
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -18,12 +20,12 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
     setConnectionError(null);
     try {
       await connect();
-      showNotification(t('ble.connected'), 'success');
+      showNotification(tAny('ble.connected'), 'success');
     } catch (error: unknown) {
       const errorKey = translateBLEError(error);
-      const finalMessage = errorKey.startsWith('errors.') ? t(errorKey) : errorKey;
+      const finalMessage = errorKey.startsWith('errors.') ? tAny(errorKey) : errorKey;
       setConnectionError(finalMessage);
-      showNotification(`${t('ble.connection_failed')}: ${finalMessage}`, 'error');
+      showNotification(`${tAny('ble.connection_failed')}: ${finalMessage}`, 'error');
     }
   };
 
@@ -40,11 +42,11 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
-        {t('app_title')}
+        {tAny('app_title')}
       </Typography>
 
       <Typography variant="h6" sx={{ mb: 4, color: theme.palette.text.secondary }}>
-        {t('not_connected.message')}
+        {tAny('not_connected.message')}
       </Typography>
 
       <Button
@@ -62,10 +64,10 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         {isConnecting ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={24} sx={{ color: 'white' }} />
-            {t('connecting')}
+            {tAny('connecting')}
           </Box>
         ) : (
-          t('connection.connect')
+          tAny('connection.connect')
         )}
       </Button>
 

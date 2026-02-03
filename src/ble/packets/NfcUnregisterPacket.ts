@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class NfcUnregisterPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.UNREGISTER_NFC_TAG;
+  static get opcode() {
+    return BLEOpcode.UNREGISTER_NFC_TAG;
+  }
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),

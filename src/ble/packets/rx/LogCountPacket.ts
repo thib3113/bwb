@@ -2,7 +2,9 @@ import { BoksRXPacket } from './BoksRXPacket';
 import { BLEOpcode } from '../../../utils/bleConstants';
 
 export class LogCountPacket extends BoksRXPacket {
-  static readonly opcode = BLEOpcode.NOTIFY_LOGS_COUNT;
+  static get opcode() {
+    return BLEOpcode.NOTIFY_LOGS_COUNT;
+  }
 
   public count: number = 0;
 

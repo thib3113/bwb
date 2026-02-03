@@ -11,8 +11,8 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
   constructor() {
     this.simulator = new BoksSimulator();
     // Pipe simulator notifications to the callback
-    this.simulator.on('notification', (rawPacket: Uint8Array) => {
-      if (this.notificationCallback && this.isConnected) {
+    this.simulator.on('notification', (rawPacket: unknown) => {
+      if (this.notificationCallback && this.isConnected && rawPacket instanceof Uint8Array) {
         this.notificationCallback(new DataView(rawPacket.buffer));
       }
     });

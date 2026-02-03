@@ -3,7 +3,9 @@ import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
 
 export class GetLogsCountPacket extends BoksTXPacket {
-  readonly opcode = BLEOpcode.GET_LOGS_COUNT;
+  static get opcode() {
+    return BLEOpcode.GET_LOGS_COUNT;
+  }
 
   static schema = z.object({});
 

@@ -24,6 +24,8 @@ export type CodeStatus =
 // Augment global Window interface for non-standard browser properties and debug tools
 declare global {
   interface Window {
+    BOKS_SIMULATOR_ENABLED?: boolean;
+    enableBoksSimulator?: () => void;
     opera?: string;
     MSStream?: unknown;
     boksDebug: {
@@ -61,6 +63,12 @@ export interface BoksDevice {
 
   // Battery level
   battery_level?: number;
+
+  // Firmware Info
+  hardware_version?: string;
+  firmware_revision?: string;
+  software_revision?: string;
+  la_poste_activated?: boolean;
 }
 
 export interface BoksCode {

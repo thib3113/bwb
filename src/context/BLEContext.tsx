@@ -1,13 +1,14 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { BLEServiceEvent, BLEServiceState, BoksBLEService } from '../services/BoksBLEService';
 import { BLEPacket } from '../utils/packetParser';
-import { BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID } from '../utils/bleConstants';
+import { BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID, BATTERY_SERVICE_UUID, BATTERY_LEVEL_CHAR_UUID } from '../utils/bleConstants';
 import { BLEContext } from './Contexts';
 import { useLogContext } from '../hooks/useLogContext';
 import { BluetoothDevice } from '../types';
 import { translateBLEError } from '../utils/bleUtils';
 
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
+import { RawTXPacket } from '../ble/packets/RawTXPacket';
 
 import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
@@ -18,7 +19,6 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const bleService = useMemo(() => {
     const service = BoksBLEService.getInstance();
 
-    // @ts-expect-error - Custom global flag
     const useSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED === true;
 
     if (useSimulator) {
@@ -36,7 +36,8 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen to service events
   useEffect(() => {
-    const unsubState = bleService.on(BLEServiceEvent.STATE_CHANGED, (state: BLEServiceState) => {
+    const unsubState = bleService.on(BLEServiceEvent.STATE_CHANGED, (arg: unknown) => {
+      const state = arg as BLEServiceState;
       setConnectionState(state);
       if (state === 'connected') setError(null);
       addDebugLog({
@@ -47,7 +48,8 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       });
     });
 
-    const unsubConnected = bleService.on(BLEServiceEvent.CONNECTED, (dev: BluetoothDevice) => {
+    const unsubConnected = bleService.on(BLEServiceEvent.CONNECTED, (arg: unknown) => {
+      const dev = arg as BluetoothDevice;
       setDevice(dev);
       log('Connected successfully!', 'info');
       addDebugLog({
@@ -71,7 +73,8 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
 
     const unsubPacketReceived = bleService.on(
       BLEServiceEvent.PACKET_RECEIVED,
-      (packet: BLEPacket) => {
+      (arg: unknown) => {
+        const packet = arg as BLEPacket;
         // Log RX packets
         const hex = Array.from(packet.raw)
           .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
@@ -90,12 +93,12 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           payload: hexPayload,
           raw: hex,
           type: 'packet',
-          uuid: packet.uuid,
         });
       }
     );
 
-    const unsubPacketSent = bleService.on(BLEServiceEvent.PACKET_SENT, (packet: BLEPacket) => {
+    const unsubPacketSent = bleService.on(BLEServiceEvent.PACKET_SENT, (arg: unknown) => {
+      const packet = arg as BLEPacket;
       // Log TX packets
       const hex = Array.from(packet.raw)
         .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
@@ -114,11 +117,11 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         payload: hexPayload,
         raw: hex,
         type: 'packet',
-        uuid: packet.uuid,
       });
     });
 
-    const unsubError = bleService.on(BLEServiceEvent.ERROR, (error: Error | string) => {
+    const unsubError = bleService.on(BLEServiceEvent.ERROR, (arg: unknown) => {
+      const error = arg as (Error | string);
       const errorMsg = typeof error === 'string' ? error : error.message;
       setError(translateBLEError(error));
       log(`BLE Error: ${errorMsg}`, 'error');
@@ -161,12 +164,19 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     bleService.disconnect();
   }, [bleService]);
+
   const sendRequest = useCallback(
     (
-      opcode: BLEOpcode,
-      payload: Uint8Array,
-      options?: { expectResponse?: boolean; timeout?: number }
-    ) => bleService.sendRequest({ opcode, payload }, options),
+      arg1: BLEOpcode | BoksTXPacket,
+      arg2?: Uint8Array | { expectResponse?: boolean; timeout?: number },
+      arg3?: { expectResponse?: boolean; timeout?: number }
+    ) => {
+      if (arg1 instanceof BoksTXPacket) {
+        return bleService.sendRequest(arg1, arg2 as any);
+      } else {
+        return bleService.sendRequest(new RawTXPacket(arg1 as BLEOpcode, arg2 as Uint8Array), arg3);
+      }
+    },
     [bleService]
   );
 
@@ -175,7 +185,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       const eventKey = typeof event === 'number' ? `opcode_${event}` : event;
       // Map '*' to PACKET_RECEIVED
       const actualEvent = eventKey === '*' ? BLEServiceEvent.PACKET_RECEIVED : eventKey;
-      return bleService.on(actualEvent, callback);
+      return bleService.on(actualEvent, callback as any);
     },
     [bleService]
   );
@@ -184,7 +194,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     (event: string | number, callback: (packet: BLEPacket) => void) => {
       const eventKey = typeof event === 'number' ? `opcode_${event}` : event;
       const actualEvent = eventKey === '*' ? BLEServiceEvent.PACKET_RECEIVED : eventKey;
-      bleService.off(actualEvent, callback);
+      bleService.off(actualEvent, callback as any);
     },
     [bleService]
   );
@@ -228,7 +238,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           const opcode = packet[0];
           const payload = packet.slice(2, packet.length - 1);
           await bleService.sendRequest(
-            { opcode, payload },
+            new RawTXPacket(opcode, payload),
             {
               expectResponse: false,
             }

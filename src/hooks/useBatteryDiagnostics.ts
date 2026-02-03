@@ -130,12 +130,12 @@ export const useBatteryDiagnostics = (initialData?: {
             ) {
               data.error = 'Données invalides (255)';
             } else {
-              parsedData.first_mV = v[0] === BATTERY_INVALID_VALUE ? null : v[0] * 100;
-              parsedData.min_mV = v[1] === BATTERY_INVALID_VALUE ? null : v[1] * 100;
-              parsedData.mean_mV = v[2] === BATTERY_INVALID_VALUE ? null : v[2] * 100;
-              parsedData.max_mV = v[3] === BATTERY_INVALID_VALUE ? null : v[3] * 100;
-              parsedData.last_mV = v[4] === BATTERY_INVALID_VALUE ? null : v[4] * 100;
-              parsedData.temp_C = v[5] === BATTERY_INVALID_VALUE ? null : v[5] - 25;
+              parsedData.first_mV = v[0] === BATTERY_INVALID_VALUE ? undefined : v[0] * 100;
+              parsedData.min_mV = v[1] === BATTERY_INVALID_VALUE ? undefined : v[1] * 100;
+              parsedData.mean_mV = v[2] === BATTERY_INVALID_VALUE ? undefined : v[2] * 100;
+              parsedData.max_mV = v[3] === BATTERY_INVALID_VALUE ? undefined : v[3] * 100;
+              parsedData.last_mV = v[4] === BATTERY_INVALID_VALUE ? undefined : v[4] * 100;
+              parsedData.temp_C = v[5] === BATTERY_INVALID_VALUE ? undefined : v[5] - 25;
             }
           } else {
             parsedData.rawLength = byteLength;

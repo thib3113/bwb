@@ -77,3 +77,4 @@ export const LogItem = ({ log }: LogItemProps) => {
     </>
   );
 };
+export type { ParsedLogDisplay };

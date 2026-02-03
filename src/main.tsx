@@ -17,15 +17,12 @@ if (
   globalThis.localStorage &&
   globalThis.localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
 ) {
-  // @ts-expect-error - Custom global flag
   window.BOKS_SIMULATOR_ENABLED = true;
   console.warn('⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️');
 }
 
 // Simulator Helper
-// @ts-expect-error - Custom global flag
-window.enableBoksSimulator = () => {
-  // @ts-expect-error - Custom global flag
+(window as any).enableBoksSimulator = () => {
   window.BOKS_SIMULATOR_ENABLED = true;
   console.log('✅ Boks Simulator Enabled! Reloading...');
   setTimeout(() => window.location.reload(), 500);

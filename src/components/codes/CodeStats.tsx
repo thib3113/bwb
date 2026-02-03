@@ -15,14 +15,16 @@ interface CodeStatsProps {
 
 export const CodeStats = ({ masterCodesCount, temporaryCodesCount, codeCount }: CodeStatsProps) => {
   const { t } = useTranslation('codes');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
 
   return (
     <Typography variant="subtitle1" color="textSecondary" sx={{ mb: 2 }}>
-      {t('master_codes')}: {masterCodesCount}
-      {codeCount && ` / ${codeCount.master} ${t('on_device_count')}`}
+      {tAny('master_codes')}: {masterCodesCount}
+      {codeCount && ` / ${codeCount.master} ${tAny('on_device_count')}`}
       {' | '}
-      {t('temporary_codes')}: {temporaryCodesCount}
-      {codeCount && ` / ${codeCount.single} ${t('on_device_count')}`}
+      {tAny('temporary_codes')}: {temporaryCodesCount}
+      {codeCount && ` / ${codeCount.single} ${tAny('on_device_count')}`}
     </Typography>
   );
 };

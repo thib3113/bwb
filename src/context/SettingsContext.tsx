@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { SettingsContext } from './Contexts';
-import { Settings } from './types';
+import { Settings } from '../types';
 import { StorageService } from '../services/StorageService';
 
 interface SettingsProviderProps {

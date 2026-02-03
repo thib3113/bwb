@@ -26,7 +26,6 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const hasAutoSyncedRef = useRef(false);
 
   // Check if we are in Simulator Mode
-  // @ts-expect-error - Custom global flag
   const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
 
   // Global listener for log counts (can be spontaneous or requested)
@@ -108,7 +107,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
                 `[DeviceLogContext] Saving ${logsBufferRef.current.length} logs for device ${activeDevice.id}...`,
                 logsBufferRef.current
               );
-              StorageService.saveLogs(activeDevice.id, logsBufferRef.current)
+              StorageService.saveLogs(activeDevice.id, logsBufferRef.current as any[])
                 .then(() => {
                   log(`Saved ${logsBufferRef.current.length} logs`, 'success');
                   console.log(`[DeviceLogContext] bulkPut successful.`);

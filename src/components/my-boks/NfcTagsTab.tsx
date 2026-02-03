@@ -27,6 +27,9 @@ import { NfcScanStatus } from '../../types/nfc';
 
 export const NfcTagsTab = () => {
   const { t } = useTranslation(['common', 'settings']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { tags, scanStatus, scannedUid, startScan, registerTag, unregisterTag, resetScan } =
     useNfcTags();
 
@@ -60,7 +63,7 @@ export const NfcTagsTab = () => {
   };
 
   const handleDelete = async (tag: BoksNfcTag) => {
-    if (confirm(t('common:confirm_delete'))) {
+    if (confirm(tAny('common:confirm_delete'))) {
       try {
         await unregisterTag(tag);
       } catch (e) {
@@ -183,7 +186,7 @@ export const NfcTagsTab = () => {
                     label={t('settings:nfc.input_label')}
                     fullWidth
                     value={tagName}
-                    onChange={(e) => setTagName(e.target.value)}
+                    onChange={(e) => setTagName((e.target as HTMLInputElement).value)}
                   />
                 </Box>
               )}

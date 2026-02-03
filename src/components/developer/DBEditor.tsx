@@ -130,8 +130,8 @@ const DBTableViewer = ({ tableName }: { tableName: string }) => {
   return (
     <List>
       {data.map((item, index) => {
-        // @ts-expect-error - dynamic access
-        const pk = item[primKeyName];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pk = (item as any)[primKeyName];
 
         return (
           <ListItem key={pk || index} disablePadding>
@@ -139,8 +139,8 @@ const DBTableViewer = ({ tableName }: { tableName: string }) => {
               <AccordionSummary expandIcon={<ExpandMore />}>
                 <Typography noWrap>
                   {/* Try to find a reasonable title */}
-                  {/* @ts-expect-error - dynamic access */}
-                  {item.id || item.name || item.key || `Record ${index}`}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(item as any).id || (item as any).name || (item as any).key || `Record ${index}`}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -160,7 +160,7 @@ export const DBEditor = () => {
   const tables = db.tables.map((t) => t.name);
 
   const handleChange = (event: SelectChangeEvent) => {
-    setSelectedTable(event.target.value);
+    setSelectedTable((event.target as HTMLInputElement).value as string);
   };
 
   return (

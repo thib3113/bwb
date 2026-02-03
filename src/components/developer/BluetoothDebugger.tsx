@@ -184,7 +184,7 @@ export const BluetoothDebugger = () => {
                       fullWidth
                       type={isNumber ? 'number' : 'text'}
                       value={formData[key] || ''}
-                      onChange={(e) => handleInputChange(key, e.target.value)}
+                      onChange={(e) => handleInputChange(key, (e.target as HTMLInputElement).value)}
                       helperText={isNumber ? 'Number' : 'String'}
                     />
                   );

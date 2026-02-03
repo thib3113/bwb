@@ -17,13 +17,14 @@ export interface BLECommandRequest {
   timestamp: number;
   options?: BLECommandOptions;
   accumulatedPackets: BLEPacket[];
+  packet?: Uint8Array; // Optional pre-constructed packet
 }
 
 export class BLEQueue {
   private queue: BLECommandRequest[] = [];
   private isProcessing: boolean = false;
   private currentRequest: BLECommandRequest | null = null;
-  private timeoutId: NodeJS.Timeout | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private readonly DEFAULT_TIMEOUT_MS = 5000;
   private readonly DELAY_BETWEEN_COMMANDS_MS = 250;
 
@@ -85,7 +86,8 @@ export class BLEQueue {
   public add(
     opcode: BLEOpcode,
     payload: Uint8Array,
-    options?: BLECommandOptions
+    options?: BLECommandOptions,
+    packet?: Uint8Array
   ): Promise<BLEPacket | BLEPacket[]> {
     return new Promise((resolve, reject) => {
       this.queue.push({
@@ -96,6 +98,7 @@ export class BLEQueue {
         timestamp: Date.now(),
         options,
         accumulatedPackets: [],
+        packet,
       });
       this.processNext();
     });

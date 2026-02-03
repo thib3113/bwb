@@ -21,4 +21,20 @@ describe('SetConfig Packet (0x16)', () => {
     expect(fullPacket[11]).toBe(enable);
     expect(fullPacket.length).toBe(13);
   });
+
+  it('should generate exact hardcoded binary for SetConfigurationPacket', () => {
+    // 0x16 (Op) + 0x0A (Len=10) + "ABCDEFGH" + 0x01 + 0x01 + Checksum
+    const configKey = 'ABCDEFGH';
+    const configType = 0x01;
+    const enable = 0x01;
+    const packet = new SetConfigurationPacket(configKey, configType, enable);
+    const binary = packet.toPacket();
+
+    const toHex = (buffer: Uint8Array) =>
+      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+    // Sum: 22 + 10 + 548 (Key) + 1 + 1 = 582 -> 582 % 256 = 70 -> 0x46
+    const expectedHex = "16 0A 41 42 43 44 45 46 47 48 01 01 46";
+    expect(toHex(binary)).toBe(expectedHex);
+  });
 });
