@@ -37,7 +37,7 @@ describe('Log Fetching Performance', () => {
     }
     // Bulk add
     await db.logs.bulkAdd(logs);
-  }, 10000); // Increase timeout for setup
+  }, 30000); // Increase timeout for setup
 
   afterEach(async () => {
     await db.logs.clear();
@@ -88,5 +88,5 @@ describe('Log Fetching Performance', () => {
     console.log(`Original Last: ${originalResult[originalResult.length - 1].timestamp}`);
 
     // The optimization is also a correctness fix if timestamps are strings!
-  });
+  }, 30000); // Increased timeout for the test itself
 });

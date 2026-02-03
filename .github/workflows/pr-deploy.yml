@@ -9,7 +9,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  deploy-preview:
+  # Run Tests via Reusable Workflow
+  tests:
+    uses: ./.github/workflows/reusable-tests.yml
+
+  # Run Build in Parallel
+  build:
     runs-on: ubuntu-latest
     concurrency: ci-${{ github.ref }}
     steps:
@@ -19,7 +24,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -34,6 +39,27 @@ jobs:
         run: pnpm run build
         env:
           BASE_URL: /${{ github.event.repository.name }}/pr-${{ github.event.number }}/
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  # Deploy after Tests and Build succeed
+  deploy-preview:
+    needs: [tests, build]
+    runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Create .nojekyll
         run: touch dist/.nojekyll
