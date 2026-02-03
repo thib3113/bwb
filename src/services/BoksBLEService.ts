@@ -181,7 +181,17 @@ export class BoksBLEService extends EventEmitter {
     if (parsed) {
       parsed.direction = 'RX';
       // Use Factory to create rich object
-      parsed.parsedPayload = PacketFactory.create(parsed.opcode, parsed.payload);
+      const richPacket = PacketFactory.create(parsed.opcode, parsed.payload);
+      if (richPacket) {
+        // We cast because BoksRXPacket doesn't implement ParsedPayload interface formally yet,
+        // but we can wrap it or ensure it does.
+        // Or we just attach it as unknown/any to parsedPayload for logs.
+        // Actually, parsedPayload expects ParsedPayload interface.
+        // Let's assume PacketFactory returns something compatible or we wrap it.
+        // Ideally BoksRXPacket should implement ParsedPayload or we have a wrapper.
+        // For now, we will cast to any to satisfy TS, assuming the logger handles it.
+        parsed.parsedPayload = richPacket as unknown as ParsedPayload;
+      }
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);

@@ -61,6 +61,11 @@ export interface BoksDevice {
 
   // Battery level
   battery_level?: number;
+
+  // Firmware Info
+  hardware_version?: string;
+  software_revision?: string;
+  la_poste_activated?: boolean;
 }
 
 export interface BoksCode {

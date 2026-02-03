@@ -73,7 +73,7 @@ export function parseLog(logEntry: BoksLog): ParsedLog {
       payloadBytes = new Uint8Array(payload);
     } else if (typeof payload === 'string') {
       // Convert hex string to Uint8Array
-      const hex = payload.replace(/\s/g, '');
+      const hex = (payload as string).replace(/\s/g, '');
       payloadBytes = new Uint8Array(hex.length / 2);
       for (let i = 0; i < hex.length; i += 2) {
         payloadBytes[i / 2] = parseInt(hex.substring(i, 2), 16);

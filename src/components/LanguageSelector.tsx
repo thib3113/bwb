@@ -13,7 +13,7 @@ export const LanguageSelector = () => {
     <FormControl size="small">
       <Select
         value={i18n.resolvedLanguage || i18n.language}
-        onChange={(e: SelectChangeEvent) => changeLanguage(e.target.value)}
+        onChange={(e: SelectChangeEvent) => changeLanguage(e.target.value as string)}
         sx={{ minWidth: 120 }}
       >
         <MenuItem value={LANGUAGES.EN}>English</MenuItem>

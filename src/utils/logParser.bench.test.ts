@@ -7,13 +7,15 @@ describe('logParser Performance', () => {
   it('should parse 300 logs quickly', () => {
     // Generate 300 mock logs
     const logs: BoksLog[] = Array.from({ length: 300 }, (_, i) => ({
-      id: i,
+      id: String(i),
       device_id: 'test-device',
       deviceId: 'test-device',
       timestamp: new Date().toISOString(),
       opcode: BLEOpcode.VALID_OPEN_CODE,
       payload: new Uint8Array([0x01, 0x02]),
       synced: true,
+      event: 'test_event',
+      type: 'info',
     }));
 
     const start = performance.now();

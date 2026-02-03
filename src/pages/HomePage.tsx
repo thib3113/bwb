@@ -36,7 +36,7 @@ export const HomePage = () => {
     return <OnboardingView showNotification={showNotification} />;
   }
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: Event, newValue: number) => {
     switch (newValue) {
       case 0:
         navigate('/codes');

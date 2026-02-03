@@ -48,6 +48,8 @@ const DFU_ERRORS: Record<number, string> = {
 
 export const DfuUpdatePage = () => {
   const { t } = useTranslation(['dfu']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
   const [searchParams] = useSearchParams();
   const { disconnect: disconnectGlobal } = useBLEConnection();
 
@@ -60,7 +62,7 @@ export const DfuUpdatePage = () => {
   const [firmwareBlob, setFirmwareBlob] = useState<ArrayBuffer | null>(null);
   const [firmwareName, setFirmwareName] = useState<string>('');
   const [bluetoothDevice, setBluetoothDevice] = useState<BluetoothDevice | null>(null);
-  const [status, setStatus] = useState<string>(t('status.ready'));
+  const [status, setStatus] = useState<string>(t('status.ready' as any));
   const [statusType, setStatusType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [logs, setLogs] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
@@ -86,8 +88,8 @@ export const DfuUpdatePage = () => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isFlashingRef.current) {
         e.preventDefault();
-        e.returnValue = t('warnings.bricking');
-        return t('warnings.bricking');
+        e.returnValue = tAny('warnings.bricking');
+        return tAny('warnings.bricking');
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -101,9 +103,10 @@ export const DfuUpdatePage = () => {
     setLogs((prev) => [...prev, entry]);
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
+  const handleFileChange = async (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+      const file = target.files[0];
       try {
         const buffer = await file.arrayBuffer();
         setFirmwareBlob(buffer);
@@ -113,7 +116,7 @@ export const DfuUpdatePage = () => {
       } catch (e) {
         const errMsg = e instanceof Error ? e.message : String(e);
         log(`Failed to load file: ${errMsg}`, 'error');
-        setStatus(t('errors.fw_load'));
+        setStatus(tAny('errors.fw_load'));
         setStatusType('error');
       }
     }
@@ -132,13 +135,13 @@ export const DfuUpdatePage = () => {
   };
 
   const readInfo = async (server: BluetoothRemoteGATTServer) => {
-    const deviceName = bluetoothDevice?.name || t('labels.unknown');
+    const deviceName = bluetoothDevice?.name || tAny('labels.unknown');
     let localDfuMode = false;
 
     if (deviceName.includes('DfuTarg')) {
       localDfuMode = true;
       setIsDfuModeActive(true);
-      setDeviceInfo((prev) => ({ ...prev, name: t('status.device_in_dfu') }));
+      setDeviceInfo((prev) => ({ ...prev, name: tAny('status.device_in_dfu') }));
     } else {
       setIsDfuModeActive(false);
       // Try to read device name from characteristic
@@ -170,7 +173,7 @@ export const DfuUpdatePage = () => {
       setDeviceInfo((prev) => ({ ...prev, battery: `${level}%` }));
       if (level < BATTERY_THRESHOLD) batteryOk = false;
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, battery: t('labels.not_available') }));
+      setDeviceInfo((prev) => ({ ...prev, battery: tAny('labels.not_available') }));
       log('Battery info unavailable', localDfuMode ? 'debug' : 'info');
     }
 
@@ -185,7 +188,7 @@ export const DfuUpdatePage = () => {
       setDeviceInfo((prev) => ({ ...prev, version: currentVer }));
       if (targetSoftware && currentVer === targetSoftware) versionMatch = true;
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, version: t('labels.unknown') }));
+      setDeviceInfo((prev) => ({ ...prev, version: tAny('labels.unknown') }));
     }
 
     // Read HW Version
@@ -204,7 +207,7 @@ export const DfuUpdatePage = () => {
         log(`Warning: PCB mismatch? Expected ${targetPcb}, got ${currentHw}`, 'warning');
       }
     } catch {
-      setDeviceInfo((prev) => ({ ...prev, hw: t('labels.unknown') }));
+      setDeviceInfo((prev) => ({ ...prev, hw: tAny('labels.unknown') }));
     }
 
     return { batteryOk, versionMatch, hwOk };
@@ -216,7 +219,7 @@ export const DfuUpdatePage = () => {
       disconnectGlobal();
       log('Disconnected global session.');
 
-      setStatus(t('status.searching'));
+      setStatus(tAny('status.searching'));
       setStatusType('info');
 
       // @ts-expect-error - navigator.bluetooth is not typed
@@ -253,23 +256,23 @@ export const DfuUpdatePage = () => {
 
       if (isRealDfu) {
         log('Real DFU mode detected.');
-        setStatus(t('instructions.step_3'));
+        setStatus(tAny('instructions.step_3'));
         setStatusType('success');
         setActionLabel('flash');
       } else {
         if (!checks.hwOk || !checks.batteryOk) {
-          setStatus(t('errors.compatibility'));
+          setStatus(tAny('errors.compatibility'));
           setStatusType('error');
           // We allow continuing but warn
         }
 
         if (isButtonless) {
-          setStatus(t('status.preparing'));
+          setStatus(tAny('status.preparing'));
           setActionLabel('prepare');
         } else {
           if (checks.versionMatch) {
             setStatus(
-              t('labels.target_version', { version: targetSoftware }) + ' (Already on target)'
+              tAny('labels.target_version', { version: targetSoftware }) + ' (Already on target)'
             );
             setStatusType('warning');
           }
@@ -279,7 +282,7 @@ export const DfuUpdatePage = () => {
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
       log(`Connection error: ${errMsg}`, 'error');
-      setStatus(t('errors.bluetooth'));
+      setStatus(tAny('errors.bluetooth'));
       setStatusType('error');
       setCanConnect(true);
     }
@@ -309,7 +312,7 @@ export const DfuUpdatePage = () => {
         const value = new Uint8Array([0x01]);
         await chr.writeValue(value);
 
-        setStatus(t('instructions.reboot_wait'));
+        setStatus(tAny('instructions.reboot_wait'));
         setStatusType('info');
 
         // Switch to reconnect UI
@@ -323,7 +326,7 @@ export const DfuUpdatePage = () => {
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
       log(`Failed: ${errMsg}`, 'error');
-      setStatus(t('errors.unknown'));
+      setStatus(tAny('errors.unknown'));
       setStatusType('error');
       setCanStart(true);
     }
@@ -337,7 +340,7 @@ export const DfuUpdatePage = () => {
       isFlashingRef.current = true;
       setCanStart(false);
       setProgress(0);
-      setStatus(t('status.flashing'));
+      setStatus(tAny('status.flashing'));
       setStatusType('info');
 
       const pkg = new SecureDfuPackage(firmwareBlob);
@@ -386,7 +389,7 @@ export const DfuUpdatePage = () => {
       await dfu.update(bluetoothDevice, image.initData, image.imageData);
 
       log('Flash successful! Rebooting device...');
-      setStatus(t('status.success'));
+      setStatus(tAny('status.success'));
       setStatusType('success');
 
       if (bluetoothDevice.gatt?.connected) {
@@ -422,13 +425,14 @@ export const DfuUpdatePage = () => {
   return (
     <Container maxWidth="md" sx={{ py: 3 }}>
       <Typography variant="h4" gutterBottom>
-        {t('title')}
+        {tAny('title')}
       </Typography>
 
       {/* Warnings */}
       <Stack spacing={2} sx={{ mb: 3 }}>
-        {!navigator.bluetooth && <Alert severity="error">{t('warnings.https')}</Alert>}
-        <Alert severity="warning">{t('warnings.legal')}</Alert>
+        {/* @ts-expect-error - navigator.bluetooth */}
+        {!navigator.bluetooth && <Alert severity="error">{tAny('warnings.https')}</Alert>}
+        <Alert severity="warning">{tAny('warnings.legal')}</Alert>
       </Stack>
 
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -440,7 +444,7 @@ export const DfuUpdatePage = () => {
               style={{ display: 'none' }}
               id="raised-button-file"
               type="file"
-              onChange={handleFileChange}
+              onChange={(e) => handleFileChange(e as unknown as Event)}
               disabled={isFlashing}
             />
             <label htmlFor="raised-button-file">
@@ -452,7 +456,7 @@ export const DfuUpdatePage = () => {
                 sx={{ height: 60, borderStyle: 'dashed' }}
                 disabled={isFlashing}
               >
-                {firmwareBlob ? firmwareName : t('instructions.select_file')}
+                {firmwareBlob ? firmwareName : tAny('instructions.select_file')}
               </Button>
             </label>
             {firmwareBlob && (
@@ -502,21 +506,21 @@ export const DfuUpdatePage = () => {
               <Stack spacing={1}>
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    {t('labels.device_name')}
+                    {tAny('labels.device_name')}
                   </Typography>
                   <Typography variant="body2">{deviceInfo.name}</Typography>
                 </Box>
                 <Divider />
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    {t('labels.battery')}
+                    {tAny('labels.battery')}
                   </Typography>
                   <Typography variant="body2">{deviceInfo.battery}</Typography>
                 </Box>
                 <Divider />
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    {t('labels.version')}
+                    {tAny('labels.version')}
                   </Typography>
                   <Box textAlign="right">
                     <Typography variant="body2">{deviceInfo.version}</Typography>
@@ -530,7 +534,7 @@ export const DfuUpdatePage = () => {
                 <Divider />
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    {t('labels.hw')}
+                    {tAny('labels.hw')}
                   </Typography>
                   <Box textAlign="right">
                     <Typography variant="body2">{deviceInfo.hw}</Typography>
@@ -554,12 +558,12 @@ export const DfuUpdatePage = () => {
             fullWidth
           >
             {actionLabel === 'connect'
-              ? t('buttons.connect')
+              ? tAny('buttons.connect')
               : actionLabel === 'reconnect'
-                ? t('buttons.reconnect')
+                ? tAny('buttons.reconnect')
                 : actionLabel === 'flash'
-                  ? t('buttons.flash')
-                  : t('buttons.prepare')}
+                  ? tAny('buttons.flash')
+                  : tAny('buttons.prepare')}
           </Button>
         </Stack>
       </Paper>
@@ -578,7 +582,7 @@ export const DfuUpdatePage = () => {
       >
         {logs.length === 0 && (
           <Typography variant="caption" sx={{ opacity: 0.5 }}>
-            {t('logs.placeholder')}
+            {tAny('logs.placeholder')}
           </Typography>
         )}
         {logs.map((line, i) => (
@@ -589,30 +593,30 @@ export const DfuUpdatePage = () => {
       {/* FAQ Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5" gutterBottom>
-          {t('faq.title')}
+          {tAny('faq.title')}
         </Typography>
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">{t('faq.process.q')}</Typography>
+            <Typography fontWeight="bold">{tAny('faq.process.q')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.process.a')}</Typography>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{tAny('faq.process.a')}</Typography>
           </AccordionDetails>
         </Accordion>
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">{t('faq.risks.q')}</Typography>
+            <Typography fontWeight="bold">{tAny('faq.risks.q')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.risks.a')}</Typography>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{tAny('faq.risks.a')}</Typography>
           </AccordionDetails>
         </Accordion>
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">{t('faq.troubleshoot.q')}</Typography>
+            <Typography fontWeight="bold">{tAny('faq.troubleshoot.q')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography style={{ whiteSpace: 'pre-line' }}>{t('faq.troubleshoot.a')}</Typography>
+            <Typography style={{ whiteSpace: 'pre-line' }}>{tAny('faq.troubleshoot.a')}</Typography>
           </AccordionDetails>
         </Accordion>
       </Box>

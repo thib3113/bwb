@@ -24,7 +24,7 @@ export class BLEQueue {
   private queue: BLECommandRequest[] = [];
   private isProcessing: boolean = false;
   private currentRequest: BLECommandRequest | null = null;
-  private timeoutId: NodeJS.Timeout | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private readonly DEFAULT_TIMEOUT_MS = 5000;
   private readonly DELAY_BETWEEN_COMMANDS_MS = 250;
 
