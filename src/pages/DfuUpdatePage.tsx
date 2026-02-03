@@ -164,9 +164,7 @@ export const DfuUpdatePage = () => {
 
     // Read Battery
     try {
-      // @ts-expect-error - standard UUID
       const batSvc = await server.getPrimaryService(BATTERY_SERVICE_UUID);
-      // @ts-expect-error - standard UUID
       const batChar = await batSvc.getCharacteristic(0x2a19);
       const val = await debugRead(batChar, 'Battery');
       const level = val.getUint8(0);
@@ -179,9 +177,7 @@ export const DfuUpdatePage = () => {
 
     // Read SW Version
     try {
-      // @ts-expect-error - standard UUID
       const infoSvc = await server.getPrimaryService(DEVICE_INFO_SERVICE_UUID);
-      // @ts-expect-error - standard UUID
       const swChar = await infoSvc.getCharacteristic(SW_REV_CHAR_UUID);
       const val = await debugRead(swChar, 'SW Version');
       const currentVer = new TextDecoder().decode(val).trim();
@@ -193,9 +189,7 @@ export const DfuUpdatePage = () => {
 
     // Read HW Version
     try {
-      // @ts-expect-error - standard UUID
       const infoSvc = await server.getPrimaryService(DEVICE_INFO_SERVICE_UUID);
-      // @ts-expect-error - standard UUID
       const hwChar = await infoSvc.getCharacteristic(HW_REV_CHAR_UUID);
       const val = await debugRead(hwChar, 'HW Version');
       const currentHw = new TextDecoder().decode(val).trim();

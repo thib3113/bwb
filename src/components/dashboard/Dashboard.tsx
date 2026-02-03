@@ -17,6 +17,8 @@ import { CodeCreationData } from '../../types';
 
 export const Dashboard = () => {
   const { t } = useTranslation(['common', 'codes']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tAny = t as any;
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -50,7 +52,7 @@ export const Dashboard = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h5" component="h2" gutterBottom>
-                {t('common:status')}
+                {tAny('common:status')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Box
@@ -65,12 +67,12 @@ export const Dashboard = () => {
                   }}
                 />
                 <Typography variant="body1">
-                  {isConnected ? t('common:connected') : t('common:disconnected')}
+                  {isConnected ? tAny('common:connected') : tAny('common:disconnected')}
                 </Typography>
               </Box>
               {activeDevice && (
                 <Typography variant="body2" color="textSecondary">
-                  {t('common:device')}: {activeDevice.friendly_name || activeDevice.ble_name}
+                  {tAny('common:device')}: {activeDevice.friendly_name || activeDevice.ble_name}
                 </Typography>
               )}
             </CardContent>
@@ -82,7 +84,7 @@ export const Dashboard = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h5" component="h2" gutterBottom>
-                {t('common:quick_actions')}
+                {tAny('common:quick_actions')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <Button
@@ -92,7 +94,7 @@ export const Dashboard = () => {
                   disabled={!isConnected || isOpening}
                   sx={{ minWidth: 120 }}
                 >
-                  {t('common:open_door')}
+                  {tAny('common:open_door')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -101,7 +103,7 @@ export const Dashboard = () => {
                   disabled={!isConnected}
                   sx={{ minWidth: 120 }}
                 >
-                  {t('codes:add_new')}
+                  {tAny('codes:add_new')}
                 </Button>
               </Box>
             </CardContent>
@@ -113,7 +115,7 @@ export const Dashboard = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h5" component="h2" gutterBottom>
-                {t('common:navigation')}
+                {tAny('common:navigation')}
               </Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 4 }}>
@@ -124,7 +126,7 @@ export const Dashboard = () => {
                     onClick={() => navigate('/logs')}
                     sx={{ justifyContent: 'flex-start', p: 2 }}
                   >
-                    {t('common:view_all_logs')}
+                    {tAny('common:view_all_logs')}
                   </Button>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
@@ -135,7 +137,7 @@ export const Dashboard = () => {
                     onClick={() => navigate('/codes')}
                     sx={{ justifyContent: 'flex-start', p: 2 }}
                   >
-                    {t('common:manage_codes')}
+                    {tAny('common:manage_codes')}
                   </Button>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
@@ -146,7 +148,7 @@ export const Dashboard = () => {
                     onClick={() => navigate('/my-boks?tab=settings')}
                     sx={{ justifyContent: 'flex-start', p: 2 }}
                   >
-                    {t('common:settings')}
+                    {tAny('common:settings')}
                   </Button>
                 </Grid>
               </Grid>

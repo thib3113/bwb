@@ -140,7 +140,7 @@ export const DebugView = () => {
       return `${packet.payload} ${knownName ? `(${knownName})` : ''}`;
     }
 
-    return formatPayload(packet.opcode!, packet.payload);
+    return formatPayload(packet.opcode!, packet.payload || '');
   };
 
   return (
