@@ -54,6 +54,12 @@ export const useNfcTags = () => {
   // Handle Scan Notifications
   useEffect(() => {
     const handleScanResult = (packet: BLEPacket) => {
+      // Guard: If we reached a terminal state, ignore subsequent packets
+      // This prevents a potential Timeout packet from overwriting a Found/Exists result
+      if (scanStatus !== NfcScanStatus.SCANNING && scanStatus !== NfcScanStatus.IDLE) {
+        return;
+      }
+
       // Check if it's one of the NFC opcodes
       if (
         [
@@ -94,7 +100,7 @@ export const useNfcTags = () => {
       removeListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS, handleScanResult);
       removeListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT, handleScanResult);
     };
-  }, [addListener, removeListener]);
+  }, [addListener, removeListener, scanStatus]);
 
   // Register Tag
   const registerTag = useCallback(
@@ -108,8 +114,11 @@ export const useNfcTags = () => {
         const uidBytes = new Uint8Array(scannedUid.split(':').map((s) => parseInt(s, 16)));
 
         // Send 0x18
-        const packet = new NfcRegisterPacket(key, uidBytes);
-        await sendRequest(packet);
+        // Only send register command if the tag was FOUND (new), skip if it matches ALREADY_EXISTS
+        if (scanStatus === NfcScanStatus.FOUND) {
+            const packet = new NfcRegisterPacket(key, uidBytes);
+            await sendRequest(packet);
+        }
 
         // Add to DB
         // Check if exists
@@ -138,7 +147,7 @@ export const useNfcTags = () => {
         throw e;
       }
     },
-    [scannedUid, deviceId, getConfigKey, sendRequest]
+    [scannedUid, deviceId, getConfigKey, sendRequest, scanStatus]
   );
 
   const unregisterTag = useCallback(
