@@ -147,7 +147,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           .then(async (info) => {
             if (info) {
               const level = info.getUint8(0);
-              showNotification(tAny('battery_level') + ': ' + level + '%', 'info');
+              showNotification(tAny('battery_level', { level }), 'info');
 
               if (activeDevice?.id) {
                 try {
