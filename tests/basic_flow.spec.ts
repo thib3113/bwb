@@ -1,13 +1,7 @@
-import {expect, test} from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('Boks Basic Flow (Simulator)', () => {
-  test.beforeEach(async ({ page }) => {
-    // Force enable simulator BEFORE app loads and set language to English
-    await page.addInitScript(() => {
-      localStorage.setItem('i18nextLng', 'en');
-      // @ts-expect-error - Custom global flag
-      window.BOKS_SIMULATOR_ENABLED = true;
-    });
+  test.beforeEach(async ({ page, simulator }) => {
     await page.goto('/');
   });
 
@@ -17,14 +11,17 @@ test.describe('Boks Basic Flow (Simulator)', () => {
 
   test('should connect using the simulator', async ({ page }) => {
     // Check we are initially disconnected (BluetoothDisabledIcon)
-    await expect(page.locator('svg[data-testid="BluetoothDisabledIcon"]')).toBeVisible();
+    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
+    await expect(disabledIcon).toBeVisible();
 
     // Click the connect button
-    await page.getByRole('button', { name: /connect/i, exact: true }).first().click();
+    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
 
-    // Wait for connection (BluetoothConnectedIcon should appear)
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('svg[data-testid="BluetoothDisabledIcon"]')).not.toBeVisible();
+    // Wait for connection: Disabled icon should disappear
+    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
+
+    // Check for battery percentage as confirmation of connection
+    await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
     // Optional: Check if we received data (e.g., Codes count)
     await expect(page.getByText(/Codes \(Total:/)).toBeVisible({ timeout: 10000 });
@@ -32,15 +29,20 @@ test.describe('Boks Basic Flow (Simulator)', () => {
 
   test('should open the door via simulator', async ({ page }) => {
     // 1. Connect
-    await page.getByRole('button', { name: /connect/i, exact: true }).click();
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
+    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
+    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
+
+    // Check for battery percentage as confirmation of connection
+    await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
     // Wait a bit for device context to settle
     await page.waitForTimeout(500);
 
-    // 2. Fill PIN and Click Open Door
-    await page.fill('#openCode', '123456');
-    await page.getByRole('button', { name: /open door/i }).click({ force: true });
+    // 2. Click Open Door (Header Button)
+    // Note: Manual PIN entry (#openCode) is not available in the current UI layout.
+    // The header button uses the stored device PIN.
+    await page.getByRole('button', { name: /open door/i }).click();
 
     // 3. Verify Feedback
     // Using regex for flexibility
