@@ -85,12 +85,18 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
           .join(' ');
 
+        // Use rich description if available (for GATT ops) or hex payload
+        let displayPayload = hexPayload;
+        if (packet.parsedPayload && typeof packet.parsedPayload.toString === 'function') {
+           displayPayload = packet.parsedPayload.toString();
+        }
+
         addDebugLog({
           id: Date.now() + Math.random(),
           timestamp: new Date(),
           direction: 'RX',
           opcode: packet.opcode,
-          payload: hexPayload,
+          payload: displayPayload,
           raw: hex,
           type: 'packet',
         });
@@ -109,12 +115,18 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
         .join(' ');
 
+      // Use rich description if available (for GATT ops) or hex payload
+      let displayPayload = hexPayload;
+      if (packet.parsedPayload && typeof packet.parsedPayload.toString === 'function') {
+         displayPayload = packet.parsedPayload.toString();
+      }
+
       addDebugLog({
         id: Date.now() + Math.random(),
         timestamp: new Date(),
         direction: 'TX',
         opcode: packet.opcode,
-        payload: hexPayload,
+        payload: displayPayload,
         raw: hex,
         type: 'packet',
       });
