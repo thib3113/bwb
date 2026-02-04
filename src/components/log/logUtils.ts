@@ -59,6 +59,8 @@ export function translateKey(key: string, t: TFunction<'logs'>): string {
     weight: t('weight'),
     battery_level: t('battery_level'),
     tagId: t('tag_id'),
+    tag_uid: t('tag_uid'),
+    tag_type: t('tag_type'),
     initiatedBy: t('initiated_by'),
     bootReason: t('boot_reason'),
     payload: t('payload'),
