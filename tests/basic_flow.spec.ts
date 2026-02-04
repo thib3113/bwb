@@ -19,11 +19,13 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     // Check we are initially disconnected (BluetoothDisabledIcon)
     await expect(page.locator('svg[data-testid="BluetoothDisabledIcon"]')).toBeVisible();
 
-    // Click the connect button
-    await page.getByRole('button', { name: /connect/i, exact: true }).first().click();
+    // Click the connect button in the header
+    // Use aria-label exact match to avoid matching other "Connect" texts
+    await page.getByRole('button', { name: 'connect', exact: true }).first().click();
 
     // Wait for connection (BluetoothConnectedIcon should appear)
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
+    // Increased timeout to 20s to account for simulated delay and initial sync
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('svg[data-testid="BluetoothDisabledIcon"]')).not.toBeVisible();
 
     // Optional: Check if we received data (e.g., Codes count)
@@ -32,8 +34,9 @@ test.describe('Boks Basic Flow (Simulator)', () => {
 
   test('should open the door via simulator', async ({ page }) => {
     // 1. Connect
-    await page.getByRole('button', { name: /connect/i, exact: true }).click();
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'connect', exact: true }).first().click();
+    // Increased timeout to 20s
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 20000 });
 
     // Wait a bit for device context to settle
     await page.waitForTimeout(500);

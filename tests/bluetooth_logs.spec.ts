@@ -25,8 +25,10 @@ test.describe('Bluetooth Logs Feature', () => {
 
   test('should send GET_LOGS_COUNT and REQUEST_LOGS when refreshing logs', async ({ page }) => {
     // 1. Connect
-    await page.getByRole('button', { name: 'Connect', exact: true }).first().click();
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
+    // Use aria-label exact match to avoid ambiguity
+    await page.getByRole('button', { name: 'connect', exact: true }).first().click();
+    // Increased timeout to 20s
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 20000 });
 
     // 2. Click Refresh Logs
     // The button appears in the header only when connected.

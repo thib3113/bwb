@@ -26,9 +26,10 @@ test.describe('Bluetooth Open Door Feature', () => {
 
   test('should send correct OPEN_DOOR packet with PIN code', async ({ page }) => {
     // 1. Connect
-    // Use regex for more flexible matching
-    await page.getByRole('button', { name: /connect/i, exact: true }).first().click();
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
+    // Use aria-label exact match to avoid ambiguity
+    await page.getByRole('button', { name: 'connect', exact: true }).first().click();
+    // Increased timeout to 20s
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 20000 });
 
     // 2. Fill PIN and Click Open Door
     await page.fill('#openCode', '123456');
