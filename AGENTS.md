@@ -28,6 +28,8 @@ You **MUST** consult these files for any implementation details regarding the pr
     *   *The "Script":* Detailed sequence diagrams for features (Opening the door, Syncing Logs, Registering NFC tags).
 *   **[`03_quirks_workarounds.md`](.jules/03_quirks_workarounds.md)**
     *   *The "Reality Check":* Essential workarounds for hardware bugs (Flash write latency, Battery parsing, Connection limits).
+*   **[`04_testing_guide.md`](.jules/04_testing_guide.md)**
+    *   *The "Test Suite":* Guide on using the Playwright Simulator fixture for E2E testing.
 
 ## Tech Stack
 
@@ -127,6 +129,13 @@ The project includes specific utilities to improve UX during BLE operations:
 - **Hardware Stability:** Respect the "Flash Write Blind Window" (see `03_quirks_workarounds.md`) by avoiding heavy commands immediately after a door event.
 - **Per-Device Context:** Always ensure sensitive settings (PIN, Keys) are retrieved from the `activeDevice` object, not global state.
 - **Activity Logging:** All significant BLE events and state changes must be emitted to the `BLEContext` to be visible in the Activity Logger.
+
+## End-to-End Testing
+
+We use Playwright with a custom simulator fixture to test BLE features.
+**All new tests must use the `simulator` fixture from `tests/fixtures.ts`.**
+
+For detailed instructions, see: **[`04_testing_guide.md`](.jules/04_testing_guide.md)**.
 
 ## Key Files/Directories
 
