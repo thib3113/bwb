@@ -15,7 +15,7 @@ interface SimulatorState {
   codes: Array<{ type: 'master'|'single'|'multi', code: string, index?: number }>;
   logs: Array<LogEntry>;
   nfcTags: Array<string>; // UIDs
-
+  
   // Hardware State
   doorState: 'open' | 'closed';
   batteryLevel: number; // 0-100
