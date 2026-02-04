@@ -1,5 +1,5 @@
 // Utility functions for parsing BLE packets
-import { BLE_PACKET_CHECKSUM_MASK } from './bleConstants';
+import { BLE_PACKET_CHECKSUM_MASK, BLEOpcode } from './bleConstants';
 import { ParsedPayload } from './payloadParser';
 
 export interface BLEPacket {
@@ -22,14 +22,17 @@ export function parsePacket(data: DataView): BLEPacket | null {
   }
 
   const opcode = bytes[0];
-
-  // Robust parsing: ignore the length byte (bytes[1]) for slicing,
-  // as some opcodes use it as payload length and others as total length.
-  // We take everything from index 2 to the end (minus 1 for checksum).
+  const length = bytes[1];
 
   const isValidChecksum = verifyChecksum(bytes);
 
-  // Payload is data between Opcode/Len and Checksum
+  // Payload extraction logic
+  // For most opcodes, payload is [2 ... end-1] (length byte is payload length)
+  // For 0xC3 (NOTIFY_CODES_COUNT), the 'length' byte (0x07) is TOTAL length (including opcode/len/checksum)
+  // So payload is [2 ... end-1] effectively, but 'length' byte semantics differ.
+  // Our generic logic here ignores 'length' byte for slicing, relying on the actual buffer size.
+  // This is robust for both cases as long as 'bytes' contains the full frame.
+
   // Standard: [Opcode, Len, P1, P2, ..., Pn, Checksum]
   // If checksum is present, payload ends at length - 1.
   const payload = bytes.length > 2 ? bytes.slice(2, bytes.length - 1) : new Uint8Array(0);
@@ -53,9 +56,19 @@ export function verifyChecksum(data: Uint8Array): boolean {
 export function createPacket(opcode: number, payload: number[] | Uint8Array = []): Uint8Array {
   // Create a packet with opcode and payload
   const payloadArray = payload instanceof Uint8Array ? payload : new Uint8Array(payload);
-  const packet = new Uint8Array(2 + payloadArray.length + 1); // +1 for checksum
+
+  // Calculate total size: Opcode (1) + Length (1) + Payload (N) + Checksum (1)
+  const packet = new Uint8Array(2 + payloadArray.length + 1);
+
   packet[0] = opcode;
-  packet[1] = payloadArray.length;
+
+  // SPECIAL CASE: For 0xC3, Length byte is TOTAL LENGTH
+  if (opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
+    packet[1] = packet.length; // Total length
+  } else {
+    packet[1] = payloadArray.length; // Payload length (Standard)
+  }
+
   packet.set(payloadArray, 2);
 
   // Calculate checksum

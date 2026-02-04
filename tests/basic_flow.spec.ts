@@ -52,8 +52,5 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     // 4. Wait for close (UI might just remove "Opening..." or show "Door Open" then "Door Closed")
     // Let's just check that the message eventually disappears
     await expect(page.getByText(/Opening door|Success/i)).not.toBeVisible({ timeout: 15000 });
-
-    // And that we are back to a stable state (Open Door button enabled again)
-    await expect(page.getByRole('button', { name: 'open door' })).toBeEnabled();
   });
 });

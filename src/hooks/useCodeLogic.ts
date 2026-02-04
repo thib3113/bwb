@@ -12,6 +12,8 @@ import { EMPTY_ARRAY } from '../utils/bleConstants';
 import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
 import { runTask } from '../utils/uiUtils';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { useTaskContext } from './useTaskContext';
+import { TaskType } from '../types/task';
 
 export interface CodeMetadata {
   lastUsed?: Date;
@@ -27,6 +29,7 @@ export const useCodeLogic = (
   const { activeDevice } = useDevice();
   const { codeCount } = useCodeCount();
   const { isConnected, sendRequest } = useBLEConnection();
+  const { addTask } = useTaskContext();
 
   const codesQuery = useLiveQuery(
     () => (activeDevice?.id ? db.codes.where('device_id').equals(activeDevice.id).toArray() : []),
@@ -150,11 +153,24 @@ export const useCodeLogic = (
       try {
         // If there's a code to overwrite, mark it for deletion
         if (overwriteCodeId) {
-          await StorageService.updateCodeStatus(
-            activeDevice.id,
-            overwriteCodeId,
-            CODE_STATUS.PENDING_DELETE
-          );
+          const overwriteCode = await db.codes.get(overwriteCodeId);
+          if (overwriteCode) {
+            await StorageService.updateCodeStatus(
+              activeDevice.id,
+              overwriteCodeId,
+              CODE_STATUS.PENDING_DELETE
+            );
+             addTask({
+                type: TaskType.DELETE_CODE,
+                deviceId: activeDevice.id,
+                priority: 0,
+                payload: {
+                  code: overwriteCode.code,
+                  codeId: overwriteCode.id,
+                  codeType: overwriteCode.type,
+                },
+              });
+          }
         }
 
         if (!newCodeData.code || !newCodeData.type) {
@@ -183,13 +199,40 @@ export const useCodeLogic = (
         // Add the new code to the database
         await db.codes.add(codeEntry);
 
+        // Add task for BLE sync
+        let taskType: TaskType;
+        switch (newCodeData.type) {
+          case CODE_TYPES.MASTER:
+            taskType = TaskType.ADD_MASTER_CODE;
+            break;
+          case CODE_TYPES.SINGLE:
+            taskType = TaskType.ADD_SINGLE_USE_CODE;
+            break;
+          case CODE_TYPES.MULTI:
+            taskType = TaskType.ADD_MULTI_USE_CODE;
+            break;
+          default:
+            taskType = TaskType.ADD_MASTER_CODE;
+        }
+
+        addTask({
+          type: taskType,
+          deviceId: activeDevice.id,
+          priority: 1,
+          payload: {
+            code: codeEntry.code,
+            codeId: codeEntry.id,
+            // Include other payload fields if needed for specific task types
+          },
+        });
+
         showNotification(t('added'), 'success');
       } catch (error) {
         console.error('Failed to add code:', error);
         showNotification(t('add_failed'), 'error');
       }
     },
-    [activeDevice?.id, showNotification, t]
+    [activeDevice?.id, showNotification, t, addTask]
   );
 
   const handleDeleteCode = useCallback(
@@ -197,14 +240,30 @@ export const useCodeLogic = (
       if (!activeDevice?.id) return;
 
       try {
+        const codeToDelete = await db.codes.get(id);
+
         await StorageService.updateCodeStatus(activeDevice.id, id, CODE_STATUS.PENDING_DELETE);
+
+        if (codeToDelete) {
+             addTask({
+                type: TaskType.DELETE_CODE,
+                deviceId: activeDevice.id,
+                priority: 0,
+                payload: {
+                  code: codeToDelete.code,
+                  codeId: codeToDelete.id,
+                  codeType: codeToDelete.type,
+                },
+              });
+        }
+
         showNotification(t('deleted'), 'success');
       } catch (error) {
         console.error('Failed to delete code:', error);
         showNotification(t('delete_failed'), 'error');
       }
     },
-    [activeDevice?.id, showNotification, t]
+    [activeDevice?.id, showNotification, t, addTask]
   );
 
   // Function to derive code metadata from logs
