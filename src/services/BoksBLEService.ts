@@ -15,6 +15,7 @@ import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
 import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
+import { getCharacteristicName, parseCharacteristicValue } from '../utils/bleUtils';
 
 class DescriptionPayload implements ParsedPayload {
   constructor(
@@ -242,8 +243,12 @@ export class BoksBLEService extends EventEmitter {
   }
 
   async readCharacteristic(serviceUuid: string, charUuid: string): Promise<DataView> {
+    const charName = getCharacteristicName(charUuid);
+
     // Use GattOperationPacket for structured logging
-    const logPacket = new GattOperationPacket(charUuid, `Read Char: ${charUuid}`);
+    // TX: "Read: Firmware Revision"
+    const logPacket = new GattOperationPacket(charUuid, `Read: ${charName}`);
+
     // We construct the "fake" TX packet to emit
     const uuidBytes = new TextEncoder().encode(charUuid); // Full UUID for consistency
     const rawTx = new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]);
@@ -261,7 +266,10 @@ export class BoksBLEService extends EventEmitter {
     try {
       const value = await this.adapter.read(serviceUuid, charUuid);
 
+      const parsedValue = parseCharacteristicValue(charUuid, value);
+
       // Fake RX packet for logs
+      // RX: "Value: 4.0"
       const rawBytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
       this.emit(
         BLEServiceEvent.PACKET_RECEIVED,
@@ -276,7 +284,7 @@ export class BoksBLEService extends EventEmitter {
             BLEOpcode.INTERNAL_GATT_OPERATION,
             rawBytes,
             new Uint8Array(0),
-            `Read Response: ${rawBytes.length} bytes`
+            parsedValue // Display the parsed value directly
           ),
         } as BLEPacket,
         BLEOpcode.INTERNAL_GATT_OPERATION

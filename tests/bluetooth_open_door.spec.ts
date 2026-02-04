@@ -1,62 +1,30 @@
-import {expect, test} from '@playwright/test';
-
-// Local constants to match src/utils/bleConstants.ts
-const BLEOpcode = {
-  OPEN_DOOR: 0x01,
-  NOTIFY_DOOR_STATUS: 0x84,
-};
+import { expect, test, BLEOpcode } from './fixtures';
 
 test.describe('Bluetooth Open Door Feature', () => {
-  test.beforeEach(async ({ page }) => {
-    // Enable simulator and force English
-    await page.addInitScript(() => {
-      localStorage.setItem('i18nextLng', 'en');
-      // @ts-expect-error - Custom global flag
-      window.BOKS_SIMULATOR_ENABLED = true;
-      // Setup event capture
-      // @ts-expect-error - Custom global storage
-      window.txEvents = [];
-      window.addEventListener('boks-tx', (e: any) => {
-        // @ts-expect-error - Custom global storage
-        window.txEvents.push(e.detail);
-      });
-    });
+  test.beforeEach(async ({ page, simulator }) => {
     await page.goto('/');
   });
 
-  test('should send correct OPEN_DOOR packet with PIN code', async ({ page }) => {
+  test('should send correct OPEN_DOOR packet with PIN code', async ({ page, simulator }) => {
     // 1. Connect
-    // Use aria-label exact match to avoid ambiguity
-    await page.getByRole('button', { name: 'connect', exact: true }).first().click();
-    // Increased timeout to 20s
-    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 20000 });
+    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
+    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
-    // 2. Fill PIN and Click Open Door
-    await page.fill('#openCode', '123456');
+    // 2. Click Open Door (Header Button)
+    // Uses stored PIN '123456' from simulator device defaults
     await page.getByRole('button', { name: /open door/i }).click();
 
     // 3. Verify TX Event
-    // Wait for the packet to be sent
-    await page.waitForFunction((opcode) => {
-      // @ts-expect-error - Custom global storage
-      return window.txEvents.some((e: any) => e.opcode === opcode);
-    }, BLEOpcode.OPEN_DOOR);
+    await simulator.waitForTxOpcode(BLEOpcode.OPEN_DOOR);
 
-    // Retrieve the events
-    const events = await page.evaluate(() => {
-      // @ts-expect-error - Custom global storage
-      return window.txEvents;
-    });
-
+    const events = await simulator.getTxEvents();
     const openDoorEvent = events.find((e: any) => e.opcode === BLEOpcode.OPEN_DOOR);
     expect(openDoorEvent).toBeDefined();
+    // Verify default simulator PIN '123456'
+    expect(openDoorEvent.payload).toEqual([49, 50, 51, 52, 53, 54]);
 
-    // Verify Payload: '123456' -> [49, 50, 51, 52, 53, 54]
-    // The simulator logic confirms simple string conversion
-    const expectedPayload = [49, 50, 51, 52, 53, 54];
-    expect(openDoorEvent.payload).toEqual(expectedPayload);
-
-    // Optional: Verify UI feedback (Simulator sends Rx back)
     await expect(page.getByText(/Opening door|Success/i)).toBeVisible();
   });
 });
