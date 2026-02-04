@@ -26,6 +26,13 @@
   "initiated_by": "Initiated By",
   "boot_reason": "Boot Reason",
   "payload": "Payload",
+  "tag_uid": "Tag UID",
+  "tag_type": "Tag Type",
+  "nfc_tag_types": {
+    "1": "La Poste",
+    "2": "La Poste (Tertiary)",
+    "3": "User Tag"
+  },
   "events": {
     "code_ble_valid": "Valid BLE code used",
     "code_key_valid": "Valid keypad code used",

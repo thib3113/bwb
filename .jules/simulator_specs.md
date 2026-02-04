@@ -10,12 +10,12 @@ interface SimulatorState {
   connected: boolean;
   authenticated: boolean; // True after any command with valid config_key? Or just context?
   configKey: string;      // The "real" key of the virtual device (e.g., "12345678")
-  
+
   // Data
   codes: Array<{ type: 'master'|'single'|'multi', code: string, index?: number }>;
   logs: Array<LogEntry>;
   nfcTags: Array<string>; // UIDs
-  
+
   // Hardware State
   doorState: 'open' | 'closed';
   batteryLevel: number; // 0-100
@@ -113,11 +113,11 @@ interface SimulatorAPI {
   // Behavior Config
   enableChaos(enabled: boolean): void;
   setBatteryLevel(level: number): void;
-  
+
   // Triggers
   triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string): void;
   triggerDoorClose(): void;
-  
+
   // State
   reset(): void; // Clear logs and reset to default codes
   getState(): SimulatorState;
@@ -129,4 +129,3 @@ To test App robustness, the simulator can optionally:
 *   Send malformed checksums.
 *   Drop packets (simulate packet loss).
 *   Send `ERROR_CRC (0xE0)` or `BAD_REQUEST (0xE2)`.
-

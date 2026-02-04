@@ -65,6 +65,13 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
     return results;
   }, [logsQuery]);
 
+  // Load NFC tags for mapping
+  const nfcTags = useLiveQuery(() => {
+    const deviceId = activeDevice?.id;
+    if (!deviceId) return [];
+    return db.nfc_tags.where('device_id').equals(deviceId).toArray();
+  }, [activeDevice?.id]);
+
   // Parse logs using the new log parser utility
   // Optimized: Using useMemo instead of useEffect + useState to avoid double render.
   const parsedLogs = useMemo(() => {
@@ -76,8 +83,25 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
         const date = new Date(parsedLog.timestamp);
         const fullDate = date.toLocaleString(i18n.language);
 
+        // Map NFC details if available
+        const details = { ...parsedLog.details };
+        if (typeof details.tag_uid === 'string') {
+          // 1. Map UID to Name
+          const tag = nfcTags?.find((t) => t.uid === details.tag_uid);
+          if (tag) {
+             details.tag_uid = `${tag.name} (${details.tag_uid})`;
+          }
+
+          // 2. Map Tag Type to localized string
+          if (details.tag_type !== undefined) {
+             // 1, 2, 3 -> localized string
+             details.tag_type = tAny(`nfc_tag_types.${details.tag_type}`);
+          }
+        }
+
         return {
           ...parsedLog,
+          details,
           fullDate,
           event: tAny(parsedLog.description),
         };
@@ -91,7 +115,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       // Side effect (notification) removed from render phase.
       return [];
     }
-  }, [logs, i18n.language, t]);
+  }, [logs, i18n.language, t, nfcTags]);
 
   // Refresh logs function
   const refreshLogs = useCallback(async () => {
