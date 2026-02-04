@@ -55,20 +55,28 @@ This document defines the low-level communication protocol for the Boks hardware
 
 ## 4. Notification Registry (Uplink)
 
-| Hex Opcode | Name            | Description                         |
-|:-----------|:----------------|:------------------------------------|
-| `0x77`     | `OP_SUCCESS`    | Command acknowledged                |
-| `0x78`     | `OP_ERROR`      | Command failed                      |
-| `0x79`     | `LOGS_COUNT`    | Response to `0x07` (or spontaneous) |
-| `0x81`     | `VALID_CODE`    | Door is opening                     |
-| `0x82`     | `INVALID_CODE`  | PIN was incorrect                   |
-| `0x84`     | `STATUS_PUSH`   | Auto-update: State changed          |
-| `0x85`     | `STATUS_PULL`   | Response to `0x02`                  |
-| `0x92`     | `LOG_END`       | History stream finished             |
-| `0xC3`     | `CODES_COUNT`   | Response to `0x14` (or spontaneous) |
-| `0xC5`     | `NFC_TAG_FOUND` | Tag scanned by reader               |
-| `0xE1`     | `UNAUTHORIZED`  | Wrong `config_key`                  |
-| `0xE2`     | `BAD_REQUEST`   | Malformed packet                    |
+| Hex Opcode | Name                    | Description                         |
+|:-----------|:------------------------|:------------------------------------|
+| `0x77`     | `CODE_OPERATION_SUCCESS`| Command acknowledged                |
+| `0x78`     | `CODE_OPERATION_ERROR`  | Command failed                      |
+| `0x79`     | `NOTIFY_LOGS_COUNT`     | Response to `0x07` (or spontaneous) |
+| `0x81`     | `VALID_OPEN_CODE`       | Door is opening                     |
+| `0x82`     | `INVALID_OPEN_CODE`     | PIN was incorrect                   |
+| `0x84`     | `NOTIFY_DOOR_STATUS`    | Auto-update: State changed          |
+| `0x85`     | `ANSWER_DOOR_STATUS`    | Response to `0x02`                  |
+| `0x92`     | `END_HISTORY`           | History stream finished             |
+| `0xC3`     | `NOTIFY_CODES_COUNT`    | Response to `0x14` (or spontaneous) |
+| `0xC5`     | `NFC_TAG_REGISTER_SCAN_RESULT` | Tag scanned by reader        |
+| `0xE1`     | `ERROR_UNAUTHORIZED`    | Wrong `config_key`                  |
+| `0xE2`     | `ERROR_BAD_REQUEST`     | Malformed packet                    |
+
+### 4.1 Notification Details (Uplink Payloads)
+
+| Opcode | Payload Structure | Description |
+|:-------|:------------------|:------------|
+| `0x79` | `[Len=02, Count(2)]` | **NOTIFY_LOGS_COUNT**: Count is uint16 BE. `Len` is payload length. |
+| `0xC3` | `[Len=07, Master(2), Other(2)]` | **NOTIFY_CODES_COUNT**: Counts are uint16 BE. **WARNING**: `Len` is **Total Packet Length** (7). |
+| `0x84` | `[Len, Status, ...]` | **NOTIFY_DOOR_STATUS**: Detailed door/lock status. |
 
 ## 5. History Event Opcodes (Log Stream)
 When `REQUEST_LOGS` (`0x03`) is active, the device streams these events.

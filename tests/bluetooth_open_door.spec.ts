@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import {expect, test} from '@playwright/test';
 
 // Local constants to match src/utils/bleConstants.ts
 const BLEOpcode = {
@@ -8,8 +8,9 @@ const BLEOpcode = {
 
 test.describe('Bluetooth Open Door Feature', () => {
   test.beforeEach(async ({ page }) => {
-    // Enable simulator
+    // Enable simulator and force English
     await page.addInitScript(() => {
+      localStorage.setItem('i18nextLng', 'en');
       // @ts-expect-error - Custom global flag
       window.BOKS_SIMULATOR_ENABLED = true;
       // Setup event capture
@@ -25,12 +26,13 @@ test.describe('Bluetooth Open Door Feature', () => {
 
   test('should send correct OPEN_DOOR packet with PIN code', async ({ page }) => {
     // 1. Connect
-    await page.getByRole('button', { name: 'connect', exact: true }).click();
-    await expect(page.locator('svg[data-testid="BluetoothIcon"]')).toBeVisible({ timeout: 10000 });
+    // Use regex for more flexible matching
+    await page.getByRole('button', { name: /connect/i, exact: true }).first().click();
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
 
-    // 2. Click Open Door
-    // The default PIN '123456' is usually pre-filled or auto-provisioned in this app context
-    await page.getByRole('button', { name: 'open door' }).click();
+    // 2. Fill PIN and Click Open Door
+    await page.fill('#openCode', '123456');
+    await page.getByRole('button', { name: /open door/i }).click();
 
     // 3. Verify TX Event
     // Wait for the packet to be sent
