@@ -35,6 +35,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       // For ADD_MASTER_CODE tasks, automatically add a DELETE_CODE task first
       if (taskData.type === TaskType.ADD_MASTER_CODE) {
         // Create the delete task with the same configKey and index from payload
+        // IMPORTANT: Do NOT include codeId in payload for this automatic cleanup task.
+        // This prevents the 'phantom delete' issue where the new code is deleted from DB.
         const deleteTask: BoksTask = {
           ...taskData,
           id: crypto.randomUUID(),
@@ -46,6 +48,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           priority: 0, // Highest priority
           payload: {
             ...(taskData.payload as AddCodePayload),
+            codeId: undefined, // Explicitly remove codeId
             codeType: 'master',
           },
         } as unknown as BoksTask;
@@ -204,11 +207,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             }
 
             codeId = task.payload.codeId as string;
-            codeObj = await db.codes.get(codeId); // Fetch code to get index if needed
+            // Only fetch from DB if we have a codeId
+            if (codeId) {
+                codeObj = await db.codes.get(codeId);
+            }
 
             switch (task.payload.codeType as string) {
               case CODE_TYPES.MASTER:
-                packet = new DeleteMasterCodePacket(configKey, codeObj?.index ?? 0);
+                // Use explicit index from payload if available, otherwise check DB object, fallback to 0
+                const targetIndex = (task.payload.index as number) ?? codeObj?.index ?? 0;
+                packet = new DeleteMasterCodePacket(configKey, targetIndex);
                 break;
 
               case CODE_TYPES.SINGLE:
@@ -255,7 +263,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                   response.opcode === BLEOpcode.CODE_OPERATION_ERROR || // Treat 0x78 as success for idempotency
                   (isWorkaroundOpcode && response.opcode === BLEOpcode.CODE_OPERATION_ERROR)
                 ) {
-                  // On success, remove local code entry
+                  // On success, remove local code entry ONLY if codeId was provided
                   if (codeId) {
                     await StorageService.removeCode(activeDevice.id, codeId);
                   }
