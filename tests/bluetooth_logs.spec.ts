@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import {expect, test} from '@playwright/test';
 
 const BLEOpcode = {
   REQUEST_LOGS: 0x03,
@@ -7,8 +7,9 @@ const BLEOpcode = {
 
 test.describe('Bluetooth Logs Feature', () => {
   test.beforeEach(async ({ page }) => {
-    // Enable simulator
+    // Enable simulator and force English
     await page.addInitScript(() => {
+      localStorage.setItem('i18nextLng', 'en');
       // @ts-expect-error - Custom global flag
       window.BOKS_SIMULATOR_ENABLED = true;
       // Setup event capture
@@ -24,8 +25,8 @@ test.describe('Bluetooth Logs Feature', () => {
 
   test('should send GET_LOGS_COUNT and REQUEST_LOGS when refreshing logs', async ({ page }) => {
     // 1. Connect
-    await page.getByRole('button', { name: 'connect', exact: true }).click();
-    await expect(page.locator('svg[data-testid="BluetoothIcon"]')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Connect', exact: true }).first().click();
+    await expect(page.locator('svg[data-testid="BluetoothConnectedIcon"]')).toBeVisible({ timeout: 10000 });
 
     // 2. Click Refresh Logs
     // The button appears in the header only when connected.

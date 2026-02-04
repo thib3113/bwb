@@ -98,7 +98,26 @@
 		"tabs": {
 			"general": "Général",
 			"database": "Base de données",
-			"bluetooth": "Bluetooth"
+			"bluetooth": "Bluetooth",
+			"simulator": "Simulateur"
+		},
+		"simulator": {
+			"title": "Simulateur Matériel Boks",
+			"status": "Statut : {{status}}",
+			"open": "OUVERT",
+			"closed": "FERMÉ",
+			"chaos_mode": "Mode Chaos",
+			"manual_triggers": "Déclencheurs Manuels :",
+			"ble_open": "Ouvrir (BLE)",
+			"nfc_open": "Ouvrir (NFC)",
+			"button_open": "Ouvrir (Bouton)",
+			"force_close": "Forcer la fermeture",
+			"battery_level": "Niveau de batterie : {{level}}%",
+			"logs_count": "Journaux : {{count}} entrées",
+			"reset": "Réinitialiser Sim",
+			"no_logs": "Aucun journal",
+			"not_active": "Le simulateur n'est pas activé.",
+			"enable_simulator": "Activer le simulateur Bluetooth (Recharge la page)"
 		},
 		"sw_title": "Service Worker",
 		"sw_status": "Statut : {{status}}",

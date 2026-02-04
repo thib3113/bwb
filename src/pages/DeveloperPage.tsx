@@ -1,23 +1,13 @@
-import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  FormControlLabel,
-  Switch,
-  Typography,
-  Tabs,
-  Tab,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useDeveloperContext } from '../context/DeveloperContext';
-import { DBEditor } from '../components/developer/DBEditor';
-import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
-import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
-import { StorageService } from '../services/StorageService';
+import {useEffect, useState} from 'react';
+import {Box, Button, Card, CardContent, Container, Tab, Tabs, Typography,} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
+import {useDeveloperContext} from '../context/DeveloperContext';
+import {DBEditor} from '../components/developer/DBEditor';
+import {BluetoothDebugger} from '../components/developer/BluetoothDebugger';
+import {ServiceWorkerDebugger} from '../components/developer/ServiceWorkerDebugger';
+import {SimulatorDebugger} from '../components/developer/SimulatorDebugger';
+import {StorageService} from '../services/StorageService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -45,7 +35,6 @@ export const DeveloperPage = () => {
   const { t } = useTranslation(['settings']);
   const navigate = useNavigate();
   const { isDeveloperMode, disableDeveloperMode } = useDeveloperContext();
-  const [simulatorEnabled, setSimulatorEnabled] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -53,28 +42,11 @@ export const DeveloperPage = () => {
     if (!isDeveloperMode) {
       navigate('/');
     }
-
-    // Check local storage for simulator
-    const sim = localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
-    setSimulatorEnabled(sim);
   }, [isDeveloperMode, navigate]);
 
   const handleDisable = () => {
     disableDeveloperMode();
     navigate('/');
-  };
-
-  const handleSimulatorToggle = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const checked = target.checked;
-    setSimulatorEnabled(checked);
-    if (checked) {
-      localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
-    } else {
-      localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
-    }
-    // Reload to apply changes
-    window.location.reload();
   };
 
   const handleMockData = async () => {
@@ -107,28 +79,11 @@ export const DeveloperPage = () => {
           <Tab label={t('settings:developer.tabs.general')} />
           <Tab label={t('settings:developer.tabs.database')} />
           <Tab label={t('settings:developer.tabs.bluetooth')} />
+          <Tab label={t('settings:developer.tabs.simulator')} />
         </Tabs>
       </Box>
 
       <CustomTabPanel value={tabValue} index={0}>
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Typography variant="h6">{t('settings:developer.simulators_tools')}</Typography>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={simulatorEnabled}
-                    onChange={(e) => handleSimulatorToggle(e as unknown as Event)}
-                  />
-                }
-                label={t('settings:developer.enable_simulator')}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-
-        {/* Service Worker Debugger */}
         <ServiceWorkerDebugger />
       </CustomTabPanel>
 
@@ -177,6 +132,10 @@ export const DeveloperPage = () => {
             <BluetoothDebugger />
           </CardContent>
         </Card>
+      </CustomTabPanel>
+
+      <CustomTabPanel value={tabValue} index={3}>
+        <SimulatorDebugger />
       </CustomTabPanel>
     </Container>
   );
