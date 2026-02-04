@@ -124,11 +124,17 @@ export enum BLEOpcode {
   INTERNAL_GATT_OPERATION = 0xFE,
 }
 
-export const OPCODE_NAMES: Record<number, string> = Object.fromEntries(
+// Generate OPCODE_NAMES with a manual override for GATT_OPERATION
+const _OPCODE_NAMES: Record<number, string> = Object.fromEntries(
   Object.entries(BLEOpcode)
     .filter(([key]) => Number.isNaN(Number(key))) // Filter out numeric keys (reverse mapping)
     .map(([key, value]) => [value as number, key])
 );
+
+// Override INTERNAL_GATT_OPERATION for better readability
+_OPCODE_NAMES[BLEOpcode.INTERNAL_GATT_OPERATION] = 'GATT READ';
+
+export const OPCODE_NAMES = _OPCODE_NAMES;
 
 // Proprietary Battery Service Characteristic
 export const BATTERY_PROPRIETARY_CHAR_UUID = '00000004-0000-1000-8000-00805f9b34fb';
