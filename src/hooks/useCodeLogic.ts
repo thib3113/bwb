@@ -78,60 +78,64 @@ export const useCodeLogic = (
   }, [isConnected, sendRequest, showNotification, hideNotification, t]);
 
   // Helper function to sort codes by priority and creation date
+  // Helper function to sort codes by priority and creation date (Optimized with Schwartzian transform)
   const sortCodesByPriority = useCallback((codes: BoksCode[]) => {
-    const sorted = [...codes].sort((a, b) => {
-      // Helper function to get priority group
-      const getPriority = (code: BoksCode) => {
-        // Priority 1: Pending codes (PENDING_ADD, PENDING_DELETE)
-        if (code.status === CODE_STATUS.PENDING_ADD || code.status === CODE_STATUS.PENDING_DELETE) {
-          return 1;
-        }
-        // Priority 2: Active codes (ON_DEVICE and not used)
-        if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-          // For single-use codes, check if they've been used
-          if (code.type === CODE_TYPES.SINGLE) {
-            // Note: We can't use deriveCodeMetadata here due to circular dependency
-            // For now, we'll just check if it's a single-use code
-          }
-          // For multi-use codes, check if they've been fully used
-          if (code.type === CODE_TYPES.MULTI) {
-            // If uses >= maxUses, they're considered used (priority 3)
-            if (
-              code.uses !== undefined &&
-              code.maxUses !== undefined &&
-              code.uses >= code.maxUses
-            ) {
-              return 3;
-            }
-          }
-          // Otherwise, they're active (priority 2)
-          return 2;
-        }
-        // Priority 3: Used codes (default case)
-        return 3;
-      };
-
-      // Get priorities for both codes
-      const priorityA = getPriority(a);
-      const priorityB = getPriority(b);
-
-      // If priorities are different, sort by priority
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
+    // Helper function to get priority group
+    const getPriority = (code: BoksCode) => {
+      // Priority 1: Pending codes (PENDING_ADD, PENDING_DELETE)
+      if (code.status === CODE_STATUS.PENDING_ADD || code.status === CODE_STATUS.PENDING_DELETE) {
+        return 1;
       }
+      // Priority 2: Active codes (ON_DEVICE and not used)
+      if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
+        // For single-use codes, check if they've been used
+        if (code.type === CODE_TYPES.SINGLE) {
+          // Note: We can't use deriveCodeMetadata here due to circular dependency
+          // For now, we'll just check if it's a single-use code
+        }
+        // For multi-use codes, check if they've been fully used
+        if (code.type === CODE_TYPES.MULTI) {
+          // If uses >= maxUses, they're considered used (priority 3)
+          if (
+            code.uses !== undefined &&
+            code.maxUses !== undefined &&
+            code.uses >= code.maxUses
+          ) {
+            return 3;
+          }
+        }
+        // Otherwise, they're active (priority 2)
+        return 2;
+      }
+      // Priority 3: Used codes (default case)
+      return 3;
+    };
 
-      // If priorities are the same, sort by creation date (descending - newest first)
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
+    return codes
+      .map((code) => {
+        const date = new Date(code.created_at).getTime();
+        return {
+          code,
+          priority: getPriority(code),
+          date: isNaN(date) ? -Infinity : date,
+          isNaNDate: isNaN(date),
+        };
+      })
+      .sort((a, b) => {
+        // If priorities are different, sort by priority
+        if (a.priority !== b.priority) {
+          return a.priority - b.priority;
+        }
 
-      // Handle potential NaN values
-      if (isNaN(dateA) && isNaN(dateB)) return 0;
-      if (isNaN(dateA)) return 1;
-      if (isNaN(dateB)) return -1;
+        // If priorities are the same, sort by creation date (descending - newest first)
+        // Handle potential NaN values
+        if (a.isNaNDate && b.isNaNDate) return 0;
+        if (a.isNaNDate) return 1;
+        if (b.isNaNDate) return -1;
 
-      return dateB - dateA;
-    });
-    return sorted;
+        return b.date - a.date;
+      })
+      .map((item) => item.code);
   }, []);
 
   // Helper function to check for index conflicts in permanent codes
