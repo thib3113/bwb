@@ -113,7 +113,7 @@ export class BoksSimulator extends EventEmitter {
     this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x01]);
 
     // 2. Log Entry
-        const logOpcode = source === 'ble' ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY : 
+        const logOpcode = source === 'ble' ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY :
                           source === 'nfc' ? BLEOpcode.LOG_EVENT_NFC_OPENING :
                           BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
         this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload

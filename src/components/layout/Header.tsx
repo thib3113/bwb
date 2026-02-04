@@ -350,7 +350,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   display: 'inline-block',
                   background:
                     devClickCount > 0
-                      ? `linear-gradientAny(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
+                      ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
                       : 'inherit',
                   backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
