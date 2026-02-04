@@ -1,4 +1,4 @@
-import { expect, test, BLEOpcode } from './fixtures';
+import {BLEOpcode, expect, test} from './fixtures';
 
 test.describe('Bluetooth Logs Feature', () => {
   test.beforeEach(async ({ page, simulator }) => {
@@ -12,9 +12,14 @@ test.describe('Bluetooth Logs Feature', () => {
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
     await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
+    // 1.5. Navigate to Logs via Bottom Navigation
+    await page.getByRole('button', { name: /Logs/i }).click();
+
     // 2. Click Refresh Logs
-    const refreshBtn = page.locator('button').filter({ has: page.locator('svg[data-testid="RefreshIcon"]') });
+    const logsSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Logs/i }) });
+    const refreshBtn = logsSection.getByRole('button', { name: /Refresh/i });
     await expect(refreshBtn).toBeVisible();
+    await expect(refreshBtn).toBeEnabled({ timeout: 15000 });
     await refreshBtn.click();
 
     // 3. Verify TX Events

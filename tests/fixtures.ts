@@ -1,5 +1,5 @@
-import { test as base, Page } from '@playwright/test';
-import { BLEOpcode } from '../src/utils/bleConstants';
+import {test as base} from '@playwright/test';
+import {BLEOpcode} from '../src/utils/bleConstants';
 
 export { expect } from '@playwright/test';
 
@@ -21,6 +21,12 @@ export const test = base.extend<{ simulator: Simulator }>({
 
     // 1. Setup global variables and listeners before page load
     await page.addInitScript(() => {
+      // Disable Google Translate dynamically
+      const meta = document.createElement('meta');
+      meta.name = 'google';
+      meta.content = 'notranslate';
+      document.getElementsByTagName('head')[0]?.appendChild(meta);
+
       localStorage.setItem('i18nextLng', 'en');
       // Ensure persistence across reloads
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');

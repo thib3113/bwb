@@ -110,7 +110,7 @@ export class BoksSimulator extends EventEmitter {
     console.log(`[Simulator] Door Opened via ${source}`);
 
     // 1. Notify Status
-    this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x01]);
+    this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x00, 0x01]);
 
     // 2. Log Entry
         const logOpcode = source === 'ble' ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY :
@@ -129,7 +129,7 @@ export class BoksSimulator extends EventEmitter {
     console.log('[Simulator] Door Closed');
 
     // 1. Notify Status
-    this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x00]);
+    this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x01, 0x00]);
 
     // 2. Log Entry
     this.addLog(BLEOpcode.LOG_DOOR_CLOSE_HISTORY, []);
@@ -223,7 +223,9 @@ export class BoksSimulator extends EventEmitter {
   }
 
   private handleAskDoorStatus() {
-    this.sendNotification(BLEOpcode.ANSWER_DOOR_STATUS, [this.state.isOpen ? 0x01 : 0x00]);
+    const inverted = this.state.isOpen ? 0x00 : 0x01;
+    const raw = this.state.isOpen ? 0x01 : 0x00;
+    this.sendNotification(BLEOpcode.ANSWER_DOOR_STATUS, [inverted, raw]);
   }
 
   private handleGetLogsCount() {

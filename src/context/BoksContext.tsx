@@ -1,13 +1,13 @@
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useBLE } from '../hooks/useBLE';
-import { useDevice } from '../hooks/useDevice';
-import { BLEOpcode } from '../utils/bleConstants';
-import { BLEPacket } from '../utils/packetParser';
-import { StorageService } from '../services/StorageService';
-import { BoksLog } from '../types';
-import { BoksContext } from './Contexts';
-import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
+import {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useBLE} from '../hooks/useBLE';
+import {useDevice} from '../hooks/useDevice';
+import {BLEOpcode} from '../utils/bleConstants';
+import {BLEPacket} from '../utils/packetParser';
+import {StorageService} from '../services/StorageService';
+import {BoksLog} from '../types';
+import {BoksContext} from './Contexts';
+import {OpenDoorPacket} from '../ble/packets/OpenDoorPacket';
+import {RequestLogsPacket} from '../ble/packets/RequestLogsPacket';
 
 interface BoksProviderProps {
   children: ReactNode;
@@ -72,8 +72,9 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         setDoorStatus(status);
         log(`Door status: ${status} (Inv: ${inverted}, Live: ${live})`, 'info');
 
-        // If door closes, reset isOpening
-        if (status === 'closed' && isOpening) {
+        // If we were in the process of opening and we get a status update,
+        // it means the operation is complete (either open or confirmed closed).
+        if (isOpening) {
           setIsOpening(false);
           if (openTimeoutRef.current) {
             clearTimeout(openTimeoutRef.current);
