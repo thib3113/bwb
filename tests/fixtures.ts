@@ -1,15 +1,15 @@
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { BLEOpcode } from '../src/utils/bleConstants';
-
-export { expect } from '@playwright/test';
 
 // Re-export constants for easy access in tests
 export { BLEOpcode } from '../src/utils/bleConstants';
+export { expect } from '@playwright/test';
 
 export interface Simulator {
   waitForTxOpcode(opcode: number, timeout?: number): Promise<void>;
   getTxEvents(): Promise<any[]>;
   clearTxEvents(): Promise<void>;
+  connect(): Promise<void>;
 }
 
 export const test = base.extend<{ simulator: Simulator }>({
@@ -102,6 +102,26 @@ export const test = base.extend<{ simulator: Simulator }>({
           window.txEvents = [];
         });
       },
+      connect: async () => {
+        console.log('[Simulator Fixture] Connecting...');
+        // Wait for UI to settle
+        const onboarding = page.getByText('Boks BLE Control Panel');
+        const codesTab = page.getByRole('button', { name: /codes/i });
+        await expect(onboarding.or(codesTab)).toBeVisible({ timeout: 30000 });
+
+        // Force enable simulator
+        await page.evaluate(() => {
+          if ((window as any).toggleSimulator) {
+             (window as any).toggleSimulator(true);
+          }
+        });
+
+        // Click Connect if needed
+        if (await onboarding.isVisible()) {
+           await page.getByRole('button', { name: /connect/i }).click();
+           await expect(codesTab).toBeVisible({ timeout: 15000 });
+        }
+      }
     };
 
     // 3. Use the fixture
