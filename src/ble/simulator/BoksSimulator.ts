@@ -41,7 +41,7 @@ export class BoksSimulator extends EventEmitter {
   private autoCloseTimer: any = null;
   private chaosTimer: any = null;
 
-  constructor() {
+  constructor() { console.log('[BoksSimulator] Controller exposed to window');
     super();
     this.state = this.getInitialState();
 

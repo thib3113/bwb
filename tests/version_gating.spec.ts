@@ -6,6 +6,19 @@ test.describe('Version Gating', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/', { timeout: 60000 });
+    // Wait for the app to render (Onboarding or Main Layout) to ensure React and Contexts are initialized
+    // This text is in the Onboarding view which appears when no device is connected (default for fresh simulator)
+    await expect(page.getByText('Boks BLE Control Panel')).toBeVisible({ timeout: 30000 });
+
+    // Force enable simulator to be absolutely sure, using the new dynamic toggle
+    await page.evaluate(() => {
+      if ((window as any).toggleSimulator) {
+        console.log('[Test] Forcing Simulator ON via toggleSimulator');
+        (window as any).toggleSimulator(true);
+      } else {
+        console.warn('[Test] toggleSimulator not found on window');
+      }
+    });
   });
 
   test('should soft-disable NFC tab and show toast for older firmware', async ({ page }) => {

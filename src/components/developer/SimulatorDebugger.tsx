@@ -19,9 +19,11 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import HistoryIcon from '@mui/icons-material/History';
 import { useTranslation } from 'react-i18next';
 import { SimulatorAPI } from '../../ble/simulator/BoksSimulator';
+import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
+  const { toggleSimulator } = useBLE();
   const [simulator, setSimulator] = useState<SimulatorAPI | null>(null);
   const [state, setState] = useState<any>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -45,12 +47,32 @@ export const SimulatorDebugger = () => {
   }, []);
 
   const handleSimulatorToggle = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    if (checked) {
-      localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+    setIsEnabled(checked);
+    if (toggleSimulator) {
+      toggleSimulator(checked);
+      // Wait a bit for the simulator to initialize if enabled
+      if (checked) {
+        setTimeout(() => {
+           const controller = (window as any).boksSimulatorController;
+           if (controller) {
+             setSimulator(controller);
+             setIsSimulatorRunning(true);
+             // Trigger state update loop if needed
+           }
+        }, 500);
+      } else {
+        setIsSimulatorRunning(false);
+        setSimulator(null);
+      }
     } else {
-      localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
+      // Fallback if toggleSimulator is not available (should not happen with new context)
+      if (checked) {
+        localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+      } else {
+        localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
+      }
+      window.location.reload();
     }
-    window.location.reload();
   };
 
   return (
