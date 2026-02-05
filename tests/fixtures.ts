@@ -51,13 +51,11 @@ export const test = base.extend<{ simulator: Simulator }>({
         // 1. Clear DB via StorageService if available
         // @ts-expect-error - boksDebug exposed by main/StorageService
         if (window.boksDebug && window.boksDebug.StorageService) {
-          const originalReload = window.location.reload;
-          window.location.reload = () => {
-            console.log('[Test] Suppressed reload during reset');
-          }; // No-op
-          // @ts-expect-error - boksDebug exposed by main/StorageService
-          await window.boksDebug.StorageService.clearAllData();
-          window.location.reload = originalReload;
+           const originalReload = window.location.reload;
+           window.location.reload = () => { console.log('[Test] Suppressed reload during reset'); }; // No-op
+           // @ts-expect-error - boksDebug exposed by main/StorageService
+           await window.boksDebug.StorageService.clearAllData();
+           window.location.reload = originalReload;
         }
 
         // 2. Clear LocalStorage (preserve simulator flag)
@@ -114,16 +112,19 @@ export const test = base.extend<{ simulator: Simulator }>({
         // Force enable simulator
         await page.evaluate(() => {
           if ((window as any).toggleSimulator) {
-            (window as any).toggleSimulator(true);
+             (window as any).toggleSimulator(true);
+          } else {
+             console.error('[Test] toggleSimulator not found on window! Simulator might not be active.');
+             throw new Error('toggleSimulator not found');
           }
         });
 
         // Click Connect if needed
         if (await onboarding.isVisible()) {
-          await page.getByTestId('connect-button').click();
-          await expect(mainNav).toBeVisible({ timeout: 15000 });
+           await page.getByTestId('connect-button').click();
+           await expect(mainNav).toBeVisible({ timeout: 15000 });
         }
-      },
+      }
     };
 
     // 3. Use the fixture
