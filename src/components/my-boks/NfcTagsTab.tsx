@@ -29,7 +29,7 @@ export const NfcTagsTab = () => {
   const { t } = useTranslation(['common', 'settings']);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const { tags, scanStatus, scannedUid, startScan, registerTag, unregisterTag, resetScan } =
     useNfcTags();
 

@@ -1,9 +1,13 @@
-import {EventEmitter} from '../../utils/EventEmitter';
-import {BLEOpcode, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN,} from '../../utils/bleConstants';
-import {createPacket} from '../../utils/packetParser';
-import {PacketFactory} from '../packets/PacketFactory';
-import {OpenDoorPacket} from '../packets/OpenDoorPacket';
-import {DeleteMasterCodePacket} from '../packets/PinManagementPackets';
+import { EventEmitter } from '../../utils/EventEmitter';
+import {
+  BLEOpcode,
+  SIMULATOR_DEFAULT_CONFIG_KEY,
+  SIMULATOR_DEFAULT_PIN,
+} from '../../utils/bleConstants';
+import { createPacket } from '../../utils/packetParser';
+import { PacketFactory } from '../packets/PacketFactory';
+import { OpenDoorPacket } from '../packets/OpenDoorPacket';
+import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
 // --- Interfaces ---
 
@@ -45,7 +49,9 @@ export class BoksSimulator extends EventEmitter {
     if (typeof window !== 'undefined') {
       (window as any).boksSimulatorController = {
         enableChaos: (e: boolean) => this.setChaosMode(e),
-        setBatteryLevel: (l: number) => { this.state.batteryLevel = l; },
+        setBatteryLevel: (l: number) => {
+          this.state.batteryLevel = l;
+        },
         triggerDoorOpen: (s: 'ble' | 'nfc' | 'button', c?: string) => this.triggerDoorOpen(s, c),
         triggerDoorClose: () => this.triggerDoorClose(),
         reset: () => this.reset(),
@@ -57,9 +63,7 @@ export class BoksSimulator extends EventEmitter {
   private getInitialState(): BoksState {
     return {
       isOpen: false,
-      pinCodes: new Map([
-        [SIMULATOR_DEFAULT_PIN, 'master'],
-      ]),
+      pinCodes: new Map([[SIMULATOR_DEFAULT_PIN, 'master']]),
       logs: [],
       configKey: SIMULATOR_DEFAULT_CONFIG_KEY,
       chaosMode: false,
@@ -89,11 +93,11 @@ export class BoksSimulator extends EventEmitter {
 
       const rand = Math.random();
       if (rand < 0.3 && !this.state.isOpen) {
-         // 30% chance to open door via NFC if closed
-         this.triggerDoorOpen('nfc');
+        // 30% chance to open door via NFC if closed
+        this.triggerDoorOpen('nfc');
       } else if (rand > 0.9) {
-         // 10% chance to drop battery
-         this.state.batteryLevel = Math.max(0, this.state.batteryLevel - 5);
+        // 10% chance to drop battery
+        this.state.batteryLevel = Math.max(0, this.state.batteryLevel - 5);
       }
     }, 10000); // Check every 10s
   }
@@ -113,10 +117,13 @@ export class BoksSimulator extends EventEmitter {
     this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x00, 0x01]);
 
     // 2. Log Entry
-        const logOpcode = source === 'ble' ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY :
-                          source === 'nfc' ? BLEOpcode.LOG_EVENT_NFC_OPENING :
-                          BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
-        this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
+    const logOpcode =
+      source === 'ble'
+        ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY
+        : source === 'nfc'
+          ? BLEOpcode.LOG_EVENT_NFC_OPENING
+          : BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
+    this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
 
     // 3. Auto Close Schedule
     this.scheduleAutoClose();
@@ -214,7 +221,7 @@ export class BoksSimulator extends EventEmitter {
       if (!this.state.isOpen) {
         // Simulate mechanic delay
         setTimeout(() => {
-           this.triggerDoorOpen('ble', code);
+          this.triggerDoorOpen('ble', code);
         }, 800);
       }
     } else {
@@ -234,7 +241,7 @@ export class BoksSimulator extends EventEmitter {
 
     setTimeout(() => {
       const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xff, (count >> 8) & 0xff]);
+      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0XFF, (count >> 8) & 0XFF]);
     }, 150);
   }
 
@@ -272,10 +279,10 @@ export class BoksSimulator extends EventEmitter {
     }
     // Big Endian for Counts
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
-      (masterCount >> 8) & 0xff,
-      masterCount & 0xff,
-      (singleCount >> 8) & 0xff,
-      singleCount & 0xff,
+      (masterCount >> 8) & 0XFF,
+      masterCount & 0XFF,
+      (singleCount >> 8) & 0XFF,
+      singleCount & 0XFF,
     ]);
   }
 

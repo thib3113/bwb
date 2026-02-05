@@ -116,8 +116,8 @@ export const useNfcTags = () => {
         // Send 0x18
         // Only send register command if the tag was FOUND (new), skip if it matches ALREADY_EXISTS
         if (scanStatus === NfcScanStatus.FOUND) {
-            const packet = new NfcRegisterPacket(key, uidBytes);
-            await sendRequest(packet);
+          const packet = new NfcRegisterPacket(key, uidBytes);
+          await sendRequest(packet);
         }
 
         // Add to DB

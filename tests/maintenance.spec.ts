@@ -6,7 +6,10 @@ test.describe('Maintenance Page', () => {
 
     // Attempt to connect if not already
     const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    const connectBtn = page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first();
+    const connectBtn = page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first();
     await expect(connectBtn).toBeVisible();
     await connectBtn.click();
 

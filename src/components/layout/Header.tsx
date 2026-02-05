@@ -369,7 +369,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           <FormControl sx={{ minWidth: 120, mr: 2, maxWidth: 150 }} size="small">
             <Select
               value={activeDevice?.id || ''}
-              onChange={(e: SelectChangeEvent) => setActiveDevice((e.target as HTMLInputElement).value)}
+              onChange={(e: SelectChangeEvent) =>
+                setActiveDevice((e.target as HTMLInputElement).value)
+              }
               displayEmpty
               sx={{
                 color: 'white',

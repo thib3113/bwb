@@ -8,7 +8,11 @@ test.describe('Bluetooth Open Door Feature', () => {
   test('should send correct OPEN_DOOR packet with PIN code', async ({ page, simulator }) => {
     // 1. Connect
     const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first()
+      .click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
     await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 

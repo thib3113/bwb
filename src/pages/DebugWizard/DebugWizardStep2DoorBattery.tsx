@@ -49,7 +49,6 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
   const { t } = useTranslation();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
   return (
     <Box sx={{ mt: 2 }}>

@@ -8,11 +8,17 @@ test.describe('Bluetooth PIN Management', () => {
   test('should send CREATE_MASTER_CODE event', async ({ page, simulator }) => {
     // 1. Connect
     const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first()
+      .click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
 
     // 2. Add Code
-    const addBtn = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') });
+    const addBtn = page
+      .locator('button')
+      .filter({ has: page.locator('svg[data-testid="AddIcon"]') });
     await expect(addBtn).toBeVisible();
     await addBtn.click();
 
@@ -24,7 +30,9 @@ test.describe('Bluetooth PIN Management', () => {
     const nameInput = page.getByLabel(/Description|Name/i).first();
     await nameInput.fill('TestCode');
 
-    const saveBtn = page.locator('.MuiDialogActions-root button').filter({ hasText: /Generate|Save/i });
+    const saveBtn = page
+      .locator('.MuiDialogActions-root button')
+      .filter({ hasText: /Generate|Save/i });
     await saveBtn.click();
 
     // 3. Verify CREATE_MASTER_CODE (0x11)

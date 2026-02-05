@@ -62,7 +62,8 @@ export function getCharacteristicName(uuid: string): string {
 
   // Check known UUIDs
   if (lowerUuid === BATTERY_LEVEL_CHAR_UUID.toLowerCase()) return 'Battery Level (Standard)';
-  if (lowerUuid === BATTERY_PROPRIETARY_CHAR_UUID.toLowerCase()) return 'Battery Level (Proprietary)';
+  if (lowerUuid === BATTERY_PROPRIETARY_CHAR_UUID.toLowerCase())
+    return 'Battery Level (Proprietary)';
   if (lowerUuid === NOTIFY_CHAR_UUID.toLowerCase()) return 'Boks Notify';
   if (lowerUuid === WRITE_CHAR_UUID.toLowerCase()) return 'Boks Write';
 

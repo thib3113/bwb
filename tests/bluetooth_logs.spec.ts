@@ -1,4 +1,4 @@
-import {BLEOpcode, expect, test} from './fixtures';
+import { BLEOpcode, expect, test } from './fixtures';
 
 test.describe('Bluetooth Logs Feature', () => {
   test.beforeEach(async ({ page, simulator }) => {
@@ -8,7 +8,11 @@ test.describe('Bluetooth Logs Feature', () => {
   test('should send GET_LOGS_COUNT when refreshing logs', async ({ page, simulator }) => {
     // 1. Connect
     const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first()
+      .click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
     await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
@@ -16,7 +20,9 @@ test.describe('Bluetooth Logs Feature', () => {
     await page.getByRole('button', { name: /Logs/i }).click();
 
     // 2. Click Refresh Logs
-    const logsSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Logs/i }) });
+    const logsSection = page
+      .locator('div')
+      .filter({ has: page.getByRole('heading', { name: /Logs/i }) });
     const refreshBtn = logsSection.getByRole('button', { name: /Refresh/i });
     await expect(refreshBtn).toBeVisible();
     await expect(refreshBtn).toBeEnabled({ timeout: 15000 });

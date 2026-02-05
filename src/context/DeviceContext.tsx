@@ -58,7 +58,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const bleService = BoksBLEService.getInstance();
 
-    const handlePacket = async (data: unknown, opcode: unknown) => { const packet = data as BLEPacket; const requestOpcode = opcode as number | undefined;
+    const handlePacket = async (data: unknown, opcode: unknown) => {
+      const packet = data as BLEPacket;
+      const requestOpcode = opcode as number | undefined;
       const currentId = activeDeviceIdRef.current;
       if (!currentId) return;
 
@@ -99,7 +101,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const bleService = BoksBLEService.getInstance();
 
-    const handleBatteryPacket = async (data: unknown, opcode: unknown) => { const packet = data as BLEPacket; const requestOpcode = opcode as number | undefined;
+    const handleBatteryPacket = async (data: unknown, opcode: unknown) => {
+      const packet = data as BLEPacket;
+      const requestOpcode = opcode as number | undefined;
       const currentId = activeDeviceIdRef.current;
       if (!currentId) return;
 

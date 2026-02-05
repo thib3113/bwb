@@ -1,5 +1,5 @@
-import {test as base} from '@playwright/test';
-import {BLEOpcode} from '../src/utils/bleConstants';
+import { test as base } from '@playwright/test';
+import { BLEOpcode } from '../src/utils/bleConstants';
 
 export { expect } from '@playwright/test';
 
@@ -15,7 +15,7 @@ export interface Simulator {
 export const test = base.extend<{ simulator: Simulator }>({
   simulator: async ({ page }, use) => {
     // Enable console logging from browser to node console
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       console.log(`[Browser Console] ${msg.text()}`);
     });
 
@@ -59,7 +59,10 @@ export const test = base.extend<{ simulator: Simulator }>({
         } catch (e) {
           // Debugging info
           const events = await page.evaluate(() => window.txEvents);
-          console.error(`[Simulator Fixture] waitForTxOpcode(${opcode}) failed. Captured events: `, events);
+          console.error(
+            `[Simulator Fixture] waitForTxOpcode(${opcode}) failed. Captured events: `,
+            events
+          );
           throw e;
         }
       },

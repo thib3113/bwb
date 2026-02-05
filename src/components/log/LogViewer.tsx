@@ -89,13 +89,13 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           // 1. Map UID to Name
           const tag = nfcTags?.find((t) => t.uid === details.tag_uid);
           if (tag) {
-             details.tag_uid = `${tag.name} (${details.tag_uid})`;
+            details.tag_uid = `${tag.name} (${details.tag_uid})`;
           }
 
           // 2. Map Tag Type to localized string
           if (details.tag_type !== undefined) {
-             // 1, 2, 3 -> localized string
-             details.tag_type = tAny(`nfc_tag_types.${details.tag_type}`);
+            // 1, 2, 3 -> localized string
+            details.tag_type = tAny(`nfc_tag_types.${details.tag_type}`);
           }
         }
 
