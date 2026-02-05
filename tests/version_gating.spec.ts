@@ -6,9 +6,13 @@ test.describe('Version Gating', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/', { timeout: 60000 });
-    // Wait for the app to render (Onboarding or Main Layout) to ensure React and Contexts are initialized
-    // This text is in the Onboarding view which appears when no device is connected (default for fresh simulator)
-    await expect(page.getByText('Boks BLE Control Panel')).toBeVisible({ timeout: 30000 });
+
+    // Wait for the app to render (Onboarding OR Main Layout)
+    // "Boks BLE Control Panel" is in Onboarding
+    // "Codes" tab button is in Main Layout
+    const onboarding = page.getByText('Boks BLE Control Panel');
+    const codesTab = page.getByRole('button', { name: /codes/i });
+    await expect(onboarding.or(codesTab)).toBeVisible({ timeout: 30000 });
 
     // Force enable simulator to be absolutely sure, using the new dynamic toggle
     await page.evaluate(() => {
@@ -32,14 +36,13 @@ test.describe('Version Gating', () => {
       (window as any).boksSimulatorController.setVersion('4.2.0', '4.0');
     });
 
-    // Check if we need to connect
+    // Check if we need to connect (if in Onboarding view)
     const connectButton = page.getByRole('button', { name: /connect/i });
     if (await connectButton.isVisible()) {
       await connectButton.click();
     }
 
     // Wait for App to load (Codes tab is default)
-    // Adjust locator to match one of the bottom navigation tabs
     await expect(page.getByRole('button', { name: /codes/i })).toBeVisible({ timeout: 15000 });
 
     // Navigate to My Boks directly (as UI link might be in a hidden menu)
