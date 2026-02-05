@@ -14,7 +14,7 @@ The code provided in this repository is the result of independent reverse engine
 - **Publicly Available Information:** All technical parameters, API keys, constants, or identifiers present in this repository are **publicly discoverable information**. They are extracted from the client-side application code (distributed to all users) or standard network traffic. No server-side private secrets or cryptographic master keys are distributed.
 
 **Technical Context**
-This application operates exclusively via **Bluetooth Low Energy (Web BLE)** directly from the user's browser to the device. It does not rely on any proprietary cloud service or backend API.
+This application operates exclusively via **Bluetooth Low Energy (Web BLE)** directly from the user's browser to the device. It does not rely on any proprietary cloud service or backend API from the device manufacturer.
 
 **Liability**
 This software is provided "AS IS", without warranty of any kind. The author cannot be held responsible for any damage to your device, voiding of official warranties, or security risks resulting from the use of this software. Use it at your own risk.
@@ -35,7 +35,7 @@ Le code fourni dans ce dépôt est le résultat d'une ingénierie inverse et d'u
 - **Informations Publiques :** Tous les paramètres techniques, clefs API, constantes ou identifiants présents dans ce dépôt sont des **informations publiquement accessibles**. Ils sont extraits du code de l'application client (distribuée à tous les utilisateurs) ou du trafic réseau standard. Aucun secret privé côté serveur ni clef maître cryptographique n'est distribué.
 
 **Contexte Technique**
-Cette application fonctionne exclusivement via **Bluetooth Low Energy (Web BLE)**, directement depuis le navigateur de l'utilisateur vers l'appareil. Elle ne dépend d'aucun service cloud propriétaire ou API backend.
+Cette application fonctionne exclusivement via **Bluetooth Low Energy (Web BLE)**, directement depuis le navigateur de l'utilisateur vers l'appareil. Elle ne dépend d'aucun service cloud propriétaire ou API backend du fabricant de l'appareil.
 
 **Responsabilité**
 Ce logiciel est fourni "TEL QUEL", sans aucune garantie. L'auteur ne peut être tenu responsable des dommages causés à votre appareil, de l'annulation des garanties officielles ou des risques de sécurité résultant de l'utilisation de ce logiciel. Vous l'utilisez à vos propres risques.
