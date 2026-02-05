@@ -1,15 +1,16 @@
 import { test, expect } from './fixtures';
 
 test.describe('Version Gating', () => {
+  // Increase timeout for this suite as CI can be slow to load the app and simulator
+  test.setTimeout(90000);
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/', { timeout: 60000 });
   });
 
-  test('should soft-disable NFC tab and show toast for older firmware', async ({
-    page,
-    simulator,
-  }) => {
+  test('should soft-disable NFC tab and show toast for older firmware', async ({ page }) => {
     // 1. Set Version to 4.2.0 (Too old for NFC, Good for La Poste)
+    // Wait for the simulator controller to be available
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
     });
@@ -43,10 +44,7 @@ test.describe('Version Gating', () => {
     await expect(page.getByText(/version firmware 4.3.3 required/i)).toBeVisible();
   });
 
-  test('should soft-disable La Poste and show toast for very old firmware', async ({
-    page,
-    simulator,
-  }) => {
+  test('should soft-disable La Poste and show toast for very old firmware', async ({ page }) => {
     // 1. Set Version to 4.1.0 (Too old for La Poste)
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
@@ -74,7 +72,7 @@ test.describe('Version Gating', () => {
     await expect(page.getByText(/version firmware 4.2.0 required/i)).toBeVisible();
   });
 
-  test('should handle hardware version mapping', async ({ page, simulator }) => {
+  test('should handle hardware version mapping', async ({ page }) => {
     // 1. Set Version with Raw HW "10/cd" which maps to "3.0"
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
