@@ -1,13 +1,13 @@
-import {useEffect, useState} from 'react';
-import {Box, Button, Card, CardContent, Container, Tab, Tabs, Typography,} from '@mui/material';
-import {useNavigate} from 'react-router-dom';
-import {useTranslation} from 'react-i18next';
-import {useDeveloperContext} from '../context/DeveloperContext';
-import {DBEditor} from '../components/developer/DBEditor';
-import {BluetoothDebugger} from '../components/developer/BluetoothDebugger';
-import {ServiceWorkerDebugger} from '../components/developer/ServiceWorkerDebugger';
-import {SimulatorDebugger} from '../components/developer/SimulatorDebugger';
-import {StorageService} from '../services/StorageService';
+import { useEffect, useState } from 'react';
+import { Box, Button, Card, CardContent, Container, Tab, Tabs, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useDeveloperContext } from '../context/DeveloperContext';
+import { DBEditor } from '../components/developer/DBEditor';
+import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
+import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
+import { SimulatorDebugger } from '../components/developer/SimulatorDebugger';
+import { StorageService } from '../services/StorageService';
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -196,16 +196,16 @@ export const useCodeLogic = (
               overwriteCodeId,
               CODE_STATUS.PENDING_DELETE
             );
-             addTask({
-                type: TaskType.DELETE_CODE,
-                deviceId: activeDevice.id,
-                priority: 0,
-                payload: {
-                  code: overwriteCode.code,
-                  codeId: overwriteCode.id,
-                  codeType: overwriteCode.type,
-                },
-              });
+            addTask({
+              type: TaskType.DELETE_CODE,
+              deviceId: activeDevice.id,
+              priority: 0,
+              payload: {
+                code: overwriteCode.code,
+                codeId: overwriteCode.id,
+                codeType: overwriteCode.type,
+              },
+            });
           }
         }
 
@@ -281,16 +281,16 @@ export const useCodeLogic = (
         await StorageService.updateCodeStatus(activeDevice.id, id, CODE_STATUS.PENDING_DELETE);
 
         if (codeToDelete) {
-             addTask({
-                type: TaskType.DELETE_CODE,
-                deviceId: activeDevice.id,
-                priority: 0,
-                payload: {
-                  code: codeToDelete.code,
-                  codeId: codeToDelete.id,
-                  codeType: codeToDelete.type,
-                },
-              });
+          addTask({
+            type: TaskType.DELETE_CODE,
+            deviceId: activeDevice.id,
+            priority: 0,
+            payload: {
+              code: codeToDelete.code,
+              codeId: codeToDelete.id,
+              codeType: codeToDelete.type,
+            },
+          });
         }
 
         showNotification(t('deleted'), 'success');

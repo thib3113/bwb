@@ -5,7 +5,7 @@ import { useDevice } from '../hooks/useDevice';
 import { useBLEConnection } from '../hooks/useBLEConnection';
 import { DeviceSettings } from '../components/my-boks/DeviceSettings';
 import { NfcTagsTab } from '../components/my-boks/NfcTagsTab';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useOutletContext } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { compareVersions } from '../utils/version';
 
@@ -38,10 +38,15 @@ function a11yProps(index: number) {
   };
 }
 
+interface OutletContextType {
+  showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
+}
+
 export const MyBoksPage = () => {
   const { t } = useTranslation(['common', 'codes', 'logs', 'settings']);
   const { activeDevice, knownDevices, setActiveDevice } = useDevice();
   const { isConnected } = useBLEConnection();
+  const { showNotification } = useOutletContext<OutletContextType>();
   const location = useLocation();
   const [value, setValue] = useState(0);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
@@ -76,7 +81,33 @@ export const MyBoksPage = () => {
     }
   }, [activeDevice, knownDevices, selectedDeviceId]);
 
-  const handleChange = (_event: Event, newValue: number) => {
+  const isFwCompatible = (minVersion: string) => {
+    return activeDevice?.software_revision
+      ? compareVersions(activeDevice.software_revision, minVersion) >= 0
+      : false;
+  };
+  const isHwCompatible = (minVersion: string) => {
+    return activeDevice?.hardware_version
+      ? compareVersions(activeDevice.hardware_version, minVersion) >= 0
+      : false;
+  };
+
+  const isNfcFwCompatible = isFwCompatible('4.3.3');
+  const isNfcHwCompatible = isHwCompatible('4.0');
+  const isNfcCompatible = isNfcFwCompatible && isNfcHwCompatible;
+
+  const handleChange = (_event: unknown, newValue: number) => {
+    if (newValue === 2) {
+      // NFC Tab
+      if (!isNfcHwCompatible) {
+        showNotification('Version Hardware 4.0 required', 'warning');
+        return;
+      }
+      if (!isNfcFwCompatible) {
+        showNotification('Version Firmware 4.3.3 required', 'warning');
+        return;
+      }
+    }
     setValue(newValue);
   };
 
@@ -92,12 +123,6 @@ export const MyBoksPage = () => {
 
   // Determine if we should show the list view
   const showListView = knownDevices.length > 1 && !selectedDeviceId && !activeDevice;
-
-  const showNfc =
-    activeDevice &&
-    activeDevice.hardware_version === '4.0' &&
-    activeDevice.software_revision &&
-    compareVersions(activeDevice.software_revision, '4.3.3') >= 0;
 
   // Determine the title
   let title = t('common:my_boks'); // Default to plural
@@ -172,9 +197,14 @@ export const MyBoksPage = () => {
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="my boks tabs">
-          <Tab label={t('settings:title')} {...a11yProps(0)} />
-          <Tab label={t('common:users.title')} {...a11yProps(1)} />
-          {showNfc && <Tab label="Tags NFC" {...a11yProps(2)} />}
+          <Tab data-testid="tab-settings" label={t('settings:title')} {...a11yProps(0)} />
+          <Tab data-testid="tab-users" label={t('common:users.title')} {...a11yProps(1)} />
+          <Tab
+            data-testid="tab-nfc"
+            label="Tags NFC"
+            {...a11yProps(2)}
+            sx={{ opacity: isNfcCompatible ? 1 : 0.5 }}
+          />
         </Tabs>
       </Box>
 
@@ -190,11 +220,9 @@ export const MyBoksPage = () => {
           </Typography>
         </Box>
       </TabPanel>
-      {showNfc && (
-        <TabPanel value={value} index={2}>
-          <NfcTagsTab />
-        </TabPanel>
-      )}
+      <TabPanel value={value} index={2}>
+        {isNfcCompatible ? <NfcTagsTab /> : <Box sx={{ p: 3 }}>Feature Unavailable</Box>}
+      </TabPanel>
     </Box>
   );
 };

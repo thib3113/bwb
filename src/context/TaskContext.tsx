@@ -209,7 +209,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             codeId = task.payload.codeId as string;
             // Only fetch from DB if we have a codeId
             if (codeId) {
-                codeObj = await db.codes.get(codeId);
+              codeObj = await db.codes.get(codeId);
             }
 
             switch (task.payload.codeType as string) {

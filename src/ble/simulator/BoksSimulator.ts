@@ -20,11 +20,14 @@ interface BoksState {
   configKey: string;
   chaosMode: boolean;
   batteryLevel: number;
+  firmwareRevision: string; // Maps to Hardware Version
+  softwareRevision: string; // Maps to Software Version
 }
 
 // Controller API exposed to window
 export interface SimulatorAPI {
   enableChaos(enabled: boolean): void;
+  setVersion(sw: string, hw: string): void;
   setBatteryLevel(level: number): void;
   triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string): void;
   triggerDoorClose(): void;
@@ -33,11 +36,20 @@ export interface SimulatorAPI {
 }
 
 export class BoksSimulator extends EventEmitter {
+  private static instance: BoksSimulator | null = null;
   private state: BoksState;
   private autoCloseTimer: any = null;
   private chaosTimer: any = null;
 
+  public static getInstance(): BoksSimulator {
+    if (!BoksSimulator.instance) {
+      BoksSimulator.instance = new BoksSimulator();
+    }
+    return BoksSimulator.instance;
+  }
+
   constructor() {
+    console.log('[BoksSimulator] Controller exposed to window');
     super();
     this.state = this.getInitialState();
 
@@ -45,7 +57,13 @@ export class BoksSimulator extends EventEmitter {
     if (typeof window !== 'undefined') {
       (window as any).boksSimulatorController = {
         enableChaos: (e: boolean) => this.setChaosMode(e),
-        setBatteryLevel: (l: number) => { this.state.batteryLevel = l; },
+        setVersion: (sw, hw) => {
+          this.state.softwareRevision = sw;
+          this.state.firmwareRevision = hw;
+        },
+        setBatteryLevel: (l: number) => {
+          this.state.batteryLevel = l;
+        },
         triggerDoorOpen: (s: 'ble' | 'nfc' | 'button', c?: string) => this.triggerDoorOpen(s, c),
         triggerDoorClose: () => this.triggerDoorClose(),
         reset: () => this.reset(),
@@ -54,16 +72,20 @@ export class BoksSimulator extends EventEmitter {
     }
   }
 
+  public getPublicState(): BoksState {
+    return this.state;
+  }
+
   private getInitialState(): BoksState {
     return {
       isOpen: false,
-      pinCodes: new Map([
-        [SIMULATOR_DEFAULT_PIN, 'master'],
-      ]),
+      pinCodes: new Map([[SIMULATOR_DEFAULT_PIN, 'master']]),
       logs: [],
       configKey: SIMULATOR_DEFAULT_CONFIG_KEY,
       chaosMode: false,
       batteryLevel: 100,
+      firmwareRevision: '10/125', // Default Hardware Version (maps to 4.0)
+      softwareRevision: '4.1.14', // Default Software Version
     };
   }
 
@@ -89,11 +111,11 @@ export class BoksSimulator extends EventEmitter {
 
       const rand = Math.random();
       if (rand < 0.3 && !this.state.isOpen) {
-         // 30% chance to open door via NFC if closed
-         this.triggerDoorOpen('nfc');
+        // 30% chance to open door via NFC if closed
+        this.triggerDoorOpen('nfc');
       } else if (rand > 0.9) {
-         // 10% chance to drop battery
-         this.state.batteryLevel = Math.max(0, this.state.batteryLevel - 5);
+        // 10% chance to drop battery
+        this.state.batteryLevel = Math.max(0, this.state.batteryLevel - 5);
       }
     }, 10000); // Check every 10s
   }
@@ -113,10 +135,13 @@ export class BoksSimulator extends EventEmitter {
     this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x00, 0x01]);
 
     // 2. Log Entry
-        const logOpcode = source === 'ble' ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY :
-                          source === 'nfc' ? BLEOpcode.LOG_EVENT_NFC_OPENING :
-                          BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
-        this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
+    const logOpcode =
+      source === 'ble'
+        ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY
+        : source === 'nfc'
+          ? BLEOpcode.LOG_EVENT_NFC_OPENING
+          : BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
+    this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
 
     // 3. Auto Close Schedule
     this.scheduleAutoClose();
@@ -181,6 +206,22 @@ export class BoksSimulator extends EventEmitter {
       case BLEOpcode.DELETE_MASTER_CODE:
         this.handleDeleteMasterCode(payload);
         break;
+      case BLEOpcode.CREATE_MASTER_CODE:
+        this.handleCreateCode(payload, 'master');
+        break;
+      case BLEOpcode.CREATE_SINGLE_USE_CODE:
+        this.handleCreateCode(payload, 'single');
+        break;
+      case BLEOpcode.CREATE_MULTI_USE_CODE:
+        this.handleCreateCode(payload, 'multi');
+        break;
+      case BLEOpcode.DELETE_SINGLE_USE_CODE:
+      case BLEOpcode.DELETE_MULTI_USE_CODE:
+        this.handleDeleteCode(payload);
+        break;
+      case BLEOpcode.SET_CONFIGURATION:
+        this.handleSetConfiguration();
+        break;
       default:
         console.warn(`[Simulator] Unknown opcode 0x${opcode.toString(16)}`);
     }
@@ -200,6 +241,37 @@ export class BoksSimulator extends EventEmitter {
 
   // --- Command Handlers ---
 
+  private handleSetConfiguration() {
+    this.sendNotification(BLEOpcode.NOTIFY_SET_CONFIGURATION_SUCCESS, []);
+  }
+
+  private handleCreateCode(payload: Uint8Array, type: 'master' | 'single' | 'multi') {
+    // Payload structure for Create Code is usually [KEY(4), INDEX(1), PIN(N)] or similar
+    // But protocol spec for V1/V2 is complex.
+    // For simulation, we assume the payload contains the PIN at the end.
+    // Simplified parsing: Extract PIN from payload.
+    // Standard payload: ConfigKey(4) + Index(1) + Pin(var)
+    if (payload.length < 5) return;
+
+    const pinBytes = payload.slice(5);
+    const pin = new TextDecoder().decode(pinBytes).replace(/\0/g, '');
+
+    if (pin) {
+      this.state.pinCodes.set(pin, type);
+      this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+    } else {
+      this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
+    }
+  }
+
+  private handleDeleteCode(payload: Uint8Array) {
+    // Simplified: we assume we can delete by index or something, but here we just ACK success.
+    // Real Boks deletes by Index.
+    // For this simplified simulator, we can't easily map Index -> Code without a more complex state.
+    // So we just return Success to unblock the UI.
+    this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+  }
+
   private handleOpenDoor(payload: Uint8Array) {
     const packet = PacketFactory.createTX(BLEOpcode.OPEN_DOOR, payload);
     if (!packet || !(packet instanceof OpenDoorPacket)) return;
@@ -214,7 +286,7 @@ export class BoksSimulator extends EventEmitter {
       if (!this.state.isOpen) {
         // Simulate mechanic delay
         setTimeout(() => {
-           this.triggerDoorOpen('ble', code);
+          this.triggerDoorOpen('ble', code);
         }, 800);
       }
     } else {

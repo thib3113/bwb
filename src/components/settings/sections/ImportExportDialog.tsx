@@ -36,7 +36,7 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
   const { t } = useTranslation(['settings', 'common']);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleCopy = () => {

@@ -15,7 +15,11 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     await expect(disabledIcon).toBeVisible();
 
     // Click the connect button
-    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first()
+      .click();
 
     // Wait for connection: Disabled icon should disappear
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
@@ -30,7 +34,11 @@ test.describe('Boks Basic Flow (Simulator)', () => {
   test('should open the door via simulator', async ({ page }) => {
     // 1. Connect
     const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first().click();
+    await page
+      .getByRole('button', { name: /connect/i })
+      .filter({ hasText: /^Connect$|^$/ })
+      .first()
+      .click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
 
     // Check for battery percentage as confirmation of connection
@@ -46,9 +54,13 @@ test.describe('Boks Basic Flow (Simulator)', () => {
 
     // 3. Verify Feedback
     // Using regex for flexibility
-    await expect(page.getByText(/Opening door|Success|Opening.../i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Opening door|Success|Opening.../i)).toBeVisible({
+      timeout: 10000,
+    });
 
     // 4. Wait for close
-    await expect(page.getByText(/Opening door|Success|Opening.../i)).not.toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Opening door|Success|Opening.../i)).not.toBeVisible({
+      timeout: 15000,
+    });
   });
 });

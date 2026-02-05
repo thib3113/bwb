@@ -32,6 +32,7 @@ export interface BLEContextType {
   unregisterCallback: (opcode: number) => void;
   addListener: (event: string | number, callback: (packet: BLEPacket) => void) => void;
   removeListener: (event: string | number, callback: (packet: BLEPacket) => void) => void;
+  toggleSimulator?: (enable: boolean) => void;
 }
 
 export interface BoksContextType {
