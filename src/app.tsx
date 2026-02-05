@@ -108,7 +108,7 @@ export function App() {
 
   // Check if Web BLE is supported
   const isWebBleSupported = () => {
-    if (globalThis.window && globalThis.window.BOKS_SIMULATOR_ENABLED) return true;
+    if (typeof window !== 'undefined') { if (window.BOKS_SIMULATOR_ENABLED || localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true') return true; }
 
     return navigator.bluetooth !== undefined;
   };
