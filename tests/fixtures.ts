@@ -104,10 +104,10 @@ export const test = base.extend<{ simulator: Simulator }>({
       },
       connect: async () => {
         console.log('[Simulator Fixture] Connecting...');
-        // Wait for UI to settle
-        const onboarding = page.getByText('Boks BLE Control Panel');
-        const codesTab = page.getByRole('button', { name: /codes/i });
-        await expect(onboarding.or(codesTab)).toBeVisible({ timeout: 30000 });
+        // Wait for UI to settle (Onboarding OR Main Nav)
+        const onboarding = page.getByTestId('onboarding-view');
+        const mainNav = page.getByTestId('main-nav');
+        await expect(onboarding.or(mainNav)).toBeVisible({ timeout: 30000 });
 
         // Force enable simulator
         await page.evaluate(() => {
@@ -118,8 +118,8 @@ export const test = base.extend<{ simulator: Simulator }>({
 
         // Click Connect if needed
         if (await onboarding.isVisible()) {
-           await page.getByRole('button', { name: /connect/i }).click();
-           await expect(codesTab).toBeVisible({ timeout: 15000 });
+           await page.getByTestId('connect-button').click();
+           await expect(mainNav).toBeVisible({ timeout: 15000 });
         }
       }
     };

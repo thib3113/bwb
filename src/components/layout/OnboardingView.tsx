@@ -30,7 +30,7 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
   };
 
   return (
-    <Box
+    <Box data-testid="onboarding-view"
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -49,7 +49,7 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         {tAny('not_connected.message')}
       </Typography>
 
-      <Button
+      <Button data-testid="connect-button"
         variant="contained"
         size="large"
         onClick={handleConnectClick}
@@ -62,7 +62,7 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         }}
       >
         {isConnecting ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box data-testid="onboarding-view" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={24} sx={{ color: 'white' }} />
             {tAny('connecting')}
           </Box>

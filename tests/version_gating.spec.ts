@@ -8,9 +8,9 @@ test.describe('Version Gating', () => {
     await page.goto('/', { timeout: 60000 });
 
     // Wait for the app to render (Onboarding OR Main Layout)
-    const onboarding = page.getByText('Boks BLE Control Panel');
-    const codesTab = page.getByRole('button', { name: /codes/i });
-    await expect(onboarding.or(codesTab)).toBeVisible({ timeout: 30000 });
+    const onboarding = page.getByTestId('onboarding-view');
+    const mainNav = page.getByTestId('main-nav');
+    await expect(onboarding.or(mainNav)).toBeVisible({ timeout: 30000 });
 
     // Reset App to ensure clean state (Onboarding)
     await page.evaluate(async () => {
@@ -24,25 +24,21 @@ test.describe('Version Gating', () => {
 
     // Now we must be in Onboarding view
     await expect(onboarding).toBeVisible({ timeout: 30000 });
+
+    // Force enable simulator
+    await page.evaluate(() => {
+      if ((window as any).toggleSimulator) {
+        (window as any).toggleSimulator(true);
+      }
+    });
   });
 
   test('should soft-disable NFC tab and show toast for older firmware', async ({ page, simulator }) => {
-    // 1. Force Simulator ON (handled by connect helper, but ensure we set version first?)
-    // Actually, we must enable simulator to access the controller to set version.
-    // connect() does enable it.
-
-    // We need to set version BEFORE connecting, otherwise the connection might fetch default version.
-    // So we force enable first manually or via helper, set version, THEN connect.
-
-    // Force enable to get controller
-    await page.evaluate(() => {
-      if ((window as any).toggleSimulator) (window as any).toggleSimulator(true);
+    // 1. Set Version to 4.2.0 (Too old for NFC, Good for La Poste)
+    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+      timeout: 60000,
     });
 
-    // Wait for controller
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 60000 });
-
-    // Set Version
     await page.evaluate(() => {
       (window as any).boksSimulatorController.setVersion('4.2.0', '4.0');
     });
@@ -50,11 +46,17 @@ test.describe('Version Gating', () => {
     // Connect using helper
     await simulator.connect();
 
-    // Navigate to My Boks
+    // Wait for App to load (Codes tab is default)
+    await expect(page.getByTestId('nav-codes')).toBeVisible({ timeout: 15000 });
+
+    // Navigate to My Boks directly
     await page.goto('/my-boks');
 
     // Check NFC Tab
-    const nfcTab = page.getByRole('button', { name: /tags nfc/i });
+    const nfcTab = page.getByTestId('tab-nfc');
+    // Or add test-id to nfc tab?
+    // Let's assume text works for tabs as they are less likely to change structure, or add test-id if needed.
+    // For now, rely on role which is accessible.
     await expect(nfcTab).toBeVisible();
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
 
@@ -66,11 +68,9 @@ test.describe('Version Gating', () => {
   });
 
   test('should soft-disable La Poste and show toast for very old firmware', async ({ page, simulator }) => {
-    await page.evaluate(() => {
-      if ((window as any).toggleSimulator) (window as any).toggleSimulator(true);
+    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+      timeout: 60000,
     });
-
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 60000 });
 
     await page.evaluate(() => {
       (window as any).boksSimulatorController.setVersion('4.1.0', '4.0');
@@ -78,10 +78,13 @@ test.describe('Version Gating', () => {
 
     await simulator.connect();
 
+    await expect(page.getByTestId('nav-codes')).toBeVisible({ timeout: 15000 });
     await page.goto('/my-boks');
 
     // Check La Poste Switch
     const laPosteSwitch = page.getByRole('checkbox', { name: /la poste/i });
+    // Or add test-id to switch?
+    // Role checkbox with name is good.
     await expect(laPosteSwitch).toBeVisible();
 
     // Click it
@@ -91,11 +94,9 @@ test.describe('Version Gating', () => {
   });
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
-    await page.evaluate(() => {
-      if ((window as any).toggleSimulator) (window as any).toggleSimulator(true);
+    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+      timeout: 60000,
     });
-
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 60000 });
 
     await page.evaluate(() => {
       (window as any).boksSimulatorController.setVersion('4.5.0', '10/cd');
@@ -103,10 +104,11 @@ test.describe('Version Gating', () => {
 
     await simulator.connect();
 
+    await expect(page.getByTestId('nav-codes')).toBeVisible({ timeout: 15000 });
     await page.goto('/my-boks');
 
     // Check NFC Tab (Requires HW 4.0)
-    const nfcTab = page.getByRole('button', { name: /tags nfc/i });
+    const nfcTab = page.getByTestId('tab-nfc');
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
     // Message should mention hardware version
