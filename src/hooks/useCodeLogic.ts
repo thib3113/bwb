@@ -32,9 +32,43 @@ export const useCodeLogic = (
   const { addTask } = useTaskContext();
 
   const codesQuery = useLiveQuery(
-    () => (activeDevice?.id ? db.codes.where('device_id').equals(activeDevice.id).toArray() : []),
+    async () => {
+      if (!activeDevice?.id) return [];
+
+      // Optimization: Only load relevant codes to reduce memory usage and sorting overhead
+      // 1. Master codes (always needed)
+      // 2. Active/Pending codes (always needed)
+      // 3. Recent inactive codes (last 7 days history)
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+      const threshold = Date.now() - SEVEN_DAYS_MS;
+
+      return db.codes
+        .where('device_id')
+        .equals(activeDevice.id)
+        .filter((code) => {
+          // Always keep master codes
+          if (code.type === CODE_TYPES.MASTER) return true;
+
+          // Keep active/pending codes
+          if (
+            code.status === CODE_STATUS.PENDING_ADD ||
+            code.status === CODE_STATUS.ON_DEVICE ||
+            code.status === 'synced' ||
+            code.status === CODE_STATUS.PENDING_DELETE
+          ) {
+            return true;
+          }
+
+          // Keep recent history (based on updated_at)
+          // If updated_at is missing, we assume it is old unless created_at is recent
+          const lastUpdate = code.updated_at || new Date(code.created_at).getTime();
+          return lastUpdate > threshold;
+        })
+        .toArray();
+    },
     [activeDevice?.id]
   );
+
   const codes = useMemo(() => (codesQuery ?? EMPTY_ARRAY) as BoksCode[], [codesQuery]);
 
   const logsQuery = useLiveQuery(
@@ -77,8 +111,6 @@ export const useCodeLogic = (
     );
   }, [isConnected, sendRequest, showNotification, hideNotification, t]);
 
-  // Helper function to sort codes by priority and creation date
-  // Helper function to sort codes by priority and creation date (Optimized with Schwartzian transform)
   const sortCodesByPriority = useCallback((codes: BoksCode[]) => {
     // Helper function to get priority group
     const getPriority = (code: BoksCode) => {
