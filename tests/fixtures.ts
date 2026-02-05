@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { test as base, expect } from '@playwright/test';
 import { BLEOpcode } from '../src/utils/bleConstants';
 
@@ -50,15 +51,16 @@ export const test = base.extend<{ simulator: Simulator }>({
         // 1. Clear DB via StorageService if available
         // @ts-expect-error - boksDebug exposed by main/StorageService
         if (window.boksDebug && window.boksDebug.StorageService) {
-           const originalReload = window.location.reload;
-           window.location.reload = () => { console.log('[Test] Suppressed reload during reset'); }; // No-op
-           // @ts-expect-error - boksDebug exposed by main/StorageService
-           await window.boksDebug.StorageService.clearAllData();
-           window.location.reload = originalReload;
+          const originalReload = window.location.reload;
+          window.location.reload = () => {
+            console.log('[Test] Suppressed reload during reset');
+          }; // No-op
+          // @ts-expect-error - boksDebug exposed by main/StorageService
+          await window.boksDebug.StorageService.clearAllData();
+          window.location.reload = originalReload;
         }
 
         // 2. Clear LocalStorage (preserve simulator flag)
-        const sim = localStorage.getItem('BOKS_SIMULATOR_ENABLED');
         localStorage.clear();
         localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
         localStorage.setItem('i18nextLng', 'en');
@@ -112,16 +114,16 @@ export const test = base.extend<{ simulator: Simulator }>({
         // Force enable simulator
         await page.evaluate(() => {
           if ((window as any).toggleSimulator) {
-             (window as any).toggleSimulator(true);
+            (window as any).toggleSimulator(true);
           }
         });
 
         // Click Connect if needed
         if (await onboarding.isVisible()) {
-           await page.getByTestId('connect-button').click();
-           await expect(mainNav).toBeVisible({ timeout: 15000 });
+          await page.getByTestId('connect-button').click();
+          await expect(mainNav).toBeVisible({ timeout: 15000 });
         }
-      }
+      },
     };
 
     // 3. Use the fixture

@@ -33,7 +33,10 @@ test.describe('Version Gating', () => {
     });
   });
 
-  test('should soft-disable NFC tab and show toast for older firmware', async ({ page, simulator }) => {
+  test('should soft-disable NFC tab and show toast for older firmware', async ({
+    page,
+    simulator,
+  }) => {
     // 1. Set Version to 4.2.0 (Too old for NFC, Good for La Poste)
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
@@ -67,7 +70,10 @@ test.describe('Version Gating', () => {
     await expect(page.getByText(/version firmware 4.3.3 required/i)).toBeVisible();
   });
 
-  test('should soft-disable La Poste and show toast for very old firmware', async ({ page, simulator }) => {
+  test('should soft-disable La Poste and show toast for very old firmware', async ({
+    page,
+    simulator,
+  }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
     });

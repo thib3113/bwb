@@ -30,7 +30,8 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
   };
 
   return (
-    <Box data-testid="onboarding-view"
+    <Box
+      data-testid="onboarding-view"
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -49,7 +50,8 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         {tAny('not_connected.message')}
       </Typography>
 
-      <Button data-testid="connect-button"
+      <Button
+        data-testid="connect-button"
         variant="contained"
         size="large"
         onClick={handleConnectClick}

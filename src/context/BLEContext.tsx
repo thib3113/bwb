@@ -9,7 +9,13 @@ import {
 } from 'preact/compat';
 import { BoksBLEService, BLEServiceEvent, BLEServiceState } from '../services/BoksBLEService';
 import { BLEPacket } from '../utils/packetParser';
-import { BLEOpcode, DEVICE_INFO_CHARS, DEVICE_INFO_SERVICE_UUID, BATTERY_SERVICE_UUID, BATTERY_LEVEL_CHAR_UUID } from '../utils/bleConstants';
+import {
+  BLEOpcode,
+  DEVICE_INFO_CHARS,
+  DEVICE_INFO_SERVICE_UUID,
+  BATTERY_SERVICE_UUID,
+  BATTERY_LEVEL_CHAR_UUID,
+} from '../utils/bleConstants';
 import { BLEContext } from './Contexts';
 import { useLogContext } from '../hooks/useLogContext';
 import { BluetoothDevice } from '../types';
@@ -30,7 +36,8 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     // Check both window flag and localStorage for robustness
     const useSimulator =
       (typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED === true) ||
-      (typeof localStorage !== 'undefined' && localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true');
+      (typeof localStorage !== 'undefined' &&
+        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true');
 
     if (useSimulator) {
       console.warn('⚠️ USING BOKS SIMULATOR ADAPTER ⚠️');
@@ -82,37 +89,34 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       });
     });
 
-    const unsubPacketReceived = bleService.on(
-      BLEServiceEvent.PACKET_RECEIVED,
-      (arg: unknown) => {
-        const packet = arg as BLEPacket;
-        // Log RX packets
-        const hex = Array.from(packet.raw)
-          .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
-          .join(' ');
-        log(`RX: ${hex}`, 'rx');
+    const unsubPacketReceived = bleService.on(BLEServiceEvent.PACKET_RECEIVED, (arg: unknown) => {
+      const packet = arg as BLEPacket;
+      // Log RX packets
+      const hex = Array.from(packet.raw)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
+      log(`RX: ${hex}`, 'rx');
 
-        const hexPayload = Array.from(packet.payload)
-          .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
-          .join(' ');
+      const hexPayload = Array.from(packet.payload)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-        // Use rich description if available (for GATT ops) or hex payload
-        let displayPayload = hexPayload;
-        if (packet.parsedPayload && typeof packet.parsedPayload.toString === 'function') {
-           displayPayload = packet.parsedPayload.toString();
-        }
-
-        addDebugLog({
-          id: Date.now() + Math.random(),
-          timestamp: new Date(),
-          direction: 'RX',
-          opcode: packet.opcode,
-          payload: displayPayload,
-          raw: hex,
-          type: 'packet',
-        });
+      // Use rich description if available (for GATT ops) or hex payload
+      let displayPayload = hexPayload;
+      if (packet.parsedPayload && typeof packet.parsedPayload.toString === 'function') {
+        displayPayload = packet.parsedPayload.toString();
       }
-    );
+
+      addDebugLog({
+        id: Date.now() + Math.random(),
+        timestamp: new Date(),
+        direction: 'RX',
+        opcode: packet.opcode,
+        payload: displayPayload,
+        raw: hex,
+        type: 'packet',
+      });
+    });
 
     const unsubPacketSent = bleService.on(BLEServiceEvent.PACKET_SENT, (arg: unknown) => {
       const packet = arg as BLEPacket;
@@ -129,7 +133,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       // Use rich description if available (for GATT ops) or hex payload
       let displayPayload = hexPayload;
       if (packet.parsedPayload && typeof packet.parsedPayload.toString === 'function') {
-         displayPayload = packet.parsedPayload.toString();
+        displayPayload = packet.parsedPayload.toString();
       }
 
       addDebugLog({
@@ -144,7 +148,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const unsubError = bleService.on(BLEServiceEvent.ERROR, (arg: unknown) => {
-      const error = arg as (Error | string);
+      const error = arg as Error | string;
       const errorMsg = typeof error === 'string' ? error : error.message;
       setError(translateBLEError(error));
       log(`BLE Error: ${errorMsg}`, 'error');
@@ -223,21 +227,24 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   );
 
   // Dynamic Simulator Toggle
-  const toggleSimulator = useCallback((enable: boolean) => {
-    console.log(`[BLEContext] Toggling Simulator to ${enable}`);
-    if (typeof window !== 'undefined') {
-      window.BOKS_SIMULATOR_ENABLED = enable;
-      localStorage.setItem('BOKS_SIMULATOR_ENABLED', String(enable));
-    }
+  const toggleSimulator = useCallback(
+    (enable: boolean) => {
+      console.log(`[BLEContext] Toggling Simulator to ${enable}`);
+      if (typeof window !== 'undefined') {
+        window.BOKS_SIMULATOR_ENABLED = enable;
+        localStorage.setItem('BOKS_SIMULATOR_ENABLED', String(enable));
+      }
 
-    if (enable) {
-      bleService.setAdapter(new SimulatedBluetoothAdapter());
-      console.log('✅ Switched to SimulatedAdapter');
-    } else {
-      bleService.setAdapter(new WebBluetoothAdapter());
-      console.log('✅ Switched to WebBluetoothAdapter');
-    }
-  }, [bleService]);
+      if (enable) {
+        bleService.setAdapter(new SimulatedBluetoothAdapter());
+        console.log('✅ Switched to SimulatedAdapter');
+      } else {
+        bleService.setAdapter(new WebBluetoothAdapter());
+        console.log('✅ Switched to WebBluetoothAdapter');
+      }
+    },
+    [bleService]
+  );
 
   // Expose toggle globally for tests
   useEffect(() => {
@@ -284,12 +291,9 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           // Legacy support: extract opcode and payload from raw frame [Op, Len, ...P, Checksum]
           const opcode = packet[0];
           const payload = packet.slice(2, packet.length - 1);
-          await bleService.sendRequest(
-            new RawTXPacket(opcode, payload),
-            {
-              expectResponse: false,
-            }
-          );
+          await bleService.sendRequest(new RawTXPacket(opcode, payload), {
+            expectResponse: false,
+          });
         } else {
           // New architecture: Pass the packet object directly
           await bleService.sendRequest(packet, {

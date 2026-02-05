@@ -36,7 +36,7 @@ export const HomePage = () => {
     return <OnboardingView showNotification={showNotification} />;
   }
 
-  const handleTabChange = (_event: Event, newValue: number) => {
+  const handleTabChange = (_event: unknown, newValue: number) => {
     switch (newValue) {
       case 0:
         navigate('/codes');
@@ -62,7 +62,8 @@ export const HomePage = () => {
       </Box>
 
       {/* Bottom Navigation */}
-      <BottomNavigation data-testid="main-nav"
+      <BottomNavigation
+        data-testid="main-nav"
         value={activeTab}
         onChange={handleTabChange}
         showLabels
@@ -76,9 +77,21 @@ export const HomePage = () => {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-        <BottomNavigation data-testid="main-nav"Action data-testid="nav-codes" label={t('codes:title')} icon={<VpnKeyIcon />} />
-        <BottomNavigation data-testid="main-nav"Action data-testid="nav-logs" label={t('logs:title')} icon={<HistoryIcon />} />
-        <BottomNavigation data-testid="main-nav"Action data-testid="nav-settings" label={t('settings:title')} icon={<SettingsIcon />} />
+        <BottomNavigationAction
+          data-testid="nav-codes"
+          label={t('codes:title')}
+          icon={<VpnKeyIcon />}
+        />
+        <BottomNavigationAction
+          data-testid="nav-logs"
+          label={t('logs:title')}
+          icon={<HistoryIcon />}
+        />
+        <BottomNavigationAction
+          data-testid="nav-settings"
+          label={t('settings:title')}
+          icon={<SettingsIcon />}
+        />
       </BottomNavigation>
     </Box>
   );

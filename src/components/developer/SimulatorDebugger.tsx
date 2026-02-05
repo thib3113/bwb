@@ -53,12 +53,12 @@ export const SimulatorDebugger = () => {
       // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-           const controller = (window as any).boksSimulatorController;
-           if (controller) {
-             setSimulator(controller);
-             setIsSimulatorRunning(true);
-             // Trigger state update loop if needed
-           }
+          const controller = (window as any).boksSimulatorController;
+          if (controller) {
+            setSimulator(controller);
+            setIsSimulatorRunning(true);
+            // Trigger state update loop if needed
+          }
         }, 500);
       } else {
         setIsSimulatorRunning(false);

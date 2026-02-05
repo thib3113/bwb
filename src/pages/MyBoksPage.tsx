@@ -82,26 +82,31 @@ export const MyBoksPage = () => {
   }, [activeDevice, knownDevices, selectedDeviceId]);
 
   const isFwCompatible = (minVersion: string) => {
-    return activeDevice?.software_revision ? compareVersions(activeDevice.software_revision, minVersion) >= 0 : false;
+    return activeDevice?.software_revision
+      ? compareVersions(activeDevice.software_revision, minVersion) >= 0
+      : false;
   };
   const isHwCompatible = (minVersion: string) => {
-    return activeDevice?.hardware_version ? compareVersions(activeDevice.hardware_version, minVersion) >= 0 : false;
+    return activeDevice?.hardware_version
+      ? compareVersions(activeDevice.hardware_version, minVersion) >= 0
+      : false;
   };
 
   const isNfcFwCompatible = isFwCompatible('4.3.3');
   const isNfcHwCompatible = isHwCompatible('4.0');
   const isNfcCompatible = isNfcFwCompatible && isNfcHwCompatible;
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    if (newValue === 2) { // NFC Tab
-        if (!isNfcHwCompatible) {
-            showNotification('Version Hardware 4.0 required', 'warning');
-            return;
-        }
-        if (!isNfcFwCompatible) {
-            showNotification('Version Firmware 4.3.3 required', 'warning');
-            return;
-        }
+  const handleChange = (_event: unknown, newValue: number) => {
+    if (newValue === 2) {
+      // NFC Tab
+      if (!isNfcHwCompatible) {
+        showNotification('Version Hardware 4.0 required', 'warning');
+        return;
+      }
+      if (!isNfcFwCompatible) {
+        showNotification('Version Firmware 4.3.3 required', 'warning');
+        return;
+      }
     }
     setValue(newValue);
   };
@@ -216,7 +221,7 @@ export const MyBoksPage = () => {
         </Box>
       </TabPanel>
       <TabPanel value={value} index={2}>
-        {isNfcCompatible ? <NfcTagsTab /> : <Box sx={{p:3}}>Feature Unavailable</Box>}
+        {isNfcCompatible ? <NfcTagsTab /> : <Box sx={{ p: 3 }}>Feature Unavailable</Box>}
       </TabPanel>
     </Box>
   );
