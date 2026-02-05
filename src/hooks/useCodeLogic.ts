@@ -25,11 +25,11 @@ export const useCodeLogic = (
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
   hideNotification: () => void
 ) => {
-  const { t } = useTranslation(['codes', 'common'])
-  const { activeDevice } = useDevice()
-  const { codeCount } = useCodeCount()
-  const { isConnected, sendRequest } = useBLEConnection()
-  const { addTask } = useTaskContext()
+  const { t } = useTranslation(['codes', 'common']);
+  const { activeDevice } = useDevice();
+  const { codeCount } = useCodeCount();
+  const { isConnected, sendRequest } = useBLEConnection();
+  const { addTask } = useTaskContext();
 
   const codesQuery = useLiveQuery(
     async () => {
@@ -61,44 +61,44 @@ export const useCodeLogic = (
 
           // Keep recent history (based on updated_at)
           // If updated_at is missing, we assume it is old unless created_at is recent
-          const lastUpdate = code.updated_at || new Date(code.created_at).getTime()
+          const lastUpdate = code.updated_at || new Date(code.created_at).getTime();
           return lastUpdate > threshold;
         })
-        .toArray()
+        .toArray();
     },
     [activeDevice?.id]
+  );
 
-
-  const codes = useMemo(() => (codesQuery ?? EMPTY_ARRAY) as BoksCode[], [codesQuery])
+  const codes = useMemo(() => (codesQuery ?? EMPTY_ARRAY) as BoksCode[], [codesQuery]);
 
   const logsQuery = useLiveQuery(
     () => (activeDevice?.id ? db.logs.where('device_id').equals(activeDevice.id).toArray() : []),
     [activeDevice?.id]
-
-  const logs = useMemo(() => (logsQuery ?? EMPTY_ARRAY) as BoksLog[], [logsQuery])
+  );
+  const logs = useMemo(() => (logsQuery ?? EMPTY_ARRAY) as BoksLog[], [logsQuery]);
 
   // Derived counts
-  const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPES.MASTER), [codes])
+  const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPES.MASTER), [codes]);
   const temporaryCodes = useMemo(
     () => codes.filter((c) => c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI),
     [codes]
-
+  );
 
   // Refresh code count from device
   const refreshCodeCount = useCallback(async () => {
     if (!isConnected) {
-      showNotification(t('not_connected'), 'error')
+      showNotification(t('not_connected'), 'error');
       return;
     }
 
     await runTask(
       async () => {
-        const response = await sendRequest(new CountCodesPacket())
+        const response = await sendRequest(new CountCodesPacket());
         const packet = Array.isArray(response) ? response[0] : response;
         console.log(
           `[CodeManager] Response to 0x14 received: Opcode=0x${packet.opcode.toString(16)}, Payload=`,
           packet.payload
-        )
+        );
         return packet;
       },
       {
@@ -108,8 +108,8 @@ export const useCodeLogic = (
         successMsg: t('refresh_success'),
         errorMsg: t('refresh_failed'),
       }
-    )
-  }, [isConnected, sendRequest, showNotification, hideNotification, t])
+    );
+  }, [isConnected, sendRequest, showNotification, hideNotification, t]);
 
   const sortCodesByPriority = useCallback((codes: BoksCode[]) => {
     // Helper function to get priority group
@@ -145,7 +145,7 @@ export const useCodeLogic = (
 
     return codes
       .map((code) => {
-        const date = new Date(code.created_at).getTime()
+        const date = new Date(code.created_at).getTime();
         return {
           code,
           priority: getPriority(code),
@@ -167,8 +167,8 @@ export const useCodeLogic = (
 
         return b.date - a.date;
       })
-      .map((item) => item.code)
-  }, [])
+      .map((item) => item.code);
+  }, []);
 
   // Helper function to check for index conflicts in permanent codes
   const hasIndexConflict = useCallback(
@@ -177,10 +177,10 @@ export const useCodeLogic = (
       return codes.some(
         (code) =>
           code.type === CODE_TYPES.MASTER && code.index === index && code.id !== currentCodeId
-      )
+      );
     },
     [codes]
-
+  );
 
   const handleAddCode = useCallback(
     async (newCodeData: Partial<BoksCode>, overwriteCodeId: string | null = null) => {
@@ -189,13 +189,13 @@ export const useCodeLogic = (
       try {
         // If there's a code to overwrite, mark it for deletion
         if (overwriteCodeId) {
-          const overwriteCode = await db.codes.get(overwriteCodeId)
+          const overwriteCode = await db.codes.get(overwriteCodeId);
           if (overwriteCode) {
             await StorageService.updateCodeStatus(
               activeDevice.id,
               overwriteCodeId,
               CODE_STATUS.PENDING_DELETE
-            )
+            );
              addTask({
                 type: TaskType.DELETE_CODE,
                 deviceId: activeDevice.id,
@@ -205,12 +205,12 @@ export const useCodeLogic = (
                   codeId: overwriteCode.id,
                   codeType: overwriteCode.type,
                 },
-              })
+              });
           }
         }
 
         if (!newCodeData.code || !newCodeData.type) {
-          throw new Error('Missing required code data')
+          throw new Error('Missing required code data');
         }
 
         // Create the new code entry (V2 Schema)
@@ -233,7 +233,7 @@ export const useCodeLogic = (
         };
 
         // Add the new code to the database
-        await db.codes.add(codeEntry)
+        await db.codes.add(codeEntry);
 
         // Add task for BLE sync
         let taskType: TaskType;
@@ -260,25 +260,25 @@ export const useCodeLogic = (
             codeId: codeEntry.id,
             // Include other payload fields if needed for specific task types
           },
-        })
+        });
 
-        showNotification(t('added'), 'success')
+        showNotification(t('added'), 'success');
       } catch (error) {
-        console.error('Failed to add code:', error)
-        showNotification(t('add_failed'), 'error')
+        console.error('Failed to add code:', error);
+        showNotification(t('add_failed'), 'error');
       }
     },
     [activeDevice?.id, showNotification, t, addTask]
-
+  );
 
   const handleDeleteCode = useCallback(
     async (id: string) => {
       if (!activeDevice?.id) return;
 
       try {
-        const codeToDelete = await db.codes.get(id)
+        const codeToDelete = await db.codes.get(id);
 
-        await StorageService.updateCodeStatus(activeDevice.id, id, CODE_STATUS.PENDING_DELETE)
+        await StorageService.updateCodeStatus(activeDevice.id, id, CODE_STATUS.PENDING_DELETE);
 
         if (codeToDelete) {
              addTask({
@@ -290,17 +290,17 @@ export const useCodeLogic = (
                   codeId: codeToDelete.id,
                   codeType: codeToDelete.type,
                 },
-              })
+              });
         }
 
-        showNotification(t('deleted'), 'success')
+        showNotification(t('deleted'), 'success');
       } catch (error) {
-        console.error('Failed to delete code:', error)
-        showNotification(t('delete_failed'), 'error')
+        console.error('Failed to delete code:', error);
+        showNotification(t('delete_failed'), 'error');
       }
     },
     [activeDevice?.id, showNotification, t, addTask]
-
+  );
 
   // Function to derive code metadata from logs
   const deriveCodeMetadata = useCallback(
@@ -321,7 +321,7 @@ export const useCodeLogic = (
             }
             return false;
           })
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
         if (masterLogs.length > 0) {
           return { lastUsed: new Date(masterLogs[0].timestamp as string) };
@@ -331,13 +331,13 @@ export const useCodeLogic = (
         // This is a simplification - in reality, we might need more information in the logs
         const singleUseLogs = logs
           .filter((log) => log.event === 'SINGLE_USE_OPEN')
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
         // Check if any log is after the code creation date
-        const codeCreationDate = new Date(code.created_at)
+        const codeCreationDate = new Date(code.created_at);
         const usedLog = singleUseLogs.find(
           (log) => new Date(log.timestamp as string) > codeCreationDate
-        )
+        );
 
         if (usedLog) {
           return { used: true, usedDate: new Date(usedLog.timestamp as string) };
@@ -347,39 +347,39 @@ export const useCodeLogic = (
       return {};
     },
     [logs]
-
+  );
 
   // Get codes filtered by type with unified sorting
   const getFilteredCodes = useCallback(
     (type: string) => {
       if (type === CODE_TYPES.MASTER) {
-        const filteredCodes = codes.filter((code) => code.type === type)
+        const filteredCodes = codes.filter((code) => code.type === type);
         // For master codes, we still sort by index but apply our priority sorting first
-        const sortedByPriority = sortCodesByPriority(filteredCodes)
+        const sortedByPriority = sortCodesByPriority(filteredCodes);
         // Then sort by index within each priority group
-        return sortedByPriority.sort((a, b) => (a.index || 0) - (b.index || 0))
+        return sortedByPriority.sort((a, b) => (a.index || 0) - (b.index || 0));
       } else {
         // Temporary codes (single and multi-use)
         // Get all temporary codes (single and multi)
         const temporaryCodes = codes.filter(
           (code) => code.type === CODE_TYPES.SINGLE || code.type === CODE_TYPES.MULTI
-        )
+        );
         // Apply our priority sorting to the combined list
-        return sortCodesByPriority(temporaryCodes)
+        return sortCodesByPriority(temporaryCodes);
       }
     },
     [codes, sortCodesByPriority]
-
+  );
 
   // Handle copying code to clipboard
   const handleCopyCode = useCallback(
     (codeValue: string) => {
       navigator.clipboard.writeText(codeValue).then(() => {
-        showNotification(t('copied'), 'success')
-      })
+        showNotification(t('copied'), 'success');
+      });
     },
     [showNotification, t]
-
+  );
 
   return {
     codes,
