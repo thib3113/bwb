@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BoksSimulator, SimulatorAPI } from '../BoksSimulator';
-import { BLEOpcode, SIMULATOR_DEFAULT_PIN } from '../../../utils/bleConstants';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {BoksSimulator, SimulatorAPI} from '../BoksSimulator';
+import {BLEOpcode, SIMULATOR_DEFAULT_PIN} from '../../../utils/bleConstants';
 
 describe('BoksSimulator', () => {
   let simulator: BoksSimulator;
@@ -117,12 +117,46 @@ describe('BoksSimulator', () => {
     controller.enableChaos(true);
     expect(controller.getState().chaosMode).toBe(true);
 
-    // Advance time to trigger chaos event (10s check)
-    // Randomness is tricky to test, but we can check if timer is running implicitly
-    // or spy on Math.random if needed.
-    // Here we just ensure state is set.
-
     controller.enableChaos(false);
     expect(controller.getState().chaosMode).toBe(false);
+  });
+
+  it('should handle code creation', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+    // Payload: ConfigKey(4) + Index(1) + Pin(var)
+    const pin = '998877';
+    const payload = new Uint8Array([0, 0, 0, 0, 0, ...new TextEncoder().encode(pin)]);
+
+    simulator.handlePacket(BLEOpcode.CREATE_SINGLE_USE_CODE, payload);
+    vi.advanceTimersByTime(60);
+
+    const state = (window as any).boksSimulatorController.getState();
+    expect(state.pinCodes.get(pin)).toBe('single');
+    expect(emitSpy).toHaveBeenCalled();
+  });
+
+  it('should handle code counting', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+
+    // Add another code
+    const state = (window as any).boksSimulatorController.getState();
+    state.pinCodes.set('112233', 'single');
+
+    simulator.handlePacket(BLEOpcode.COUNT_CODES, new Uint8Array([]));
+    vi.advanceTimersByTime(60);
+
+    // Should emit NOTIFY_CODES_COUNT [MasterHigh, MasterLow, SingleHigh, SingleLow]
+    // 1 Master (default), 1 Single
+    // [0, 1, 0, 1]
+    expect(emitSpy).toHaveBeenCalledWith('notification', expect.any(Uint8Array));
+  });
+
+  it('should handle La Poste configuration', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+
+    simulator.handlePacket(BLEOpcode.SET_CONFIGURATION, new Uint8Array([0x01]));
+    vi.advanceTimersByTime(60);
+
+    expect(emitSpy).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,5 @@
-import { BLEPacket } from './packetParser';
-import { BLEOpcode } from './bleConstants';
+import {BLEPacket} from './packetParser';
+import {BLEOpcode} from './bleConstants';
 
 export type QueueMatchStrategy = (packet: BLEPacket) => 'finish' | 'continue' | 'ignore';
 
@@ -179,6 +179,12 @@ export class BLEQueue {
       return true;
 
     if (requestOpcode === BLEOpcode.COUNT_CODES && responseOpcode === BLEOpcode.NOTIFY_CODES_COUNT)
+      return true;
+
+    if (
+      requestOpcode === BLEOpcode.SET_CONFIGURATION &&
+      responseOpcode === BLEOpcode.NOTIFY_SET_CONFIGURATION_SUCCESS
+    )
       return true;
 
     // Configuration

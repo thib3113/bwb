@@ -1,7 +1,14 @@
-import { BLEAdapter } from './BLEAdapter';
-import { BluetoothDevice } from '../../types';
-import { BoksSimulator } from '../simulator/BoksSimulator';
-import { BLEOpcode, SIMULATOR_BLE_ID } from '../../utils/bleConstants';
+import {BLEAdapter} from './BLEAdapter';
+import {BluetoothDevice} from '../../types';
+import {BoksSimulator} from '../simulator/BoksSimulator';
+import {
+  BATTERY_LEVEL_CHAR_UUID,
+  BATTERY_SERVICE_UUID,
+  BLEOpcode,
+  DEVICE_INFO_CHARS,
+  DEVICE_INFO_SERVICE_UUID,
+  SIMULATOR_BLE_ID,
+} from '../../utils/bleConstants';
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
   private simulator: BoksSimulator;
@@ -9,7 +16,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
   private notificationCallback: ((value: DataView) => void) | null = null;
 
   constructor() {
-    this.simulator = new BoksSimulator();
+    this.simulator = BoksSimulator.getInstance();
     // Pipe simulator notifications to the callback
     this.simulator.on('notification', (rawPacket: unknown) => {
       if (this.notificationCallback && this.isConnected && rawPacket instanceof Uint8Array) {
@@ -30,9 +37,22 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
     // Simulate spontaneous notifications after connection
     setTimeout(() => {
-      // Code Count: 1 Master Code. Big Endian [0, 1].
-      // The simulator helper 'sendNotification' uses 'createPacket', which now handles 0xC3 length correctly.
-      this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [0, 1, 0, 0]);
+      // Fetch actual counts from simulator state
+      const state = this.simulator.getPublicState();
+      let masterCount = 0;
+      let singleCount = 0;
+      for (const type of state.pinCodes.values()) {
+        if (type === 'master') masterCount++;
+        else if (type === 'single') singleCount++;
+      }
+
+      // Code Count: Big Endian [MasterMSB, MasterLSB, SingleMSB, SingleLSB].
+      this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [
+        (masterCount >> 8) & 0xff,
+        masterCount & 0xff,
+        (singleCount >> 8) & 0xff,
+        singleCount & 0xff,
+      ]);
     }, 500);
 
     return {
@@ -58,7 +78,13 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
   }
 
   async write(_serviceUuid: string, _charUuid: string, data: Uint8Array): Promise<void> {
-    if (!this.isConnected) throw new Error('Simulator not connected');
+    if (!this.isConnected) {
+      console.error('[SimulatedAdapter] Write failed: Not connected', {
+        opcode: data[0],
+        length: data[1],
+      });
+      throw new Error('Simulator not connected');
+    }
 
     if (data.length < 2) return; // Invalid
     const opcode = data[0];
@@ -81,12 +107,42 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     this.simulator.handlePacket(opcode, payload);
   }
 
-  async read(): Promise<DataView> {
+  async read(serviceUuid: string, charUuid: string): Promise<DataView> {
     if (!this.isConnected) throw new Error('Simulator not connected');
 
-    // Return fake data depending on UUID
-    // Example: Battery Level 50%
-    const buffer = new Uint8Array([50]);
+    const state = this.simulator.getPublicState();
+
+    // 1. Battery Service
+    if (serviceUuid === BATTERY_SERVICE_UUID && charUuid === BATTERY_LEVEL_CHAR_UUID) {
+      const buffer = new Uint8Array([state.batteryLevel]);
+      return new DataView(buffer.buffer);
+    }
+
+    // 2. Device Info Service
+    if (serviceUuid === DEVICE_INFO_SERVICE_UUID) {
+      const encoder = new TextEncoder();
+      if (charUuid === DEVICE_INFO_CHARS['Firmware Revision']) {
+        // HW Version
+        const data = encoder.encode(state.firmwareRevision);
+        return new DataView(data.buffer);
+      }
+      if (charUuid === DEVICE_INFO_CHARS['Software Revision']) {
+        // SW Version
+        const data = encoder.encode(state.softwareRevision);
+        return new DataView(data.buffer);
+      }
+      if (charUuid === DEVICE_INFO_CHARS['Manufacturer Name']) {
+        const data = encoder.encode('Boks');
+        return new DataView(data.buffer);
+      }
+      if (charUuid === DEVICE_INFO_CHARS['Model Number']) {
+        const data = encoder.encode('2.0');
+        return new DataView(data.buffer);
+      }
+    }
+
+    // Default Fallback
+    const buffer = new Uint8Array([0]);
     return new DataView(buffer.buffer);
   }
 
