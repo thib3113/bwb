@@ -10,6 +10,8 @@ test.describe('Version Gating', () => {
     // Wait for the app to render (Onboarding OR Main Layout)
     const onboarding = page.getByTestId('onboarding-view');
     const mainNav = page.getByTestId('main-nav');
+
+    // Initial wait to ensure app loaded
     await expect(onboarding.or(mainNav)).toBeVisible({ timeout: 30000 });
 
     // Reset App to ensure clean state (Onboarding)
@@ -33,11 +35,9 @@ test.describe('Version Gating', () => {
     });
   });
 
-  test('should soft-disable NFC tab and show toast for older firmware', async ({
-    page,
-    simulator,
-  }) => {
+  test('should soft-disable NFC tab and show toast for older firmware', async ({ page, simulator }) => {
     // 1. Set Version to 4.2.0 (Too old for NFC, Good for La Poste)
+    // Wait for the simulator controller to be available
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
     });
@@ -57,9 +57,6 @@ test.describe('Version Gating', () => {
 
     // Check NFC Tab
     const nfcTab = page.getByTestId('tab-nfc');
-    // Or add test-id to nfc tab?
-    // Let's assume text works for tabs as they are less likely to change structure, or add test-id if needed.
-    // For now, rely on role which is accessible.
     await expect(nfcTab).toBeVisible();
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
 
@@ -70,10 +67,7 @@ test.describe('Version Gating', () => {
     await expect(page.getByText(/version firmware 4.3.3 required/i)).toBeVisible();
   });
 
-  test('should soft-disable La Poste and show toast for very old firmware', async ({
-    page,
-    simulator,
-  }) => {
+  test('should soft-disable La Poste and show toast for very old firmware', async ({ page, simulator }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 60000,
     });
@@ -89,8 +83,6 @@ test.describe('Version Gating', () => {
 
     // Check La Poste Switch
     const laPosteSwitch = page.getByRole('checkbox', { name: /la poste/i });
-    // Or add test-id to switch?
-    // Role checkbox with name is good.
     await expect(laPosteSwitch).toBeVisible();
 
     // Click it
