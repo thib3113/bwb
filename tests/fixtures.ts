@@ -41,6 +41,30 @@ export const test = base.extend<{ simulator: Simulator }>({
         window.txEvents.push(e.detail);
         console.log(`[Simulator Fixture] Captured TX: ${e.detail.opcode}`);
       });
+
+      // Helper to reset app state (Clear DB + Disconnect)
+      // @ts-expect-error - Custom global helper
+      window.resetApp = async () => {
+        console.log('[Test] Resetting App State...');
+
+        // 1. Clear DB via StorageService if available
+        // @ts-expect-error - boksDebug exposed by main/StorageService
+        if (window.boksDebug && window.boksDebug.StorageService) {
+           const originalReload = window.location.reload;
+           window.location.reload = () => { console.log('[Test] Suppressed reload during reset'); }; // No-op
+           // @ts-expect-error - boksDebug exposed by main/StorageService
+           await window.boksDebug.StorageService.clearAllData();
+           window.location.reload = originalReload;
+        }
+
+        // 2. Clear LocalStorage (preserve simulator flag)
+        const sim = localStorage.getItem('BOKS_SIMULATOR_ENABLED');
+        localStorage.clear();
+        localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+        localStorage.setItem('i18nextLng', 'en');
+
+        console.log('[Test] App State Reset Complete');
+      };
     });
 
     // 2. Define helper methods

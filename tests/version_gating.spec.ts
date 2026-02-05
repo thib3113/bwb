@@ -8,19 +8,28 @@ test.describe('Version Gating', () => {
     await page.goto('/', { timeout: 60000 });
 
     // Wait for the app to render (Onboarding OR Main Layout)
-    // "Boks BLE Control Panel" is in Onboarding
-    // "Codes" tab button is in Main Layout
     const onboarding = page.getByText('Boks BLE Control Panel');
     const codesTab = page.getByRole('button', { name: /codes/i });
     await expect(onboarding.or(codesTab)).toBeVisible({ timeout: 30000 });
 
-    // Force enable simulator to be absolutely sure, using the new dynamic toggle
+    // Reset App to ensure clean state (Onboarding)
+    // This clears the DB and disconnects any lingering simulated connection
+    await page.evaluate(async () => {
+      if ((window as any).resetApp) {
+        await (window as any).resetApp();
+      }
+    });
+
+    // Reload to reflect empty DB (Onboarding View)
+    await page.reload();
+
+    // Now we must be in Onboarding view
+    await expect(onboarding).toBeVisible({ timeout: 30000 });
+
+    // Force enable simulator
     await page.evaluate(() => {
       if ((window as any).toggleSimulator) {
-        console.log('[Test] Forcing Simulator ON via toggleSimulator');
         (window as any).toggleSimulator(true);
-      } else {
-        console.warn('[Test] toggleSimulator not found on window');
       }
     });
   });
@@ -36,16 +45,14 @@ test.describe('Version Gating', () => {
       (window as any).boksSimulatorController.setVersion('4.2.0', '4.0');
     });
 
-    // Check if we need to connect (if in Onboarding view)
+    // Connect (we are in Onboarding view now)
     const connectButton = page.getByRole('button', { name: /connect/i });
-    if (await connectButton.isVisible()) {
-      await connectButton.click();
-    }
+    await connectButton.click();
 
     // Wait for App to load (Codes tab is default)
     await expect(page.getByRole('button', { name: /codes/i })).toBeVisible({ timeout: 15000 });
 
-    // Navigate to My Boks directly (as UI link might be in a hidden menu)
+    // Navigate to My Boks directly
     await page.goto('/my-boks');
 
     // Check NFC Tab
@@ -71,15 +78,12 @@ test.describe('Version Gating', () => {
     });
 
     const connectButton = page.getByRole('button', { name: /connect/i });
-    if (await connectButton.isVisible()) {
-      await connectButton.click();
-    }
+    await connectButton.click();
 
     await expect(page.getByRole('button', { name: /codes/i })).toBeVisible({ timeout: 15000 });
     await page.goto('/my-boks');
 
     // Check La Poste Switch
-    // It is inside the DeviceSettings component, which is the default tab of MyBoksPage
     const laPosteSwitch = page.getByRole('checkbox', { name: /la poste/i });
 
     // Click it
@@ -99,9 +103,7 @@ test.describe('Version Gating', () => {
     });
 
     const connectButton = page.getByRole('button', { name: /connect/i });
-    if (await connectButton.isVisible()) {
-      await connectButton.click();
-    }
+    await connectButton.click();
 
     await expect(page.getByRole('button', { name: /codes/i })).toBeVisible({ timeout: 15000 });
     await page.goto('/my-boks');
