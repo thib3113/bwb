@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -13,11 +13,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {Visibility, VisibilityOff} from '@mui/icons-material';
-import {useTranslation} from 'react-i18next';
-import {useDevice} from '../../hooks/useDevice';
-import {UserRole} from '../../types';
-import {compareVersions} from '../../utils/version';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+import { useDevice } from '../../hooks/useDevice';
+import { UserRole } from '../../types';
+import { compareVersions } from '../../utils/version';
 
 interface DeviceSettingsProps {
   deviceId: string;

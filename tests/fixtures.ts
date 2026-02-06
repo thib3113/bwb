@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import {expect, test as base} from '@playwright/test';
-import {BLEOpcode} from '../src/utils/bleConstants';
+import { expect, test as base } from '@playwright/test';
+import { BLEOpcode } from '../src/utils/bleConstants';
 
 // Re-export constants for easy access in tests
 export { BLEOpcode } from '../src/utils/bleConstants';
@@ -52,12 +52,12 @@ export const test = base.extend<{ simulator: Simulator }>({
         // @ts-ignore
         const db = window.boksDebug?.db;
         if (db) {
-           await db.devices.clear();
-           await db.device_secrets.clear();
-           await db.settings.clear();
-           await db.codes.clear();
-           await db.logs.clear();
-           console.log('[Test] DB Cleared');
+          await db.devices.clear();
+          await db.device_secrets.clear();
+          await db.settings.clear();
+          await db.codes.clear();
+          await db.logs.clear();
+          console.log('[Test] DB Cleared');
         }
 
         // 2. Clear LocalStorage (preserve simulator flag)
@@ -107,29 +107,34 @@ export const test = base.extend<{ simulator: Simulator }>({
       connect: async () => {
         console.log('[Simulator Fixture] Connecting...');
         // Use a more relaxed waiting strategy
-        await page.waitForFunction(() => {
-          const el = document.querySelector('[data-testid="onboarding-view"], [data-testid="main-nav"]');
-          return !!el && (el as HTMLElement).offsetParent !== null;
-        }, { timeout: 30000 });
+        await page.waitForFunction(
+          () => {
+            const el = document.querySelector(
+              '[data-testid="onboarding-view"], [data-testid="main-nav"]'
+            );
+            return !!el && (el as HTMLElement).offsetParent !== null;
+          },
+          { timeout: 30000 }
+        );
 
         const onboarding = page.getByTestId('onboarding-view').first();
 
         // Force enable simulator
         await page.evaluate(async () => {
           if ((window as any).toggleSimulator) {
-             (window as any).toggleSimulator(true);
-             await new Promise(r => setTimeout(r, 200));
+            (window as any).toggleSimulator(true);
+            await new Promise((r) => setTimeout(r, 200));
           } else {
-             throw new Error('toggleSimulator not found');
+            throw new Error('toggleSimulator not found');
           }
         });
 
         // Click Connect if in Onboarding
         if (await onboarding.isVisible()) {
-           await onboarding.getByRole('button', { name: /connect/i }).click();
-           await page.waitForTimeout(2000);
+          await onboarding.getByRole('button', { name: /connect/i }).click();
+          await page.waitForTimeout(2000);
         }
-      }
+      },
     };
 
     // 3. Use the fixture

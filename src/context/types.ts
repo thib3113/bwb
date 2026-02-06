@@ -24,8 +24,7 @@ export interface BLEContextType {
     payloadOrOptions?: Uint8Array | BLECommandOptions,
     options?: BLECommandOptions
   ) => Promise<BLEPacket | BLEPacket[]>;
-  getDeviceInfo: () => Promise<string | null>;
-  getAllDeviceInfo: () => Promise<Record<string, string>>;
+  getDeviceInfo: () => Promise<Record<string, string>>;
   getBatteryInfo: () => Promise<DataView | null>;
   readCharacteristic: (serviceUuid: string, charUuid: string) => Promise<DataView>;
   registerCallback: (opcode: number, callback: (packet: BLEPacket) => void) => void;

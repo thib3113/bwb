@@ -253,8 +253,8 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [toggleSimulator]);
 
-  // Stabilize getAllDeviceInfo
-  const getAllDeviceInfo = useCallback(async () => {
+  // Stabilize getDeviceInfo
+  const getDeviceInfo = useCallback(async () => {
     if (connectionState !== 'connected') return {};
     const info: Record<string, string> = {};
 
@@ -302,8 +302,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         }
       },
       sendRequest,
-      getDeviceInfo: async () => null, // To be implemented if needed
-      getAllDeviceInfo,
+      getDeviceInfo,
       getBatteryInfo: async () => {
         if (connectionState !== 'connected') return null;
         try {
@@ -334,7 +333,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       addListener,
       removeListener,
       bleService,
-      getAllDeviceInfo,
+      getDeviceInfo,
       toggleSimulator,
     ]
   );

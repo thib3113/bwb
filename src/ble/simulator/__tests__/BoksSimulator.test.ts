@@ -1,6 +1,6 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {BoksSimulator, SimulatorAPI} from '../BoksSimulator';
-import {BLEOpcode, SIMULATOR_DEFAULT_PIN} from '../../../utils/bleConstants';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BoksSimulator, SimulatorAPI } from '../BoksSimulator';
+import { BLEOpcode, SIMULATOR_DEFAULT_PIN } from '../../../utils/bleConstants';
 
 describe('BoksSimulator', () => {
   let simulator: BoksSimulator;

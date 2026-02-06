@@ -1,6 +1,6 @@
-import {EventEmitter} from '../utils/EventEmitter';
-import {BLEPacket, createPacket, parsePacket} from '../utils/packetParser';
-import {PacketFactory} from '../ble/packets/PacketFactory';
+import { EventEmitter } from '../utils/EventEmitter';
+import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
+import { PacketFactory } from '../ble/packets/PacketFactory';
 import {
   BATTERY_SERVICE_UUID,
   BLEOpcode,
@@ -9,13 +9,13 @@ import {
   SERVICE_UUID,
   WRITE_CHAR_UUID,
 } from '../utils/bleConstants';
-import {BLECommandOptions, BLEQueue} from '../utils/BLEQueue';
-import {ParsedPayload} from '../utils/payloadParser';
-import {BoksTXPacket} from '../ble/packets/BoksTXPacket';
-import {BLEAdapter} from '../ble/adapter/BLEAdapter';
-import {WebBluetoothAdapter} from '../ble/adapter/WebBluetoothAdapter';
-import {GattOperationPacket} from '../ble/packets/GattOperationPacket';
-import {getCharacteristicName, parseCharacteristicValue} from '../utils/bleUtils';
+import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
+import { ParsedPayload } from '../utils/payloadParser';
+import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
+import { BLEAdapter } from '../ble/adapter/BLEAdapter';
+import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
+import { getCharacteristicName, parseCharacteristicValue } from '../utils/bleUtils';
 
 class DescriptionPayload implements ParsedPayload {
   constructor(
