@@ -1,8 +1,17 @@
 import { db } from '../db/db';
-import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings } from '../types';
-import { BoksDevice, BoksNfcTag, UserRole } from '../types/db';
+import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings, UserRole } from '../types';
+import { BoksDevice, BoksNfcTag } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
 import { CODE_TYPES } from '../utils/constants';
+
+interface RunTaskOptions {
+  showNotification?: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
+  hideNotification?: () => void;
+  loadingMsg?: string;
+  successMsg?: string;
+  errorMsg?: string;
+  minDuration?: number;
+}
 
 export class StorageService {
   /**
@@ -63,8 +72,9 @@ export class StorageService {
 
   /**
    * Save logs and update related entities (Codes, NFC Tags)
+   * Accepts Partial<BoksLog> to be compatible with mock data and various inputs
    */
-  static async saveLogs(deviceId: string, logs: BoksLog[]): Promise<void> {
+  static async saveLogs(deviceId: string, logs: Partial<BoksLog>[]): Promise<void> {
     if (!deviceId || !logs || logs.length === 0) return;
 
     try {
@@ -273,6 +283,49 @@ export class StorageService {
   }
 
   /**
+   * Utility to run an async task with notification handling
+   */
+  static async runTask<T>(task: () => Promise<T>, options: RunTaskOptions = {}): Promise<T | null> {
+    const {
+      showNotification,
+      hideNotification,
+      loadingMsg,
+      successMsg,
+      errorMsg,
+      minDuration = 500,
+    } = options;
+
+    if (showNotification && loadingMsg) {
+      showNotification(loadingMsg, 'info');
+    }
+
+    const startTime = Date.now();
+
+    try {
+      const result = await task();
+
+      const duration = Date.now() - startTime;
+      if (duration < minDuration) {
+        await new Promise((resolve) => setTimeout(resolve, minDuration - duration));
+      }
+
+      if (hideNotification) hideNotification();
+      if (showNotification && successMsg) {
+        showNotification(successMsg, 'success');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Task failed:', error);
+      if (hideNotification) hideNotification();
+      if (showNotification) {
+        showNotification(errorMsg || `Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+      }
+      return null;
+    }
+  }
+
+  /**
    * Mock data for development/testing
    */
   static async mockData(mockDeviceId: string = 'mock-boks-id'): Promise<void> {
@@ -290,6 +343,8 @@ export class StorageService {
       await db.users.put({
         id: localUserId,
         email: 'local@example.com',
+        is_offline: true,
+        updated_at: Date.now(),
       });
 
       // Create a mock device

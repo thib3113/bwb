@@ -4,14 +4,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { useDevice } from './useDevice';
 import { useBLE } from './useBLE';
-import { useNotifications } from '../components/common/NotificationProvider';
 import { BoksCode, CodeStatus } from '../types';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
 import { StorageService } from '../services/StorageService';
 import { useTaskContext } from './useTaskContext';
 import { TaskType } from '../types/task';
-import { CountCodesPacket } from '../ble/packets/PinManagementPackets';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { useTaskConsistency } from './useTaskConsistency';
 
 export interface CodeMetadata {
@@ -20,14 +19,16 @@ export interface CodeMetadata {
   usedDate?: Date;
 }
 
-export const useCodeLogic = () => {
+export const useCodeLogic = (
+  showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
+  hideNotification: () => void
+) => {
   const { t } = useTranslation('codes');
-  const { activeDevice } = useDevice();
-  const { showNotification, hideNotification } = useNotifications();
+  const { activeDevice, codeCount } = useDevice();
   const { sendRequest, isConnected } = useBLE();
   const { addTask } = useTaskContext();
 
-  const deviceId = activeDevice?.id || '';
+  const deviceId = activeDevice?.id || null;
 
   // Use Dexie hooks for reactive data
   const codes =
@@ -56,8 +57,8 @@ export const useCodeLogic = () => {
     [codes]
   );
 
-  // Use the new hook for code counts
-  const codeCount = useTaskConsistency(codes, activeDevice);
+  // Ensure task consistency (side effect)
+  useTaskConsistency(deviceId);
 
   // Function to refresh code counts from device
   const refreshCodeCount = useCallback(async () => {
