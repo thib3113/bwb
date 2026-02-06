@@ -214,8 +214,14 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
             switch (task.payload.codeType as string) {
               case CODE_TYPES.MASTER:
-                // Use explicit index from payload if available, otherwise check DB object, fallback to 0
-                const targetIndex = (task.payload.index as number) ?? codeObj?.index ?? 0;
+                // Use explicit index from payload if available, otherwise check DB object
+                // STRICT CHECK: Index MUST be defined. Do not fallback to 0 blindly.
+                const targetIndex = (task.payload.index as number) ?? codeObj?.index;
+
+                if (targetIndex === undefined || targetIndex === null) {
+                  throw new Error('Index required for Master Code deletion');
+                }
+
                 packet = new DeleteMasterCodePacket(configKey, targetIndex);
                 break;
 
@@ -249,19 +255,11 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                 }
 
                 // SUCCESS check: 0x77 is success.
-                // WORKAROUND: Firmware bug for Single/Multi codes deletion
-                // SPECIAL CASE: 0x78 (CODE_OPERATION_ERROR) for deletion is treated as success for idempotency
-                // (if code doesn't exist, deleting it should be considered successful)
-                const isWorkaroundOpcode =
-                  ((task.payload.codeType === CODE_TYPES.SINGLE ||
-                    task.payload.codeType === CODE_TYPES.MULTI) &&
-                    opcode === BLEOpcode.DELETE_SINGLE_USE_CODE) ||
-                  opcode === BLEOpcode.DELETE_MULTI_USE_CODE;
 
                 if (
-                  response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS ||
-                  response.opcode === BLEOpcode.CODE_OPERATION_ERROR || // Treat 0x78 as success for idempotency
-                  (isWorkaroundOpcode && response.opcode === BLEOpcode.CODE_OPERATION_ERROR)
+                  response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS
+                  // Removed 0x78 auto-success based on user requirement.
+                  // Deletion of non-existent code should fail.
                 ) {
                   // On success, remove local code entry ONLY if codeId was provided
                   if (codeId) {

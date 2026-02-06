@@ -1,35 +1,46 @@
 import { db } from '../db/db';
-import { BoksCode, BoksDevice, BoksLog, CodeStatus, UserRole, Settings } from '../types';
-import { BoksNfcTag } from '../types/db';
-import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
+import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings } from '../types';
+import { BoksDevice, BoksNfcTag, UserRole } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
+import { CODE_TYPES } from '../utils/constants';
 
 export class StorageService {
   /**
-   * Save codes for a specific Boks device
+   * Save or update codes in the database
    */
   static async saveCodes(deviceId: string, codes: Partial<BoksCode>[]): Promise<void> {
     if (!deviceId) return;
-
     try {
-      const codesToAdd = codes.map(
-        (code) =>
-          ({
-            id: code.id || crypto.randomUUID(),
-            device_id: deviceId,
-            author_id: code.author_id || APP_DEFAULTS.AUTHOR_ID, // Default author
-            type: code.type || CODE_TYPES.SINGLE,
-            code: code.code || '000000',
-            name: code.name || code.description || 'Unnamed Code',
-            status: code.status || 'pending_add',
-            sync_status: code.sync_status || 'created', // New codes need sync
-            created_at: code.created_at || code.createdAt || new Date().toISOString(),
-            ...code,
-          }) as BoksCode
-      );
+      const existingCodes = await db.codes.where('device_id').equals(deviceId).toArray();
+      const codesToPut: BoksCode[] = [];
 
-      if (codesToAdd.length > 0) {
-        await db.codes.bulkPut(codesToAdd);
+      for (const code of codes) {
+        // Find existing code to preserve properties not in 'code' object
+        // Match by ID if available, otherwise by code string
+        let existing = existingCodes.find((c) => c.id === code.id);
+        if (!existing && code.code) {
+          existing = existingCodes.find((c) => c.code === code.code);
+        }
+
+        const newCode: BoksCode = {
+          id: existing?.id || crypto.randomUUID(),
+          device_id: deviceId,
+          author_id: existing?.author_id || code.author_id || 'unknown',
+          type: (code.type || existing?.type || 'single') as any, // Cast for safety
+          code: code.code || existing?.code || '',
+          name: code.name || existing?.name || '',
+          index: code.index !== undefined ? code.index : existing?.index,
+          status: code.status || existing?.status || 'pending_add',
+          created_at: existing?.created_at || new Date().toISOString(),
+          sync_status: code.sync_status || 'created',
+          // Merge other props
+          ...code,
+        } as BoksCode;
+        codesToPut.push(newCode);
+      }
+
+      if (codesToPut.length > 0) {
+        await db.codes.bulkPut(codesToPut);
       }
     } catch (error) {
       console.error(`Failed to save codes for device ${deviceId}:`, error);
@@ -37,6 +48,9 @@ export class StorageService {
     }
   }
 
+  /**
+   * Get all codes for a device
+   */
   static async loadCodes(deviceId: string): Promise<BoksCode[]> {
     if (!deviceId) return [];
     try {
@@ -47,8 +61,11 @@ export class StorageService {
     }
   }
 
-  static async saveLogs(deviceId: string, logs: Partial<BoksLog>[]): Promise<void> {
-    if (!deviceId) return;
+  /**
+   * Save logs and update related entities (Codes, NFC Tags)
+   */
+  static async saveLogs(deviceId: string, logs: BoksLog[]): Promise<void> {
+    if (!deviceId || !logs || logs.length === 0) return;
 
     try {
       const logsToAdd: BoksLog[] = [];
@@ -66,6 +83,57 @@ export class StorageService {
           ...log,
         } as BoksLog;
         logsToAdd.push(logEntry);
+
+        // Check for Code Usage (Auto-Mark as Used)
+        // 0x86 (LOG_CODE_BLE_VALID_HISTORY) and 0x87 (LOG_CODE_KEY_VALID_HISTORY)
+        if (
+          log.opcode === BLEOpcode.LOG_CODE_BLE_VALID_HISTORY ||
+          log.opcode === BLEOpcode.LOG_CODE_KEY_VALID_HISTORY
+        ) {
+          let usedCodeValue: string | undefined;
+
+          // Try to get code from details (if parsed)
+          // @ts-expect-error - 'details' is dynamic
+          if (log.details?.code) {
+            // @ts-expect-error
+            usedCodeValue = log.details.code;
+          }
+          // Try to get from data (legacy/mock)
+          else if (log.data?.code_value) {
+            usedCodeValue = log.data.code_value as string;
+          }
+
+          if (usedCodeValue) {
+            console.log(`[StorageService] Detected usage of code: ${usedCodeValue}`);
+
+            // Find matching code in DB
+            // We need to find the OLDEST code that is 'on_device' (or 'synced') and NOT yet marked as used.
+            const matchingCodes = await db.codes
+              .where('device_id')
+              .equals(deviceId)
+              .filter((c) => {
+                return (
+                  c.code === usedCodeValue &&
+                  (c.status === 'on_device' || c.status === 'synced') &&
+                  !c.usedAt
+                );
+              })
+              .sortBy('created_at'); // Returns Promise<Array> sorted
+
+            if (matchingCodes.length > 0) {
+              const codeToUpdate = matchingCodes[0];
+              console.log(
+                `[StorageService] Marking code ${codeToUpdate.id} (${codeToUpdate.name}) as used.`
+              );
+
+              await db.codes.update(codeToUpdate.id, {
+                usedAt: logEntry.timestamp as string,
+                // We DO NOT change status to 'used', we keep it 'on_device' so it doesn't disappear from the device view unexpectedly
+                // UI will handle the 'used' appearance based on usedAt
+              });
+            }
+          }
+        }
 
         // Check for NFC Tags in log details
         // @ts-expect-error - 'details' comes from parseLog but is not on BoksLog interface
@@ -101,18 +169,6 @@ export class StorageService {
             });
           } else {
             // Only add if "User Badge" (0x03) or generic?
-            // Requirement: "logs vont des fois contenir des tag_uid ... avec un tag type 'USER' => ça veut donc dire qu'il fait partie des badges autorisés"
-            // So we blindly add all observed tags?
-            // "Pour en ajouter, il faut lancer un scan ... Une fois le tag trouvé, on propose à l'utilisateur de l'ajouter"
-            // So maybe we ONLY update `last_seen_at` if it exists, and AUTO-ADD only if it is explicitly type 0x03 (User Badge) which implies it IS authorized?
-            // User said: "logs vont des fois contenir des tag_uid . avec un tage type 'USER' => ça veut donc dire qu'il fait partie des badges autorisés"
-            // So if type is 0x03, we should ADD it if not present.
-            // But if type is something else (e.g. unknown), maybe we just ignore if not present?
-            // Let's assume if it's in the log with type 0x03, it is an authorized tag.
-            // If it is 0xA1 (NFC_OPENING), it opened the door, so it MUST be authorized (or master).
-            // Let's just add it.
-
-            // Use the tag object we prepared
             await db.nfc_tags.add(tag);
           }
         }
