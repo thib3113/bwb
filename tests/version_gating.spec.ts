@@ -1,4 +1,4 @@
-import {expect, test} from './fixtures';
+import { expect, test } from './fixtures';
 
 test.describe('Version Gating', () => {
   test.beforeEach(async ({ page }) => {
@@ -13,7 +13,10 @@ test.describe('Version Gating', () => {
     });
   });
 
-  test('should soft-disable NFC tab and show toast for older firmware', async ({ page, simulator }) => {
+  test('should soft-disable NFC tab and show toast for older firmware', async ({
+    page,
+    simulator,
+  }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
       timeout: 30000,
     });
@@ -29,13 +32,17 @@ test.describe('Version Gating', () => {
     await page.getByText(/my boks/i).click();
 
     // Wait for DB stabilization
-    await page.waitForFunction(async ({ sw, hw }) => {
-      // @ts-ignore
-      const db = window.boksDebug?.db;
-      if (!db) return false;
-      const device = await db.devices.toCollection().first();
-      return device && device.software_revision === sw && device.hardware_version === hw;
-    }, { sw: '4.2.0', hw: '4.0' }, { timeout: 15000 });
+    await page.waitForFunction(
+      async ({ sw, hw }) => {
+        // @ts-ignore
+        const db = window.boksDebug?.db;
+        if (!db) return false;
+        const device = await db.devices.toCollection().first();
+        return device && device.software_revision === sw && device.hardware_version === hw;
+      },
+      { sw: '4.2.0', hw: '4.0' },
+      { timeout: 15000 }
+    );
 
     const nfcTab = page.getByTestId('tab-nfc');
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
@@ -60,13 +67,17 @@ test.describe('Version Gating', () => {
     await page.getByText(/my boks/i).click();
 
     // Wait for DB sync
-    await page.waitForFunction(async ({ sw, hw }) => {
-      // @ts-ignore
-      const db = window.boksDebug?.db;
-      if (!db) return false;
-      const device = await db.devices.toCollection().first();
-      return device && device.software_revision === sw && device.hardware_version === hw;
-    }, { sw: '4.3.0', hw: '4.0' }, { timeout: 15000 });
+    await page.waitForFunction(
+      async ({ sw, hw }) => {
+        // @ts-ignore
+        const db = window.boksDebug?.db;
+        if (!db) return false;
+        const device = await db.devices.toCollection().first();
+        return device && device.software_revision === sw && device.hardware_version === hw;
+      },
+      { sw: '4.3.0', hw: '4.0' },
+      { timeout: 15000 }
+    );
 
     const laPosteSwitch = page.getByTestId('la-poste-switch');
     await expect(laPosteSwitch).toBeVisible({ timeout: 10000 });
@@ -97,13 +108,17 @@ test.describe('Version Gating', () => {
     await page.getByText(/my boks/i).click();
 
     // Wait for DB sync
-    await page.waitForFunction(async ({ sw, hw }) => {
-      // @ts-ignore
-      const db = window.boksDebug?.db;
-      if (!db) return false;
-      const device = await db.devices.toCollection().first();
-      return device && device.software_revision === sw && device.hardware_version === hw;
-    }, { sw: '4.5.0', hw: '3.0' }, { timeout: 15000 });
+    await page.waitForFunction(
+      async ({ sw, hw }) => {
+        // @ts-ignore
+        const db = window.boksDebug?.db;
+        if (!db) return false;
+        const device = await db.devices.toCollection().first();
+        return device && device.software_revision === sw && device.hardware_version === hw;
+      },
+      { sw: '4.5.0', hw: '3.0' },
+      { timeout: 15000 }
+    );
 
     const nfcTab = page.getByTestId('tab-nfc');
     await expect(nfcTab).toBeVisible({ timeout: 10000 });

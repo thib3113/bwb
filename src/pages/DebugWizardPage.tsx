@@ -41,7 +41,7 @@ export const DebugWizardPage = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { debugWizardState, updateDebugWizardState, resetDebugWizardState } = useSession();
   const { activeDevice } = useDevice();
-  const { device, isConnected, connect, disconnect, getAllDeviceInfo, error } = useBLEConnection();
+  const { device, isConnected, connect, disconnect, getDeviceInfo, error } = useBLEConnection();
 
   // Destructure state from context
   const {
@@ -120,7 +120,7 @@ export const DebugWizardPage = () => {
 
         try {
           console.log('DebugWizard: Starting device info fetch sequence...');
-          const info = await getAllDeviceInfo();
+          const info = await getDeviceInfo();
           if (!isMounted) {
             console.log('DebugWizard: Component unmounted during fetch, aborting state update');
             return;
@@ -165,7 +165,7 @@ export const DebugWizardPage = () => {
       };
       fetchInfo();
     }
-  }, [isConnected, firmwareVersion, isLoadingInfo, updateDebugWizardState, getAllDeviceInfo]);
+  }, [isConnected, firmwareVersion, isLoadingInfo, updateDebugWizardState, getDeviceInfo]);
 
   const handleRetryFetch = () => {
     updateDebugWizardState({ firmwareVersion: null });
