@@ -29,8 +29,13 @@ jobs:
         run: pnpm run test
 
   e2e-tests:
-    name: E2E Tests
+    name: E2E Tests (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,4 +73,4 @@ jobs:
         run: pnpm exec playwright install chromium --with-deps
 
       - name: Run Playwright Tests
-        run: pnpm exec playwright test
+        run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
