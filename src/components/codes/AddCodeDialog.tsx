@@ -62,6 +62,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
           setIndex(0);
           setUses(1);
         }
+        setShowCode(true);
       }, 0);
       return () => clearTimeout(timer);
     }
@@ -89,7 +90,6 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
     setName('');
     setIndex(0);
     setUses(1); // Réinitialiser le nombre d'utilisations
-    setShowCode(false);
     // Removed setShowOverwriteDialog, setOverwriteCodeId
     onClose();
   };
