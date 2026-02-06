@@ -28,30 +28,9 @@ jobs:
       - name: Run Unit Tests
         run: pnpm run test
 
-  get-playwright-version:
-    name: Get Playwright Version
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            package.json
-
-      - name: Get Playwright Version
-        id: get-version
-        run: |
-          VERSION=$(jq -r '.devDependencies["@playwright/test"]' package.json | sed 's/[\^~]//g')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
   e2e-tests:
     name: E2E Tests
-    needs: get-playwright-version
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -69,12 +48,24 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          # Playwright skips browser download if this env var is set,
-          # but since we are in the container, the browsers should be there.
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+      - name: Get Playwright Version
+        id: playwright-version
+        run: |
+          PLAYWRIGHT_VERSION=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[0].devDependencies["@playwright/test"].version')
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+          echo "version=$PLAYWRIGHT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright Browsers
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium --with-deps
 
       - name: Run Playwright Tests
         run: pnpm exec playwright test
-        env:
-          HOME: /root
