@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { MainLayout } from './components/layout/MainLayout';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { StorageService } from './services/StorageService';
+import { db } from './db/db'; // Import DB to expose it
 import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTaskConsistency } from './hooks/useTaskConsistency';
@@ -82,9 +83,12 @@ export function App() {
     // Expose StorageService for debugging
     if (globalThis.window) {
       window.boksDebug = {
+        ...window.boksDebug,
         mockData: StorageService.mockData,
+        StorageService: StorageService,
+        db: db, // Explicitly expose db
       };
-      console.log('StorageService exposed to window.boksDebug');
+      console.log('StorageService and DB exposed to window.boksDebug');
     }
 
     // Check for trampoline redirect from 404.html hack (GitHub Pages SPA)
