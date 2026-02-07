@@ -6,6 +6,7 @@ import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
 import { BoksLog } from '../types';
 import { BoksContext } from './Contexts';
+import { useNavigate } from 'react-router-dom';
 import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
 import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 
@@ -14,6 +15,7 @@ interface BoksProviderProps {
 }
 
 export const BoksProvider = ({ children }: BoksProviderProps) => {
+  const navigate = useNavigate();
   const {
     sendRequest,
     log,
@@ -33,11 +35,18 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
   useEffect(() => {
     if (isConnected && bleDevice) {
       log(`Syncing active device: ${bleDevice.name || bleDevice.id}`, 'info');
-      registerDevice(bleDevice).catch((err) => {
-        log(`Failed to register/activate device: ${err.message}`, 'error');
-      });
+      registerDevice(bleDevice)
+        .then((isNew) => {
+          if (isNew) {
+            log('New device detected, redirecting to settings...', 'info');
+            navigate('/my-boks?tab=settings');
+          }
+        })
+        .catch((err) => {
+          log(`Failed to register/activate device: ${err.message}`, 'error');
+        });
     }
-  }, [isConnected, bleDevice, registerDevice, log]);
+  }, [isConnected, bleDevice, registerDevice, log, navigate]);
 
   // Reset state on disconnect
   useEffect(() => {

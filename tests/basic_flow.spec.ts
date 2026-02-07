@@ -24,6 +24,20 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     // Wait for connection: Disabled icon should disappear
     await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
 
+    // Wait for potential redirect logic to trigger (it has 1.5s delay)
+    await page.waitForTimeout(2000);
+
+    // Handle potential redirect
+    if (page.url().includes('my-boks')) {
+      console.log('Redirected to My Boks. Navigating back via Menu...');
+      // Open Menu
+      await page.getByLabel('menu').click();
+      // Click Home (which redirects to /codes)
+      await page.getByText('Home').click();
+      // Wait for navigation
+      await page.waitForURL(/.*\/codes/);
+    }
+
     // Check for battery percentage as confirmation of connection
     await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
 
@@ -43,6 +57,20 @@ test.describe('Boks Basic Flow (Simulator)', () => {
 
     // Check for battery percentage as confirmation of connection
     await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
+
+    // Wait for potential redirect logic to trigger (it has 1.5s delay)
+    await page.waitForTimeout(2000);
+
+    // Handle potential redirect
+    if (page.url().includes('my-boks')) {
+      console.log('Redirected to My Boks. Navigating back via Menu...');
+      // Open Menu
+      await page.getByLabel('menu').click();
+      // Click Home (which redirects to /codes)
+      await page.getByText('Home').click();
+      // Wait for navigation
+      await page.waitForURL(/.*\/codes/);
+    }
 
     // Wait a bit for device context to settle
     await page.waitForTimeout(500);

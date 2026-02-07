@@ -7,13 +7,8 @@ test.describe('Bluetooth PIN Management', () => {
 
   test('should send CREATE_MASTER_CODE event', async ({ page, simulator }) => {
     // 1. Connect
-    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page
-      .getByRole('button', { name: /connect/i })
-      .filter({ hasText: /^Connect$|^$/ })
-      .first()
-      .click();
-    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
+    // 1. Connect
+    await simulator.connect();
 
     // 2. Add Code
     const addBtn = page

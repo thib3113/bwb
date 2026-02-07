@@ -55,7 +55,7 @@ export interface DeviceContextType {
   activeDeviceId: string | null;
   codeCount: CodeCounts | null;
   logCount: number | null;
-  registerDevice: (bleDevice: BluetoothDevice) => Promise<void>;
+  registerDevice: (bleDevice: BluetoothDevice) => Promise<boolean>;
   updateDeviceName: (deviceId: string, newName: string) => Promise<void>;
   updateDeviceDetails: (deviceId: string, details: Partial<BoksDevice>) => Promise<void>;
   removeDevice: (deviceId: string) => Promise<void>;
