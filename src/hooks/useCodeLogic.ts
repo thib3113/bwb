@@ -50,23 +50,6 @@ export const useCodeLogic = (
     [codes]
   );
 
-  // Note: useTaskConsistency is no longer used here as it's a side-effect hook used in App or Layout
-  // If it was needed, we would import useTaskConsistency from './useTaskConsistency' and call it.
-  // Assuming it is handled elsewhere or if needed, we should import and call it.
-  // For now, removing the call as it caused type errors and might be redundant if logic is in TaskContext
-  // Checking previous implementation, it was imported.
-  // import { useTaskConsistency } from './useTaskConsistency';
-  // useTaskConsistency(deviceId);
-  // Re-adding it with correct import if needed, but let's stick to fixing errors first.
-  // The error was "Module ... declares TaskType locally but not exported".
-  // And usage was wrong.
-
-  // Re-enable useTaskConsistency if it's crucial for this hook (it was present before)
-  // But we need to fix the import.
-  // const { addTask } = useTaskContext() covers the functionality needed for add/delete.
-  // The side effect logic should probably be in a top level component.
-  // I will leave it out for now as the goal is to fix compilation and logic errors.
-
   // Function to derive code metadata
   // Updated to use the 'usedAt' field which is now reliably set by StorageService during log sync
   const deriveCodeMetadata = useCallback(
@@ -98,10 +81,8 @@ export const useCodeLogic = (
          // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
          // But maybe 'lastUsed' is useful for Master codes too
          // Find the most recent log entry for this master code index
-         // TODO: Improve this with proper Opcode checks
       } else if (code.type === CODE_TYPES.SINGLE) {
         // Fallback for single use
-        // ...
       }
 
       return {};
