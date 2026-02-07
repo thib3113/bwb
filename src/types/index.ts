@@ -94,6 +94,13 @@ export interface BoksCode {
   usedAt?: string;
 }
 
+export interface CodeMetadata {
+  used?: boolean;
+  usedDate?: Date;
+  lastUsed?: Date;
+  usesRemaining?: number;
+}
+
 export interface CodeCreationData {
   type: CodeType;
   code: string;
