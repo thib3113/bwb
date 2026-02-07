@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { BoksCode, CodeMetadata, BoksLog } from '../types';
 import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
-import { CODE_STATUS, CodeStatus } from '../constants/codeStatus';
+import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from '../services/StorageService';
 import { useTaskContext } from './useTaskContext';
 import { TaskType } from '../types/task';
@@ -81,8 +81,10 @@ export const useCodeLogic = (
          // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
          // But maybe 'lastUsed' is useful for Master codes too
          // Find the most recent log entry for this master code index
+         // TODO: Improve this with proper Opcode checks
       } else if (code.type === CODE_TYPES.SINGLE) {
         // Fallback for single use
+        // ...
       }
 
       return {};
@@ -195,7 +197,7 @@ export const useCodeLogic = (
           index: newCodeData.index,
           name: newCodeData.name || newCodeData.description || 'Code', // Adapt legacy fields
           created_at: new Date().toISOString(),
-          status: CODE_STATUS.PENDING_ADD as CodeStatus,
+          status: CODE_STATUS.PENDING_ADD,
           device_id: activeDevice.id,
           author_id: APP_DEFAULTS.AUTHOR_ID, // Default
           sync_status: 'created',

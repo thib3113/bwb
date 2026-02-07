@@ -14,6 +14,7 @@ export type BLEConnectionState =
   | 'connected'
   | 'disconnecting';
 
+// Define CodeStatus as a union type of string literals
 export type CodeStatus =
   | 'pending_add' // BLE: On Admin phone, waiting for Boks connection
   | 'on_device' // BLE: Active on Boks
