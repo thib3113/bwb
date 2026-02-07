@@ -45,6 +45,7 @@ import { db } from '../../db/db';
 import { CODE_TYPES, APP_DEFAULTS } from '../../utils/constants';
 import { CODE_STATUS } from '../../constants/codeStatus';
 import { DeviceContext, TaskContext, BLEContext, LogContext } from '../../context/Contexts';
+import { BoksDevice, UserRole } from '../../types';
 
 // Mock dependencies
 const mockAddTask = vi.fn();
@@ -52,31 +53,42 @@ const mockShowNotification = vi.fn();
 const mockHideNotification = vi.fn();
 const mockSendRequest = vi.fn();
 
-const activeDevice = {
+const activeDevice: BoksDevice = {
   id: 'test-device-id',
   ble_name: 'Test Device',
   friendly_name: 'Test Device',
-  mac_address: '00:00:00:00:00:00',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  codeCount: { master: 0, single: 0, total: 0 }
+
+
+  updated_at: Date.now(),
+
+  role: UserRole.Admin,
+  sync_status: 'synced',
 };
 
 const wrapper = ({ children }: { children: any }) => (
   <DeviceContext.Provider value={{
-    activeDevice,
-    codeCount: null,
+    activeDevice, codeCount: null,
+
     refreshCodeCount: vi.fn(),
     knownDevices: [],
     setActiveDevice: vi.fn(),
     updateDeviceBatteryLevel: vi.fn(),
-    addDevice: vi.fn(),
+    registerDevice: vi.fn(),
     removeDevice: vi.fn(),
     updateDeviceName: vi.fn(),
-    updateDevicePin: vi.fn(),
-    getDevice: vi.fn(),
+    updateDeviceDetails: vi.fn(),
+    toggleLaPoste: vi.fn(),
+    logCount: 0,
+    activeDeviceId: activeDevice.id
   }}>
-    <LogContext.Provider value={{ addLog: vi.fn(), clearLogs: vi.fn(), logs: [], isSyncing: false, setIsSyncing: vi.fn() }}>
+    <LogContext.Provider value={{
+      log: vi.fn(),
+      addDebugLog: vi.fn(),
+      clearDebugLogs: vi.fn(),
+      logs: [],
+      debugLogs: [],
+      parseLog: vi.fn()
+    }}>
       <BLEContext.Provider value={{
         isConnected: false,
         isConnecting: false,
@@ -85,21 +97,21 @@ const wrapper = ({ children }: { children: any }) => (
         sendRequest: mockSendRequest,
         device: null,
         error: null,
-        characteristic: null,
-        server: null,
-        service: null,
-        reconnect: vi.fn(),
+        connectionState: 'disconnected',
+        sendPacket: vi.fn(),
+        getDeviceInfo: vi.fn(),
         getBatteryInfo: vi.fn(),
+        readCharacteristic: vi.fn(),
+        registerCallback: vi.fn(),
+        unregisterCallback: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        toggleSimulator: vi.fn()
       }}>
         <TaskContext.Provider value={{
           addTask: mockAddTask,
           tasks: [],
           retryTask: vi.fn(),
-          removeTask: vi.fn(),
-          clearTasks: vi.fn(),
-          processNextTask: vi.fn(),
-          isProcessing: false,
-          lastError: null,
         }}>
           {children}
         </TaskContext.Provider>
