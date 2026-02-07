@@ -1,36 +1,29 @@
 import { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { useDevice } from './useDevice';
-import { useBLE } from './useBLE';
-import { BoksCode, CodeStatus } from '../types';
-import { CODE_STATUS } from '../constants/codeStatus';
+import { BoksCode, CodeMetadata, BoksLog } from '../types';
 import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
+import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from '../services/StorageService';
 import { useTaskContext } from './useTaskContext';
 import { TaskType } from '../types/task';
+import { useBLE } from './useBLE';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
-import { useTaskConsistency } from './useTaskConsistency';
-
-export interface CodeMetadata {
-  lastUsed?: Date;
-  used?: boolean;
-  usedDate?: Date;
-}
+import { useTranslation } from 'react-i18next';
+import { useCodeCount } from './useCodeCount';
+import { useDevice } from './useDevice';
 
 export const useCodeLogic = (
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
   hideNotification: () => void
 ) => {
+  const { activeDevice } = useDevice();
+  const deviceId = activeDevice?.id;
+  const { isConnected, sendRequest } = useBLE();
   const { t } = useTranslation('codes');
-  const { activeDevice, codeCount } = useDevice();
-  const { sendRequest, isConnected } = useBLE();
+  const { codeCount, refreshCodeCount } = useCodeCount();
   const { addTask } = useTaskContext();
 
-  const deviceId = activeDevice?.id || null;
-
-  // Use Dexie hooks for reactive data
   const codes =
     useLiveQuery(
       () => (deviceId ? db.codes.where('device_id').equals(deviceId).toArray() : []),
@@ -57,33 +50,6 @@ export const useCodeLogic = (
     [codes]
   );
 
-  // Ensure task consistency (side effect)
-  useTaskConsistency(deviceId);
-
-  // Function to refresh code counts from device
-  const refreshCodeCount = useCallback(async () => {
-    if (!isConnected) return;
-
-    return await StorageService.runTask(
-      async () => {
-        const response = await sendRequest(new CountCodesPacket());
-        const packet = Array.isArray(response) ? response[0] : response;
-        console.log(
-          `[CodeManager] Response to 0x14 received: Opcode=0x${packet.opcode.toString(16)}, Payload=`,
-          packet.payload
-        );
-        return packet;
-      },
-      {
-        showNotification,
-        hideNotification,
-        loadingMsg: t('refresh_started'),
-        successMsg: t('refresh_success'),
-        errorMsg: t('refresh_failed'),
-      }
-    );
-  }, [isConnected, sendRequest, showNotification, hideNotification, t]);
-
   // Function to derive code metadata
   // Updated to use the 'usedAt' field which is now reliably set by StorageService during log sync
   const deriveCodeMetadata = useCallback(
@@ -91,6 +57,16 @@ export const useCodeLogic = (
       // Prioritize explicit 'usedAt' field
       if (code.usedAt) {
         const usedDate = new Date(code.usedAt);
+
+        // Master codes should not be marked as 'used' even if they have a usedAt date
+        if (code.type === CODE_TYPES.MASTER) {
+          return {
+            used: false,
+            usedDate: usedDate,
+            lastUsed: usedDate // For consistency
+          };
+        }
+
         return {
           used: true,
           usedDate: usedDate,
@@ -126,7 +102,7 @@ export const useCodeLogic = (
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // Check explicit usedAt
-        if (code.usedAt) {
+        if (code.usedAt && code.type !== CODE_TYPES.MASTER) {
              return 3;
         }
 
@@ -221,7 +197,7 @@ export const useCodeLogic = (
           index: newCodeData.index,
           name: newCodeData.name || newCodeData.description || 'Code', // Adapt legacy fields
           created_at: new Date().toISOString(),
-          status: CODE_STATUS.PENDING_ADD as CodeStatus,
+          status: CODE_STATUS.PENDING_ADD,
           device_id: activeDevice.id,
           author_id: APP_DEFAULTS.AUTHOR_ID, // Default
           sync_status: 'created',

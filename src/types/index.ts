@@ -14,6 +14,7 @@ export type BLEConnectionState =
   | 'connected'
   | 'disconnecting';
 
+// Define CodeStatus as a union type of string literals
 export type CodeStatus =
   | 'pending_add' // BLE: On Admin phone, waiting for Boks connection
   | 'on_device' // BLE: Active on Boks
@@ -92,6 +93,13 @@ export interface BoksCode {
   maxUses?: number;
   expiresAt?: string;
   usedAt?: string;
+}
+
+export interface CodeMetadata {
+  used?: boolean;
+  usedDate?: Date;
+  lastUsed?: Date;
+  usesRemaining?: number;
 }
 
 export interface CodeCreationData {

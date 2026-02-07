@@ -1,7 +1,6 @@
 import { List } from '@mui/material';
 import { CodeItem } from './CodeItem';
-import { BoksCode } from '../../types';
-import { CodeMetadata } from '../../hooks/useCodeLogic';
+import { BoksCode, CodeMetadata } from '../../types';
 
 interface CodeListProps {
   codes: BoksCode[];
