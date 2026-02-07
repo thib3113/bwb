@@ -8,12 +8,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
   await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 30000 });
 
   // 2. Connect
-  const connectBtn = page.getByRole('button', { name: /connect/i }).filter({ hasText: /^Connect$|^$/ }).first();
-  await expect(connectBtn).toBeVisible({ timeout: 10000 });
-  await connectBtn.click();
-
-  // Wait for connection
-  await expect(page.locator('svg[data-testid="BluetoothDisabledIcon"]')).not.toBeVisible({ timeout: 15000 });
+  await simulator.connect();
 
   // Wait for React effects to persist device to DB
   await page.waitForTimeout(3000);
