@@ -53,7 +53,7 @@ export const useCodeLogic = (
   );
 
   const temporaryCodes = useMemo(
-    () => codes.filter((c) => c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI),
+    () => codes.filter((c) => (c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI) && !c.usedAt),
     [codes]
   );
 
