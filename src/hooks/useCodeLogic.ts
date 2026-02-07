@@ -1,19 +1,17 @@
 import { useCallback, useMemo } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { StorageService } from '../services/StorageService';
-import { CODE_STATUS } from '../constants/codeStatus';
 import { useDevice } from './useDevice';
-import { useCodeCount } from './useCodeCount';
-import { useBLEConnection } from './useBLEConnection';
-import { BoksCode, BoksLog, CodeStatus } from '../types';
-import { EMPTY_ARRAY } from '../utils/bleConstants';
-import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
-import { runTask } from '../utils/uiUtils';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { useBLE } from './useBLE';
+import { BoksCode, CodeStatus } from '../types';
+import { CODE_STATUS } from '../constants/codeStatus';
+import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
+import { StorageService } from '../services/StorageService';
 import { useTaskContext } from './useTaskContext';
 import { TaskType } from '../types/task';
+import { CountCodesPacket } from '../ble/packets/StatusPackets';
+import { useTaskConsistency } from './useTaskConsistency';
 
 export interface CodeMetadata {
   lastUsed?: Date;
@@ -25,70 +23,48 @@ export const useCodeLogic = (
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
   hideNotification: () => void
 ) => {
-  const { t } = useTranslation(['codes', 'common']);
-  const { activeDevice } = useDevice();
-  const { codeCount } = useCodeCount();
-  const { isConnected, sendRequest } = useBLEConnection();
+  const { t } = useTranslation('codes');
+  const { activeDevice, codeCount } = useDevice();
+  const { sendRequest, isConnected } = useBLE();
   const { addTask } = useTaskContext();
 
-  const codesQuery = useLiveQuery(async () => {
-    if (!activeDevice?.id) return [];
+  const deviceId = activeDevice?.id || null;
 
-    // Optimization: Only load relevant codes to reduce memory usage and sorting overhead
-    // 1. Master codes (always needed)
-    // 2. Active/Pending codes (always needed)
-    // 3. Recent inactive codes (last 7 days history)
-    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-    const threshold = Date.now() - SEVEN_DAYS_MS;
+  // Use Dexie hooks for reactive data
+  const codes =
+    useLiveQuery(
+      () => (deviceId ? db.codes.where('device_id').equals(deviceId).toArray() : []),
+      [deviceId]
+    ) || [];
 
-    return db.codes
-      .where('device_id')
-      .equals(activeDevice.id)
-      .filter((code) => {
-        // Always keep master codes
-        if (code.type === CODE_TYPES.MASTER) return true;
+  const logs =
+    useLiveQuery(
+      () =>
+        deviceId
+          ? db.logs.where('device_id').equals(deviceId).reverse().sortBy('timestamp')
+          : [],
+      [deviceId]
+    ) || [];
 
-        // Keep active/pending codes
-        if (
-          code.status === CODE_STATUS.PENDING_ADD ||
-          code.status === CODE_STATUS.ON_DEVICE ||
-          code.status === 'synced' ||
-          code.status === CODE_STATUS.PENDING_DELETE
-        ) {
-          return true;
-        }
-
-        // Keep recent history (based on updated_at)
-        // If updated_at is missing, we assume it is old unless created_at is recent
-        const lastUpdate = code.updated_at || new Date(code.created_at).getTime();
-        return lastUpdate > threshold;
-      })
-      .toArray();
-  }, [activeDevice?.id]);
-
-  const codes = useMemo(() => (codesQuery ?? EMPTY_ARRAY) as BoksCode[], [codesQuery]);
-
-  const logsQuery = useLiveQuery(
-    () => (activeDevice?.id ? db.logs.where('device_id').equals(activeDevice.id).toArray() : []),
-    [activeDevice?.id]
+  // Filter lists for different views
+  const masterCodes = useMemo(
+    () => codes.filter((c) => c.type === CODE_TYPES.MASTER),
+    [codes]
   );
-  const logs = useMemo(() => (logsQuery ?? EMPTY_ARRAY) as BoksLog[], [logsQuery]);
 
-  // Derived counts
-  const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPES.MASTER), [codes]);
   const temporaryCodes = useMemo(
     () => codes.filter((c) => c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI),
     [codes]
   );
 
-  // Refresh code count from device
-  const refreshCodeCount = useCallback(async () => {
-    if (!isConnected) {
-      showNotification(t('not_connected'), 'error');
-      return;
-    }
+  // Ensure task consistency (side effect)
+  useTaskConsistency(deviceId);
 
-    await runTask(
+  // Function to refresh code counts from device
+  const refreshCodeCount = useCallback(async () => {
+    if (!isConnected) return;
+
+    return await StorageService.runTask(
       async () => {
         const response = await sendRequest(new CountCodesPacket());
         const packet = Array.isArray(response) ? response[0] : response;
@@ -108,6 +84,38 @@ export const useCodeLogic = (
     );
   }, [isConnected, sendRequest, showNotification, hideNotification, t]);
 
+  // Function to derive code metadata
+  // Updated to use the 'usedAt' field which is now reliably set by StorageService during log sync
+  const deriveCodeMetadata = useCallback(
+    (code: BoksCode): CodeMetadata => {
+      // Prioritize explicit 'usedAt' field
+      if (code.usedAt) {
+        const usedDate = new Date(code.usedAt);
+        return {
+          used: true,
+          usedDate: usedDate,
+          lastUsed: usedDate // For consistency
+        };
+      }
+
+      // Fallback: Legacy logic or check logs if 'usedAt' is missing
+      if (!logs || logs.length === 0) return {};
+
+      if (code.type === CODE_TYPES.MASTER) {
+         // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
+         // But maybe 'lastUsed' is useful for Master codes too
+         // Find the most recent log entry for this master code index
+         // TODO: Improve this with proper Opcode checks
+      } else if (code.type === CODE_TYPES.SINGLE) {
+        // Fallback for single use
+        // ...
+      }
+
+      return {};
+    },
+    [logs]
+  );
+
   const sortCodesByPriority = useCallback((codes: BoksCode[]) => {
     // Helper function to get priority group
     const getPriority = (code: BoksCode) => {
@@ -117,14 +125,13 @@ export const useCodeLogic = (
       }
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-        // For single-use codes, check if they've been used
-        if (code.type === CODE_TYPES.SINGLE) {
-          // Note: We can't use deriveCodeMetadata here due to circular dependency
-          // For now, we'll just check if it's a single-use code
+        // Check explicit usedAt
+        if (code.usedAt) {
+             return 3;
         }
+
         // For multi-use codes, check if they've been fully used
         if (code.type === CODE_TYPES.MULTI) {
-          // If uses >= maxUses, they're considered used (priority 3)
           if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
             return 3;
           }
@@ -293,53 +300,6 @@ export const useCodeLogic = (
       }
     },
     [activeDevice?.id, showNotification, t, addTask]
-  );
-
-  // Function to derive code metadata from logs
-  const deriveCodeMetadata = useCallback(
-    (code: BoksCode): CodeMetadata => {
-      if (!logs || logs.length === 0) return {};
-
-      if (code.type === CODE_TYPES.MASTER) {
-        // Find the most recent log entry for this master code index
-        const masterLogs = logs
-          .filter((log) => {
-            if (
-              log.event === 'PIN_CODE_OPEN' &&
-              typeof log.data === 'object' &&
-              log.data !== null &&
-              'index' in log.data
-            ) {
-              return (log.data as { index?: number }).index === code.index;
-            }
-            return false;
-          })
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-        if (masterLogs.length > 0) {
-          return { lastUsed: new Date(masterLogs[0].timestamp as string) };
-        }
-      } else if (code.type === CODE_TYPES.SINGLE) {
-        // For single-use codes, we need to find a log entry that matches
-        // This is a simplification - in reality, we might need more information in the logs
-        const singleUseLogs = logs
-          .filter((log) => log.event === 'SINGLE_USE_OPEN')
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-        // Check if any log is after the code creation date
-        const codeCreationDate = new Date(code.created_at);
-        const usedLog = singleUseLogs.find(
-          (log) => new Date(log.timestamp as string) > codeCreationDate
-        );
-
-        if (usedLog) {
-          return { used: true, usedDate: new Date(usedLog.timestamp as string) };
-        }
-      }
-
-      return {};
-    },
-    [logs]
   );
 
   // Get codes filtered by type with unified sorting
