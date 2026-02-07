@@ -130,9 +130,48 @@ export const test = base.extend<{ simulator: Simulator }>({
         });
 
         // Click Connect if in Onboarding
-        if (await onboarding.isVisible()) {
+        const isOnboarding = await onboarding.isVisible();
+        console.log('[Simulator Fixture] Onboarding visible:', isOnboarding);
+        if (isOnboarding) {
           await onboarding.getByRole('button', { name: /connect/i }).click();
           await page.waitForTimeout(2000);
+
+          // Handle potential redirect for new devices
+          // Wait extra time for redirect to trigger
+          await page.waitForTimeout(4000);
+          console.log('[Simulator Fixture] Checking URL for redirect:', page.url());
+          if (page.url().includes('my-boks')) {
+            console.log('[Simulator Fixture] Redirected to My Boks. Navigating to Codes via Menu...');
+            // Open Menu
+            await page.getByLabel('menu').click();
+            // Click Home (which redirects to /codes)
+            await page.getByText('Home').click();
+            // Wait for navigation
+            await page.waitForURL(/.*\/codes/);
+          }
+        } else {
+          // Onboarding not visible. We are on Dashboard.
+          // Try to ensure connection.
+          console.log('[Simulator Fixture] Onboarding not visible. checking connection status...');
+
+          // Wait for either connected or disconnected icon
+          try {
+             await page.waitForSelector('svg[data-testid="BluetoothDisabledIcon"], svg[data-testid="BluetoothConnectedIcon"]', { timeout: 5000 });
+          } catch (e) {
+             console.log('[Simulator Fixture] Could not find any bluetooth icon. Are we on the right page?');
+          }
+
+          const disconnectedIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
+          const count = await disconnectedIcon.count();
+          const visible = count > 0 && await disconnectedIcon.first().isVisible();
+          console.log();
+          if (visible) {
+             console.log('[Simulator Fixture] Disconnected. Connecting via Header...');
+             await page.getByRole('button', { name: /connect/i }).first().click();
+             await page.waitForTimeout(2000);
+          } else {
+             console.log('[Simulator Fixture] Already connected (or icon not found).');
+          }
         }
       },
     };
