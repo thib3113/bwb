@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useState, useEffect } from 'react';
 import { db } from '../db/db';
 import { useDevice } from './useDevice';
 import { useBLE } from './useBLE';
