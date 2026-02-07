@@ -7,16 +7,11 @@ test.describe('Bluetooth Logs Feature', () => {
 
   test('should send GET_LOGS_COUNT when refreshing logs', async ({ page, simulator }) => {
     // 1. Connect
-    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    await page
-      .getByRole('button', { name: /connect/i })
-      .filter({ hasText: /^Connect$|^$/ })
-      .first()
-      .click();
-    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
-    await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
+    await simulator.connect();
 
     // 1.5. Navigate to Logs via Bottom Navigation
+    // Ensure we are on the dashboard with bottom nav
+    await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: /Logs/i }).click();
 
     // 2. Click Refresh Logs

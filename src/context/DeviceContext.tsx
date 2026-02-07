@@ -186,6 +186,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         // No manual updated_at, handled by hook
 
         let targetId: string;
+        let isNewDevice = false;
 
         if (existingDevice) {
           targetId = existingDevice.id;
@@ -194,6 +195,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             last_connected_at: Date.now(),
           });
         } else {
+          isNewDevice = true;
           // Add new device
           targetId = crypto.randomUUID();
 
@@ -285,6 +287,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             console.warn('Failed to read device info after connection:', error);
           }
         }, 1500); // Wait 1.5s to let connection stabilize
+        return isNewDevice;
       } catch (error) {
         console.error('Failed to register device:', error);
         throw error;

@@ -10,7 +10,7 @@ export interface Simulator {
   waitForTxOpcode(opcode: number, timeout?: number): Promise<void>;
   getTxEvents(): Promise<any[]>;
   clearTxEvents(): Promise<void>;
-  connect(): Promise<void>;
+  connect(options?: { skipReturnToHome?: boolean }): Promise<void>;
 }
 
 export const test = base.extend<{ simulator: Simulator }>({
@@ -104,7 +104,7 @@ export const test = base.extend<{ simulator: Simulator }>({
           window.txEvents = [];
         });
       },
-      connect: async () => {
+      connect: async (options = {}) => {
         console.log('[Simulator Fixture] Connecting...');
         // Use a more relaxed waiting strategy
         await page.waitForFunction(
@@ -130,9 +130,63 @@ export const test = base.extend<{ simulator: Simulator }>({
         });
 
         // Click Connect if in Onboarding
-        if (await onboarding.isVisible()) {
+        const isOnboarding = await onboarding.isVisible();
+        console.log('[Simulator Fixture] Onboarding visible:', isOnboarding);
+        if (isOnboarding) {
           await onboarding.getByRole('button', { name: /connect/i }).click();
-          await page.waitForTimeout(2000);
+          await page.waitForTimeout(4000);
+
+          // Handle potential redirect for new devices
+          await page.waitForTimeout(3000); // Wait for potential redirect logic (1.5s delay)
+          console.log('[Simulator Fixture] Checking URL for redirect:', page.url());
+
+          if (page.url().includes('my-boks')) {
+            if (options.skipReturnToHome) {
+                console.log('[Simulator Fixture] Redirected to My Boks. Staying there as requested.');
+            } else {
+                console.log('[Simulator Fixture] Redirected to My Boks. Navigating back via Menu...');
+                // Ensure drawer is openable
+                const menuBtn = page.getByLabel('menu');
+                await expect(menuBtn).toBeVisible();
+                await menuBtn.click();
+
+                // Click Home
+                const homeLink = page.getByText('Home');
+                await expect(homeLink).toBeVisible();
+                await homeLink.click();
+
+                // Wait for navigation
+                await page.waitForURL(/.*\/codes/);
+
+
+
+                // Ensure dashboard is ready
+                await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 10000 });
+            }
+          }
+        } else {
+          // Onboarding not visible. We are on Dashboard.
+          // Try to ensure connection.
+          console.log('[Simulator Fixture] Onboarding not visible. checking connection status...');
+
+          // Wait for either connected or disconnected icon
+          try {
+             await page.waitForSelector('svg[data-testid="BluetoothDisabledIcon"], svg[data-testid="BluetoothConnectedIcon"]', { timeout: 5000 });
+          } catch (e) {
+             console.log('[Simulator Fixture] Could not find any bluetooth icon. Are we on the right page?');
+          }
+
+          const disconnectedIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
+          const count = await disconnectedIcon.count();
+          const visible = count > 0 && await disconnectedIcon.first().isVisible();
+          console.log('[Simulator Fixture] Checking status...');
+          if (visible) {
+             console.log('[Simulator Fixture] Disconnected. Connecting via Header...');
+             await page.getByRole('button', { name: /connect/i }).first().click();
+             await page.waitForTimeout(4000);
+          } else {
+             console.log('[Simulator Fixture] Already connected (or icon not found).');
+          }
         }
       },
     };

@@ -25,11 +25,9 @@ test.describe('Version Gating', () => {
       (window as any).boksSimulatorController.setVersion('4.2.0', '10/125');
     });
 
-    await simulator.connect();
+    await simulator.connect({ skipReturnToHome: true });
 
-    // Navigate via UI to avoid reload
-    await page.getByLabel('menu').click();
-    await page.getByText(/my boks/i).click();
+    // Already on My Boks page due to new device redirect
 
     // Wait for DB stabilization
     await page.waitForFunction(
@@ -60,11 +58,9 @@ test.describe('Version Gating', () => {
       (window as any).boksSimulatorController.setVersion('4.3.0', '10/125');
     });
 
-    await simulator.connect();
+    await simulator.connect({ skipReturnToHome: true });
 
-    // Navigate via UI to avoid reload
-    await page.getByLabel('menu').click();
-    await page.getByText(/my boks/i).click();
+    // Already on My Boks page due to new device redirect
 
     // Wait for DB sync
     await page.waitForFunction(
@@ -101,11 +97,9 @@ test.describe('Version Gating', () => {
       (window as any).boksSimulatorController.setVersion('4.5.0', '10/cd');
     });
 
-    await simulator.connect();
+    await simulator.connect({ skipReturnToHome: true });
 
-    // Navigate via UI to avoid reload
-    await page.getByLabel('menu').click();
-    await page.getByText(/my boks/i).click();
+    // Already on My Boks page due to new device redirect
 
     // Wait for DB sync
     await page.waitForFunction(
