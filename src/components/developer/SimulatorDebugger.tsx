@@ -42,7 +42,7 @@ export const SimulatorDebugger = () => {
         setState(controller.getState());
       }, 500);
       return () => clearInterval(interval);
-  }, []);
+    }
   }, []);
 
   const handleSimulatorToggle = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
