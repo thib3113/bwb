@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useState, useEffect } from 'react';
 import { db } from '../db/db';
 import { BoksCode, CodeMetadata, BoksLog } from '../types';
 import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
@@ -46,7 +47,7 @@ export const useCodeLogic = (
   );
 
   const temporaryCodes = useMemo(
-    () => codes.filter((c) => c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI),
+    () => codes.filter((c) => (c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI) && !c.usedAt),
     [codes]
   );
 
