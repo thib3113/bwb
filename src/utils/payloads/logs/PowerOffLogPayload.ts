@@ -1,7 +1,8 @@
 import { BaseLogPayload } from './BaseLogPayload';
-import { POWER_OFF_REASONS } from '../../bleConstants';
+import { BLEOpcode, POWER_OFF_REASONS } from '../../bleConstants';
 
 export class PowerOffLogPayload extends BaseLogPayload {
+  static OPCODES = [BLEOpcode.POWER_OFF];
   reason: string;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {

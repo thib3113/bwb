@@ -77,6 +77,7 @@ export const CodeManager = ({
             color="primary"
             onClick={() => setIsAddDialogOpen(true)}
             aria-label={t('add_new')}
+            data-testid="add-code-button"
             size="small"
           >
             <AddIcon />

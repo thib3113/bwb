@@ -5,7 +5,9 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
   await page.goto('/');
 
   // Wait for simulator controller
-  await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 30000 });
+  await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    timeout: 30000,
+  });
 
   // 2. Connect
   await simulator.connect();
@@ -29,10 +31,10 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
     const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
 
     if (device) {
-        deviceId = device.id;
-        console.log('Found real device ID:', deviceId);
+      deviceId = device.id;
+      console.log('Found real device ID:', deviceId);
     } else {
-        console.warn('Still no device found in DB! Using default, which might fail.');
+      console.warn('Still no device found in DB! Using default, which might fail.');
     }
 
     // Clear codes for this device
@@ -49,7 +51,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         status: 'on_device',
         name: 'Master Principal',
         created_at: new Date().toISOString(),
-        sync_status: 'synced'
+        sync_status: 'synced',
       },
       {
         id: 'single-active',
@@ -59,7 +61,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         status: 'on_device',
         name: 'Livreur Demain',
         created_at: new Date().toISOString(),
-        sync_status: 'synced'
+        sync_status: 'synced',
       },
       {
         id: 'single-used',
@@ -70,7 +72,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         usedAt: new Date(Date.now() - 3600000).toISOString(),
         name: 'Livreur Passé (Utilisé)',
         created_at: new Date(Date.now() - 86400000).toISOString(),
-        sync_status: 'synced'
+        sync_status: 'synced',
       },
       {
         id: 'multi-active',
@@ -82,8 +84,8 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         uses: 5,
         maxUses: 10,
         created_at: new Date().toISOString(),
-        sync_status: 'synced'
-      }
+        sync_status: 'synced',
+      },
     ];
 
     await StorageService.saveCodes(deviceId, codes);

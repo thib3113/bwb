@@ -48,10 +48,10 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
       // Code Count: Big Endian [MasterMSB, MasterLSB, SingleMSB, SingleLSB].
       this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [
-        (masterCount >> 8) & 0xFF,
-        masterCount & 0xFF,
-        (singleCount >> 8) & 0xFF,
-        singleCount & 0xFF,
+        (masterCount >> 8) & 0XFF,
+        masterCount & 0XFF,
+        (singleCount >> 8) & 0XFF,
+        singleCount & 0XFF,
       ]);
     }, 500);
 
@@ -93,14 +93,22 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
     // Emit event for tests to verify what the App is sending (TX)
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('boks-tx', {
-          detail: {
-            opcode,
-            payload: Array.from(payload),
-          },
-        })
-      );
+      const detail = {
+        opcode,
+        payload: Array.from(payload),
+      };
+
+      // 1. Dispatch standard event
+      globalThis.window.dispatchEvent(new CustomEvent('boks-tx', { detail }));
+
+      // 2. Also push to a global buffer for cases where the listener isn't ready yet
+      globalThis.window._boks_tx_buffer = globalThis.window._boks_tx_buffer || [];
+      globalThis.window._boks_tx_buffer.push(detail);
+
+      // Keep it synchronized with txEvents if fixtures already set it up
+      if (globalThis.window.txEvents) {
+        globalThis.window.txEvents.push(detail);
+      }
     }
 
     // Pass to simulator

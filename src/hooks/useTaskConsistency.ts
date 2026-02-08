@@ -3,7 +3,7 @@ import { db } from '../db/db';
 import { useTaskContext } from '../hooks/useTaskContext';
 import { TaskType } from '../types/task';
 import { CODE_STATUS } from '../constants/codeStatus';
-import { CODE_TYPES } from '../utils/constants';
+import { CodeType } from '../types';
 
 /**
  * Hook to ensure task consistency at device load.
@@ -38,7 +38,7 @@ export const useTaskConsistency = (deviceId: string | null) => {
         // Track indices that already have delete tasks to prevent duplicates
         const deletedIndices = new Set<number>();
         existingTasks.forEach((task) => {
-          if (task.type === TaskType.DELETE_CODE && task.payload.codeType === CODE_TYPES.MASTER) {
+          if (task.type === TaskType.DELETE_CODE && task.payload.codeType === CodeType.MASTER) {
             // For master codes, we track by index
             const codeObj = pendingCodes.find((c) => c.id === task.payload.codeId);
             if (codeObj && codeObj.index !== undefined) {
@@ -57,13 +57,13 @@ export const useTaskConsistency = (deviceId: string | null) => {
               // Add the add task
               let taskType: TaskType;
               switch (code.type) {
-                case CODE_TYPES.MASTER:
+                case CodeType.MASTER:
                   taskType = TaskType.ADD_MASTER_CODE;
                   break;
-                case CODE_TYPES.SINGLE:
+                case CodeType.SINGLE:
                   taskType = TaskType.ADD_SINGLE_USE_CODE;
                   break;
-                case CODE_TYPES.MULTI:
+                case CodeType.MULTI:
                   taskType = TaskType.ADD_MULTI_USE_CODE;
                   break;
                 default:
@@ -82,7 +82,7 @@ export const useTaskConsistency = (deviceId: string | null) => {
               });
             } else if (code.status === CODE_STATUS.PENDING_DELETE) {
               // For Master Codes, track the index to prevent duplicates
-              if (code.type === CODE_TYPES.MASTER && code.index !== undefined) {
+              if (code.type === CodeType.MASTER && code.index !== undefined) {
                 // Skip if we already have a delete task for this index
                 if (deletedIndices.has(code.index)) {
                   continue;

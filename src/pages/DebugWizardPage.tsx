@@ -28,14 +28,12 @@ import { DebugWizardStep5Recap } from './DebugWizard/DebugWizardStep5Recap';
 
 export const DebugWizardPage = () => {
   const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const steps = [
-    tAny('wizard:steps.step1'),
-    tAny('wizard:steps.step2'),
-    tAny('wizard:steps.step3'),
-    tAny('wizard:steps.step4'),
-    tAny('wizard:steps.step5'),
+    t('wizard:steps.step1'),
+    t('wizard:steps.step2'),
+    t('wizard:steps.step3'),
+    t('wizard:steps.step4'),
+    t('wizard:steps.step5'),
   ];
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -318,7 +316,7 @@ export const DebugWizardPage = () => {
         return (
           <DebugWizardStep4Advanced
             customUuids={customUuids}
-            customResults={customResults as unknown as any}
+            customResults={customResults}
             updateDebugWizardState={updateDebugWizardState}
           />
         );
@@ -336,9 +334,9 @@ export const DebugWizardPage = () => {
             openDoorError={openDoorError}
             questionAnswers={questionAnswers}
             customUuids={customUuids}
-            customResults={customResults as unknown as any}
+            customResults={customResults}
             serviceUuid={serviceUuid}
-            serviceResults={serviceResults as any}
+            serviceResults={serviceResults}
           />
         );
       default:
@@ -355,7 +353,7 @@ export const DebugWizardPage = () => {
           gutterBottom
           align="center"
         >
-          {tAny('wizard:title')}
+          {t('wizard:title')}
         </Typography>
 
         {isSmallScreen ? (
@@ -374,7 +372,7 @@ export const DebugWizardPage = () => {
               }}
             />
             <Typography variant="subtitle2" align="center" color="primary" sx={{ mt: 1 }}>
-              {activeStep < steps.length ? steps[activeStep] : tAny('common:finish')}
+              {activeStep < steps.length ? steps[activeStep] : t('common:finish')}
             </Typography>
           </Box>
         ) : (
@@ -391,11 +389,11 @@ export const DebugWizardPage = () => {
           {activeStep === steps.length ? (
             <>
               <Typography variant="h5" gutterBottom>
-                {tAny('wizard:finished.title')}
+                {t('wizard:finished.title')}
               </Typography>
-              <Typography variant="subtitle1">{tAny('wizard:finished.desc')}</Typography>
+              <Typography variant="subtitle1">{t('wizard:finished.desc')}</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                <Button onClick={handleReset}>{tAny('common:reset')}</Button>
+                <Button onClick={handleReset}>{t('common:reset')}</Button>
               </Box>
             </>
           ) : (
@@ -405,7 +403,7 @@ export const DebugWizardPage = () => {
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                 {activeStep !== 0 && (
                   <Button onClick={handleBack} sx={{ mr: 1 }}>
-                    {tAny('common:back')}
+                    {t('common:back')}
                   </Button>
                 )}
                 <Button
@@ -413,7 +411,7 @@ export const DebugWizardPage = () => {
                   onClick={handleNext}
                   disabled={activeStep === 0 && !isConnected}
                 >
-                  {activeStep === steps.length - 1 ? tAny('common:finish') : tAny('common:next')}
+                  {activeStep === steps.length - 1 ? t('common:finish') : t('common:next')}
                 </Button>
               </Box>
             </>

@@ -225,8 +225,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         // Set as active device
         setActiveDeviceId(targetId);
 
-        // Read Device Info & Battery
-        setTimeout(async () => {
+        // Helper for info reading
+        const readInfo = async () => {
           try {
             const bleService = BoksBLEService.getInstance();
             if (bleService.getState() === 'connected') {
@@ -284,9 +284,16 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
               }
             }
           } catch (error) {
-            console.warn('Failed to read device info after connection:', error);
+            console.warn('Failed to read device info:', error);
           }
-        }, 1500); // Wait 1.5s to let connection stabilize
+        };
+
+        // Read once immediately
+        readInfo();
+
+        // And again after 2s for stability
+        setTimeout(readInfo, 2000);
+
         return isNewDevice;
       } catch (error) {
         console.error('Failed to register device:', error);

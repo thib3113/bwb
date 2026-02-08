@@ -1,4 +1,4 @@
-import { SyncStatus } from './index';
+import { SyncStatus, CodeType } from './index';
 
 export enum TaskType {
   ADD_MASTER_CODE = 'ADD_MASTER_CODE',
@@ -37,7 +37,7 @@ export interface AddCodePayload {
 
 export interface DeleteCodePayload {
   codeId: string;
-  codeType: string;
+  codeType: CodeType;
   code?: string; // Sometimes needed for deletion if not in DB
   [key: string]: unknown;
 }

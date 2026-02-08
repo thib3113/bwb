@@ -1,12 +1,14 @@
-import { render, act, waitFor } from '@testing-library/preact';
+import { render, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskProvider } from '../../context/TaskContext';
 import { TaskContext } from '../../context/Contexts';
+import { TaskContextType } from '../../context/types';
 import { useContext, useEffect } from 'react';
-import { TaskType } from '../../types/task';
+import { TaskType, BoksTask } from '../../types/task';
 import * as BLEConnectionHook from '../../hooks/useBLEConnection';
 import * as DeviceHook from '../../hooks/useDevice';
 import React from 'react';
+import { Mock } from 'vitest';
 
 // Mocks
 vi.mock('../../hooks/useBLEConnection', () => ({
@@ -37,7 +39,11 @@ vi.mock('../../services/StorageService', () => ({
 }));
 
 // Helper component to trigger tasks
-const TaskTrigger = ({ onReady }: { onReady: (addTask: any) => void }) => {
+const TaskTrigger = ({
+  onReady,
+}: {
+  onReady: (addTask: TaskContextType['addTask']) => void;
+}) => {
   const context = useContext(TaskContext);
 
   useEffect(() => {
@@ -50,7 +56,7 @@ const TaskTrigger = ({ onReady }: { onReady: (addTask: any) => void }) => {
 };
 
 describe('TaskContext Race Condition', () => {
-  let sendRequestMock: any;
+  let sendRequestMock: Mock;
   let calls: { start: number; end: number; id: number }[] = [];
 
   beforeEach(() => {
@@ -69,12 +75,12 @@ describe('TaskContext Race Condition', () => {
       return { opcode: 0x77 }; // Success
     });
 
-    (BLEConnectionHook.useBLEConnection as any).mockReturnValue({
+    (BLEConnectionHook.useBLEConnection as unknown as Mock).mockReturnValue({
       isConnected: true,
       sendRequest: sendRequestMock,
     });
 
-    (DeviceHook.useDevice as any).mockReturnValue({
+    (DeviceHook.useDevice as unknown as Mock).mockReturnValue({
       activeDevice: {
         id: 'test-device',
         configuration_key: '12345678',
@@ -83,7 +89,7 @@ describe('TaskContext Race Condition', () => {
   });
 
   it('should process tasks sequentially', async () => {
-    let addTaskFn: any;
+    let addTaskFn: TaskContextType['addTask'] | undefined;
 
     render(
       <TaskProvider>
@@ -100,14 +106,20 @@ describe('TaskContext Race Condition', () => {
 
     // Add two tasks simultaneously
     act(() => {
-      addTaskFn({
-        type: TaskType.ADD_SINGLE_USE_CODE,
-        payload: { code: '111111', codeId: 'code1' },
-      });
-      addTaskFn({
-        type: TaskType.ADD_SINGLE_USE_CODE,
-        payload: { code: '222222', codeId: 'code2' },
-      });
+      if (addTaskFn) {
+        addTaskFn({
+          type: TaskType.ADD_SINGLE_USE_CODE,
+          deviceId: 'test-device',
+          priority: 1,
+          payload: { code: '111111', codeId: 'code1' },
+        });
+        addTaskFn({
+          type: TaskType.ADD_SINGLE_USE_CODE,
+          deviceId: 'test-device',
+          priority: 1,
+          payload: { code: '222222', codeId: 'code2' },
+        });
+      }
     });
 
     // Wait for tasks to be processed

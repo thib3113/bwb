@@ -23,7 +23,10 @@ describe('Log Fetching Performance', () => {
         timestamp: new Date(now - i * 1000).toISOString(),
         event: 'TEST_EVENT',
         type: 'info',
-        synced: false
+        synced: false,
+        opcode: 0,
+        payload: new Uint8Array([]),
+        raw: new Uint8Array([])
       });
       // Device B logs (Noise)
       logs.push({
@@ -32,7 +35,10 @@ describe('Log Fetching Performance', () => {
         timestamp: new Date(now - i * 1000 - 500).toISOString(),
         event: 'TEST_EVENT',
         type: 'info',
-        synced: false
+        synced: false,
+        opcode: 0,
+        payload: new Uint8Array([]),
+        raw: new Uint8Array([])
       });
     }
     // Bulk add
@@ -81,8 +87,6 @@ describe('Log Fetching Performance', () => {
     // Check if original approach actually sorts correctly with ISO strings
     // Number("2023-...") is NaN. NaN - NaN is NaN. sort returns 0 (no change).
     // So originalResult is likely in insertion order or undefined order.
-    const originalFirstTimestamp = new Date(originalResult[0].timestamp).getTime();
-    const originalLastTimestamp = new Date(originalResult[originalResult.length - 1].timestamp).getTime();
 
     console.log(`Original First: ${originalResult[0].timestamp}`);
     console.log(`Original Last: ${originalResult[originalResult.length - 1].timestamp}`);

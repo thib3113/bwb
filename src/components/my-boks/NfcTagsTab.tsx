@@ -81,7 +81,8 @@ export const NfcTagsTab = () => {
         setTagName(defaultName);
       }
     }
-  }, [scannedUid, tagName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedUid]);
 
   return (
     <Box sx={{ p: 2 }}>

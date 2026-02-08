@@ -1,9 +1,9 @@
-import { Component, type ComponentChild, type ErrorInfo } from 'preact';
+import { Component, type ReactNode, type ErrorInfo } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { GITHUB_NEW_ISSUE_URL } from '../utils/constants';
 
 interface ErrorBoundaryProps {
-  children: ComponentChild;
+  children: ReactNode;
 }
 
 interface ErrorBoundaryState {

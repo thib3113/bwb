@@ -111,7 +111,8 @@ export class BoksDatabase extends Dexie {
           });
           console.log('Default local user created');
         }
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as Error;
         console.error('Database integrity check failed:', error);
         if (error.name === 'NotFoundError' || error.message?.includes('object store')) {
           console.warn('Detected schema mismatch. Resetting database...');

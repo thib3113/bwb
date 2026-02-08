@@ -13,6 +13,7 @@ describe('logParser Performance', () => {
       timestamp: new Date().toISOString(),
       opcode: BLEOpcode.VALID_OPEN_CODE,
       payload: new Uint8Array([0x01, 0x02]),
+      raw: new Uint8Array([0x81, 0x02, 0x01, 0x02]),
       synced: true,
       event: 'test_event',
       type: 'info',

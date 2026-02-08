@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { GITHUB_ISSUES_URL, GITHUB_REPO_URL } from '../../../utils/constants';
 
 export const SettingsCommunity: React.FC = () => {
-  const { t } = useTranslation(['common', 'settings', 'community'] as any);
+  const { t } = useTranslation(['common', 'settings']);
 
   return (
     <>
@@ -13,7 +13,7 @@ export const SettingsCommunity: React.FC = () => {
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            {t('community.title')}
+            {t('common:community.title')}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -24,7 +24,7 @@ export const SettingsCommunity: React.FC = () => {
               rel="noopener noreferrer"
               underline="hover"
             >
-              {t('community.github')}
+              {t('common:community.github')}
             </Link>
           </Box>
 
@@ -36,7 +36,7 @@ export const SettingsCommunity: React.FC = () => {
               rel="noopener noreferrer"
               underline="hover"
             >
-              {t('community.github_issues')}
+              {t('common:community.github_issues')}
             </Link>
           </Box>
 
@@ -50,11 +50,11 @@ export const SettingsCommunity: React.FC = () => {
                   rel="noopener noreferrer"
                   underline="hover"
                 >
-                  {t('community.donate')}
+                  {t('common:community.donate')}
                 </Link>
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {t('community.donate_description')}
+                {t('common:community.donate_description')}
               </Typography>
             </Box>
           </Box>

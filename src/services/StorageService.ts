@@ -1,8 +1,7 @@
 import { db } from '../db/db';
-import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings, UserRole } from '../types';
+import { BoksLog, BoksCode, CodeStatus, Settings, UserRole, CodeType } from '../types';
 import { BoksDevice, BoksNfcTag } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
-import { CODE_TYPES } from '../utils/constants';
 
 interface RunTaskOptions {
   showNotification?: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -35,7 +34,7 @@ export class StorageService {
           id: existing?.id || crypto.randomUUID(),
           device_id: deviceId,
           author_id: existing?.author_id || code.author_id || 'unknown',
-          type: (code.type || existing?.type || 'single') as any, // Cast for safety
+          type: (code.type || existing?.type || 'single') as CodeType, // Cast for safety
           code: code.code || existing?.code || '',
           name: code.name || existing?.name || '',
           index: code.index !== undefined ? code.index : existing?.index,
@@ -98,18 +97,16 @@ export class StorageService {
         logsToAdd.push(logEntry);
 
         // Check for Code Usage (Auto-Mark as Used)
-        // 0x86 (LOG_CODE_BLE_VALID) and 0x87 (LOG_CODE_KEY_VALID)
+        // 0x86 (LOG_CODE_BLE_VALID_HISTORY) and 0x87 (LOG_CODE_KEY_VALID_HISTORY)
         if (
-          log.opcode === BLEOpcode.LOG_CODE_BLE_VALID ||
-          log.opcode === BLEOpcode.LOG_CODE_KEY_VALID
+          log.opcode === BLEOpcode.LOG_CODE_BLE_VALID_HISTORY ||
+          log.opcode === BLEOpcode.LOG_CODE_KEY_VALID_HISTORY
         ) {
           let usedCodeValue: string | undefined;
 
           // Try to get code from details (if parsed)
-          // @ts-expect-error - 'details' is dynamic
           if (log.details?.code) {
-            // @ts-expect-error
-            usedCodeValue = log.details.code;
+            usedCodeValue = String(log.details.code);
           }
           // Try to get from data (legacy/mock)
           else if (log.data?.code_value) {
@@ -149,8 +146,7 @@ export class StorageService {
         }
 
         // Check for NFC Tags in log details
-        // @ts-expect-error - 'details' comes from parseLog but is not on BoksLog interface
-        const details = log.details as Record<string, unknown> | undefined;
+        const details = log.details;
         if (details && typeof details.tag_uid === 'string') {
           tagsToUpdate.push({
             id: crypto.randomUUID(), // New ID, but we might overwrite based on logic below
@@ -334,7 +330,10 @@ export class StorageService {
       console.error('Task failed:', error);
       if (hideNotification) hideNotification();
       if (showNotification) {
-        showNotification(errorMsg || `Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        showNotification(
+          errorMsg || `Error: ${error instanceof Error ? error.message : String(error)}`,
+          'error'
+        );
       }
       return null;
     }
@@ -389,7 +388,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '123456',
-          type: CODE_TYPES.MASTER,
+          type: CodeType.MASTER,
           status: 'on_device',
           name: 'Code Maître Principal',
           index: 0,
@@ -401,7 +400,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '987654',
-          type: CODE_TYPES.SINGLE,
+          type: CodeType.SINGLE,
           status: 'on_device',
           name: 'Code Livreur (Utilisé)',
           created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
@@ -412,7 +411,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '111111',
-          type: CODE_TYPES.MULTI,
+          type: CodeType.MULTI,
           status: 'pending_add', // Waiting to be added
           name: 'Code Famille',
           created_at: new Date().toISOString(),
@@ -423,7 +422,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: crypto.randomUUID(), // Another user asked
           code: '333333',
-          type: CODE_TYPES.SINGLE,
+          type: CodeType.SINGLE,
           status: 'pending_add', // Changed from pending_approval to pending_add
           name: 'Demande Ami',
           created_at: new Date().toISOString(),
@@ -441,7 +440,7 @@ export class StorageService {
           event: 'CODE_BLE_VALID',
           type: 'info',
           data: { code_index: 0, code_value: '123456' },
-          opcode: BLEOpcode.LOG_CODE_BLE_VALID,
+          opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
           payload: new Uint8Array([0x01, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]),
           synced: false,
         },
@@ -452,7 +451,7 @@ export class StorageService {
           event: 'DOOR_OPENED',
           type: 'info',
           data: {},
-          opcode: BLEOpcode.LOG_DOOR_OPEN,
+          opcode: BLEOpcode.LOG_DOOR_OPEN_HISTORY,
           payload: new Uint8Array([0x01]),
           synced: false,
         },

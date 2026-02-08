@@ -1,24 +1,10 @@
 import { defineConfig } from 'vitest/config';
-import preact from '@preact/preset-vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [
-    preact({
-      devtoolsInProd: true,
-      devToolsEnabled: true,
-      prefreshEnabled: true,
-    }),
-  ],
-  resolve: {
-    alias: {
-      react: 'preact/compat',
-      'react-dom/test-utils': 'preact/test-utils',
-      'react-dom': 'preact/compat',
-      'react/jsx-runtime': 'preact/jsx-runtime',
-    },
-  },
+  plugins: [react()],
   test: {
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/setupTests.ts'],
     exclude: ['tests/**', 'node_modules/**'],

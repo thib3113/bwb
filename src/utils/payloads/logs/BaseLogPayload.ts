@@ -1,5 +1,3 @@
-import { BLEOpcode } from '../../bleConstants';
-
 export abstract class BaseLogPayload {
   opcode: number;
   payload: Uint8Array;

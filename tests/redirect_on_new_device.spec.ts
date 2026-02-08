@@ -34,7 +34,7 @@ test.describe('New Device Redirect', () => {
     // 5. Connect
     // Ensure simulator is enabled
     await page.evaluate(() => {
-        localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+      localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
     });
 
     await onboarding.getByRole('button', { name: /connect/i }).click();

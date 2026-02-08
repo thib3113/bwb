@@ -11,13 +11,13 @@ import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
 // --- Interfaces ---
 
-interface LogEntry {
+export interface LogEntry {
   opcode: number;
   timestamp: number; // Unix timestamp in ms (simulated)
   payload: number[];
 }
 
-interface BoksState {
+export interface BoksState {
   isOpen: boolean;
   pinCodes: Map<string, string>; // code -> type (master/single/multi)
   logs: LogEntry[];
@@ -42,8 +42,8 @@ export interface SimulatorAPI {
 export class BoksSimulator extends EventEmitter {
   private static instance: BoksSimulator | null = null;
   private state: BoksState;
-  private autoCloseTimer: any = null;
-  private chaosTimer: any = null;
+  private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private chaosTimer: ReturnType<typeof setTimeout> | null = null;
 
   public static getInstance(): BoksSimulator {
     if (!BoksSimulator.instance) {
@@ -59,7 +59,7 @@ export class BoksSimulator extends EventEmitter {
 
     // Expose controller
     if (typeof window !== 'undefined') {
-      (window as any).boksSimulatorController = {
+      window.boksSimulatorController = {
         enableChaos: (e: boolean) => this.setChaosMode(e),
         setVersion: (sw, hw) => {
           this.state.softwareRevision = sw;
@@ -126,7 +126,8 @@ export class BoksSimulator extends EventEmitter {
 
   // --- External Triggers ---
 
-  public triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public triggerDoorOpen(source: 'ble' | 'nfc' | 'button', _code?: string) {
     if (this.state.isOpen) {
       console.log('[Simulator] Ignored Open Trigger: Door already open');
       return;
@@ -141,10 +142,10 @@ export class BoksSimulator extends EventEmitter {
     // 2. Log Entry
     const logOpcode =
       source === 'ble'
-        ? BLEOpcode.LOG_CODE_BLE_VALID
+        ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY
         : source === 'nfc'
           ? BLEOpcode.LOG_EVENT_NFC_OPENING
-          : BLEOpcode.LOG_CODE_KEY_VALID; // fallback
+          : BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
     this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
 
     // 3. Auto Close Schedule
@@ -161,7 +162,7 @@ export class BoksSimulator extends EventEmitter {
     this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x01, 0x00]);
 
     // 2. Log Entry
-    this.addLog(BLEOpcode.LOG_DOOR_CLOSE, []);
+    this.addLog(BLEOpcode.LOG_DOOR_CLOSE_HISTORY, []);
 
     if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
   }
@@ -221,7 +222,7 @@ export class BoksSimulator extends EventEmitter {
         break;
       case BLEOpcode.DELETE_SINGLE_USE_CODE:
       case BLEOpcode.DELETE_MULTI_USE_CODE:
-        this.handleDeleteCode(payload);
+        this.handleDeleteCode();
         break;
       case BLEOpcode.SET_CONFIGURATION:
         this.handleSetConfiguration();
@@ -268,7 +269,7 @@ export class BoksSimulator extends EventEmitter {
     }
   }
 
-  private handleDeleteCode(payload: Uint8Array) {
+  private handleDeleteCode() {
     // Simplified: we assume we can delete by index or something, but here we just ACK success.
     // Real Boks deletes by Index.
     // For this simplified simulator, we can't easily map Index -> Code without a more complex state.
@@ -310,7 +311,7 @@ export class BoksSimulator extends EventEmitter {
 
     setTimeout(() => {
       const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xFF, (count >> 8) & 0xFF]);
+      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0XFF, (count >> 8) & 0XFF]);
     }, 150);
   }
 
@@ -328,7 +329,7 @@ export class BoksSimulator extends EventEmitter {
     const interval = setInterval(() => {
       if (i >= sortedLogs.length) {
         clearInterval(interval);
-        this.sendNotification(BLEOpcode.LOG_END, []);
+        this.sendNotification(BLEOpcode.LOG_END_HISTORY, []);
         return;
       }
 
@@ -348,10 +349,10 @@ export class BoksSimulator extends EventEmitter {
     }
     // Big Endian for Counts
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
-      (masterCount >> 8) & 0xFF,
-      masterCount & 0xFF,
-      (singleCount >> 8) & 0xFF,
-      singleCount & 0xFF,
+      (masterCount >> 8) & 0XFF,
+      masterCount & 0XFF,
+      (singleCount >> 8) & 0XFF,
+      singleCount & 0XFF,
     ]);
   }
 

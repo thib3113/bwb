@@ -1,6 +1,5 @@
 import { EventEmitter } from '../utils/EventEmitter';
 import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
-import { PacketFactory } from '../ble/packets/PacketFactory';
 import {
   BATTERY_SERVICE_UUID,
   BLEOpcode,
@@ -14,6 +13,7 @@ import { ParsedPayload, parsePayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
 import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
 import { getCharacteristicName, parseCharacteristicValue } from '../utils/bleUtils';
 
@@ -48,6 +48,11 @@ export type BLEServiceState =
   | 'connected'
   | 'disconnecting';
 
+// Type safe access to global test flags
+interface BoksWindow extends Window {
+  BOKS_SIMULATOR_ENABLED?: boolean;
+}
+
 export class BoksBLEService extends EventEmitter {
   private static instance: BoksBLEService;
 
@@ -60,8 +65,28 @@ export class BoksBLEService extends EventEmitter {
 
   private constructor() {
     super();
-    // Default to WebBluetooth, can be swapped via setAdapter
-    this.adapter = new WebBluetoothAdapter();
+
+    // Check for simulator flag early to avoid real Bluetooth prompts in tests
+    let useSimulator = false;
+
+    // 1. Check build-time constant (CI mode)
+    if (typeof __BOKS_SIMULATOR_AUTO_ENABLE__ !== 'undefined' && __BOKS_SIMULATOR_AUTO_ENABLE__) {
+      useSimulator = true;
+    }
+    // 2. Fallback to runtime flags
+    else if (typeof window !== 'undefined') {
+      const win = window as unknown as BoksWindow;
+      useSimulator =
+        win.BOKS_SIMULATOR_ENABLED === true ||
+        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
+    }
+
+    if (useSimulator) {
+      console.warn('⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️');
+      this.adapter = new SimulatedBluetoothAdapter();
+    } else {
+      this.adapter = new WebBluetoothAdapter();
+    }
 
     this.queue = new BLEQueue(async (request) => {
       this.lastSentOpcode = request.opcode;
@@ -180,7 +205,7 @@ export class BoksBLEService extends EventEmitter {
     const lastOp = this.lastSentOpcode;
 
     if (parsed) {
-      parsed.direction = "RX";
+      parsed.direction = 'RX';
       // Use our new payload parser for rich objects
       parsed.parsedPayload = parsePayload(parsed.opcode, parsed.payload, parsed.raw);
 

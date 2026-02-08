@@ -71,8 +71,6 @@ export function App() {
   const navigate = useNavigate();
 
   const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const [notification, setNotification] = useState({
     open: false,
     message: '',
@@ -194,14 +192,14 @@ export function App() {
       ) : (
         <Paper sx={{ textAlign: 'center', p: 3, color: 'error.main' }}>
           <Typography variant="h5" component="h1">
-            {tAny('common:web_ble_not_supported_title')}
+            {t('common:web_ble_not_supported_title')}
           </Typography>
           <Typography variant="body1" component="p">
-            {tAny('common:web_ble_not_supported_message')}
+            {t('common:web_ble_not_supported_message')}
           </Typography>
           {isIOS() && (
             <Typography variant="body2" component="p">
-              {tAny('common:web_ble_not_supported_ios')}
+              {t('common:web_ble_not_supported_ios')}
             </Typography>
           )}
         </Paper>

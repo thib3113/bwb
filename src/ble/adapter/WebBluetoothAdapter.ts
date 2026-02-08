@@ -1,31 +1,35 @@
 import { BLEAdapter } from './BLEAdapter';
-import { BluetoothDevice, BluetoothRemoteGATTServer } from '../../types';
+import {
+  BluetoothDevice,
+  BluetoothRemoteGATTServer,
+  BluetoothRemoteGATTCharacteristic,
+} from '../../types';
 
 export class WebBluetoothAdapter implements BLEAdapter {
   private device: BluetoothDevice | null = null;
   private server: BluetoothRemoteGATTServer | null = null;
   // Cache characteristics to avoid re-fetching
-  private charCache: Map<string, any> = new Map();
+  private charCache: Map<string, BluetoothRemoteGATTCharacteristic> = new Map();
 
   isAvailable(): boolean {
-    return !!(navigator && (navigator as any).bluetooth);
+    return !!(navigator && navigator.bluetooth);
   }
 
   async connect(serviceUuid: string, optionalServices: string[]): Promise<BluetoothDevice> {
-    const device = await (navigator as any).bluetooth.requestDevice({
+    const device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [serviceUuid] }],
       optionalServices,
     });
 
-    this.device = device;
+    this.device = device as unknown as BluetoothDevice;
     // Note: Disconnect listener should be handled by the consumer via device.addEventListener
 
     if (!device.gatt) throw new Error('No GATT');
     const server = await device.gatt.connect();
-    this.server = server;
+    this.server = server as unknown as BluetoothRemoteGATTServer;
     this.charCache.clear();
 
-    return device;
+    return this.device;
   }
 
   disconnect(): void {
@@ -43,7 +47,8 @@ export class WebBluetoothAdapter implements BLEAdapter {
 
   private async getCharacteristic(serviceUuid: string, charUuid: string) {
     const key = `${serviceUuid}/${charUuid}`;
-    if (this.charCache.has(key)) return this.charCache.get(key);
+    if (this.charCache.has(key))
+      return this.charCache.get(key) as BluetoothRemoteGATTCharacteristic;
 
     if (!this.server || !this.server.connected) throw new Error('Device not connected');
     const service = await this.server.getPrimaryService(serviceUuid);
@@ -60,20 +65,23 @@ export class WebBluetoothAdapter implements BLEAdapter {
     withoutResponse: boolean
   ): Promise<void> {
     const char = await this.getCharacteristic(serviceUuid, charUuid);
+    if (!char) throw new Error(`Characteristic ${charUuid} not found`);
+
     if (withoutResponse) {
       // Try optimized write if available
       if (char.writeValueWithoutResponse) {
-        await char.writeValueWithoutResponse(data);
+        await char.writeValueWithoutResponse(data.buffer as ArrayBuffer);
       } else {
-        await char.writeValue(data);
+        await char.writeValue(data.buffer as ArrayBuffer);
       }
     } else {
-      await char.writeValue(data);
+      await char.writeValue(data.buffer as ArrayBuffer);
     }
   }
 
   async read(serviceUuid: string, charUuid: string): Promise<DataView> {
     const char = await this.getCharacteristic(serviceUuid, charUuid);
+    if (!char) throw new Error(`Characteristic ${charUuid} not found`);
     return await char.readValue();
   }
 
@@ -83,16 +91,20 @@ export class WebBluetoothAdapter implements BLEAdapter {
     callback: (value: DataView) => void
   ): Promise<void> {
     const char = await this.getCharacteristic(serviceUuid, charUuid);
+    if (!char) throw new Error(`Characteristic ${charUuid} not found`);
     await char.startNotifications();
-    char.addEventListener('characteristicvaluechanged', (event: any) => {
-      callback(event.target.value);
+    char.addEventListener('characteristicvaluechanged', (event: Event) => {
+      const target = event.target as unknown as { value: DataView };
+      callback(target.value);
     });
   }
 
   async stopNotifications(serviceUuid: string, charUuid: string): Promise<void> {
     try {
       const char = await this.getCharacteristic(serviceUuid, charUuid);
-      await char.stopNotifications();
+      if (char) {
+        await char.stopNotifications();
+      }
     } catch {
       // Ignore errors on stop
     }

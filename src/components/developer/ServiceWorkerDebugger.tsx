@@ -18,6 +18,7 @@ export const ServiceWorkerDebugger = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchRegistrations();
   }, []);
 

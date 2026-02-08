@@ -65,7 +65,7 @@ export const ConnectionManager = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} data-testid="connection-status-box">
       <Tooltip title={isConnected ? t('connected') : t('disconnected')}>
         <IconButton size="small" color={isConnected ? 'success' : 'default'}>
           {isConnected ? <BluetoothConnectedIcon /> : <BluetoothDisabledIcon />}

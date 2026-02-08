@@ -10,13 +10,11 @@ export abstract class BaseCodeLogPayload extends BaseLogPayload {
     const specificPayload = payload.slice(3);
 
     if (specificPayload.length >= 6) {
-      this.code = new TextDecoder()
-        .decode(specificPayload.slice(0, 6))
-        .replace(/\0/g, '');
+      this.code = new TextDecoder().decode(specificPayload.slice(0, 6)).replace(/\0/g, '');
 
       if (
-        (opcode === BLEOpcode.LOG_CODE_BLE_VALID ||
-          opcode === BLEOpcode.LOG_CODE_BLE_INVALID) &&
+        (opcode === BLEOpcode.LOG_CODE_BLE_VALID_HISTORY ||
+          opcode === BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY) &&
         specificPayload.length >= 14
       ) {
         // Parsing logic: Age(3) + Code(6) + Padding(2) + MAC(6)

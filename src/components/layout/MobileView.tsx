@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -47,7 +47,7 @@ export const MobileView = ({
 
   const activeTab = getActiveTab();
 
-  const handleTabChange = (event: Event, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     switch (newValue) {
       case 0:
         navigate('/codes');

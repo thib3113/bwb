@@ -6,6 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
   Typography,
   Paper,
@@ -15,7 +16,7 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { PacketFactory } from '../../ble/packets/PacketFactory';
 import { useBLE } from '../../hooks/useBLE';
-import { BoksTXPacket } from '../../ble/packets/BoksTXPacket';
+
 import { BLEOpcode } from '../../utils/bleConstants';
 import { PacketLogger } from './PacketLogger';
 
@@ -27,6 +28,10 @@ const getOpcodeName = (opcode: number): string => {
 // Global in-memory storage for field values across component re-renders
 // Key: field name (e.g., 'pinCode', 'configKey'), Value: last entered value
 const fieldMemory: Record<string, string> = {};
+
+const updateFieldMemory = (field: string, value: string) => {
+  fieldMemory[field] = value;
+};
 
 export const BluetoothDebugger = () => {
   const { t } = useTranslation(['settings']);
@@ -46,7 +51,7 @@ export const BluetoothDebugger = () => {
   const SelectedPacketClass = useMemo(() => {
     if (selectedOpcode === '') return null;
     const Class = PacketFactory.getRegisteredTXPackets().get(selectedOpcode);
-    return Class as (typeof Class & { schema?: z.ZodObject<any> }) | undefined;
+    return Class as (typeof Class & { schema?: z.AnyZodObject }) | undefined;
   }, [selectedOpcode]);
 
   // Extract Zod Schema shape if available
@@ -62,7 +67,7 @@ export const BluetoothDebugger = () => {
   // When schema changes (new packet selected), pre-fill from memory
   useEffect(() => {
     if (!schemaShape) {
-      setFormData({});
+      setTimeout(() => setFormData({}), 0);
       return;
     }
 
@@ -71,11 +76,11 @@ export const BluetoothDebugger = () => {
       // Use stored value if exists, otherwise empty string
       newFormData[key] = fieldMemory[key] || '';
     });
-    setFormData(newFormData);
+    setTimeout(() => setFormData(newFormData), 0);
   }, [schemaShape]);
 
-  const handleOpcodeChange = (event: any) => {
-    setSelectedOpcode(event.target.value);
+  const handleOpcodeChange = (event: SelectChangeEvent<number | ''>) => {
+    setSelectedOpcode(event.target.value as number | '');
     // formData reset is handled by the useEffect above
     setValidationError(null);
     setSuccessMessage(null);
@@ -85,7 +90,7 @@ export const BluetoothDebugger = () => {
     // Update local state
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Update global memory
-    fieldMemory[field] = value;
+    updateFieldMemory(field, value);
 
     setValidationError(null);
     setSuccessMessage(null);
@@ -97,7 +102,7 @@ export const BluetoothDebugger = () => {
     setSuccessMessage(null);
 
     try {
-      let packetData: any = {};
+      let packetData: Record<string, unknown> = {};
 
       // If we have a schema, validate and parse
       if (SelectedPacketClass.schema) {
@@ -123,9 +128,10 @@ export const BluetoothDebugger = () => {
       await sendPacket(packet);
       console.log('Packet sent successfully', packet);
       setSuccessMessage(t('settings:developer.packet_sent_success'));
-    } catch (e: any) {
-      console.error('Failed to send packet', e);
-      setValidationError(e.message || t('settings:developer.packet_send_error'));
+    } catch (err: unknown) {
+      console.error('Failed to send packet', err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setValidationError(errorMessage || t('settings:developer.packet_send_error'));
     }
   };
 

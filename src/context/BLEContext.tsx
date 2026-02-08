@@ -1,12 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  ReactNode,
-  useMemo,
-} from 'preact/compat';
+import { useEffect, useState, useCallback, ReactNode, useMemo } from 'react';
 import { BoksBLEService, BLEServiceEvent, BLEServiceState } from '../services/BoksBLEService';
 import { BLEPacket } from '../utils/packetParser';
 import {
@@ -33,8 +25,9 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const bleService = useMemo(() => {
     const service = BoksBLEService.getInstance();
 
-    // Check both window flag and localStorage for robustness
+    // Check build-time constant (CI), window flag and localStorage for robustness
     const useSimulator =
+      (typeof __BOKS_SIMULATOR_AUTO_ENABLE__ !== 'undefined' && __BOKS_SIMULATOR_AUTO_ENABLE__) ||
       (typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED === true) ||
       (typeof localStorage !== 'undefined' &&
         localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true');
@@ -199,7 +192,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       arg3?: { expectResponse?: boolean; timeout?: number }
     ) => {
       if (arg1 instanceof BoksTXPacket) {
-        return bleService.sendRequest(arg1, arg2 as any);
+        return bleService.sendRequest(arg1, arg2 as { expectResponse?: boolean; timeout?: number });
       } else {
         return bleService.sendRequest(new RawTXPacket(arg1 as BLEOpcode, arg2 as Uint8Array), arg3);
       }
@@ -212,7 +205,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       const eventKey = typeof event === 'number' ? `opcode_${event}` : event;
       // Map '*' to PACKET_RECEIVED
       const actualEvent = eventKey === '*' ? BLEServiceEvent.PACKET_RECEIVED : eventKey;
-      return bleService.on(actualEvent, callback as any);
+      return bleService.on(actualEvent, callback as (arg: unknown) => void);
     },
     [bleService]
   );
@@ -221,7 +214,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     (event: string | number, callback: (packet: BLEPacket) => void) => {
       const eventKey = typeof event === 'number' ? `opcode_${event}` : event;
       const actualEvent = eventKey === '*' ? BLEServiceEvent.PACKET_RECEIVED : eventKey;
-      bleService.off(actualEvent, callback as any);
+      bleService.off(actualEvent, callback as (arg: unknown) => void);
     },
     [bleService]
   );
@@ -249,7 +242,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   // Expose toggle globally for tests
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).toggleSimulator = toggleSimulator;
+      window.toggleSimulator = toggleSimulator;
     }
   }, [toggleSimulator]);
 

@@ -24,7 +24,6 @@ import { useDevice } from '../../hooks/useDevice';
 import { StorageService } from '../../services/StorageService';
 import { formatCode, generateCode } from '../../utils/codeUtils';
 import { BoksCode, CodeCreationData, CodeType, UserRole } from '../../types';
-import { CODE_TYPES } from '../../utils/constants';
 
 interface AddCodeDialogProps {
   open: boolean;
@@ -38,7 +37,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
   const { activeDevice } = useDevice();
   const hasConfigurationKey = !!activeDevice?.configuration_key;
   const isAdmin = activeDevice?.role === UserRole.Owner || activeDevice?.role === UserRole.Admin;
-  const [type, setType] = useState<CodeType>(CODE_TYPES.MASTER);
+  const [type, setType] = useState<CodeType>(CodeType.MASTER);
   const [code, setCode] = useState('');
   const [name, setName] = useState(''); // Was description
   const [index, setIndex] = useState(0);
@@ -56,7 +55,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
           setIndex(editingCode.index || 0);
           setUses(editingCode.uses || 1);
         } else {
-          setType(CODE_TYPES.MASTER);
+          setType(CodeType.MASTER);
           setCode(generateCode());
           setName('');
           setIndex(0);
@@ -70,10 +69,10 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
 
   // Load existing master indices when dialog opens or active device changes
   useEffect(() => {
-    if (open && activeDevice?.id && type === CODE_TYPES.MASTER) {
+    if (open && activeDevice?.id && type === CodeType.MASTER) {
       StorageService.loadCodes(activeDevice.id).then((loadedCodes) => {
         const masterIndices = loadedCodes
-          .filter((c) => c.type === CODE_TYPES.MASTER && c.status !== 'pending_delete')
+          .filter((c) => c.type === CodeType.MASTER && c.status !== 'pending_delete')
           .map((c) => c.index)
           .filter((idx): idx is number => idx !== undefined);
 
@@ -85,7 +84,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
 
   const handleClose = () => {
     // Reset form
-    setType(CODE_TYPES.MASTER);
+    setType(CodeType.MASTER);
     setCode('');
     setName('');
     setIndex(0);
@@ -100,12 +99,12 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
     setCode(formattedCode);
 
     // Check for master code index conflict
-    if (type === CODE_TYPES.MASTER && activeDevice?.id) {
+    if (type === CodeType.MASTER && activeDevice?.id) {
       const loadedCodes = await StorageService.loadCodes(activeDevice.id);
       // Conflict Detection: Check if index exists
       const existingCode = loadedCodes.find(
         (c) =>
-          c.type === CODE_TYPES.MASTER &&
+          c.type === CodeType.MASTER &&
           c.index === index &&
           c.status !== 'pending_delete' &&
           // Don't consider the code we're editing as a conflict
@@ -191,13 +190,13 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                  * If User (Non-Admin): Can ALWAYS create Master Code (regardless of key)
                  */}
                 {(!isAdmin || (isAdmin && hasConfigurationKey)) && (
-                  <MenuItem value={CODE_TYPES.MASTER}>{t('master_code')}</MenuItem>
+                  <MenuItem value={CodeType.MASTER}>{t('master_code')}</MenuItem>
                 )}
-                <MenuItem value={CODE_TYPES.SINGLE}>{t('single_use_code')}</MenuItem>
-                <MenuItem value={CODE_TYPES.MULTI}>{t('multi_use_code')}</MenuItem>
+                <MenuItem value={CodeType.SINGLE}>{t('single_use_code')}</MenuItem>
+                <MenuItem value={CodeType.MULTI}>{t('multi_use_code')}</MenuItem>
               </Select>
             </FormControl>
-            {type === CODE_TYPES.MASTER && (
+            {type === CodeType.MASTER && (
               <TextField
                 label={`${t('index_label')}: ${index}`}
                 type="number"
@@ -210,7 +209,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 }}
               />
             )}
-            {type === CODE_TYPES.MULTI && (
+            {type === CodeType.MULTI && (
               <TextField
                 label={t('uses_label')}
                 type="number"
@@ -229,11 +228,12 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
           <Button
             onClick={handleSave}
             variant="contained"
+            data-testid="save-code-button"
             startIcon={<AddIcon />}
             // Disable conditions
             disabled={
-              (type === CODE_TYPES.MASTER && (!code || code.length !== 6)) ||
-              (type !== CODE_TYPES.MASTER && name.trim() === '')
+              (type === CodeType.MASTER && (!code || code.length !== 6)) ||
+              (type !== CodeType.MASTER && name.trim() === '')
             }
           >
             {editingCode ? t('save') : t('generate')}

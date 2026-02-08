@@ -88,7 +88,7 @@ export function parseCharacteristicValue(uuid: string, data: DataView): string {
       const text = decoder.decode(data);
       // Remove null terminators or weird chars
       return text.replace(/\0/g, '').trim();
-    } catch (e) {
+    } catch {
       return 'Error decoding string';
     }
   }

@@ -29,8 +29,8 @@ const DBRowEditor = ({
   primaryKey,
 }: {
   tableName: string;
-  item: any;
-  primaryKey: any;
+  item: Record<string, unknown>;
+  primaryKey: string | number;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(JSON.stringify(item, null, 2));
@@ -130,8 +130,7 @@ const DBTableViewer = ({ tableName }: { tableName: string }) => {
   return (
     <List>
       {data.map((item, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pk = (item as any)[primKeyName];
+        const pk = (item as Record<string, unknown>)[primKeyName] as string | number;
 
         return (
           <ListItem key={pk || index} disablePadding>
@@ -139,12 +138,20 @@ const DBTableViewer = ({ tableName }: { tableName: string }) => {
               <AccordionSummary expandIcon={<ExpandMore />}>
                 <Typography noWrap>
                   {/* Try to find a reasonable title */}
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(item as any).id || (item as any).name || (item as any).key || `Record ${index}`}
+                  {String(
+                    (item as Record<string, unknown>).id ||
+                      (item as Record<string, unknown>).name ||
+                      (item as Record<string, unknown>).key ||
+                      `Record ${index}`
+                  )}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <DBRowEditor tableName={tableName} item={item} primaryKey={pk} />
+                <DBRowEditor
+                  tableName={tableName}
+                  item={item as Record<string, unknown>}
+                  primaryKey={pk}
+                />
               </AccordionDetails>
             </Accordion>
           </ListItem>
@@ -159,8 +166,8 @@ export const DBEditor = () => {
   const [selectedTable, setSelectedTable] = useState<string>('');
   const tables = db.tables.map((t) => t.name);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelectedTable((event.target as HTMLInputElement).value as string);
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedTable(event.target.value);
   };
 
   return (

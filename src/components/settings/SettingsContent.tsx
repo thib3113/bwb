@@ -6,11 +6,10 @@ import i18n from '../../i18n';
 import { useTranslation } from 'react-i18next';
 import { StorageService } from '../../services/StorageService';
 import { db } from '../../db/db';
-import { BoksCode, ExportData, UserRole } from '../../types';
+import { BoksCode, CodeType, ExportData, UserRole } from '../../types';
 import { SettingsConfig } from './types';
 import {
   APP_EVENTS,
-  CODE_TYPES,
   IMPORT_EXPORT_MODES,
   LANGUAGES,
   SNACKBAR_SEVERITY,
@@ -144,11 +143,11 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
 
         // Filter valid codes (permanent or with remaining uses)
         const validCodes = codes.filter((code) => {
-          if (code.type === CODE_TYPES.MASTER) return true;
-          if (code.type === CODE_TYPES.MULTI) {
+          if (code.type === CodeType.MASTER) return true;
+          if (code.type === CodeType.MULTI) {
             return !code.uses || code.uses < (code.maxUses || Infinity);
           }
-          if (code.type === CODE_TYPES.SINGLE) {
+          if (code.type === CodeType.SINGLE) {
             return !code.usedAt && (!code.expiresAt || new Date(code.expiresAt) > new Date());
           }
           return false;

@@ -6,9 +6,8 @@ import { StorageService } from '../services/StorageService';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { useDevice } from '../hooks/useDevice';
 import { TaskContext } from './Contexts';
-import { CODE_TYPES } from '../utils/constants';
 import { db } from '../db/db';
-import { BoksCode } from '../types';
+import { BoksCode, CodeType } from '../types';
 import {
   CreateMasterCodePacket,
   CreateMultiUseCodePacket,
@@ -50,6 +49,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             ...(taskData.payload as AddCodePayload),
             codeId: undefined, // Explicitly remove codeId
             codeType: 'master',
+            index: (taskData.payload as AddCodePayload).index, // PASS THE INDEX HERE!
           },
         } as unknown as BoksTask;
 
@@ -185,7 +185,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                       .equals(activeDevice.id)
                       .filter(
                         (code) =>
-                          code.type === CODE_TYPES.MASTER &&
+                          code.type === CodeType.MASTER &&
                           code.index === newCode.index &&
                           code.id !== codeId
                       )
@@ -212,8 +212,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
               codeObj = await db.codes.get(codeId);
             }
 
-            switch (task.payload.codeType as string) {
-              case CODE_TYPES.MASTER:
+            switch (task.payload.codeType as CodeType) {
+              case CodeType.MASTER: {
                 // Use explicit index from payload if available, otherwise check DB object
                 // STRICT CHECK: Index MUST be defined. Do not fallback to 0 blindly.
                 const targetIndex = (task.payload.index as number) ?? codeObj?.index;
@@ -224,15 +224,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
                 packet = new DeleteMasterCodePacket(configKey, targetIndex);
                 break;
+              }
 
-              case CODE_TYPES.SINGLE:
+              case CodeType.SINGLE:
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
                 packet = new DeleteSingleUseCodePacket(configKey, tempCodeStr);
                 break;
 
-              case CODE_TYPES.MULTI:
+              case CodeType.MULTI:
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
@@ -246,7 +247,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             if (packet) {
               const response = await sendRequest(packet);
               // Store opcode for workaround checks
-              const opcode = packet.opcode;
 
               // Handle response
               if (!Array.isArray(response)) {
@@ -303,7 +303,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             break;
 
           default:
-            throw new Error(`Unsupported task type: ${(task as any).type}`);
+            throw new Error(`Unsupported task type: ${(task as { type: string }).type}`);
         }
 
         // Mark task as completed
@@ -332,7 +332,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       // This ensures that the caller can await the completion of the task
       return Promise.resolve();
     },
-    [sendRequest, activeDevice?.id, activeDevice?.configuration_key]
+    [sendRequest, activeDevice?.id, activeDevice?.configuration_key, activeDevice?.door_pin_code]
   );
 
   // Ref for tracking processing state
@@ -358,8 +358,12 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     const processNextTask = async () => {
       isProcessingRef.current = true;
       try {
+        // Get the actual list of pending tasks again within the async function
+        const currentPendingTasks = tasks.filter((task) => task.status === 'pending');
+        if (currentPendingTasks.length === 0) return;
+
         // Sort tasks by priority and type (DELETE before ADD)
-        const sortedPendingTasks = [...pendingTasks].sort((a, b) => {
+        const sortedPendingTasks = [...currentPendingTasks].sort((a, b) => {
           // First sort by priority
           if (a.priority !== b.priority) {
             return a.priority - b.priority;
@@ -392,14 +396,13 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
           // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
           const getDeleteOpcodePriority = (task: BoksTask) => {
-            // We need to determine the actual opcode from the codeType in payload
-            const codeType = task.payload.codeType as string;
+            const codeType = task.payload.codeType as CodeType;
             switch (codeType) {
-              case CODE_TYPES.MASTER:
+              case CodeType.MASTER:
                 return 1; // DELETE_MASTER_CODE (0x0C)
-              case CODE_TYPES.SINGLE:
+              case CodeType.SINGLE:
                 return 2; // DELETE_SINGLE_USE_CODE (0x0D)
-              case CODE_TYPES.MULTI:
+              case CodeType.MULTI:
                 return 3; // DELETE_MULTI_USE_CODE (0x0E)
               default:
                 return 4;
@@ -411,15 +414,19 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         // Execute only the first task in the queue
         const nextTask = sortedPendingTasks[0];
         if (nextTask) {
+          console.log(`[TaskContext] Executing task: ${nextTask.type}`, nextTask.payload);
           await executeTask(nextTask);
+          console.log(`[TaskContext] Task completed: ${nextTask.type}`);
         }
+      } catch (err) {
+        console.error('[TaskContext] Task processing error:', err);
       } finally {
         isProcessingRef.current = false;
       }
     };
 
     processNextTask();
-  }, [isConnected, tasks]);
+  }, [isConnected, tasks, executeTask]);
   // executeTask is stable due to useCallback and its dependencies, so it won't change between renders
 
   const value = useMemo(

@@ -22,7 +22,6 @@ export function parsePacket(data: DataView): BLEPacket | null {
   }
 
   const opcode = bytes[0];
-  const length = bytes[1];
 
   const isValidChecksum = verifyChecksum(bytes);
 

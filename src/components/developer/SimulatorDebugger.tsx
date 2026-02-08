@@ -18,25 +18,25 @@ import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
-import { SimulatorAPI } from '../../ble/simulator/BoksSimulator';
+import { SimulatorAPI, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
-  const { t } = useTranslation(["settings"]);
+  const { t } = useTranslation(['settings']);
   const { toggleSimulator } = useBLE();
   const [simulator, setSimulator] = useState<SimulatorAPI | null>(
-    () => (window as any).boksSimulatorController || null
+    () => window.boksSimulatorController || null
   );
-  const [state, setState] = useState<any>(null);
+  const [state, setState] = useState<BoksState | null>(null);
   const [isEnabled, setIsEnabled] = useState(
-    () => localStorage.getItem("BOKS_SIMULATOR_ENABLED") === "true"
+    () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
   const [isSimulatorRunning, setIsSimulatorRunning] = useState(
-    () => !!(window as any).boksSimulatorController
+    () => !!window.boksSimulatorController
   );
 
   useEffect(() => {
-    const controller = (window as any).boksSimulatorController;
+    const controller = window.boksSimulatorController;
     if (controller) {
       const interval = setInterval(() => {
         setState(controller.getState());
@@ -52,7 +52,7 @@ export const SimulatorDebugger = () => {
       // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-          const controller = (window as any).boksSimulatorController;
+          const controller = window.boksSimulatorController;
           if (controller) {
             setSimulator(controller);
             setIsSimulatorRunning(true);
@@ -229,7 +229,7 @@ export const SimulatorDebugger = () => {
               >
                 {state.logs.length === 0
                   ? t('settings:developer.simulator.no_logs')
-                  : [...state.logs].reverse().map((l: any, i: number) => (
+                  : [...state.logs].reverse().map((l: LogEntry, i: number) => (
                       <div key={i}>
                         [{new Date(l.timestamp).toLocaleTimeString()}] Op: 0x
                         {l.opcode.toString(16).toUpperCase()}

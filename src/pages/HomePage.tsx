@@ -82,11 +82,7 @@ export const HomePage = () => {
           label={t('codes:title')}
           icon={<VpnKeyIcon />}
         />
-        <BottomNavigationAction
-          data-testid="nav-logs"
-          label={t('logs:title')}
-          icon={<LogIcon />}
-        />
+        <BottomNavigationAction data-testid="nav-logs" label={t('logs:title')} icon={<LogIcon />} />
         <BottomNavigationAction
           data-testid="nav-settings"
           label={t('settings:title')}

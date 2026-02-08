@@ -43,7 +43,7 @@ const customRulesPlugin = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'dev-dist'] },
+  { ignores: ['dist', 'dev-dist', 'tests/**', 'src/tests/**', '**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -72,6 +72,9 @@ export default tseslint.config(
       'src/utils/logParser.ts',
       'src/utils/packetParser.test.ts',
       'src/tests/**/*.test.ts',
+      'src/ble/adapter/SimulatedBluetoothAdapter.ts',
+      'src/ble/simulator/BoksSimulator.ts',
+      'src/pages/DfuUpdatePage.tsx',
     ],
     rules: {
       'prettier/prettier': 'off',

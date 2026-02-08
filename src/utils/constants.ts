@@ -22,12 +22,6 @@ export const IMPORT_EXPORT_MODES = {
   IMPORT: 'import',
 } as const;
 
-export const CODE_TYPES = {
-  MASTER: 'master',
-  SINGLE: 'single',
-  MULTI: 'multi',
-} as const;
-
 export const APP_DEFAULTS = {
   AUTHOR_ID: 'local-user',
 } as const;

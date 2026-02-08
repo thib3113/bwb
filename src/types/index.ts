@@ -1,4 +1,8 @@
-export type CodeType = 'master' | 'single' | 'multi';
+export enum CodeType {
+  MASTER = 'master',
+  SINGLE = 'single',
+  MULTI = 'multi',
+}
 
 export enum UserRole {
   Owner = 'owner',
@@ -27,8 +31,12 @@ declare global {
   interface Window {
     BOKS_SIMULATOR_ENABLED?: boolean;
     enableBoksSimulator?: () => void;
+    toggleSimulator?: (enable: boolean) => void;
+    _boks_tx_buffer?: Array<{ opcode: number; payload: number[] }>;
+    txEvents?: Array<{ opcode: number; payload: number[] }>;
     opera?: string;
     MSStream?: unknown;
+    boksSimulatorController?: import('../ble/simulator/BoksSimulator').SimulatorAPI;
     boksDebug: {
       mockData?: (mockDeviceId?: string) => Promise<void>;
       StorageService?: unknown;
@@ -139,6 +147,7 @@ export interface BoksLog {
   opcode: number;
   payload: Uint8Array;
   raw: Uint8Array;
+  details?: Record<string, unknown>;
   synced: boolean; // Synced to Cloud?
   updated_at?: number;
 
@@ -164,9 +173,11 @@ export interface BoksSettings {
 export interface BluetoothDevice {
   id: string;
   name?: string;
+  battery_level?: number;
   gatt?: BluetoothRemoteGATTServer;
   watchAdvertisements(): Promise<void>;
   unwatchAdvertisements(): Promise<void>;
+  watchingAdvertisements: boolean;
   addEventListener(type: string, listener: EventListener): void;
   removeEventListener(type: string, listener: EventListener): void;
 }
@@ -200,6 +211,8 @@ export interface BluetoothRemoteGATTCharacteristic {
   getDescriptor(descriptor: BluetoothRemoteGATTDescriptor): Promise<BluetoothRemoteGATTDescriptor>;
   readValue(): Promise<DataView>;
   writeValue(value: BufferSource): Promise<void>;
+  writeValueWithResponse(value: BufferSource): Promise<void>;
+  writeValueWithoutResponse(value: BufferSource): Promise<void>;
   startNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   stopNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   addEventListener(type: string, listener: EventListener): void;

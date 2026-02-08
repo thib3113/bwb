@@ -36,7 +36,7 @@ interface DebugWizardStep5RecapProps {
   customUuids: string[];
   customResults: CustomResult[];
   serviceUuid?: string;
-  serviceResults?: CustomResult[]; // Assuming same structure
+  serviceResults?: Array<{ uuid: string; value: string }>;
 }
 
 export const DebugWizardStep5Recap: React.FC<DebugWizardStep5RecapProps> = ({

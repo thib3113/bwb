@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useBLE } from '../../hooks/useBLE';
-import { BLEOpcode, OPCODE_NAMES } from '../../utils/bleConstants';
+import { OPCODE_NAMES } from '../../utils/bleConstants';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export const PacketLogger = () => {

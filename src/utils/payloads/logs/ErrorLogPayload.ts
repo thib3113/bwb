@@ -1,7 +1,8 @@
 import { BaseLogPayload } from './BaseLogPayload';
-import { DIAGNOSTIC_ERROR_CODES } from '../../bleConstants';
+import { BLEOpcode, DIAGNOSTIC_ERROR_CODES } from '../../bleConstants';
 
 export class ErrorLogPayload extends BaseLogPayload {
+  static OPCODES = [BLEOpcode.LOG_EVENT_ERROR];
   errorCode: string;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {

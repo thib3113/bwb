@@ -34,8 +34,6 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
   onCopySuccess,
 }) => {
   const { t } = useTranslation(['settings', 'common']);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
 
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -82,7 +80,7 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
             }}
           />
           {mode === IMPORT_EXPORT_MODES.EXPORT && (
-            <Tooltip title={copySuccess ? tAny('copied') : t('settings:copy_to_clipboard')} arrow>
+            <Tooltip title={copySuccess ? t('copied') : t('settings:copy_to_clipboard')} arrow>
               <IconButton
                 onClick={handleCopy}
                 sx={{

@@ -19,7 +19,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
 
   const { sendRequest, log, isConnected } = useBLE();
 
-  const logsBufferRef = useRef<unknown[]>([]);
+  const logsBufferRef = useRef<BoksLog[]>([]);
   const lastReceivedLogCountRef = useRef<number | null>(null);
 
   const isSyncingRef = useRef(false);
@@ -98,7 +98,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             console.log(
               `[DeviceLogContext] End of history. Buffer contains ${logsBufferRef.current.length} logs.`
             );
-            removeListener(BLEOpcode.LOG_END, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
             removeListener('*', handleLogPacket);
 
             // Save logs
@@ -107,7 +107,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
                 `[DeviceLogContext] Saving ${logsBufferRef.current.length} logs for device ${activeDevice.id}...`,
                 logsBufferRef.current
               );
-              StorageService.saveLogs(activeDevice.id, logsBufferRef.current as any[])
+              StorageService.saveLogs(activeDevice.id, logsBufferRef.current)
                 .then(() => {
                   log(`Saved ${logsBufferRef.current.length} logs`, 'success');
                   console.log(`[DeviceLogContext] bulkPut successful.`);
@@ -124,7 +124,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             // Ignore TX and control packets
             if (
               packet.direction === 'TX' ||
-              packet.opcode === BLEOpcode.LOG_END ||
+              packet.opcode === BLEOpcode.LOG_END_HISTORY ||
               packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT
             )
               return;
@@ -158,12 +158,12 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           };
 
           // Subscribe to end of history and log packets BEFORE sending request
-          addListener(BLEOpcode.LOG_END, handleEndHistory);
+          addListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
           addListener('*', handleLogPacket);
 
           // Use sendRequest with expectResponse: false to ensure it goes through queue
           sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch((err) => {
-            removeListener(BLEOpcode.LOG_END, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
             removeListener('*', handleLogPacket);
             isSyncingRef.current = false;
             setIsSyncingLogs(false);
@@ -185,7 +185,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(`Failed to request logs: ${errorMessage}`);
       }
     }
-  }, [activeDevice, addListener, removeListener, sendRequest, log]);
+  }, [activeDevice, addListener, removeListener, sendRequest, log, isSimulator]);
 
   // Auto-import logs on connection if enabled
   useEffect(() => {

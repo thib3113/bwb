@@ -29,7 +29,9 @@ test.describe('Bluetooth Logs Feature', () => {
 
     // Retrieve events
     const events = await simulator.getTxEvents();
-    const getCount = events.find((e: any) => e.opcode === BLEOpcode.GET_LOGS_COUNT);
+    expect(events).toBeDefined();
+    expect(Array.isArray(events)).toBe(true);
+    const getCount = (events || []).find((e: any) => e.opcode === BLEOpcode.GET_LOGS_COUNT);
     expect(getCount).toBeDefined();
 
     // Note: We don't verify REQUEST_LOGS (0x03) because if count is 0, it won't be sent.

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { BoksCode, CodeStatus } from '../types';
-import { CODE_TYPES } from '../utils/constants';
+import { BoksCode, CodeStatus, CodeType } from '../types';
 import { CODE_STATUS } from '../constants/codeStatus';
 
 // --- Original Logic (Copied for Baseline) ---
@@ -15,12 +14,12 @@ const sortCodesByPriorityOriginal = (codes: BoksCode[]) => {
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // For single-use codes, check if they've been used
-        if (code.type === CODE_TYPES.SINGLE) {
+        if (code.type === CodeType.SINGLE) {
           // Note: We can't use deriveCodeMetadata here due to circular dependency
           // For now, we'll just check if it's a single-use code
         }
         // For multi-use codes, check if they've been fully used
-        if (code.type === CODE_TYPES.MULTI) {
+        if (code.type === CodeType.MULTI) {
           // If uses >= maxUses, they're considered used (priority 3)
           if (
             code.uses !== undefined &&
@@ -67,7 +66,7 @@ const sortCodesByPriorityOptimized = (codes: BoksCode[]) => {
       return 1;
     }
     if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-      if (code.type === CODE_TYPES.MULTI) {
+      if (code.type === CodeType.MULTI) {
         if (
           code.uses !== undefined &&
           code.maxUses !== undefined &&
@@ -131,7 +130,8 @@ describe('Sort Codes Performance', () => {
     // Generate random codes
     for (let i = 0; i < CODE_COUNT; i++) {
       const status = statuses[i % statuses.length];
-      const type = i % 3 === 0 ? CODE_TYPES.MULTI : (i % 2 === 0 ? CODE_TYPES.SINGLE : CODE_TYPES.MASTER);
+      const type =
+        i % 3 === 0 ? CodeType.MULTI : i % 2 === 0 ? CodeType.SINGLE : CodeType.MASTER;
 
       codes.push({
         id: `code-${i}`,

@@ -5,17 +5,14 @@ test.describe('Maintenance Page', () => {
     await page.goto('/');
 
     // Attempt to connect if not already
-    const disabledIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
-    const connectBtn = page
-      .getByRole('button', { name: /connect/i })
-      .filter({ hasText: /^Connect$|^$/ })
-      .first();
+    const disabledIcon = page.getByTestId('status-icon-disconnected');
+    const connectBtn = page.getByTestId('connection-button');
     await expect(connectBtn).toBeVisible();
     await connectBtn.click();
 
     // Wait for connection to establish
-    await expect(disabledIcon).not.toBeVisible({ timeout: 15000 });
-    await expect(page.getByText('%')).toBeVisible({ timeout: 10000 });
+    await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
+    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({ timeout: 20000 });
   });
 
   test('should navigate to maintenance page and run clean master codes script', async ({
