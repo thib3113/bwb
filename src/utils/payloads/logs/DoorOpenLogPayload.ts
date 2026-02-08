@@ -1,7 +1,7 @@
 import { BaseLogPayload } from './BaseLogPayload';
 
 export class DoorOpenLogPayload extends BaseLogPayload {
-  toString(): string {
-    return `Door Opened Log (Age: ${this.age}s)`;
+  get description(): string {
+    return 'logs:events.door_open';
   }
 }

@@ -1,6 +1,7 @@
+// Codes count payload
 import { ParsedPayload } from './base';
 
-export class NotifyCodesCountPayload implements ParsedPayload {
+export class CodesCountPayload implements ParsedPayload {
   opcode: number;
   payload: Uint8Array;
   raw: Uint8Array;
@@ -12,6 +13,7 @@ export class NotifyCodesCountPayload implements ParsedPayload {
     this.payload = payload;
     this.raw = raw;
 
+    // Based on _BoksDevice.js: payload.readUInt16BE(0) and readUInt16BE(2)
     if (payload.length >= 4) {
       this.master = (payload[0] << 8) | payload[1];
       this.single = (payload[2] << 8) | payload[3];

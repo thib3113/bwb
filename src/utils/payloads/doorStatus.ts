@@ -1,6 +1,7 @@
+// Door status payload
 import { ParsedPayload } from './base';
 
-export abstract class BaseDoorStatusPayload implements ParsedPayload {
+export class DoorStatusPayload implements ParsedPayload {
   opcode: number;
   payload: Uint8Array;
   raw: Uint8Array;
@@ -12,6 +13,9 @@ export abstract class BaseDoorStatusPayload implements ParsedPayload {
     this.payload = payload;
     this.raw = raw;
 
+    // Based on Python and examples:
+    // Opcode(1) + Len(1) + [Inverted, Live] + Checksum(1)
+    // payload starts AFTER Len, so payload[0]=Inverted, payload[1]=Live
     if (payload.length >= 2) {
       const liveStatus = payload[1];
       this.isOpen = liveStatus === 1;

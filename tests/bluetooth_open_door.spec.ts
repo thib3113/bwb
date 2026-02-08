@@ -1,7 +1,7 @@
 import { expect, test, BLEOpcode } from './fixtures';
 
 test.describe('Bluetooth Open Door Feature', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 

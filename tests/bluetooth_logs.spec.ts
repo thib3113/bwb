@@ -1,7 +1,7 @@
 import { BLEOpcode, expect, test } from './fixtures';
 
 test.describe('Bluetooth Logs Feature', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 

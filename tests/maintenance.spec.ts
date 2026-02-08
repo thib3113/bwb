@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test.describe('Maintenance Page', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
 
     // Attempt to connect if not already

@@ -37,14 +37,14 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
     const handleValidOpen = () => log('Valid open code', 'info');
     const handleInvalidOpen = () => log('Invalid open code', 'error');
 
-    addListener(BLEOpcode.LOG_CODE_BLE_VALID, handleCodeUsed);
-    addListener(BLEOpcode.LOG_CODE_KEY_VALID, handleCodeUsed);
+    addListener(BLEOpcode.LOG_CODE_BLE_VALID_HISTORY, handleCodeUsed);
+    addListener(BLEOpcode.LOG_CODE_KEY_VALID_HISTORY, handleCodeUsed);
     addListener(BLEOpcode.VALID_OPEN_CODE, handleValidOpen);
     addListener(BLEOpcode.INVALID_OPEN_CODE, handleInvalidOpen);
 
     return () => {
-      removeListener(BLEOpcode.LOG_CODE_BLE_VALID, handleCodeUsed);
-      removeListener(BLEOpcode.LOG_CODE_KEY_VALID, handleCodeUsed);
+      removeListener(BLEOpcode.LOG_CODE_BLE_VALID_HISTORY, handleCodeUsed);
+      removeListener(BLEOpcode.LOG_CODE_KEY_VALID_HISTORY, handleCodeUsed);
       removeListener(BLEOpcode.VALID_OPEN_CODE, handleValidOpen);
       removeListener(BLEOpcode.INVALID_OPEN_CODE, handleInvalidOpen);
     };

@@ -57,7 +57,7 @@ App
 4. **Create MobileView Component**
    - Implement bottom navigation with 3 tabs
    - Set up routing between CodeManager, LogViewer, and Configuration
-   - Add tab icons (List/Key, Log/ListAlt, Settings/Tune)
+   - Add tab icons (List/Key, History/ListAlt, Settings/Tune)
 
 5. **Update CodeManager for Mobile**
    - Implement accordion-based organization for codes

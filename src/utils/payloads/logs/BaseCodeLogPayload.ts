@@ -17,10 +17,13 @@ export abstract class BaseCodeLogPayload extends BaseLogPayload {
       if (
         (opcode === BLEOpcode.LOG_CODE_BLE_VALID ||
           opcode === BLEOpcode.LOG_CODE_BLE_INVALID) &&
-        specificPayload.length >= 12
+        specificPayload.length >= 14
       ) {
-        const macBytes = specificPayload.slice(6, 12);
+        // Parsing logic: Age(3) + Code(6) + Padding(2) + MAC(6)
+        const macBytes = specificPayload.slice(8, 14);
+        // MAC is Little Endian, need to reverse it.
         this.macAddress = Array.from(macBytes)
+          .reverse()
           .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
           .join(':');
       }

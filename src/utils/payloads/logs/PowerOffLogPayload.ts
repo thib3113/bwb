@@ -1,20 +1,24 @@
 import { BaseLogPayload } from './BaseLogPayload';
+import { POWER_OFF_REASONS } from '../../bleConstants';
 
 export class PowerOffLogPayload extends BaseLogPayload {
-  reason_code: number;
+  reason: string;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     super(opcode, payload, raw);
-    this.reason_code = payload.slice(3)[0] || 0;
+    const specificPayload = payload.slice(3);
+    const reasonCode = specificPayload[0] || 0;
+    this.reason = POWER_OFF_REASONS[reasonCode] || 'unknown';
   }
 
-  toString(): string {
-    return `Power Off (Age: ${this.age}s, Reason: ${this.reason_code})`;
+  get description(): string {
+    return 'logs:events.power_off';
   }
 
   toDetails(): Record<string, unknown> {
-    const details = super.toDetails();
-    details.reason_code = this.reason_code;
-    return details;
+    return {
+      ...super.toDetails(),
+      reason: this.reason,
+    };
   }
 }

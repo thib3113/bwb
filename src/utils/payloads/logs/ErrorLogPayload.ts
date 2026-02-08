@@ -1,27 +1,24 @@
 import { BaseLogPayload } from './BaseLogPayload';
+import { DIAGNOSTIC_ERROR_CODES } from '../../bleConstants';
 
 export class ErrorLogPayload extends BaseLogPayload {
-  error_subtype: number;
-  error_code: number;
-  error_internal_code: number;
+  errorCode: string;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     super(opcode, payload, raw);
     const specificPayload = payload.slice(3);
-    this.error_subtype = specificPayload[0] || 0;
-    this.error_code = specificPayload[1] || 0;
-    this.error_internal_code = specificPayload[2] || 0;
+    const code = specificPayload[0] || 0;
+    this.errorCode = DIAGNOSTIC_ERROR_CODES[code] || 'unknown_error';
   }
 
-  toString(): string {
-    return `Error (Age: ${this.age}s, Code: ${this.error_code})`;
+  get description(): string {
+    return 'logs:events.error';
   }
 
   toDetails(): Record<string, unknown> {
-    const details = super.toDetails();
-    details.error_subtype = this.error_subtype;
-    details.error_code = this.error_code;
-    details.error_internal_code = this.error_internal_code;
-    return details;
+    return {
+      ...super.toDetails(),
+      error: this.errorCode,
+    };
   }
 }

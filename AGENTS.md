@@ -102,7 +102,7 @@ The application implements a responsive design strategy that adapts the layout b
 
 The application uses React's Context API for global state management:
 
-- **BLEContext** (`src/context/BLEContext.tsx`) - Manages Bluetooth connection state, raw communication, and the Activity Logger Log.
+- **BLEContext** (`src/context/BLEContext.tsx`) - Manages Bluetooth connection state, raw communication, and the Activity Logger history.
 - **DeviceContext** (`src/context/DeviceContext.tsx`) - Tracks known devices, active device, and device-specific settings (PIN, Configuration Key).
 - **DeviceLogContext** (`src/context/DeviceLogContext.tsx`) - Handles the logic for log synchronization and automatic discovery on connection.
 - **CodeCountContext** (`src/context/CodeCountContext.tsx`) - Manages the permanent and single-use code counters.

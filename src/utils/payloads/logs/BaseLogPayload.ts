@@ -1,32 +1,37 @@
-import { ParsedPayload } from '../base';
+import { BLEOpcode } from '../../bleConstants';
 
-export abstract class BaseLogPayload implements ParsedPayload {
+export abstract class BaseLogPayload {
   opcode: number;
   payload: Uint8Array;
   raw: Uint8Array;
+  timestamp: string;
   age: number;
-  timestamp: number;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     this.opcode = opcode;
     this.payload = payload;
     this.raw = raw;
-
-    if (payload.length >= 3) {
-      this.age = (payload[0] << 16) | (payload[1] << 8) | payload[2];
-      this.timestamp = Math.floor(Date.now() / 1000) - this.age;
-    } else {
-      this.age = 0;
-      this.timestamp = Math.floor(Date.now() / 1000);
-    }
+    const { timestamp, age } = this.parseTimestamp(payload);
+    this.timestamp = timestamp;
+    this.age = age;
   }
 
-  abstract toString(): string;
+  protected parseTimestamp(payload: Uint8Array): { timestamp: string; age: number } {
+    if (payload.length < 3) {
+      return { timestamp: new Date().toISOString(), age: 0 };
+    }
+    // Age in seconds (3 bytes)
+    const age = (payload[0] << 16) | (payload[1] << 8) | payload[2];
+    const date = new Date(Date.now() - age * 1000);
+    return { timestamp: date.toISOString(), age };
+  }
+
+  abstract get description(): string;
 
   toDetails(): Record<string, unknown> {
     return {
       age: this.age,
-      timestamp: this.timestamp,
+      opcode: this.opcode,
     };
   }
 }

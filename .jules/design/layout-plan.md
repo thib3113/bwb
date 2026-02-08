@@ -63,7 +63,7 @@ App
 
 3. **Navigation Icons**
    - Codes: ListIcon or KeyIcon
-   - Logs: LogIcon or ListAltIcon
+   - Logs: HistoryIcon or ListAltIcon
    - Configuration: SettingsIcon or TuneIcon
 
 ### Implementation Steps

@@ -1,7 +1,7 @@
 import { BaseLogPayload } from './BaseLogPayload';
 
 export class KeyOpeningLogPayload extends BaseLogPayload {
-  toString(): string {
-    return `Key Opening (Age: ${this.age}s)`;
+  get description(): string {
+    return 'logs:events.key_opening';
   }
 }

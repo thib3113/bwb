@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures';
 
 test.describe('Boks Basic Flow (Simulator)', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 

@@ -1,7 +1,7 @@
 import { BaseLogPayload } from './BaseLogPayload';
 
 export class BleRebootLogPayload extends BaseLogPayload {
-  toString(): string {
-    return `BLE Reboot (Age: ${this.age}s)`;
+  get description(): string {
+    return 'logs:events.ble_reboot';
   }
 }

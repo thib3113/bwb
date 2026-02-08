@@ -1,7 +1,7 @@
 import { test, expect, BLEOpcode } from './fixtures';
 
 test.describe('Bluetooth PIN Management', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 

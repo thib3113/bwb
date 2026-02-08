@@ -76,7 +76,10 @@ export const NfcTagsTab = () => {
   // Auto-set default name when UID found
   useEffect(() => {
     if (scannedUid && !tagName) {
-      setTagName(`Badge ${scannedUid.substring(0, 5)}`);
+      const defaultName = `Badge ${scannedUid.substring(0, 5)}`;
+      if (tagName !== defaultName) {
+        setTagName(defaultName);
+      }
     }
   }, [scannedUid, tagName]);
 

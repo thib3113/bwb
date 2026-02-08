@@ -24,21 +24,20 @@ import { useBLE } from '../../hooks/useBLE';
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { toggleSimulator } = useBLE();
-  const [simulator, setSimulator] = useState<SimulatorAPI | null>(null);
+  const [simulator, setSimulator] = useState<SimulatorAPI | null>(
+    () => (window as any).boksSimulatorController || null
+  );
   const [state, setState] = useState<any>(null);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isSimulatorRunning, setIsSimulatorRunning] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(
+    () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
+  );
+  const [isSimulatorRunning, setIsSimulatorRunning] = useState(
+    () => !!(window as any).boksSimulatorController
+  );
 
   useEffect(() => {
-    // Check if simulator is enabled in localStorage
-    const simEnabled = localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
-    setIsEnabled(simEnabled);
-
     const controller = (window as any).boksSimulatorController;
     if (controller) {
-      setSimulator(controller);
-      setIsSimulatorRunning(true);
-
       const interval = setInterval(() => {
         setState(controller.getState());
       }, 500);

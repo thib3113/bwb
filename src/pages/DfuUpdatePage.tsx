@@ -23,13 +23,13 @@ import { BluetoothDevice } from '../types';
 
 // Hardcoded Constants from requirements
 const BOKS_SERVICE_UUID = 'a7630001-f491-4f21-95ea-846ba586e361';
-const DFU_SERVICE_UUID = 0xfe59;
-const BATTERY_SERVICE_UUID = 0x180f;
-const DEVICE_INFO_SERVICE_UUID = 0x180a;
+const DFU_SERVICE_UUID = 0xFE59;
+const BATTERY_SERVICE_UUID = 0x180F;
+const DEVICE_INFO_SERVICE_UUID = 0x180A;
 const GENERIC_ACCESS_SERVICE_UUID = 0x1800;
-const DEVICE_NAME_CHAR_UUID = 0X2A00;
-const SW_REV_CHAR_UUID = 0x2a28;
-const HW_REV_CHAR_UUID = 0x2a26;
+const DEVICE_NAME_CHAR_UUID = 0x2A00;
+const SW_REV_CHAR_UUID = 0x2A28;
+const HW_REV_CHAR_UUID = 0x2A26;
 const BATTERY_THRESHOLD = 20;
 
 const DFU_ERRORS: Record<number, string> = {
@@ -40,11 +40,11 @@ const DFU_ERRORS: Record<number, string> = {
   0x05: 'Invalid Object (Corrupt or wrong type)',
   0x07: 'Unsupported type',
   0x08: 'Operation not permitted (Wrong state)',
-  0x0a: 'Payload size exceeded',
-  0x0b: 'Hash failed (Integrity error)',
-  0x0c: 'Signature failed (Authentication error)',
-  0x0d: 'Hardware version error (Wrong firmware for this PCB)',
-  0x0e: 'Software version error (Downgrade blocked)',
+  0x0A: 'Payload size exceeded',
+  0x0B: 'Hash failed (Integrity error)',
+  0x0C: 'Signature failed (Authentication error)',
+  0x0D: 'Hardware version error (Wrong firmware for this PCB)',
+  0x0E: 'Software version error (Downgrade blocked)',
 };
 
 export const DfuUpdatePage = () => {
@@ -164,7 +164,7 @@ export const DfuUpdatePage = () => {
     // Read Battery
     try {
       const batSvc = await server.getPrimaryService(BATTERY_SERVICE_UUID);
-      const batChar = await batSvc.getCharacteristic(0x2a19);
+      const batChar = await batSvc.getCharacteristic(0x2A19);
       const val = await debugRead(batChar, 'Battery');
       const level = val.getUint8(0);
       setDeviceInfo((prev) => ({ ...prev, battery: `${level}%` }));

@@ -5,7 +5,7 @@ import { useDevice } from '../hooks/useDevice';
 import { OnboardingView } from '../components/layout/OnboardingView';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import {
-  Log as LogIcon,
+  ListAlt as LogIcon,
   Settings as SettingsIcon,
   VpnKey as VpnKeyIcon,
 } from '@mui/icons-material';

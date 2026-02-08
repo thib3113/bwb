@@ -138,7 +138,6 @@ export interface BoksLog {
   data?: LogData;
   opcode?: number;
   payload?: Uint8Array;
-  details?: Record<string, unknown>;
   synced: boolean; // Synced to Cloud?
   updated_at?: number;
 
