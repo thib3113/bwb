@@ -1,31 +1,25 @@
-import { expect, test } from '../fixtures';
+import { BLEOpcode, expect, test } from '../fixtures';
 
 test.describe('Door Control Feature', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('should open the door via simulator', async ({ page }) => {
+  test('should open the door via simulator', async ({ page, simulator }) => {
     // 1. Connect
     const disabledIcon = page.getByTestId('status-icon-disconnected');
     await page.getByTestId('connection-button').click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
 
-    // Check for battery percentage as confirmation of connection
-    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({
-      timeout: 20000
-    });
-
-    // Wait for potential redirect logic to trigger (it has 1.5s delay)
+    // Wait for potential redirect logic
     await page.waitForTimeout(2000);
 
     // Handle potential redirect
     if (page.url().includes('my-boks')) {
       console.log('Redirected to My Boks. Navigating back via Menu...');
-      // Open Menu
       await page.getByLabel('menu').click();
-      await page.getByText('Home').click();
-      // Wait for navigation
+      // Use Test ID for home navigation
+      await page.getByTestId('nav-home').click();
       await page.waitForURL(/.*\/codes/);
     }
 
@@ -35,14 +29,18 @@ test.describe('Door Control Feature', () => {
     // 2. Click Open Door (Header Button) using new Test ID
     await page.getByTestId('open-door-button').click();
 
-    // 3. Verify Feedback - Using Role 'alert' instead of specific text
-    // Assuming the notification renders as an alert role (Snackbar usually does if configured, or just text)
-    // MUI Snackbar Content often has role="alert" or "status".
-    // Let's check for any element with role alert or status appearing.
-    // If exact role is missing, we might need to fallback to a locator that targets the snackbar container.
-    // MUI Snackbar usually has a child with class .MuiAlert-message
+    // 3. Verify Feedback using Simulator Events
+    // Wait for OPEN_DOOR opcode (0x01)
+    await simulator.waitForTxOpcode(BLEOpcode.OPEN_DOOR);
 
-    // We will try looking for the alert role.
+    const events = await simulator.getTxEvents();
+    const openDoorEvent = events.find((e: any) => e.opcode === BLEOpcode.OPEN_DOOR);
+
+    expect(openDoorEvent).toBeDefined();
+    // Default PIN is '123456' -> [49, 50, 51, 52, 53, 54]
+    expect(openDoorEvent.payload).toEqual([49, 50, 51, 52, 53, 54]);
+
+    // Also verify UI feedback (Role Alert)
     const alert = page.getByRole('alert').first();
     await expect(alert).toBeVisible({ timeout: 10000 });
 

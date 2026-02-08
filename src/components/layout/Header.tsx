@@ -278,7 +278,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           >
             <List sx={{ flexGrow: 1 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={handleNavigation('/')}>
+                <ListItemButton onClick={handleNavigation('/')} data-testid="nav-home">
                   <ListItemIcon>
                     <HomeIcon />
                   </ListItemIcon>
