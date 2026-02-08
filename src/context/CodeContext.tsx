@@ -6,7 +6,7 @@ import { BLEOpcode } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
 import { CODE_STATUS } from '../constants/codeStatus';
-import { BoksCode, CodeCreationData, CodeType } from '../types';
+import { BoksCode, CODE_TYPE, CodeCreationData } from '../types';
 import { useTaskContext } from '../hooks/useTaskContext';
 import { TaskType } from '../types/task';
 import { CodeContext } from './Contexts';
@@ -79,13 +79,13 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
       // Map code types to task types
       let taskType: TaskType;
       switch (codeData.type) {
-        case CodeType.MASTER:
+        case CODE_TYPE.MASTER:
           taskType = TaskType.ADD_MASTER_CODE;
           break;
-        case CodeType.SINGLE:
+        case CODE_TYPE.SINGLE:
           taskType = TaskType.ADD_SINGLE_USE_CODE;
           break;
-        case CodeType.MULTI:
+        case CODE_TYPE.MULTI:
           taskType = TaskType.ADD_MULTI_USE_CODE;
           break;
         default:

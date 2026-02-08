@@ -1,12 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useTaskConsistency } from '../../hooks/useTaskConsistency';
 import { db } from '../../db/db';
-import { TaskType } from '../../types/task';
+import { BoksTask, TaskType } from '../../types/task';
 import { CODE_STATUS } from '../../constants/codeStatus';
-import { CodeType } from '../../types';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { CODE_TYPE } from '../../types';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TaskContext } from '../../context/Contexts';
-import { BoksTask } from '../../types/task';
 import { ReactNode } from 'react';
 
 // Mock TaskContext
@@ -35,7 +34,7 @@ describe('useTaskConsistency', () => {
       id: 'code-1',
       device_id: deviceId,
       code: '123456',
-      type: CodeType.SINGLE,
+      type: CODE_TYPE.SINGLE,
       status: CODE_STATUS.PENDING_ADD,
       name: 'Test Code',
       created_at: new Date().toISOString(),
@@ -67,7 +66,7 @@ describe('useTaskConsistency', () => {
       id: 'code-2',
       device_id: deviceId,
       code: '654321',
-      type: CodeType.MULTI,
+      type: CODE_TYPE.MULTI,
       status: CODE_STATUS.PENDING_DELETE,
       name: 'Delete Me',
       created_at: new Date().toISOString(),
@@ -88,7 +87,7 @@ describe('useTaskConsistency', () => {
           payload: expect.objectContaining({
             code: '654321',
             codeId: 'code-2',
-            codeType: CodeType.MULTI,
+            codeType: CODE_TYPE.MULTI,
           }),
         })
       );
@@ -103,7 +102,7 @@ describe('useTaskConsistency', () => {
       id: 'code-master',
       device_id: deviceId,
       code: '999999',
-      type: CodeType.MASTER,
+      type: CODE_TYPE.MASTER,
       index: 5,
       status: CODE_STATUS.PENDING_ADD,
       name: 'Master Key',

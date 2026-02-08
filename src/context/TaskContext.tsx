@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BoksTask, TaskType, AddCodePayload } from '../types/task';
+import { AddCodePayload, BoksTask, TaskType } from '../types/task';
 import { useBLEConnection } from '../hooks/useBLEConnection';
 import { BLEOpcode } from '../utils/bleConstants';
 import { StorageService } from '../services/StorageService';
@@ -7,7 +7,7 @@ import { CODE_STATUS } from '../constants/codeStatus';
 import { useDevice } from '../hooks/useDevice';
 import { TaskContext } from './Contexts';
 import { db } from '../db/db';
-import { BoksCode, CodeType } from '../types';
+import { BoksCode, CODE_TYPE } from '../types';
 import {
   CreateMasterCodePacket,
   CreateMultiUseCodePacket,
@@ -185,7 +185,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                       .equals(activeDevice.id)
                       .filter(
                         (code) =>
-                          code.type === CodeType.MASTER &&
+                          code.type === CODE_TYPE.MASTER &&
                           code.index === newCode.index &&
                           code.id !== codeId
                       )
@@ -212,8 +212,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
               codeObj = await db.codes.get(codeId);
             }
 
-            switch (task.payload.codeType as CodeType) {
-              case CodeType.MASTER: {
+            switch (task.payload.codeType as CODE_TYPE) {
+              case CODE_TYPE.MASTER: {
                 // Use explicit index from payload if available, otherwise check DB object
                 // STRICT CHECK: Index MUST be defined. Do not fallback to 0 blindly.
                 const targetIndex = (task.payload.index as number) ?? codeObj?.index;
@@ -226,14 +226,14 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                 break;
               }
 
-              case CodeType.SINGLE:
+              case CODE_TYPE.SINGLE:
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
                 packet = new DeleteSingleUseCodePacket(configKey, tempCodeStr);
                 break;
 
-              case CodeType.MULTI:
+              case CODE_TYPE.MULTI:
                 tempCodeStr = (task.payload.code as string) || codeObj?.code;
                 if (!tempCodeStr || tempCodeStr.length !== 6)
                   throw new Error('Code string required for deletion');
@@ -396,13 +396,13 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
           // Both are DELETE tasks, sort by opcode (DELETE_MASTER_CODE, DELETE_SINGLE_USE_CODE, DELETE_MULTI_USE_CODE)
           const getDeleteOpcodePriority = (task: BoksTask) => {
-            const codeType = task.payload.codeType as CodeType;
+            const codeType = task.payload.codeType as CODE_TYPE;
             switch (codeType) {
-              case CodeType.MASTER:
+              case CODE_TYPE.MASTER:
                 return 1; // DELETE_MASTER_CODE (0x0C)
-              case CodeType.SINGLE:
+              case CODE_TYPE.SINGLE:
                 return 2; // DELETE_SINGLE_USE_CODE (0x0D)
-              case CodeType.MULTI:
+              case CODE_TYPE.MULTI:
                 return 3; // DELETE_MULTI_USE_CODE (0x0E)
               default:
                 return 4;

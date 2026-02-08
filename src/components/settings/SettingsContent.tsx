@@ -6,7 +6,7 @@ import i18n from '../../i18n';
 import { useTranslation } from 'react-i18next';
 import { StorageService } from '../../services/StorageService';
 import { db } from '../../db/db';
-import { BoksCode, CodeType, ExportData, UserRole } from '../../types';
+import { BoksCode, CODE_TYPE, ExportData, UserRole } from '../../types';
 import { SettingsConfig } from './types';
 import {
   APP_EVENTS,
@@ -143,11 +143,11 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
 
         // Filter valid codes (permanent or with remaining uses)
         const validCodes = codes.filter((code) => {
-          if (code.type === CodeType.MASTER) return true;
-          if (code.type === CodeType.MULTI) {
+          if (code.type === CODE_TYPE.MASTER) return true;
+          if (code.type === CODE_TYPE.MULTI) {
             return !code.uses || code.uses < (code.maxUses || Infinity);
           }
-          if (code.type === CodeType.SINGLE) {
+          if (code.type === CODE_TYPE.SINGLE) {
             return !code.usedAt && (!code.expiresAt || new Date(code.expiresAt) > new Date());
           }
           return false;

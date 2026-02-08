@@ -1,4 +1,4 @@
-export enum CodeType {
+export enum CODE_TYPE {
   MASTER = 'master',
   SINGLE = 'single',
   MULTI = 'multi',
@@ -84,7 +84,7 @@ export interface BoksCode {
   id: string; // UUID
   device_id: string; // FK to BoksDevice.id
   author_id: string; // FK to User
-  type: CodeType;
+  type: CODE_TYPE;
   code: string;
   name: string; // Alias friendly name (was description)
   index?: number; // 0-255 (Master only)
@@ -111,7 +111,7 @@ export interface CodeMetadata {
 }
 
 export interface CodeCreationData {
-  type: CodeType;
+  type: CODE_TYPE;
   code: string;
   name?: string;
   index?: number;

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { StorageService } from './StorageService';
 import { db } from '../db/db';
 import { CODE_STATUS } from '../constants/codeStatus';
-import { BoksCode, CodeType } from '../types';
+import { BoksCode, CODE_TYPE } from '../types';
 import { IDBKeyRange, indexedDB } from 'fake-indexeddb';
 
 // Configure global indexedDB for Dexie
@@ -22,13 +22,13 @@ describe('StorageService', () => {
       {
         id: 'code-1',
         code: '123456',
-        type: CodeType.MASTER,
+        type: CODE_TYPE.MASTER,
         status: CODE_STATUS.SYNCED,
       },
       {
         id: 'code-2',
         code: '654321',
-        type: CodeType.SINGLE,
+        type: CODE_TYPE.SINGLE,
         status: CODE_STATUS.SYNCED,
       },
     ];
@@ -45,11 +45,13 @@ describe('StorageService', () => {
     // Note: saveCodes currently deletes all existing codes for the device before adding new ones
     // so we are testing that behavior here
     const initialCodes: Partial<BoksCode>[] = [
-      { id: 'code-1', code: '111111', type: CodeType.MASTER },
+      { id: 'code-1', code: '111111', type: CODE_TYPE.MASTER },
     ];
     await StorageService.saveCodes(testBoksId, initialCodes);
 
-    const newCodes: Partial<BoksCode>[] = [{ id: 'code-2', code: '222222', type: CodeType.SINGLE }];
+    const newCodes: Partial<BoksCode>[] = [
+      { id: 'code-2', code: '222222', type: CODE_TYPE.SINGLE },
+    ];
     await StorageService.saveCodes(testBoksId, newCodes);
 
     const loadedCodes = await StorageService.loadCodes(testBoksId);
@@ -60,9 +62,9 @@ describe('StorageService', () => {
 
   it('should generate unique IDs when id is missing', async () => {
     const codesWithoutIds: Partial<BoksCode>[] = [
-      { code: '111111', type: CodeType.MASTER },
-      { code: '222222', type: CodeType.SINGLE },
-      { code: '333333', type: CodeType.MULTI },
+      { code: '111111', type: CODE_TYPE.MASTER },
+      { code: '222222', type: CODE_TYPE.SINGLE },
+      { code: '333333', type: CODE_TYPE.MULTI },
     ];
 
     await StorageService.saveCodes(testBoksId, codesWithoutIds);
@@ -78,8 +80,8 @@ describe('StorageService', () => {
 
   it('should remove a code correctly', async () => {
     const codes: Partial<BoksCode>[] = [
-      { id: 'code-1', code: '123456', type: CodeType.MASTER },
-      { id: 'code-2', code: '654321', type: CodeType.SINGLE },
+      { id: 'code-1', code: '123456', type: CODE_TYPE.MASTER },
+      { id: 'code-2', code: '654321', type: CODE_TYPE.SINGLE },
     ];
     await StorageService.saveCodes(testBoksId, codes);
 

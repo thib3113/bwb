@@ -1,5 +1,5 @@
 import { db } from '../db/db';
-import { BoksLog, BoksCode, CodeStatus, Settings, UserRole, CodeType } from '../types';
+import { BoksCode, BoksLog, CODE_TYPE, CodeStatus, Settings, UserRole } from '../types';
 import { BoksDevice, BoksNfcTag } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
 
@@ -34,7 +34,7 @@ export class StorageService {
           id: existing?.id || crypto.randomUUID(),
           device_id: deviceId,
           author_id: existing?.author_id || code.author_id || 'unknown',
-          type: (code.type || existing?.type || 'single') as CodeType, // Cast for safety
+          type: (code.type || existing?.type || 'single') as CODE_TYPE, // Cast for safety
           code: code.code || existing?.code || '',
           name: code.name || existing?.name || '',
           index: code.index !== undefined ? code.index : existing?.index,
@@ -388,7 +388,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '123456',
-          type: CodeType.MASTER,
+          type: CODE_TYPE.MASTER,
           status: 'on_device',
           name: 'Code Maître Principal',
           index: 0,
@@ -400,7 +400,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '987654',
-          type: CodeType.SINGLE,
+          type: CODE_TYPE.SINGLE,
           status: 'on_device',
           name: 'Code Livreur (Utilisé)',
           created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
@@ -411,7 +411,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '111111',
-          type: CodeType.MULTI,
+          type: CODE_TYPE.MULTI,
           status: 'pending_add', // Waiting to be added
           name: 'Code Famille',
           created_at: new Date().toISOString(),
@@ -422,7 +422,7 @@ export class StorageService {
           device_id: boksUuid,
           author_id: crypto.randomUUID(), // Another user asked
           code: '333333',
-          type: CodeType.SINGLE,
+          type: CODE_TYPE.SINGLE,
           status: 'pending_add', // Changed from pending_approval to pending_add
           name: 'Demande Ami',
           created_at: new Date().toISOString(),

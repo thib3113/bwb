@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { BoksCode, CodeStatus, CodeType } from '../types';
+import { describe, expect, it } from 'vitest';
+import { BoksCode, CODE_TYPE, CodeStatus } from '../types';
 import { CODE_STATUS } from '../constants/codeStatus';
 
 // --- Original Logic (Copied for Baseline) ---
@@ -14,18 +14,14 @@ const sortCodesByPriorityOriginal = (codes: BoksCode[]) => {
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // For single-use codes, check if they've been used
-        if (code.type === CodeType.SINGLE) {
+        if (code.type === CODE_TYPE.SINGLE) {
           // Note: We can't use deriveCodeMetadata here due to circular dependency
           // For now, we'll just check if it's a single-use code
         }
         // For multi-use codes, check if they've been fully used
-        if (code.type === CodeType.MULTI) {
+        if (code.type === CODE_TYPE.MULTI) {
           // If uses >= maxUses, they're considered used (priority 3)
-          if (
-            code.uses !== undefined &&
-            code.maxUses !== undefined &&
-            code.uses >= code.maxUses
-          ) {
+          if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
             return 3;
           }
         }
@@ -66,12 +62,8 @@ const sortCodesByPriorityOptimized = (codes: BoksCode[]) => {
       return 1;
     }
     if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-      if (code.type === CodeType.MULTI) {
-        if (
-          code.uses !== undefined &&
-          code.maxUses !== undefined &&
-          code.uses >= code.maxUses
-        ) {
+      if (code.type === CODE_TYPE.MULTI) {
+        if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
           return 3;
         }
       }
@@ -124,14 +116,14 @@ describe('Sort Codes Performance', () => {
       CODE_STATUS.ON_DEVICE,
       CODE_STATUS.PENDING_DELETE,
       'synced' as CodeStatus,
-      'rejected' as CodeStatus
+      'rejected' as CodeStatus,
     ];
 
     // Generate random codes
     for (let i = 0; i < CODE_COUNT; i++) {
       const status = statuses[i % statuses.length];
       const type =
-        i % 3 === 0 ? CodeType.MULTI : i % 2 === 0 ? CodeType.SINGLE : CodeType.MASTER;
+        i % 3 === 0 ? CODE_TYPE.MULTI : i % 2 === 0 ? CODE_TYPE.SINGLE : CODE_TYPE.MASTER;
 
       codes.push({
         id: `code-${i}`,
@@ -144,14 +136,13 @@ describe('Sort Codes Performance', () => {
         created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
         sync_status: 'created',
         uses: i % 5,
-        maxUses: 5
+        maxUses: 5,
       });
     }
 
     // Add some bad dates
     codes.push({ ...codes[0], id: 'bad-date-1', created_at: 'invalid-date' });
     codes.push({ ...codes[1], id: 'bad-date-2', created_at: 'another-bad-one' });
-
 
     const startOriginal = performance.now();
     const sortedOriginal = sortCodesByPriorityOriginal(codes);
@@ -161,15 +152,19 @@ describe('Sort Codes Performance', () => {
     const sortedOptimized = sortCodesByPriorityOptimized(codes);
     const endOptimized = performance.now();
 
-    console.log(`Original Sort Time (${CODE_COUNT} codes): ${(endOriginal - startOriginal).toFixed(2)}ms`);
-    console.log(`Optimized Sort Time (${CODE_COUNT} codes): ${(endOptimized - startOptimized).toFixed(2)}ms`);
+    console.log(
+      `Original Sort Time (${CODE_COUNT} codes): ${(endOriginal - startOriginal).toFixed(2)}ms`
+    );
+    console.log(
+      `Optimized Sort Time (${CODE_COUNT} codes): ${(endOptimized - startOptimized).toFixed(2)}ms`
+    );
 
     // Verification: Arrays should be identical
     expect(sortedOptimized.length).toBe(sortedOriginal.length);
 
     // Check order
-    for(let i=0; i<sortedOriginal.length; i++) {
-        expect(sortedOptimized[i].id).toBe(sortedOriginal[i].id);
+    for (let i = 0; i < sortedOriginal.length; i++) {
+      expect(sortedOptimized[i].id).toBe(sortedOriginal[i].id);
     }
   });
 });

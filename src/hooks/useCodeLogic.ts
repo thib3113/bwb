@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { BoksCode, CodeMetadata, CodeType } from '../types';
+import { BoksCode, CODE_TYPE, CodeMetadata } from '../types';
 import { APP_DEFAULTS } from '../utils/constants';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from '../services/StorageService';
@@ -40,10 +40,10 @@ export const useCodeLogic = (
   const logs = useMemo(() => logsData || [], [logsData]);
 
   // Filter lists for different views
-  const masterCodes = useMemo(() => codes.filter((c) => c.type === CodeType.MASTER), [codes]);
+  const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPE.MASTER), [codes]);
 
   const temporaryCodes = useMemo(
-    () => codes.filter((c) => c.type === CodeType.SINGLE || c.type === CodeType.MULTI),
+    () => codes.filter((c) => c.type === CODE_TYPE.SINGLE || c.type === CODE_TYPE.MULTI),
     [codes]
   );
 
@@ -56,7 +56,7 @@ export const useCodeLogic = (
         const usedDate = new Date(code.usedAt);
 
         // Master codes should not be marked as 'used' even if they have a usedAt date
-        if (code.type === CodeType.MASTER) {
+        if (code.type === CODE_TYPE.MASTER) {
           return {
             used: false,
             usedDate: usedDate,
@@ -74,12 +74,12 @@ export const useCodeLogic = (
       // Fallback: Legacy logic or check logs if 'usedAt' is missing
       if (!logs || logs.length === 0) return {};
 
-      if (code.type === CodeType.MASTER) {
+      if (code.type === CODE_TYPE.MASTER) {
         // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
         // But maybe 'lastUsed' is useful for Master codes too
         // Find the most recent log entry for this master code index
         // TODO: Improve this with proper Opcode checks
-      } else if (code.type === CodeType.SINGLE) {
+      } else if (code.type === CODE_TYPE.SINGLE) {
         // Fallback for single use
         // ...
       }
@@ -99,12 +99,12 @@ export const useCodeLogic = (
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // Check explicit usedAt
-        if (code.usedAt && code.type !== CodeType.MASTER) {
+        if (code.usedAt && code.type !== CODE_TYPE.MASTER) {
           return 3;
         }
 
         // For multi-use codes, check if they've been fully used
-        if (code.type === CodeType.MULTI) {
+        if (code.type === CODE_TYPE.MULTI) {
           if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
             return 3;
           }
@@ -148,7 +148,8 @@ export const useCodeLogic = (
     (index: number | undefined, currentCodeId: string) => {
       if (index === undefined) return false;
       return codes.some(
-        (code) => code.type === CodeType.MASTER && code.index === index && code.id !== currentCodeId
+        (code) =>
+          code.type === CODE_TYPE.MASTER && code.index === index && code.id !== currentCodeId
       );
     },
     [codes]
@@ -198,7 +199,7 @@ export const useCodeLogic = (
           author_id: APP_DEFAULTS.AUTHOR_ID, // Default
           sync_status: 'created',
           // Pour les codes multi-usages, ajouter les propriétés uses et maxUses
-          ...(newCodeData.type === CodeType.MULTI && {
+          ...(newCodeData.type === CODE_TYPE.MULTI && {
             uses: 0,
             maxUses: newCodeData.maxUses || newCodeData.uses || 1, // Handle both potential property names
           }),
@@ -210,13 +211,13 @@ export const useCodeLogic = (
         // Add task for BLE sync
         let taskType: TaskType;
         switch (newCodeData.type) {
-          case CodeType.MASTER:
+          case CODE_TYPE.MASTER:
             taskType = TaskType.ADD_MASTER_CODE;
             break;
-          case CodeType.SINGLE:
+          case CODE_TYPE.SINGLE:
             taskType = TaskType.ADD_SINGLE_USE_CODE;
             break;
-          case CodeType.MULTI:
+          case CODE_TYPE.MULTI:
             taskType = TaskType.ADD_MULTI_USE_CODE;
             break;
           default:
@@ -277,7 +278,7 @@ export const useCodeLogic = (
   // Get codes filtered by type with unified sorting
   const getFilteredCodes = useCallback(
     (type: string) => {
-      if (type === CodeType.MASTER) {
+      if (type === CODE_TYPE.MASTER) {
         const filteredCodes = codes.filter((code) => code.type === type);
         // For master codes, we still sort by index but apply our priority sorting first
         const sortedByPriority = sortCodesByPriority(filteredCodes);
@@ -287,7 +288,7 @@ export const useCodeLogic = (
         // Temporary codes (single and multi-use)
         // Get all temporary codes (single and multi)
         const temporaryCodes = codes.filter(
-          (code) => code.type === CodeType.SINGLE || code.type === CodeType.MULTI
+          (code) => code.type === CODE_TYPE.SINGLE || code.type === CODE_TYPE.MULTI
         );
         // Apply our priority sorting to the combined list
         return sortCodesByPriority(temporaryCodes);
