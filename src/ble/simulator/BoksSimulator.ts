@@ -1,5 +1,9 @@
 import { EventEmitter } from '../../utils/EventEmitter';
-import { BLEOpcode, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN } from '../../utils/bleConstants';
+import {
+  BLEOpcode,
+  SIMULATOR_DEFAULT_CONFIG_KEY,
+  SIMULATOR_DEFAULT_PIN
+} from '../../utils/bleConstants';
 import { createPacket } from '../../utils/packetParser';
 import { PacketFactory } from '../packets/PacketFactory';
 import { OpenDoorPacket } from '../packets/OpenDoorPacket';
