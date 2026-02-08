@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   BottomNavigation,
   BottomNavigationAction,
   Box,
   Button,
   Paper,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Code, History, Settings } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,7 @@ interface MobileViewProps {
 export const MobileView = ({
   showNotification,
   hideNotification,
-  isConnected,
+  isConnected
 }: MobileViewProps) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const { t } = useTranslation(['common', 'codes', 'logs', 'settings']);
@@ -47,7 +47,7 @@ export const MobileView = ({
 
   const activeTab = getActiveTab();
 
-  const handleTabChange = (event: Event, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     switch (newValue) {
       case 0:
         navigate('/codes');
@@ -105,7 +105,7 @@ export const MobileView = ({
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '100%',
+                    height: '100%'
                   }}
                 >
                   <Typography variant="h6" color="textSecondary">
@@ -139,7 +139,7 @@ export const MobileView = ({
                     justifyContent: 'flex-end',
                     gap: 1,
                     bgcolor: 'background.paper',
-                    zIndex: 1,
+                    zIndex: 1
                   }}
                 >
                   <Button onClick={handleSettingsCancel}>{t('cancel')}</Button>
@@ -184,12 +184,12 @@ export const MobileView = ({
           bottom: 0,
           '& .MuiBottomNavigationAction-root.Mui-selected': {
             border: 'none',
-            outline: 'none',
+            outline: 'none'
           },
           '& .MuiBottomNavigationAction-root:focus': {
             border: 'none',
-            outline: 'none',
-          },
+            outline: 'none'
+          }
         }}
       >
         <BottomNavigationAction label={t('codes:title')} icon={<Code />} />

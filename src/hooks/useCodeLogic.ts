@@ -1,53 +1,69 @@
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState, useEffect } from 'react';
 import { db } from '../db/db';
-import { BoksCode, CodeMetadata, BoksLog } from '../types';
-import { CODE_TYPES, APP_DEFAULTS } from '../utils/constants';
+import { BoksCode, CodeMetadata } from '../types';
+import { CODE_TYPE } from '../types/enums';
+import { APP_DEFAULTS } from '../utils/constants';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from '../services/StorageService';
 import { useTaskContext } from './useTaskContext';
 import { TaskType } from '../types/task';
 import { useBLE } from './useBLE';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { useTranslation } from 'react-i18next';
 import { useCodeCount } from './useCodeCount';
 import { useDevice } from './useDevice';
 
 export const useCodeLogic = (
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
-  hideNotification: () => void
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _hideNotification: () => void
 ) => {
   const { activeDevice } = useDevice();
   const deviceId = activeDevice?.id;
-  const { isConnected, sendRequest } = useBLE();
+  useBLE();
   const { t } = useTranslation('codes');
   const { codeCount, refreshCodeCount } = useCodeCount();
   const { addTask } = useTaskContext();
 
-  const codes =
-    useLiveQuery(
-      () => (deviceId ? db.codes.where('device_id').equals(deviceId).toArray() : []),
-      [deviceId]
-    ) || [];
-
-  const logs =
-    useLiveQuery(
-      () =>
-        deviceId
-          ? db.logs.where('device_id').equals(deviceId).reverse().sortBy('timestamp')
-          : [],
-      [deviceId]
-    ) || [];
-
-  // Filter lists for different views
-  const masterCodes = useMemo(
-    () => codes.filter((c) => c.type === CODE_TYPES.MASTER),
-    [codes]
+  const codesData = useLiveQuery(
+    () => (deviceId ? db.codes.where('device_id').equals(deviceId).toArray() : []),
+    [deviceId]
   );
 
+  const codes = useMemo(() => codesData || [], [codesData]);
+
+  const logsData = useLiveQuery(
+    () =>
+      deviceId ? db.logs.where('device_id').equals(deviceId).reverse().sortBy('timestamp') : [],
+    [deviceId]
+  );
+
+  const logs = useMemo(() => logsData || [], [logsData]);
+
+  // Filter lists for different views
+  const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPE.MASTER), [codes]);
+
   const temporaryCodes = useMemo(
-    () => codes.filter((c) => (c.type === CODE_TYPES.SINGLE || c.type === CODE_TYPES.MULTI) && !c.usedAt),
+    () =>
+      codes.filter((c) => {
+        if (c.type !== CODE_TYPE.SINGLE && c.type !== CODE_TYPE.MULTI) return false;
+
+        // Filter out used codes
+        // 1. Explicit usedAt (Single use)
+        if (c.usedAt && c.type === CODE_TYPE.SINGLE) return false;
+
+        // 2. Max uses reached (Multi use)
+        if (
+          c.type === CODE_TYPE.MULTI &&
+          c.uses !== undefined &&
+          c.maxUses !== undefined &&
+          c.uses >= c.maxUses
+        ) {
+          return false;
+        }
+
+        return true;
+      }),
     [codes]
   );
 
@@ -60,7 +76,7 @@ export const useCodeLogic = (
         const usedDate = new Date(code.usedAt);
 
         // Master codes should not be marked as 'used' even if they have a usedAt date
-        if (code.type === CODE_TYPES.MASTER) {
+        if (code.type === CODE_TYPE.MASTER) {
           return {
             used: false,
             usedDate: usedDate,
@@ -78,12 +94,12 @@ export const useCodeLogic = (
       // Fallback: Legacy logic or check logs if 'usedAt' is missing
       if (!logs || logs.length === 0) return {};
 
-      if (code.type === CODE_TYPES.MASTER) {
-         // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
-         // But maybe 'lastUsed' is useful for Master codes too
-         // Find the most recent log entry for this master code index
-         // TODO: Improve this with proper Opcode checks
-      } else if (code.type === CODE_TYPES.SINGLE) {
+      if (code.type === CODE_TYPE.MASTER) {
+        // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
+        // But maybe 'lastUsed' is useful for Master codes too
+        // Find the most recent log entry for this master code index
+        // TODO: Improve this with proper Opcode checks
+      } else if (code.type === CODE_TYPE.SINGLE) {
         // Fallback for single use
         // ...
       }
@@ -103,12 +119,12 @@ export const useCodeLogic = (
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // Check explicit usedAt
-        if (code.usedAt && code.type !== CODE_TYPES.MASTER) {
-             return 3;
+        if (code.usedAt && code.type !== CODE_TYPE.MASTER) {
+          return 3;
         }
 
         // For multi-use codes, check if they've been fully used
-        if (code.type === CODE_TYPES.MULTI) {
+        if (code.type === CODE_TYPE.MULTI) {
           if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
             return 3;
           }
@@ -127,7 +143,7 @@ export const useCodeLogic = (
           code,
           priority: getPriority(code),
           date: isNaN(date) ? -Infinity : date,
-          isNaNDate: isNaN(date),
+          isNaNDate: isNaN(date)
         };
       })
       .sort((a, b) => {
@@ -153,7 +169,7 @@ export const useCodeLogic = (
       if (index === undefined) return false;
       return codes.some(
         (code) =>
-          code.type === CODE_TYPES.MASTER && code.index === index && code.id !== currentCodeId
+          code.type === CODE_TYPE.MASTER && code.index === index && code.id !== currentCodeId
       );
     },
     [codes]
@@ -180,8 +196,8 @@ export const useCodeLogic = (
               payload: {
                 code: overwriteCode.code,
                 codeId: overwriteCode.id,
-                codeType: overwriteCode.type,
-              },
+                codeType: overwriteCode.type
+              }
             });
           }
         }
@@ -203,10 +219,10 @@ export const useCodeLogic = (
           author_id: APP_DEFAULTS.AUTHOR_ID, // Default
           sync_status: 'created',
           // Pour les codes multi-usages, ajouter les propriétés uses et maxUses
-          ...(newCodeData.type === CODE_TYPES.MULTI && {
+          ...(newCodeData.type === CODE_TYPE.MULTI && {
             uses: 0,
-            maxUses: newCodeData.maxUses || newCodeData.uses || 1, // Handle both potential property names
-          }),
+            maxUses: newCodeData.maxUses || newCodeData.uses || 1 // Handle both potential property names
+          })
         };
 
         // Add the new code to the database
@@ -215,13 +231,13 @@ export const useCodeLogic = (
         // Add task for BLE sync
         let taskType: TaskType;
         switch (newCodeData.type) {
-          case CODE_TYPES.MASTER:
+          case CODE_TYPE.MASTER:
             taskType = TaskType.ADD_MASTER_CODE;
             break;
-          case CODE_TYPES.SINGLE:
+          case CODE_TYPE.SINGLE:
             taskType = TaskType.ADD_SINGLE_USE_CODE;
             break;
-          case CODE_TYPES.MULTI:
+          case CODE_TYPE.MULTI:
             taskType = TaskType.ADD_MULTI_USE_CODE;
             break;
           default:
@@ -235,8 +251,8 @@ export const useCodeLogic = (
           payload: {
             code: codeEntry.code,
             codeId: codeEntry.id,
-            // Include other payload fields if needed for specific task types
-          },
+            index: codeEntry.index // Required for Master Code operations
+          }
         });
 
         showNotification(t('added'), 'success');
@@ -265,8 +281,8 @@ export const useCodeLogic = (
             payload: {
               code: codeToDelete.code,
               codeId: codeToDelete.id,
-              codeType: codeToDelete.type,
-            },
+              codeType: codeToDelete.type
+            }
           });
         }
 
@@ -282,7 +298,7 @@ export const useCodeLogic = (
   // Get codes filtered by type with unified sorting
   const getFilteredCodes = useCallback(
     (type: string) => {
-      if (type === CODE_TYPES.MASTER) {
+      if (type === CODE_TYPE.MASTER) {
         const filteredCodes = codes.filter((code) => code.type === type);
         // For master codes, we still sort by index but apply our priority sorting first
         const sortedByPriority = sortCodesByPriority(filteredCodes);
@@ -292,7 +308,7 @@ export const useCodeLogic = (
         // Temporary codes (single and multi-use)
         // Get all temporary codes (single and multi)
         const temporaryCodes = codes.filter(
-          (code) => code.type === CODE_TYPES.SINGLE || code.type === CODE_TYPES.MULTI
+          (code) => code.type === CODE_TYPE.SINGLE || code.type === CODE_TYPE.MULTI
         );
         // Apply our priority sorting to the combined list
         return sortCodesByPriority(temporaryCodes);
@@ -324,6 +340,6 @@ export const useCodeLogic = (
     handleDeleteCode,
     deriveCodeMetadata,
     getFilteredCodes,
-    handleCopyCode,
+    handleCopyCode
   };
 };

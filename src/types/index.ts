@@ -1,34 +1,17 @@
-export type CodeType = 'master' | 'single' | 'multi';
-
-export enum UserRole {
-  Owner = 'owner',
-  Admin = 'admin',
-  Reader = 'reader',
-}
-
-export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted';
-export type BLEConnectionState =
-  | 'disconnected'
-  | 'scanning'
-  | 'connecting'
-  | 'connected'
-  | 'disconnecting';
-
-// Define CodeStatus as a union type of string literals
-export type CodeStatus =
-  | 'pending_add' // BLE: On Admin phone, waiting for Boks connection
-  | 'on_device' // BLE: Active on Boks
-  | 'pending_delete' // BLE: To be removed from Boks
-  | 'rejected' // Cloud: Rejected
-  | 'synced'; // Alias for on_device (legacy compatibility)
+export * from './enums';
+import { CODE_TYPE, CodeStatus, SyncStatus, UserRole } from './enums';
 
 // Augment global Window interface for non-standard browser properties and debug tools
 declare global {
   interface Window {
     BOKS_SIMULATOR_ENABLED?: boolean;
     enableBoksSimulator?: () => void;
+    toggleSimulator?: (enable: boolean) => void;
+    _boks_tx_buffer?: Array<{ opcode: number; payload: number[] }>;
+    txEvents?: Array<{ opcode: number; payload: number[] }>;
     opera?: string;
     MSStream?: unknown;
+    boksSimulatorController?: import('../ble/simulator/BoksSimulator').SimulatorAPI;
     boksDebug: {
       mockData?: (mockDeviceId?: string) => Promise<void>;
       StorageService?: unknown;
@@ -76,7 +59,7 @@ export interface BoksCode {
   id: string; // UUID
   device_id: string; // FK to BoksDevice.id
   author_id: string; // FK to User
-  type: CodeType;
+  type: CODE_TYPE;
   code: string;
   name: string; // Alias friendly name (was description)
   index?: number; // 0-255 (Master only)
@@ -103,7 +86,7 @@ export interface CodeMetadata {
 }
 
 export interface CodeCreationData {
-  type: CodeType;
+  type: CODE_TYPE;
   code: string;
   name?: string;
   index?: number;
@@ -136,8 +119,10 @@ export interface BoksLog {
   event: string;
   type: string;
   data?: LogData;
-  opcode?: number;
-  payload?: Uint8Array;
+  opcode: number;
+  payload: Uint8Array;
+  raw: Uint8Array;
+  details?: Record<string, unknown>;
   synced: boolean; // Synced to Cloud?
   updated_at?: number;
 
@@ -163,9 +148,11 @@ export interface BoksSettings {
 export interface BluetoothDevice {
   id: string;
   name?: string;
+  battery_level?: number;
   gatt?: BluetoothRemoteGATTServer;
   watchAdvertisements(): Promise<void>;
   unwatchAdvertisements(): Promise<void>;
+  watchingAdvertisements: boolean;
   addEventListener(type: string, listener: EventListener): void;
   removeEventListener(type: string, listener: EventListener): void;
 }
@@ -199,6 +186,8 @@ export interface BluetoothRemoteGATTCharacteristic {
   getDescriptor(descriptor: BluetoothRemoteGATTDescriptor): Promise<BluetoothRemoteGATTDescriptor>;
   readValue(): Promise<DataView>;
   writeValue(value: BufferSource): Promise<void>;
+  writeValueWithResponse(value: BufferSource): Promise<void>;
+  writeValueWithoutResponse(value: BufferSource): Promise<void>;
   startNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   stopNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   addEventListener(type: string, listener: EventListener): void;

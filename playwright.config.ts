@@ -26,22 +26,22 @@ export default defineConfig({
 
     /* Disable Google Translate */
     launchOptions: {
-      args: ['--disable-translate', '--disable-features=Translate'],
-    },
+      args: ['--disable-translate', '--disable-features=Translate']
+    }
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 7'] },
-    },
+      use: { ...devices['Pixel 7'] }
+    }
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm run dev',
+    command: 'pnpm run dev:ci',
     url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+    reuseExistingServer: !process.env.CI
+  }
 });

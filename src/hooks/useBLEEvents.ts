@@ -7,6 +7,6 @@ export const useBLEEvents = () => {
     addListener,
     removeListener,
     registerCallback,
-    unregisterCallback,
+    unregisterCallback
   };
 };

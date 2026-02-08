@@ -19,7 +19,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
 
   const { sendRequest, log, isConnected } = useBLE();
 
-  const logsBufferRef = useRef<unknown[]>([]);
+  const logsBufferRef = useRef<BoksLog[]>([]);
   const lastReceivedLogCountRef = useRef<number | null>(null);
 
   const isSyncingRef = useRef(false);
@@ -32,7 +32,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleLogCountPacket = (packet: BLEPacket) => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT && packet.payload.length >= 2) {
-        const count = (packet.payload[0] << 8) | packet.payload[1];
+        const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
         lastReceivedLogCountRef.current = count;
         console.log(`[DeviceLogContext] Updated lastReceivedLogCountRef: ${count}`);
       }
@@ -69,7 +69,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         const packet = Array.isArray(response) ? response[0] : response;
 
         if (packet.payload.length >= 2) {
-          count = (packet.payload[0] << 8) | packet.payload[1];
+          count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
         } else {
           console.warn(
             `[DeviceLogContext] Invalid logs count response (len=${packet.payload.length}). Assuming 0 logs.`
@@ -107,7 +107,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
                 `[DeviceLogContext] Saving ${logsBufferRef.current.length} logs for device ${activeDevice.id}...`,
                 logsBufferRef.current
               );
-              StorageService.saveLogs(activeDevice.id, logsBufferRef.current as any[])
+              StorageService.saveLogs(activeDevice.id, logsBufferRef.current)
                 .then(() => {
                   log(`Saved ${logsBufferRef.current.length} logs`, 'success');
                   console.log(`[DeviceLogContext] bulkPut successful.`);
@@ -135,12 +135,12 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
                 timestamp: new Date().toISOString(),
                 opcode: packet.opcode,
                 payload: packet.payload,
-                device_id: activeDevice.id,
+                device_id: activeDevice.id
               };
               const fullBoksLog: BoksLog = {
                 ...(rawEntry as unknown as BoksLog),
                 event: 'BLE_PACKET',
-                type: 'info',
+                type: 'info'
               };
 
               const parsed = parseLog(fullBoksLog);
@@ -185,7 +185,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(`Failed to request logs: ${errorMessage}`);
       }
     }
-  }, [activeDevice, addListener, removeListener, sendRequest, log]);
+  }, [activeDevice, addListener, removeListener, sendRequest, log, isSimulator]);
 
   // Auto-import logs on connection if enabled
   useEffect(() => {
@@ -227,7 +227,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
     activeDevice,
     requestLogs,
     refreshCodeCount,
-    settingsContext?.settings.autoImport,
+    settingsContext?.settings.autoImport
   ]);
 
   // Reset sync ref on disconnect
@@ -240,7 +240,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(
     () => ({
       isSyncingLogs,
-      requestLogs,
+      requestLogs
     }),
     [isSyncingLogs, requestLogs]
   );

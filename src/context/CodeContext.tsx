@@ -1,15 +1,16 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useBLE } from '../hooks/useBLE';
 import { useDevice } from '../hooks/useDevice';
+import { db } from '../db/db';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
 import { CODE_STATUS } from '../constants/codeStatus';
-import { BoksCode, CodeCreationData } from '../types';
+import { BoksCode, CODE_TYPE, CodeCreationData } from '../types';
 import { useTaskContext } from '../hooks/useTaskContext';
 import { TaskType } from '../types/task';
 import { CodeContext } from './Contexts';
-import { APP_DEFAULTS, CODE_TYPES } from '../utils/constants';
+import { APP_DEFAULTS } from '../utils/constants';
 
 export const CodeProvider = ({ children }: { children: ReactNode }) => {
   const { log, addListener, removeListener } = useBLE();
@@ -70,7 +71,7 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         name: codeData.name || '',
         status: CODE_STATUS.PENDING_ADD,
         sync_status: 'created',
-        created_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
 
       await StorageService.saveCodes(deviceId, [codeToSave]);
@@ -78,13 +79,13 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
       // Map code types to task types
       let taskType: TaskType;
       switch (codeData.type) {
-        case CODE_TYPES.MASTER:
+        case CODE_TYPE.MASTER:
           taskType = TaskType.ADD_MASTER_CODE;
           break;
-        case CODE_TYPES.SINGLE:
+        case CODE_TYPE.SINGLE:
           taskType = TaskType.ADD_SINGLE_USE_CODE;
           break;
-        case CODE_TYPES.MULTI:
+        case CODE_TYPE.MULTI:
           taskType = TaskType.ADD_MULTI_USE_CODE;
           break;
         default:
@@ -98,8 +99,8 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         priority: 1, // High priority for code creation
         payload: {
           code: codeData.code,
-          codeId: codeId,
-        },
+          codeId: codeId
+        }
       });
     },
     [activeDevice, addTask]
@@ -107,15 +108,23 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
 
   // Delete a code from the device (Refactored to use TaskContext)
   const deleteCode = useCallback(
-    async (codeData: any) => {
+    async (codeData: string | BoksCode) => {
       const deviceId = activeDevice?.id;
-      const codeId = typeof codeData === 'string' ? codeData : codeData.id;
-      if (!deviceId || !codeId) {
-        throw new Error('No active device or code ID');
+      if (!deviceId) throw new Error('No active device');
+
+      let codeObj: BoksCode | undefined;
+      if (typeof codeData === 'string') {
+        codeObj = await db.codes.get(codeData);
+      } else {
+        codeObj = codeData;
+      }
+
+      if (!codeObj) {
+        throw new Error('Code not found');
       }
 
       // Mark code as pending delete
-      await StorageService.updateCodeStatus(deviceId, codeId, CODE_STATUS.PENDING_DELETE);
+      await StorageService.updateCodeStatus(deviceId, codeObj.id, CODE_STATUS.PENDING_DELETE);
 
       // Add to task queue
       await addTask({
@@ -123,10 +132,10 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         deviceId: deviceId,
         priority: 0, // Highest priority: must delete before adding to avoid index conflicts
         payload: {
-          code: codeData.code,
-          codeId: codeData.id,
-          codeType: codeData.type,
-        },
+          code: codeObj.code,
+          codeId: codeObj.id,
+          codeType: codeObj.type
+        }
       });
     },
     [activeDevice, addTask]
@@ -149,7 +158,7 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
       createCode,
       deleteCode,
       // syncPendingActions, // Deprecated
-      onCodeUsed,
+      onCodeUsed
     }),
     [createCode, deleteCode, onCodeUsed]
   );

@@ -16,7 +16,7 @@ interface DesktopViewProps {
 export const DesktopView = ({
   showNotification,
   hideNotification,
-  isConnected,
+  isConnected
 }: DesktopViewProps) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const { t } = useTranslation(['common', 'logs', 'settings']);
@@ -33,7 +33,7 @@ export const DesktopView = ({
               p: 3,
               height: '100%',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'column'
             }}
           >
             <Routes>
@@ -73,7 +73,7 @@ export const DesktopView = ({
               p: 3,
               height: '100%',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'column'
             }}
           >
             <Routes>
@@ -91,7 +91,7 @@ export const DesktopView = ({
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        height: '100%',
+                        height: '100%'
                       }}
                     >
                       <Typography variant="h6" color="textSecondary">
@@ -109,7 +109,7 @@ export const DesktopView = ({
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      height: '100%',
+                      height: '100%'
                     }}
                   >
                     <Typography variant="h6" color="textSecondary">
@@ -133,7 +133,7 @@ export const DesktopView = ({
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        height: '100%',
+                        height: '100%'
                       }}
                     >
                       <Typography variant="h6" color="textSecondary">

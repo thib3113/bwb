@@ -10,7 +10,7 @@ import {
   Box,
   Button,
   IconButton,
-  Typography,
+  Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -29,7 +29,7 @@ export const CodeManager = ({
   showAddForm,
   setShowAddForm,
   showNotification,
-  hideNotification,
+  hideNotification
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
@@ -49,7 +49,7 @@ export const CodeManager = ({
     handleDeleteCode,
     deriveCodeMetadata,
     getFilteredCodes,
-    handleCopyCode,
+    handleCopyCode
   } = useCodeLogic(showNotification, hideNotification);
 
   // Handle editing a code
@@ -77,6 +77,7 @@ export const CodeManager = ({
             color="primary"
             onClick={() => setIsAddDialogOpen(true)}
             aria-label={t('add_new')}
+            data-testid="add-code-button"
             size="small"
           >
             <AddIcon />

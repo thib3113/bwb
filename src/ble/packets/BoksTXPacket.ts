@@ -17,7 +17,7 @@ export abstract class BoksTXPacket {
    * Optional Zod schema for validation and form generation.
    * If not provided, the packet is considered to have no configurable payload.
    */
-  static schema?: z.ZodObject<any>;
+  static schema?: z.AnyZodObject;
 
   /**
    * Returns the payload byte array (Excluding Opcode, Length and Checksum)

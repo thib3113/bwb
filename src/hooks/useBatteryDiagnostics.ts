@@ -4,7 +4,7 @@ import {
   BATTERY_LEVEL_CHAR_UUID,
   BATTERY_PROPRIETARY_CHAR_UUID,
   BATTERY_SERVICE_UUID,
-  SERVICE_UUID,
+  SERVICE_UUID
 } from '../utils/bleConstants';
 import { BluetoothDevice } from '../types';
 import { useBLEConnection } from './useBLEConnection';
@@ -71,7 +71,7 @@ export const useBatteryDiagnostics = (initialData?: {
         rawHex: null,
         serviceUuid: null,
         parsed: null,
-        error: null,
+        error: null
       };
 
       try {
@@ -174,7 +174,7 @@ export const useBatteryDiagnostics = (initialData?: {
     isReading,
     batteryData,
     analysis,
-    readBatteryDiagnostics,
+    readBatteryDiagnostics
   };
 };
 
@@ -190,7 +190,7 @@ export function analyzeBatteryDataHelper(
     detectedText: 'Incertain',
     finalType: 'aaa',
     consistencyStatus: 'neutral',
-    consistencyText: '',
+    consistencyText: ''
   };
 
   if (!data.parsed) {

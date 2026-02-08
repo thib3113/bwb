@@ -3,6 +3,7 @@
 ## Current Structure Analysis
 
 The current application has a simple layout with:
+
 - Fixed header containing app title, connection manager, and language selector
 - Two-column grid layout for code management and logs when connected
 - Floating action button for adding codes
@@ -86,30 +87,36 @@ App
 ## Detailed Component Specifications
 
 ### MainLayout.jsx
+
 - Wrapper component that handles responsive layout switching
 - Implements useMediaQuery for screen size detection
 - Renders either MobileView or DesktopView based on screen size
 
 ### Header.jsx
+
 - AppBar with app title
 - ConnectionManager with battery indicator moved to header
 - LanguageSelector
 
 ### MobileView.jsx
+
 - Main content area that renders different components based on active tab
 - BottomNavigation with 3 tabs (Codes, Logs, Configuration)
 - State management for active tab
 
 ### DesktopView.jsx
+
 - Main content area showing CodeManager
 - SidePanel (Drawer) showing LogViewer
 - Configuration button in header that opens modal
 
 ### FloatingActionButton.jsx
+
 - Positioned in bottom right corner
 - Only visible when connected
 - Triggers code creation dialog
 
 ### ConfigurationModal.jsx
+
 - Modal dialog for settings
 - Accessible from both mobile (tab) and desktop (header button)

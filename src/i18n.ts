@@ -31,7 +31,7 @@ const resources = {
     logs: frLogs,
     header: frHeader,
     maintenance: frMaintenance,
-    dfu: frDfu,
+    dfu: frDfu
   },
   en: {
     common: enCommon,
@@ -41,8 +41,8 @@ const resources = {
     logs: enLogs,
     header: enHeader,
     maintenance: enMaintenance,
-    dfu: enDfu,
-  },
+    dfu: enDfu
+  }
 };
 
 i18n
@@ -56,17 +56,17 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'i18nextLng',
+      lookupLocalStorage: 'i18nextLng'
     },
     ns: ['common', 'codes', 'settings', 'wizard', 'logs', 'header', 'maintenance', 'dfu'],
     defaultNS: 'common',
     interpolation: {
-      escapeValue: false,
+      escapeValue: false
     },
     saveMissing: true,
     missingKeyHandler: (lng, ns, key) => {
       console.warn(`Missing translation: lng=${lng}, ns=${ns}, key=${key}`);
-    },
+    }
   });
 
 export default i18n;

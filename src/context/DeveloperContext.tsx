@@ -1,30 +1,10 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-
-interface DeveloperContextType {
-  isDeveloperMode: boolean;
-  enableDeveloperMode: () => void;
-  disableDeveloperMode: () => void;
-}
-
-const DeveloperContext = createContext<DeveloperContextType | undefined>(undefined);
-
-export const useDeveloperContext = () => {
-  const context = useContext(DeveloperContext);
-  if (!context) {
-    throw new Error('useDeveloperContext must be used within a DeveloperProvider');
-  }
-  return context;
-};
+import { useState, ReactNode } from 'react';
+import { DeveloperContext } from './DeveloperContextTypes';
 
 export const DeveloperProvider = ({ children }: { children: ReactNode }) => {
-  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('boks_developer_mode');
-    if (stored === 'true') {
-      setIsDeveloperMode(true);
-    }
-  }, []);
+  const [isDeveloperMode, setIsDeveloperMode] = useState(() => {
+    return localStorage.getItem('boks_developer_mode') === 'true';
+  });
 
   const enableDeveloperMode = () => {
     setIsDeveloperMode(true);

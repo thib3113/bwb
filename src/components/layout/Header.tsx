@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
-import pReact from 'preact';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppBar,
   Badge,
@@ -20,7 +19,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import {
   BatteryAlert,
@@ -30,13 +29,14 @@ import {
   BluetoothDisabled,
   BugReport as BugReportIcon,
   Build as BuildIcon,
+  DeveloperMode as DeveloperIcon,
   Handyman as MaintenanceIcon,
   Home as HomeIcon,
   Info as InfoIcon,
   MeetingRoom as MeetingRoomIcon,
   Menu as MenuIcon,
   Refresh,
-  Settings as SettingsIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import pkg from '../../../package.json';
@@ -47,8 +47,7 @@ import { useBLEConnection } from '../../hooks/useBLEConnection';
 import { useDoor } from '../../hooks/useDoor';
 import { useBLELogs } from '../../hooks/useBLELogs';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
-import { useDeveloperContext } from '../../context/DeveloperContext';
-import { DeveloperMode as DeveloperIcon } from '@mui/icons-material';
+import { useDeveloperContext } from '../../context/DeveloperContextTypes';
 
 import { runTask } from '../../utils/uiUtils';
 import { translateBLEError } from '../../utils/bleUtils';
@@ -61,8 +60,6 @@ interface HeaderProps {
 
 export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
   const { t } = useTranslation(['header', 'common', 'logs', 'settings', 'wizard', 'codes']);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -71,7 +68,8 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
   const [devClickCount, setDevClickCount] = useState(0);
   const devClickTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { isConnected, isConnecting, connect, disconnect, getBatteryInfo } = useBLEConnection();
+  const { isConnected, isConnecting, device, connect, disconnect, getBatteryInfo } =
+    useBLEConnection();
 
   const { openDoor, doorStatus, isOpening } = useDoor();
 
@@ -80,11 +78,27 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
   const { activeDevice, knownDevices, setActiveDevice, updateDeviceBatteryLevel } = useDevice();
   const { codes } = useCodeLogic(showNotification, hideNotification);
 
+  // Use either activeDevice (from DB) or device (from BLE service) battery level
+  const displayBatteryLevel = activeDevice?.battery_level ?? device?.battery_level;
+
+  // Debug log for E2E
+  useEffect(() => {
+    if (isConnected) {
+      console.log('[Header Debug] Connected', {
+        hasActiveDevice: !!activeDevice,
+        activeBattery: activeDevice?.battery_level,
+        hasDevice: !!device,
+        deviceBattery: device?.battery_level,
+        displayBatteryLevel
+      });
+    }
+  }, [isConnected, activeDevice, device, displayBatteryLevel]);
+
   const [isRefreshingLogs, setIsRefreshingLogs] = useState(false);
   const [waitingForClose, setWaitingForClose] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleVersionClick = (e: pReact.TargetedMouseEvent<HTMLElement>) => {
+  const handleVersionClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     if (isDeveloperMode) return;
 
@@ -97,7 +111,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
     if (newCount >= 7) {
       enableDeveloperMode();
-      showNotification(tAny('settings:developer.enabled_success'), 'success');
+      showNotification(t('settings:developer.enabled_success'), 'success');
       setDevClickCount(0);
     } else {
       devClickTimerRef.current = setTimeout(() => {
@@ -118,9 +132,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
   const toggleDrawer =
     (open: boolean) =>
-    (event: pReact.TargetedKeyboardEvent<HTMLElement> | pReact.TargetedMouseEvent<HTMLElement>) => {
+    (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
       if (event.type === 'keydown') {
-        const kbEvent = event as pReact.TargetedKeyboardEvent<HTMLElement>;
+        const kbEvent = event as React.KeyboardEvent<HTMLElement>;
         if (kbEvent.key === 'Tab' || kbEvent.key === 'Shift') {
           return;
         }
@@ -128,7 +142,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
       setDrawerOpen(open);
     };
 
-  const handleNavigation = (path: string) => (e: pReact.TargetedMouseEvent<HTMLElement>) => {
+  const handleNavigation = (path: string) => (e: React.MouseEvent<HTMLElement>) => {
     (e.currentTarget as HTMLElement).blur();
     navigate(path);
     setDrawerOpen(false);
@@ -140,14 +154,14 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
       // Defer state update to next tick to avoid cascading renders error
       setTimeout(() => {
         setWaitingForClose(false);
-        showNotification(tAny('door_closed'), 'success');
+        showNotification(t('door_closed'), 'success');
 
         // Get battery info after door closes
         getBatteryInfo()
           .then(async (info) => {
             if (info) {
               const level = info.getUint8(0);
-              showNotification(tAny('battery_level', { level }), 'info');
+              showNotification(t('battery_level', { level }), 'info');
 
               if (activeDevice?.id) {
                 try {
@@ -170,7 +184,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     showNotification,
     t,
     activeDevice?.id,
-    updateDeviceBatteryLevel,
+    updateDeviceBatteryLevel
   ]);
 
   const handleConnectClick = async () => {
@@ -179,11 +193,11 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     } else {
       try {
         await connect();
-        showNotification(tAny('common:ble.connected'), 'success');
+        showNotification(t('common:ble.connected'), 'success');
       } catch (error: unknown) {
         const errorKey = translateBLEError(error);
-        const finalMessage = errorKey.startsWith('errors.') ? tAny(errorKey) : errorKey;
-        showNotification(`${tAny('common:ble.connection_failed')}: ${finalMessage}`, 'error');
+        const finalMessage = errorKey.startsWith('errors.') ? t(errorKey as string) : errorKey;
+        showNotification(`${t('common:ble.connection_failed')}: ${finalMessage}`, 'error');
       }
     }
   };
@@ -193,19 +207,19 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     const masterCode = activeDevice?.door_pin_code || '';
 
     if (!masterCode) {
-      showNotification(tAny('master_code_required'), 'error');
+      showNotification(t('master_code_required'), 'error');
       return;
     }
 
     try {
       await openDoor(masterCode);
-      showNotification(tAny('door_opening'), 'info');
+      showNotification(t('door_opening'), 'info');
       setWaitingForClose(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        showNotification(tAny('door_open_failed') + ': ' + error.message, 'error');
+        showNotification(t('door_open_failed') + ': ' + error.message, 'error');
       } else {
-        showNotification(tAny('door_open_failed') + ': ' + String(error), 'error');
+        showNotification(t('door_open_failed') + ': ' + String(error), 'error');
       }
       setWaitingForClose(false);
     }
@@ -213,7 +227,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
   const handleRefreshLogs = async () => {
     if (!isConnected) {
-      showNotification(tAny('logs:not_connected'), 'error');
+      showNotification(t('logs:not_connected'), 'error');
       return;
     }
 
@@ -221,14 +235,14 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     await runTask(requestLogs, {
       showNotification,
       hideNotification,
-      loadingMsg: tAny('logs:refresh_started'),
-      successMsg: tAny('logs:refresh_success'),
-      errorMsg: tAny('logs:refresh_failed'),
+      loadingMsg: t('logs:refresh_started'),
+      successMsg: t('logs:refresh_success'),
+      errorMsg: t('logs:refresh_failed')
     });
     setIsRefreshingLogs(false);
   };
 
-  const handleSettingsClick = (e: pReact.TargetedMouseEvent<HTMLElement>) => {
+  const handleSettingsClick = (e: React.MouseEvent<HTMLElement>) => {
     (e.currentTarget as HTMLElement).blur();
     navigate('/settings');
   };
@@ -276,7 +290,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <MeetingRoomIcon />
                   </ListItemIcon>
-                  <ListItemText primary={tAny('common:my_boks', { count: knownDevices.length })} />
+                  <ListItemText primary={t('common:my_boks', { count: knownDevices.length })} />
                 </ListItemButton>
               </ListItem>
               <Divider />
@@ -285,7 +299,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <BuildIcon />
                   </ListItemIcon>
-                  <ListItemText primary={tAny('wizard:title')} />
+                  <ListItemText primary={t('wizard:title')} />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
@@ -301,7 +315,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <MaintenanceIcon />
                   </ListItemIcon>
-                  <ListItemText primary={tAny('header:maintenance')} />
+                  <ListItemText primary={t('header:maintenance')} />
                 </ListItemButton>
               </ListItem>
               <Divider />
@@ -310,7 +324,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <SettingsIcon />
                   </ListItemIcon>
-                  <ListItemText primary={tAny('settings:title')} />
+                  <ListItemText primary={t('settings:title')} />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
@@ -318,7 +332,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   <ListItemIcon>
                     <InfoIcon />
                   </ListItemIcon>
-                  <ListItemText primary={tAny('settings:about.title')} />
+                  <ListItemText primary={t('settings:about.title')} />
                 </ListItemButton>
               </ListItem>
               {isDeveloperMode && (
@@ -329,7 +343,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                       <ListItemIcon>
                         <DeveloperIcon />
                       </ListItemIcon>
-                      <ListItemText primary={tAny('settings:developer.menu_title')} />
+                      <ListItemText primary={t('settings:developer.menu_title')} />
                     </ListItemButton>
                   </ListItem>
                 </>
@@ -355,7 +369,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   color: devClickCount > 0 ? 'transparent' : 'inherit',
-                  transition: 'background 0.2s ease',
+                  transition: 'background 0.2s ease'
                 }}
               >
                 v{pkg.version}-{__COMMIT_HASH__}
@@ -369,18 +383,16 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           <FormControl sx={{ minWidth: 120, mr: 2, maxWidth: 150 }} size="small">
             <Select
               value={activeDevice?.id || ''}
-              onChange={(e: SelectChangeEvent) =>
-                setActiveDevice((e.target as HTMLInputElement).value)
-              }
+              onChange={(e: SelectChangeEvent<string>) => setActiveDevice(e.target.value)}
               displayEmpty
               sx={{
                 color: 'white',
                 '& .MuiSelect-icon': { color: 'white' },
                 '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.7)',
+                  borderColor: 'rgba(255, 255, 255, 0.7)'
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' }
               }}
             >
               {knownDevices.map((device) => (
@@ -392,26 +404,41 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           </FormControl>
         )}
 
-        {/* Battery Level Indicator from DB */}
-        {activeDevice?.battery_level !== undefined && (
-          <Tooltip title={tAny('battery_level', { level: activeDevice.battery_level })}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mr: 1 }}>
-              <Typography variant="body2" sx={{ mr: 0.25, fontWeight: 'medium' }}>
-                {activeDevice.battery_level}%
-              </Typography>
-              {activeDevice.battery_level < 20 ? (
-                <BatteryAlert color="error" fontSize="small" />
-              ) : activeDevice.battery_level > 90 ? (
-                <BatteryFull color="inherit" fontSize="small" />
-              ) : (
-                <BatteryStd color="inherit" fontSize="small" />
-              )}
-            </Box>
-          </Tooltip>
-        )}
+        {/* Connection Status & Battery */}
+        <Box
+          data-testid="connection-status-indicator"
+          sx={{ display: 'flex', alignItems: 'center', mr: 1 }}
+        >
+          {isConnected ? (
+            <Bluetooth data-testid="status-icon-connected" />
+          ) : (
+            <BluetoothDisabled data-testid="status-icon-disconnected" />
+          )}
+
+          {displayBatteryLevel !== undefined && (
+            <Tooltip title={t('battery_level', { level: displayBatteryLevel })}>
+              <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.5 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 'medium' }}
+                  data-testid="battery-level-text"
+                >
+                  {displayBatteryLevel}%
+                </Typography>
+                {displayBatteryLevel < 20 ? (
+                  <BatteryAlert color="error" fontSize="small" sx={{ ml: 0.25 }} />
+                ) : displayBatteryLevel > 90 ? (
+                  <BatteryFull color="inherit" fontSize="small" sx={{ ml: 0.25 }} />
+                ) : (
+                  <BatteryStd color="inherit" fontSize="small" sx={{ ml: 0.25 }} />
+                )}
+              </Box>
+            </Tooltip>
+          )}
+        </Box>
 
         {/* Open Door Button - always show, disabled when disconnected */}
-        <Tooltip title={isConnected ? tAny('open_door') : tAny('connect_to_open_door')}>
+        <Tooltip title={isConnected ? t('open_door') : t('connect_to_open_door')}>
           <span>
             <IconButton
               aria-label="open door"
@@ -421,7 +448,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
               size="small"
               sx={{
                 mr: 0.5,
-                opacity: isConnected ? 1 : 0.5,
+                opacity: isConnected ? 1 : 0.5
               }}
             >
               {isOpening ? (
@@ -438,6 +465,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         {/* Connection Button */}
         <IconButton
           aria-label="connect"
+          data-testid="connection-button"
           color="inherit"
           onClick={handleConnectClick}
           disabled={isConnecting}
@@ -453,11 +481,15 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
               overlap="circular"
               anchorOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: 'right'
               }}
               invisible={pendingCodesCount === 0}
             >
-              {isConnected ? <Bluetooth /> : <BluetoothDisabled />}
+              {isConnected ? (
+                <Bluetooth data-testid="bluetooth-connected-icon" />
+              ) : (
+                <BluetoothDisabled data-testid="bluetooth-disabled-icon" />
+              )}
             </Badge>
           )}
         </IconButton>

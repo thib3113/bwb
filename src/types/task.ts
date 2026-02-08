@@ -1,4 +1,4 @@
-import { SyncStatus } from './index';
+import { CODE_TYPE, SyncStatus } from './index';
 
 export enum TaskType {
   ADD_MASTER_CODE = 'ADD_MASTER_CODE',
@@ -10,7 +10,7 @@ export enum TaskType {
   GET_BATTERY_LEVEL = 'GET_BATTERY_LEVEL',
   UNLOCK_DOOR = 'UNLOCK_DOOR',
   LOCK_DOOR = 'LOCK_DOOR',
-  GET_DOOR_STATUS = 'GET_DOOR_STATUS',
+  GET_DOOR_STATUS = 'GET_DOOR_STATUS'
 }
 
 export interface BaseTask {
@@ -37,7 +37,7 @@ export interface AddCodePayload {
 
 export interface DeleteCodePayload {
   codeId: string;
-  codeType: string;
+  codeType: CODE_TYPE;
   code?: string; // Sometimes needed for deletion if not in DB
   [key: string]: unknown;
 }

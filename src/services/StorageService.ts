@@ -1,8 +1,7 @@
 import { db } from '../db/db';
-import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings, UserRole } from '../types';
+import { BoksCode, BoksLog, CODE_TYPE, CodeStatus, Settings, UserRole } from '../types';
 import { BoksDevice, BoksNfcTag } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
-import { CODE_TYPES } from '../utils/constants';
 
 interface RunTaskOptions {
   showNotification?: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -35,7 +34,7 @@ export class StorageService {
           id: existing?.id || crypto.randomUUID(),
           device_id: deviceId,
           author_id: existing?.author_id || code.author_id || 'unknown',
-          type: (code.type || existing?.type || 'single') as any, // Cast for safety
+          type: (code.type || existing?.type || 'single') as CODE_TYPE, // Cast for safety
           code: code.code || existing?.code || '',
           name: code.name || existing?.name || '',
           index: code.index !== undefined ? code.index : existing?.index,
@@ -43,7 +42,7 @@ export class StorageService {
           created_at: existing?.created_at || new Date().toISOString(),
           sync_status: code.sync_status || 'created',
           // Merge other props
-          ...code,
+          ...code
         } as BoksCode;
         codesToPut.push(newCode);
       }
@@ -90,7 +89,10 @@ export class StorageService {
           event: log.event || 'UNKNOWN',
           type: log.type || 'info',
           synced: log.synced || false,
-          ...log,
+          opcode: log.opcode ?? 0,
+          payload: log.payload ?? new Uint8Array(0),
+          raw: log.raw ?? new Uint8Array(0),
+          ...log
         } as BoksLog;
         logsToAdd.push(logEntry);
 
@@ -103,10 +105,8 @@ export class StorageService {
           let usedCodeValue: string | undefined;
 
           // Try to get code from details (if parsed)
-          // @ts-expect-error - 'details' is dynamic
           if (log.details?.code) {
-            // @ts-expect-error
-            usedCodeValue = log.details.code;
+            usedCodeValue = String(log.details.code);
           }
           // Try to get from data (legacy/mock)
           else if (log.data?.code_value) {
@@ -137,7 +137,7 @@ export class StorageService {
               );
 
               await db.codes.update(codeToUpdate.id, {
-                usedAt: logEntry.timestamp as string,
+                usedAt: logEntry.timestamp as string
                 // We DO NOT change status to 'used', we keep it 'on_device' so it doesn't disappear from the device view unexpectedly
                 // UI will handle the 'used' appearance based on usedAt
               });
@@ -146,8 +146,7 @@ export class StorageService {
         }
 
         // Check for NFC Tags in log details
-        // @ts-expect-error - 'details' comes from parseLog but is not on BoksLog interface
-        const details = log.details as Record<string, unknown> | undefined;
+        const details = log.details;
         if (details && typeof details.tag_uid === 'string') {
           tagsToUpdate.push({
             id: crypto.randomUUID(), // New ID, but we might overwrite based on logic below
@@ -157,7 +156,7 @@ export class StorageService {
             type: (details.tag_type as number) || 0,
             last_seen_at: Date.now(),
             created_at: Date.now(), // Will be ignored if updating
-            sync_status: 'created',
+            sync_status: 'created'
           });
         }
       }
@@ -166,21 +165,33 @@ export class StorageService {
         await db.logs.bulkPut(logsToAdd);
       }
 
-      // Upsert Tags
+      // Upsert Tags (Optimized: Fetch all potentially relevant tags in bulk)
       if (tagsToUpdate.length > 0) {
+        const uniqueUids = Array.from(new Set(tagsToUpdate.map((t) => t.uid)));
+        const existingTags = await db.nfc_tags
+          .where('device_id')
+          .equals(deviceId)
+          .and((tag) => uniqueUids.includes(tag.uid))
+          .toArray();
+
+        const tagsToPut: BoksNfcTag[] = [];
+
         for (const tag of tagsToUpdate) {
-          // Check if exists to preserve name
-          const existing = await db.nfc_tags.where({ device_id: deviceId, uid: tag.uid }).first();
+          const existing = existingTags.find((t) => t.uid === tag.uid);
           if (existing) {
-            await db.nfc_tags.update(existing.id, {
+            tagsToPut.push({
+              ...existing,
               last_seen_at: tag.last_seen_at,
-              // Only update type if meaningful? Assuming log type is correct.
-              type: tag.type,
+              type: tag.type
             });
           } else {
-            // Only add if "User Badge" (0x03) or generic?
-            await db.nfc_tags.add(tag);
+            tagsToPut.push(tag);
           }
+        }
+
+        if (tagsToPut.length > 0) {
+          // Use bulkPut to update existing or add new ones in one go
+          await db.nfc_tags.bulkPut(tagsToPut);
         }
       }
     } catch (error) {
@@ -205,7 +216,7 @@ export class StorageService {
   static async updateCodeStatus(deviceId: string, id: string, status: CodeStatus): Promise<void> {
     try {
       await db.codes.update(id, {
-        status: status,
+        status: status
       });
     } catch (error) {
       console.error(`Failed to update code status for device ${deviceId}:`, error);
@@ -261,7 +272,7 @@ export class StorageService {
       // Strictly flat object storage
       await db.settings.put({
         key: key as string,
-        value: value as string | number | boolean | object | null,
+        value: value as string | number | boolean | object | null
       });
     } catch (error) {
       console.error(`Failed to save setting ${key as string}:`, error);
@@ -292,7 +303,7 @@ export class StorageService {
       loadingMsg,
       successMsg,
       errorMsg,
-      minDuration = 500,
+      minDuration = 500
     } = options;
 
     if (showNotification && loadingMsg) {
@@ -319,7 +330,10 @@ export class StorageService {
       console.error('Task failed:', error);
       if (hideNotification) hideNotification();
       if (showNotification) {
-        showNotification(errorMsg || `Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        showNotification(
+          errorMsg || `Error: ${error instanceof Error ? error.message : String(error)}`,
+          'error'
+        );
       }
       return null;
     }
@@ -344,7 +358,7 @@ export class StorageService {
         id: localUserId,
         email: 'local@example.com',
         is_offline: true,
-        updated_at: Date.now(),
+        updated_at: Date.now()
       });
 
       // Create a mock device
@@ -357,14 +371,14 @@ export class StorageService {
         last_connected_at: Date.now(),
         hardware_version: '4.0',
         software_revision: '4.4.0',
-        la_poste_activated: true,
+        la_poste_activated: true
       };
       await db.devices.put(mockDevice);
 
       // Create mock secrets
       await db.device_secrets.put({
         device_id: boksUuid,
-        configuration_key: 'AABBCCDD',
+        configuration_key: 'AABBCCDD'
       });
 
       // Create mock codes
@@ -374,46 +388,46 @@ export class StorageService {
           device_id: boksUuid,
           author_id: localUserId,
           code: '123456',
-          type: CODE_TYPES.MASTER,
+          type: CODE_TYPE.MASTER,
           status: 'on_device',
           name: 'Code Maître Principal',
           index: 0,
           created_at: new Date().toISOString(),
-          sync_status: 'synced',
+          sync_status: 'synced'
         },
         {
           id: crypto.randomUUID(),
           device_id: boksUuid,
           author_id: localUserId,
           code: '987654',
-          type: CODE_TYPES.SINGLE,
+          type: CODE_TYPE.SINGLE,
           status: 'on_device',
           name: 'Code Livreur (Utilisé)',
           created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          sync_status: 'synced',
+          sync_status: 'synced'
         },
         {
           id: crypto.randomUUID(),
           device_id: boksUuid,
           author_id: localUserId,
           code: '111111',
-          type: CODE_TYPES.MULTI,
+          type: CODE_TYPE.MULTI,
           status: 'pending_add', // Waiting to be added
           name: 'Code Famille',
           created_at: new Date().toISOString(),
-          sync_status: 'created',
+          sync_status: 'created'
         },
         {
           id: crypto.randomUUID(),
           device_id: boksUuid,
           author_id: crypto.randomUUID(), // Another user asked
           code: '333333',
-          type: CODE_TYPES.SINGLE,
+          type: CODE_TYPE.SINGLE,
           status: 'pending_add', // Changed from pending_approval to pending_add
           name: 'Demande Ami',
           created_at: new Date().toISOString(),
-          sync_status: 'created',
-        },
+          sync_status: 'created'
+        }
       ];
       await StorageService.saveCodes(boksUuid, mockCodes);
 
@@ -428,7 +442,7 @@ export class StorageService {
           data: { code_index: 0, code_value: '123456' },
           opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
           payload: new Uint8Array([0x01, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]),
-          synced: false,
+          synced: false
         },
         {
           id: crypto.randomUUID(),
@@ -439,8 +453,8 @@ export class StorageService {
           data: {},
           opcode: BLEOpcode.LOG_DOOR_OPEN_HISTORY,
           payload: new Uint8Array([0x01]),
-          synced: false,
-        },
+          synced: false
+        }
       ];
       await StorageService.saveLogs(boksUuid, mockLogs);
 

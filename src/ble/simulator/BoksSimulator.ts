@@ -2,7 +2,7 @@ import { EventEmitter } from '../../utils/EventEmitter';
 import {
   BLEOpcode,
   SIMULATOR_DEFAULT_CONFIG_KEY,
-  SIMULATOR_DEFAULT_PIN,
+  SIMULATOR_DEFAULT_PIN
 } from '../../utils/bleConstants';
 import { createPacket } from '../../utils/packetParser';
 import { PacketFactory } from '../packets/PacketFactory';
@@ -11,13 +11,13 @@ import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
 // --- Interfaces ---
 
-interface LogEntry {
+export interface LogEntry {
   opcode: number;
   timestamp: number; // Unix timestamp in ms (simulated)
   payload: number[];
 }
 
-interface BoksState {
+export interface BoksState {
   isOpen: boolean;
   pinCodes: Map<string, string>; // code -> type (master/single/multi)
   logs: LogEntry[];
@@ -42,8 +42,8 @@ export interface SimulatorAPI {
 export class BoksSimulator extends EventEmitter {
   private static instance: BoksSimulator | null = null;
   private state: BoksState;
-  private autoCloseTimer: any = null;
-  private chaosTimer: any = null;
+  private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private chaosTimer: ReturnType<typeof setTimeout> | null = null;
 
   public static getInstance(): BoksSimulator {
     if (!BoksSimulator.instance) {
@@ -59,7 +59,7 @@ export class BoksSimulator extends EventEmitter {
 
     // Expose controller
     if (typeof window !== 'undefined') {
-      (window as any).boksSimulatorController = {
+      window.boksSimulatorController = {
         enableChaos: (e: boolean) => this.setChaosMode(e),
         setVersion: (sw, hw) => {
           this.state.softwareRevision = sw;
@@ -71,7 +71,7 @@ export class BoksSimulator extends EventEmitter {
         triggerDoorOpen: (s: 'ble' | 'nfc' | 'button', c?: string) => this.triggerDoorOpen(s, c),
         triggerDoorClose: () => this.triggerDoorClose(),
         reset: () => this.reset(),
-        getState: () => ({ ...this.state }),
+        getState: () => ({ ...this.state })
       } as SimulatorAPI;
     }
   }
@@ -89,7 +89,7 @@ export class BoksSimulator extends EventEmitter {
       chaosMode: false,
       batteryLevel: 100,
       firmwareRevision: '10/125', // Default Hardware Version (maps to 4.0)
-      softwareRevision: '4.1.14', // Default Software Version
+      softwareRevision: '4.1.14' // Default Software Version
     };
   }
 
@@ -126,7 +126,8 @@ export class BoksSimulator extends EventEmitter {
 
   // --- External Triggers ---
 
-  public triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public triggerDoorOpen(source: 'ble' | 'nfc' | 'button', _code?: string) {
     if (this.state.isOpen) {
       console.log('[Simulator] Ignored Open Trigger: Door already open');
       return;
@@ -178,7 +179,7 @@ export class BoksSimulator extends EventEmitter {
     this.state.logs.push({
       opcode,
       payload,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     });
   }
 
@@ -221,7 +222,7 @@ export class BoksSimulator extends EventEmitter {
         break;
       case BLEOpcode.DELETE_SINGLE_USE_CODE:
       case BLEOpcode.DELETE_MULTI_USE_CODE:
-        this.handleDeleteCode(payload);
+        this.handleDeleteCode();
         break;
       case BLEOpcode.SET_CONFIGURATION:
         this.handleSetConfiguration();
@@ -235,7 +236,7 @@ export class BoksSimulator extends EventEmitter {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('boks-rx', {
-          detail: { opcode, payload: Array.from(payload) },
+          detail: { opcode, payload: Array.from(payload) }
         })
       );
     }
@@ -268,7 +269,7 @@ export class BoksSimulator extends EventEmitter {
     }
   }
 
-  private handleDeleteCode(payload: Uint8Array) {
+  private handleDeleteCode() {
     // Simplified: we assume we can delete by index or something, but here we just ACK success.
     // Real Boks deletes by Index.
     // For this simplified simulator, we can't easily map Index -> Code without a more complex state.
@@ -310,7 +311,7 @@ export class BoksSimulator extends EventEmitter {
 
     setTimeout(() => {
       const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0XFF, (count >> 8) & 0XFF]);
+      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xFF, (count >> 8) & 0xFF]);
     }, 150);
   }
 
@@ -348,10 +349,10 @@ export class BoksSimulator extends EventEmitter {
     }
     // Big Endian for Counts
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
-      (masterCount >> 8) & 0XFF,
-      masterCount & 0XFF,
-      (singleCount >> 8) & 0XFF,
-      singleCount & 0XFF,
+      (masterCount >> 8) & 0xFF,
+      masterCount & 0xFF,
+      (singleCount >> 8) & 0xFF,
+      singleCount & 0xFF
     ]);
   }
 

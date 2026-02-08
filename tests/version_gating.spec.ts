@@ -15,10 +15,10 @@ test.describe('Version Gating', () => {
 
   test('should soft-disable NFC tab and show toast for older firmware', async ({
     page,
-    simulator,
+    simulator
   }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
-      timeout: 30000,
+      timeout: 30000
     });
 
     await page.evaluate(() => {
@@ -51,7 +51,7 @@ test.describe('Version Gating', () => {
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
-      timeout: 30000,
+      timeout: 30000
     });
 
     await page.evaluate(() => {
@@ -90,7 +90,7 @@ test.describe('Version Gating', () => {
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
     await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
-      timeout: 30000,
+      timeout: 30000
     });
 
     await page.evaluate(() => {

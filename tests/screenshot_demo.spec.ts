@@ -1,11 +1,13 @@
-import { test, expect } from './fixtures';
+import { expect, test } from './fixtures';
 
 test('Generate screenshot of codes view with mixed statuses', async ({ page, simulator }) => {
   // 1. Initial Setup
   await page.goto('/');
 
   // Wait for simulator controller
-  await page.waitForFunction(() => (window as any).boksSimulatorController, null, { timeout: 30000 });
+  await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    timeout: 30000
+  });
 
   // 2. Connect
   await simulator.connect();
@@ -29,10 +31,10 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
     const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
 
     if (device) {
-        deviceId = device.id;
-        console.log('Found real device ID:', deviceId);
+      deviceId = device.id;
+      console.log('Found real device ID:', deviceId);
     } else {
-        console.warn('Still no device found in DB! Using default, which might fail.');
+      console.warn('Still no device found in DB! Using default, which might fail.');
     }
 
     // Clear codes for this device

@@ -1,92 +1,94 @@
 {
-	"app_title": "Boks BLE Control Panel",
-	"my_boks": "My Boks",
-	"my_boks_one": "My Boks",
-	"my_boks_other": "My Boks",
-	"users": {
-		"title": "Users"
-	},
-	"connecting": "Connecting...",
-	"connected": "Connected",
-	"disconnected": "Disconnected",
-	"not_connected": {
-		"title": "Not Connected",
-		"message": "Please connect to a Boks to continue."
-	},
-	"web_ble_not_supported": {
-		"title": "Web Bluetooth Not Supported",
-		"message": "Your browser does not support Web Bluetooth. Please use Chrome, Edge, or Bluefy on iOS.",
-		"ios": "On iOS, you must use a Web Bluetooth capable browser like Bluefy."
-	},
-	"offline_mode": "You are in offline mode. You can view and manage codes, but cannot sync with the device.",
-	"cancel": "Cancel",
-	"save": "Save",
-	"delete": "Delete",
-	"edit": "Edit",
-	"next": "Next",
-	"back": "Back",
-	"finish": "Finish",
-	"reset": "Reset",
-	"copy": "Copy",
-	"copied": "Copied!",
-	"yes": "Yes",
-	"no": "No",
-	"unknown": "Unknown",
-	"loading": "Loading...",
-	"error": "Error",
-	"success": "Success",
-	"warning": "Warning",
-	"info": "Information",
-	"battery_level": "Battery Level",
-	"door": {
-		"title": "Door Control",
-		"open": "Open Door",
-		"opening": "Opening...",
-		"closed": "Door closed",
-		"opening_failed": "Failed to open door"
-	},
-	"language": {
-		"select": "Select Language",
-		"english": "English",
-		"french": "French"
-	},
-	"devices": {
-		"title": "Saved Devices",
-		"device_name": "Device Name",
-		"forget": "Forget this device"
-	},
-	"community": {
-		"title": "Community & Support",
-		"github": "GitHub Project",
-		"github_issues": "Report a Bug",
-		"donate": "Support the Project",
-		"donate_description": "If you enjoy this tool, you can support its development."
-	},
-	"ble": {
-		"connected": "Bluetooth connected",
-		"connection_failed": "Bluetooth connection failed"
-	},
-	"connection": {
-		"connect": "Connect",
-		"disconnect": "Disconnect",
-		"connect_to_open": "Connect to open"
-	},
-	"errors": {
-		"invalid_logs_count_response": "Invalid logs count response",
-		"browser": {
-			"userCancelled": "The selection was cancelled.",
-			"bluetoothDisabled": "Please enable Bluetooth on your device to continue.",
-			"noDeviceSelected": "You must select a device to establish a connection."
-		}
-	},
-	"wizard": {
-		"title": "Debug Wizard"
-	},
-	"settings": {
-		"title": "Settings"
-	},
-	"master_code_required": "Master code required for this action"
-,
-	"no_active_device": "No active device selected",
-	"coming_soon": "User management coming soon"
+  "app_title": "Boks BLE Control Panel",
+  "my_boks": "My Boks",
+  "my_boks_one": "My Boks",
+  "my_boks_other": "My Boks",
+  "users": {
+    "title": "Users"
+  },
+  "connecting": "Connecting...",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "not_connected": {
+    "title": "Not Connected",
+    "message": "Please connect to a Boks to continue."
+  },
+  "web_ble_not_supported": {
+    "title": "Web Bluetooth Not Supported",
+    "message": "Your browser does not support Web Bluetooth. Please use Chrome, Edge, or Bluefy on iOS.",
+    "ios": "On iOS, you must use a Web Bluetooth capable browser like Bluefy."
+  },
+  "web_ble_not_supported_title": "Web Bluetooth Not Supported",
+  "web_ble_not_supported_message": "Your browser does not support Web Bluetooth. Please use Chrome, Edge, or Bluefy on iOS.",
+  "web_ble_not_supported_ios": "On iOS, you must use a Web Bluetooth capable browser like Bluefy.",
+  "offline_mode": "You are in offline mode. You can view and manage codes, but cannot sync with the device.",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "next": "Next",
+  "back": "Back",
+  "finish": "Finish",
+  "reset": "Reset",
+  "copy": "Copy",
+  "copied": "Copied!",
+  "yes": "Yes",
+  "no": "No",
+  "unknown": "Unknown",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "warning": "Warning",
+  "info": "Information",
+  "battery_level": "Battery Level",
+  "door": {
+    "title": "Door Control",
+    "open": "Open Door",
+    "opening": "Opening...",
+    "closed": "Door closed",
+    "opening_failed": "Failed to open door"
+  },
+  "language": {
+    "select": "Select Language",
+    "english": "English",
+    "french": "French"
+  },
+  "devices": {
+    "title": "Saved Devices",
+    "device_name": "Device Name",
+    "forget": "Forget this device"
+  },
+  "community": {
+    "title": "Community & Support",
+    "github": "GitHub Project",
+    "github_issues": "Report a Bug",
+    "donate": "Support the Project",
+    "donate_description": "If you enjoy this tool, you can support its development."
+  },
+  "ble": {
+    "connected": "Bluetooth connected",
+    "connection_failed": "Bluetooth connection failed"
+  },
+  "connection": {
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connect_to_open": "Connect to open"
+  },
+  "errors": {
+    "invalid_logs_count_response": "Invalid logs count response",
+    "browser": {
+      "userCancelled": "The selection was cancelled.",
+      "bluetoothDisabled": "Please enable Bluetooth on your device to continue.",
+      "noDeviceSelected": "You must select a device to establish a connection."
+    }
+  },
+  "wizard": {
+    "title": "Debug Wizard"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "master_code_required": "Master code required for this action",
+  "no_active_device": "No active device selected",
+  "coming_soon": "User management coming soon"
 }

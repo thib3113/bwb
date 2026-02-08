@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
+  Avatar,
   Box,
   Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Avatar,
-  IconButton,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
   TextField,
-  Alert,
+  Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import NfcIcon from '@mui/icons-material/Nfc';
@@ -76,9 +76,13 @@ export const NfcTagsTab = () => {
   // Auto-set default name when UID found
   useEffect(() => {
     if (scannedUid && !tagName) {
-      setTagName(`Badge ${scannedUid.substring(0, 5)}`);
+      const defaultName = `Badge ${scannedUid.substring(0, 5)}`;
+      if (tagName !== defaultName) {
+        setTagName(defaultName);
+      }
     }
-  }, [scannedUid, tagName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedUid]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -115,7 +119,7 @@ export const NfcTagsTab = () => {
                     <br />
                     {tag.last_seen_at
                       ? t('settings:nfc.last_seen', {
-                          date: new Date(tag.last_seen_at).toLocaleString(),
+                          date: new Date(tag.last_seen_at).toLocaleString()
                         })
                       : t('settings:nfc.never_seen')}
                   </>
@@ -140,7 +144,7 @@ export const NfcTagsTab = () => {
               flexDirection: 'column',
               alignItems: 'center',
               gap: 2,
-              py: 2,
+              py: 2
             }}
           >
             {scanStatus === NfcScanStatus.IDLE && (

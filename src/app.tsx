@@ -37,17 +37,17 @@ const DfuUpdatePage = lazy(() =>
 // Lazy loading tab components
 const CodeManagerWrapper = lazy(() =>
   import('./components/codes/CodeManagerWrapper').then((module) => ({
-    default: module.CodeManagerWrapper,
+    default: module.CodeManagerWrapper
   }))
 );
 const LogViewerWrapperComponent = lazy(() =>
   import('./components/log/LogViewerWrapper').then((module) => ({
-    default: module.LogViewerWrapper,
+    default: module.LogViewerWrapper
   }))
 );
 const SettingsContentWrapper = lazy(() =>
   import('./components/settings/SettingsContentWrapper').then((module) => ({
-    default: module.SettingsContentWrapper,
+    default: module.SettingsContentWrapper
   }))
 );
 
@@ -58,7 +58,7 @@ const LoadingFallback = () => (
       justifyContent: 'center',
       alignItems: 'center',
       height: '100%',
-      minHeight: '50vh',
+      minHeight: '50vh'
     }}
   >
     <CircularProgress />
@@ -71,12 +71,10 @@ export function App() {
   const navigate = useNavigate();
 
   const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'info' as 'success' | 'error' | 'info' | 'warning',
+    severity: 'info' as 'success' | 'error' | 'info' | 'warning'
   });
 
   useEffect(() => {
@@ -86,7 +84,7 @@ export function App() {
         ...window.boksDebug,
         mockData: StorageService.mockData,
         StorageService: StorageService,
-        db: db, // Explicitly expose db
+        db: db // Explicitly expose db
       };
       console.log('StorageService and DB exposed to window.boksDebug');
     }
@@ -194,14 +192,14 @@ export function App() {
       ) : (
         <Paper sx={{ textAlign: 'center', p: 3, color: 'error.main' }}>
           <Typography variant="h5" component="h1">
-            {tAny('common:web_ble_not_supported_title')}
+            {t('common:web_ble_not_supported_title')}
           </Typography>
           <Typography variant="body1" component="p">
-            {tAny('common:web_ble_not_supported_message')}
+            {t('common:web_ble_not_supported_message')}
           </Typography>
           {isIOS() && (
             <Typography variant="body2" component="p">
-              {tAny('common:web_ble_not_supported_ios')}
+              {t('common:web_ble_not_supported_ios')}
             </Typography>
           )}
         </Paper>

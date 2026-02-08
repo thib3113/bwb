@@ -7,6 +7,6 @@ export const useLogCount = () => {
     throw new Error('useLogCount must be used within a DeviceProvider');
   }
   return {
-    logCount: context.logCount,
+    logCount: context.logCount
   };
 };

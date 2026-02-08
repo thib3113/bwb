@@ -1,9 +1,9 @@
-import { Component, type ComponentChild, type ErrorInfo } from 'preact';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { GITHUB_NEW_ISSUE_URL } from '../utils/constants';
 
 interface ErrorBoundaryProps {
-  children: ComponentChild;
+  children: ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             justifyContent: 'center',
             alignItems: 'center',
             minHeight: '100vh',
-            p: 2,
+            p: 2
           }}
         >
           <Paper sx={{ p: 3, maxWidth: 600, width: '100%', textAlign: 'center' }}>

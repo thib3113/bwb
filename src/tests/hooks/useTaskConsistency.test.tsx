@@ -1,12 +1,12 @@
-import { renderHook, waitFor } from '@testing-library/preact';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useTaskConsistency } from '../../hooks/useTaskConsistency';
 import { db } from '../../db/db';
-import { TaskType } from '../../types/task';
+import { BoksTask, TaskType } from '../../types/task';
 import { CODE_STATUS } from '../../constants/codeStatus';
-import { CODE_TYPES } from '../../utils/constants';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { CODE_TYPE } from '../../types';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TaskContext } from '../../context/Contexts';
-import { BoksTask } from '../../types/task';
+import { ReactNode } from 'react';
 
 // Mock TaskContext
 const mockAddTask = vi.fn();
@@ -14,7 +14,7 @@ const mockAddTask = vi.fn();
 const mockTasks: BoksTask[] = [];
 
 // Wrapper to provide the mocked context
-const wrapper = ({ children }: { children: any }) => (
+const wrapper = ({ children }: { children: ReactNode }) => (
   <TaskContext.Provider value={{ addTask: mockAddTask, tasks: mockTasks, retryTask: vi.fn() }}>
     {children}
   </TaskContext.Provider>
@@ -34,12 +34,12 @@ describe('useTaskConsistency', () => {
       id: 'code-1',
       device_id: deviceId,
       code: '123456',
-      type: CODE_TYPES.SINGLE,
+      type: CODE_TYPE.SINGLE,
       status: CODE_STATUS.PENDING_ADD,
       name: 'Test Code',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     // 2. Render hook
@@ -53,8 +53,8 @@ describe('useTaskConsistency', () => {
           deviceId: deviceId,
           payload: expect.objectContaining({
             code: '123456',
-            codeId: 'code-1',
-          }),
+            codeId: 'code-1'
+          })
         })
       );
     });
@@ -66,12 +66,12 @@ describe('useTaskConsistency', () => {
       id: 'code-2',
       device_id: deviceId,
       code: '654321',
-      type: CODE_TYPES.MULTI,
+      type: CODE_TYPE.MULTI,
       status: CODE_STATUS.PENDING_DELETE,
       name: 'Delete Me',
       created_at: new Date().toISOString(),
       sync_status: 'synced',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     // 2. Render hook
@@ -87,8 +87,8 @@ describe('useTaskConsistency', () => {
           payload: expect.objectContaining({
             code: '654321',
             codeId: 'code-2',
-            codeType: CODE_TYPES.MULTI,
-          }),
+            codeType: CODE_TYPE.MULTI
+          })
         })
       );
     });
@@ -102,13 +102,13 @@ describe('useTaskConsistency', () => {
       id: 'code-master',
       device_id: deviceId,
       code: '999999',
-      type: CODE_TYPES.MASTER,
+      type: CODE_TYPE.MASTER,
       index: 5,
       status: CODE_STATUS.PENDING_ADD,
       name: 'Master Key',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     renderHook(() => useTaskConsistency(deviceId), { wrapper });
@@ -120,8 +120,8 @@ describe('useTaskConsistency', () => {
           deviceId: deviceId,
           payload: expect.objectContaining({
             code: '999999',
-            codeId: 'code-master',
-          }),
+            codeId: 'code-master'
+          })
         })
       );
     });

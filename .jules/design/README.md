@@ -16,6 +16,7 @@ This document outlines the complete plan for refactoring the Boks Web BLE applic
 ## Current State Analysis
 
 The current application has a simple, non-responsive layout:
+
 - Fixed header with app title, connection manager, and language selector
 - Two-column grid layout for code management and logs when connected
 - Floating action button for adding codes
@@ -40,24 +41,29 @@ The current application has a simple, non-responsive layout:
 ## Proposed Improvements
 
 ### 1. Connect Button Enhancement
+
 - Rename "Se connecter à l'appareil" to "Se connecter"
 - Change color to differentiate from header
 
 ### 2. Mobile Layout
+
 - Bottom navigation with 3 tabs:
   - **Codes**: List of codes with 2 accordions (Permanent, Single Use)
   - **Logs**: Log viewer
   - **Configuration**: Settings (content TBD)
-  
+
 ### 3. Desktop Layout
+
 - Main view: List of codes
 - Side panel (small list): Logs
 - Settings button: Opens a pop-in (modal) for configuration
 
 ### 4. Code Management
+
 - Floating Action Button (FAB) (+) in the bottom right of the code panel to open a pop-in for creating a code
 
 ### 5. Header Enhancement
+
 - Add a battery level icon (use known level or crossed-out battery if unknown)
 
 ## Architecture
@@ -158,16 +164,19 @@ App
 ### Main Components
 
 #### MainLayout.jsx
+
 - Wrapper component that handles responsive layout switching
 - Uses `useMediaQuery` to determine screen size
 - Renders either MobileView or DesktopView based on screen size
 
 #### Header.jsx
+
 - AppBar with app title, connection manager, and language selector
 - Consistent across both mobile and desktop views
 - Battery indicator integrated into ConnectionManager
 
 #### MobileView.jsx
+
 - Mobile-specific layout with bottom navigation
 - Tab-based content switching
 - Components:
@@ -175,6 +184,7 @@ App
   - BottomNavigation (with Codes, Logs, Configuration tabs)
 
 #### DesktopView.jsx
+
 - Desktop-specific layout with side panel
 - Configuration accessible via button in header
 - Components:
@@ -183,6 +193,7 @@ App
   - ConfigurationButton (opens ConfigurationModal)
 
 #### FloatingActionButton.jsx
+
 - Positioned in bottom right corner
 - Only visible when connected to a device
 - Triggers code creation dialog
@@ -190,20 +201,24 @@ App
 ### Shared Components
 
 #### ConnectionManager.jsx
+
 - Shows connection status and controls
 - Displays battery level when connected
 - Updated button text and styling
 
 #### CodeManager.jsx
+
 - Manages code creation, listing, and deletion
 - Updated with accordions for mobile view
 - FAB integration for quick code creation
 
 #### LogViewer.jsx
+
 - Displays device logs
 - In side panel on desktop, tab on mobile
 
 #### Configuration.jsx
+
 - Settings and configuration options
 - Modal dialog accessible from both views
 
@@ -282,6 +297,7 @@ App
 ## Expected Outcomes
 
 ### Mobile View
+
 - Bottom navigation with Codes, Logs, and Configuration tabs
 - Single main content area that switches based on active tab
 - Accordion organization for codes
@@ -289,6 +305,7 @@ App
 - Battery icon in header
 
 ### Desktop View
+
 - Main content area showing code management
 - Right sidebar showing logs
 - Settings button in header that opens configuration in a modal
@@ -296,6 +313,7 @@ App
 - Battery icon in header
 
 ### Both Views
+
 - Consistent header with app title, connection controls, and language selector
 - Proper responsive behavior at 768px breakpoint
 - Accessible and usable interface

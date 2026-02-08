@@ -1,6 +1,10 @@
-import {describe, expect, it} from 'vitest';
-import {AskDoorStatusPacket, CountCodesPacket, TestBatteryPacket,} from '../../ble/packets/StatusPackets';
-import {BLEOpcode} from '../../utils/bleConstants';
+import { describe, expect, it } from 'vitest';
+import {
+  AskDoorStatusPacket,
+  CountCodesPacket,
+  TestBatteryPacket
+} from '../../ble/packets/StatusPackets';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 describe('Status Packets', () => {
   it('should construct AskDoorStatus (0x02) full packet', () => {
@@ -34,9 +38,11 @@ describe('Status Packets', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "02 00 02";
+    const expectedHex = '02 00 02';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -46,9 +52,11 @@ describe('Status Packets', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "08 00 08";
+    const expectedHex = '08 00 08';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -58,9 +66,11 @@ describe('Status Packets', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "14 00 14";
+    const expectedHex = '14 00 14';
     expect(toHex(binary)).toBe(expectedHex);
   });
 });

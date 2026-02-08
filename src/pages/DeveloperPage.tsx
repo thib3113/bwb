@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, Container, Tab, Tabs, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useDeveloperContext } from '../context/DeveloperContext';
+import { useDeveloperContext } from '../context/DeveloperContextTypes';
 import { DBEditor } from '../components/developer/DBEditor';
 import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
 import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
@@ -61,7 +61,7 @@ export const DeveloperPage = () => {
     }
   };
 
-  const handleTabChange = (_event: Event, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 

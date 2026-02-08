@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
-import preact from '@preact/preset-vite';
+import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { execSync } from 'child_process';
 import fs from 'fs';
@@ -23,29 +23,21 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       __COMMIT_HASH__: JSON.stringify(commitHash),
+      __BOKS_SIMULATOR_AUTO_ENABLE__: mode === 'ci'
     },
     server: {
-      strictPort: true,
+      strictPort: true
     },
     resolve: {
-      alias: {
-        react: 'preact/compat',
-        'react-dom/test-utils': 'preact/test-utils',
-        'react-dom': 'preact/compat',
-        'react/jsx-runtime': 'preact/jsx-runtime',
-      },
+      // Aliases removed as we are now using native React
     },
     plugins: [
-      preact({
-        devtoolsInProd: true,
-        devToolsEnabled: true,
-        prefreshEnabled: true,
-      }),
+      react(),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: null, // We will handle registration manually to support Cypress/CI constraints
         devOptions: {
-          enabled: false,
+          enabled: false
         },
         manifest: false, // Use the manifest.json file in the public directory
         includeAssets: ['favicon.ico', 'icon.png', 'icon-192.png'],
@@ -62,13 +54,13 @@ export default defineConfig(({ mode }) => {
             // Exclude paths that don't start with our base (safety measure)
             new RegExp(`^${baseUrl === '/' ? '(?!.*)' : '(?!' + escapeRegExp(baseUrl) + ')'}`),
             // Exclude PR deployments (e.g. /bwb/pr-1/)
-            new RegExp(`^${escapeRegExp(baseUrl)}pr-`),
+            new RegExp(`^${escapeRegExp(baseUrl)}pr-`)
           ],
           // Ensure assets in the manifest are prefixed with base URL
           modifyURLPrefix: {
-            '': baseUrl === '/' ? '' : baseUrl,
-          },
-        },
+            '': baseUrl === '/' ? '' : baseUrl
+          }
+        }
       }),
       {
         name: 'copy-index-to-404',
@@ -80,10 +72,10 @@ export default defineConfig(({ mode }) => {
             fs.copyFileSync(indexHtml, fallbackHtml);
             console.log('Copied index.html to 404.html for GitHub Pages SPA routing');
           }
-        },
-      },
+        }
+      }
     ],
-    base: baseUrl,
+    base: baseUrl
   };
 });
 

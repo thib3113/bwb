@@ -4,5 +4,5 @@ export enum NfcScanStatus {
   FOUND = 'found',
   TIMEOUT = 'timeout',
   ERROR_EXISTS = 'error_exists',
-  ERROR = 'error',
+  ERROR = 'error'
 }

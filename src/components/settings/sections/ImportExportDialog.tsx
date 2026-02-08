@@ -8,7 +8,7 @@ import {
   DialogTitle,
   IconButton,
   TextField,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
 import { ContentCopy } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -31,11 +31,9 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
   onClose,
   onContentChange,
   onImport,
-  onCopySuccess,
+  onCopySuccess
 }) => {
   const { t } = useTranslation(['settings', 'common']);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
 
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -77,19 +75,19 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
             }
             slotProps={{
               input: {
-                readOnly: mode === IMPORT_EXPORT_MODES.EXPORT,
-              },
+                readOnly: mode === IMPORT_EXPORT_MODES.EXPORT
+              }
             }}
           />
           {mode === IMPORT_EXPORT_MODES.EXPORT && (
-            <Tooltip title={copySuccess ? tAny('copied') : t('settings:copy_to_clipboard')} arrow>
+            <Tooltip title={copySuccess ? t('copied') : t('settings:copy_to_clipboard')} arrow>
               <IconButton
                 onClick={handleCopy}
                 sx={{
                   position: 'absolute',
                   right: 8,
                   top: 8,
-                  zIndex: 1,
+                  zIndex: 1
                 }}
               >
                 <ContentCopy />

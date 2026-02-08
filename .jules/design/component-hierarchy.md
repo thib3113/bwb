@@ -10,33 +10,33 @@ This document describes the component hierarchy for the new responsive layout of
 graph TD
     A[App] --> B[MainLayout]
     A --> C[Notifications]
-    
+
     B --> D[Header]
     B --> E{isMobile?}
     B --> F[FloatingActionButton]
-    
+
     E -->|Yes| G[MobileView]
     E -->|No| H[DesktopView]
-    
+
     D --> I[Typography - App Title]
     D --> J[ConnectionManager]
     D --> K[LanguageSelector]
-    
+
     G --> L[MainContent]
     G --> M[BottomNavigation]
-    
+
     H --> N[MainContent]
     H --> O[SidePanel]
     H --> P[ConfigurationButton]
-    
+
     L --> Q[Routed Components]
     M --> R[BottomNavigationAction - Codes]
     M --> S[BottomNavigationAction - Logs]
     M --> T[BottomNavigationAction - Configuration]
-    
+
     N --> U[CodeManager]
     O --> V[LogViewer]
-    
+
     Q --> W[CodeManager]
     Q --> X[LogViewer]
     Q --> Y[Configuration]

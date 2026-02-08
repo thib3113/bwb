@@ -42,7 +42,7 @@ export const DoorControls = () => {
           placeholder="Enter 6-digit code"
           fullWidth
           slotProps={{
-            htmlInput: { maxLength: 6 },
+            htmlInput: { maxLength: 6 }
           }}
         />
       </Box>

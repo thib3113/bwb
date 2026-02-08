@@ -9,7 +9,7 @@ interface SettingsProviderProps {
 
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>({
-    autoImport: true,
+    autoImport: true
   });
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -20,7 +20,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
         const autoImportValue = await StorageService.getSetting('autoImport');
 
         setSettings({
-          autoImport: (autoImportValue as boolean) ?? true,
+          autoImport: (autoImportValue as boolean) ?? true
         });
         setIsLoaded(true);
       } catch (e) {
@@ -36,7 +36,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
     // Optimistic update
     setSettings((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value
     }));
 
     // Persist to DB
@@ -50,7 +50,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const value = useMemo(
     () => ({
       settings,
-      updateSetting,
+      updateSetting
     }),
     [settings, updateSetting]
   );

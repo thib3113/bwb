@@ -9,7 +9,7 @@
 
 ## Project Overview
 
-This is a modern Preact + Vite Web BLE application designed to replace the older vanilla JavaScript demo. It provides a comprehensive interface for interacting with Boks smart parcel boxes via Bluetooth Low Energy (BLE).
+This is a modern React 19 + Vite Web BLE application designed to replace the older vanilla JavaScript demo. It provides a comprehensive interface for interacting with Boks smart parcel boxes via Bluetooth Low Energy (BLE).
 
 The application features responsive layouts for both mobile and desktop views with improved UI/UX, using a modular component structure with Material-UI components.
 
@@ -17,23 +17,24 @@ The application features responsive layouts for both mobile and desktop views wi
 **Deployment:** GitHub Pages (Static)
 
 ## 📚 Technical Knowledge Base (`.jules/`)
+
 **CRITICAL:** This project relies on specific, reverse-engineered knowledge of the Boks proprietary firmware.
 All technical documentation is strictly compartmentalized in the **`.jules/`** directory.
 
 You **MUST** consult these files for any implementation details regarding the protocol:
 
-*   **[`01_protocol_specs.md`](.jules/01_protocol_specs.md)**
-    *   *The "Dictionary":* Contains all UUIDs, Command Opcodes, Notification Opcodes, and Byte structures.
-*   **[`02_ble_workflows.md`](.jules/02_ble_workflows.md)**
-    *   *The "Script":* Detailed sequence diagrams for features (Opening the door, Syncing Logs, Registering NFC tags).
-*   **[`03_quirks_workarounds.md`](.jules/03_quirks_workarounds.md)**
-    *   *The "Reality Check":* Essential workarounds for hardware bugs (Flash write latency, Battery parsing, Connection limits).
-*   **[`04_testing_guide.md`](.jules/04_testing_guide.md)**
-    *   *The "Test Suite":* Guide on using the Playwright Simulator fixture for E2E testing.
+- **[`01_protocol_specs.md`](.jules/01_protocol_specs.md)**
+  - _The "Dictionary":_ Contains all UUIDs, Command Opcodes, Notification Opcodes, and Byte structures.
+- **[`02_ble_workflows.md`](.jules/02_ble_workflows.md)**
+  - _The "Script":_ Detailed sequence diagrams for features (Opening the door, Syncing Logs, Registering NFC tags).
+- **[`03_quirks_workarounds.md`](.jules/03_quirks_workarounds.md)**
+  - _The "Reality Check":_ Essential workarounds for hardware bugs (Flash write latency, Battery parsing, Connection limits).
+- **[`04_testing_guide.md`](.jules/04_testing_guide.md)**
+  - _The "Test Suite":_ Guide on using the Playwright Simulator fixture for E2E testing.
 
 ## Tech Stack
 
-- **Preact**: Lightweight alternative to React for building user interfaces
+- **React 19**: Modern UI library with native hooks and high performance
 - **Vite**: Fast build tool and development server
 - **vite-plugin-pwa**: Adds Progressive Web App support
 - **Material-UI (MUI)**: UI component library for consistent design
@@ -44,6 +45,7 @@ You **MUST** consult these files for any implementation details regarding the pr
 ## Key Features
 
 ### BLE Connection & Commands
+
 - Connect to Boks devices via Web Bluetooth API
 - Send commands to the device (open door, request logs, etc.)
 - Receive notifications from the device
@@ -51,12 +53,14 @@ You **MUST** consult these files for any implementation details regarding the pr
 - Battery level monitoring (Auto-detect proprietary vs standard)
 
 ### Data Management
+
 - Local storage using IndexedDB (via Dexie.js) scoped by device ID
 - Data persistence between sessions
 - Migration from localStorage to IndexedDB
 - Pending actions synchronization (add/delete codes when device is offline)
 
 ### Code Management
+
 - Create new codes (Master, Single-Use, Multi-Use)
 - List saved codes with descriptions
 - Delete codes
@@ -65,6 +69,7 @@ You **MUST** consult these files for any implementation details regarding the pr
 - Accordion-based organization for mobile view
 
 ### Log Viewer & Activity Logger
+
 - View event logs from the device
 - Parse logs to show code usage events
 - Pending logs counter
@@ -73,12 +78,14 @@ You **MUST** consult these files for any implementation details regarding the pr
 - **Auto-Sync**: Sequential synchronization on connection: Logs are fetched first, then Code Counts.
 
 ### Internationalization (EN/FR)
+
 - Full support for English and French languages
 - Language selector in the UI
 - Automatic language detection based on browser settings
 - Manual language override with persistence in IndexedDB
 
 ### Security & Settings
+
 - **Per-Device Configuration**: Configuration Key and Door PIN Code are now linked to each specific Boks device instead of global settings.
 - **Visibility Toggles**: Sensitive fields (PIN, Config Key) feature "eye" icons to toggle between masked and clear text.
 - **Robust Protocol**: `packetParser` is now resilient to firmware inconsistencies (e.g., opcode 0xC3 using total length instead of payload length in the header).
@@ -117,6 +124,7 @@ Data persistence is handled through IndexedDB via Dexie.js (Database name: `Boks
 ## UI Utilities
 
 The project includes specific utilities to improve UX during BLE operations:
+
 - `runTask`: Wraps an async task with automatic "Loading" and "Success/Error" toast management.
 - `withMinimumDuration`: Ensures a task takes at least X ms to prevent UI flickering on fast BLE responses.
 - `hideNotification`: Programmatically close active toasts.

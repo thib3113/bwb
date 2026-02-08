@@ -10,8 +10,6 @@ interface OnboardingViewProps {
 
 export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
   const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const theme = useTheme();
   const { connect, isConnecting } = useBLEConnection();
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -20,12 +18,12 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
     setConnectionError(null);
     try {
       await connect();
-      showNotification(tAny('ble.connected'), 'success');
+      showNotification(t('ble.connected'), 'success');
     } catch (error: unknown) {
       const errorKey = translateBLEError(error);
-      const finalMessage = errorKey.startsWith('errors.') ? tAny(errorKey) : errorKey;
+      const finalMessage = errorKey.startsWith('errors.') ? t(errorKey as string) : errorKey;
       setConnectionError(finalMessage);
-      showNotification(`${tAny('ble.connection_failed')}: ${finalMessage}`, 'error');
+      showNotification(`${t('ble.connection_failed')}: ${finalMessage}`, 'error');
     }
   };
 
@@ -39,15 +37,15 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         justifyContent: 'center',
         height: '100%',
         p: 3,
-        textAlign: 'center',
+        textAlign: 'center'
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
-        {tAny('app_title')}
+        {t('app_title')}
       </Typography>
 
       <Typography variant="h6" sx={{ mb: 4, color: theme.palette.text.secondary }}>
-        {tAny('not_connected.message')}
+        {t('not_connected.message')}
       </Typography>
 
       <Button
@@ -60,16 +58,16 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
           py: 1.5,
           px: 4,
           fontSize: '1.1rem',
-          mb: 2,
+          mb: 2
         }}
       >
         {isConnecting ? (
           <Box data-testid="onboarding-view" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={24} sx={{ color: 'white' }} />
-            {tAny('connecting')}
+            {t('connecting')}
           </Box>
         ) : (
-          tAny('connection.connect')
+          t('connection.connect')
         )}
       </Button>
 

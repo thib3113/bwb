@@ -8,7 +8,7 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -33,7 +33,7 @@ export const SettingsDevices: React.FC<SettingsDevicesProps> = ({
   onDeviceNameChange,
   onConfigKeyChange,
   onDoorPinCodeChange,
-  onRemoveDevice,
+  onRemoveDevice
 }) => {
   const { t } = useTranslation(['common', 'settings']);
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
@@ -41,7 +41,7 @@ export const SettingsDevices: React.FC<SettingsDevicesProps> = ({
   const toggleFieldVisibility = (fieldId: string) => {
     setVisibleFields((prev) => ({
       ...prev,
-      [fieldId]: !prev[fieldId],
+      [fieldId]: !prev[fieldId]
     }));
   };
 
@@ -87,8 +87,8 @@ export const SettingsDevices: React.FC<SettingsDevicesProps> = ({
                             {visibleFields[`${device.id}_key`] ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
-                      ),
-                    },
+                      )
+                    }
                   }}
                 />
               )}
@@ -112,8 +112,8 @@ export const SettingsDevices: React.FC<SettingsDevicesProps> = ({
                           {visibleFields[`${device.id}_pin`] ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
-                    ),
-                  },
+                    )
+                  }
                 }}
               />
               <Button

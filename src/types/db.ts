@@ -49,7 +49,7 @@ export interface DeviceSecrets {
 export enum BoksNfcTagType {
   LA_POSTE = 0x01,
   VIGIK_TERTIARY = 0x02,
-  USER_BADGE = 0x03,
+  USER_BADGE = 0x03
 }
 
 export interface BoksNfcTag {

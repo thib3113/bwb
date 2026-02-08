@@ -10,35 +10,34 @@ import {
   FormControlLabel,
   Slider,
   Switch,
-  Typography,
+  Typography
 } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import HistoryIcon from '@mui/icons-material/History';
+import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
-import { SimulatorAPI } from '../../ble/simulator/BoksSimulator';
+import { BoksState, LogEntry, SimulatorAPI } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { toggleSimulator } = useBLE();
-  const [simulator, setSimulator] = useState<SimulatorAPI | null>(null);
-  const [state, setState] = useState<any>(null);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [isSimulatorRunning, setIsSimulatorRunning] = useState(false);
+  const [simulator, setSimulator] = useState<SimulatorAPI | null>(
+    () => window.boksSimulatorController || null
+  );
+  const [state, setState] = useState<BoksState | null>(null);
+  const [isEnabled, setIsEnabled] = useState(
+    () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
+  );
+  const [isSimulatorRunning, setIsSimulatorRunning] = useState(
+    () => !!window.boksSimulatorController
+  );
 
   useEffect(() => {
-    // Check if simulator is enabled in localStorage
-    const simEnabled = localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
-    setIsEnabled(simEnabled);
-
-    const controller = (window as any).boksSimulatorController;
+    const controller = window.boksSimulatorController;
     if (controller) {
-      setSimulator(controller);
-      setIsSimulatorRunning(true);
-
       const interval = setInterval(() => {
         setState(controller.getState());
       }, 500);
@@ -53,7 +52,7 @@ export const SimulatorDebugger = () => {
       // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-          const controller = (window as any).boksSimulatorController;
+          const controller = window.boksSimulatorController;
           if (controller) {
             setSimulator(controller);
             setIsSimulatorRunning(true);
@@ -103,7 +102,7 @@ export const SimulatorDebugger = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  mb: 2,
+                  mb: 2
                 }}
               >
                 <Typography
@@ -114,7 +113,7 @@ export const SimulatorDebugger = () => {
                   {t('settings:developer.simulator.status', {
                     status: state.isOpen
                       ? t('settings:developer.simulator.open')
-                      : t('settings:developer.simulator.closed'),
+                      : t('settings:developer.simulator.closed')
                   })}
                 </Typography>
                 <FormControlLabel
@@ -204,7 +203,7 @@ export const SimulatorDebugger = () => {
                   variant="subtitle2"
                   sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  <HistoryIcon />{' '}
+                  <LogIcon />{' '}
                   {t('settings:developer.simulator.logs_count', { count: state.logs.length })}
                 </Typography>
                 <Button
@@ -225,12 +224,12 @@ export const SimulatorDebugger = () => {
                   fontFamily: 'monospace',
                   bgcolor: 'rgba(0,0,0,0.03)',
                   p: 1,
-                  borderRadius: 1,
+                  borderRadius: 1
                 }}
               >
                 {state.logs.length === 0
                   ? t('settings:developer.simulator.no_logs')
-                  : [...state.logs].reverse().map((l: any, i: number) => (
+                  : [...state.logs].reverse().map((l: LogEntry, i: number) => (
                       <div key={i}>
                         [{new Date(l.timestamp).toLocaleTimeString()}] Op: 0x
                         {l.opcode.toString(16).toUpperCase()}

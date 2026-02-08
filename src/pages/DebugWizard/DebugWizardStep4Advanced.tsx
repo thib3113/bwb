@@ -14,7 +14,7 @@ import {
   ListItemText,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import BluetoothIcon from '@mui/icons-material/Bluetooth';
@@ -23,8 +23,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useBLEConnection } from '../../hooks/useBLEConnection';
 import {
-  DEBUG_WIZARD_DISCONNECT_DELAY_MS,
   DEBUG_WIZARD_CONNECT_DELAY_MS,
+  DEBUG_WIZARD_DISCONNECT_DELAY_MS
 } from '../../utils/bleConstants';
 import { DebugWizardState } from '../../context/types';
 
@@ -44,7 +44,7 @@ interface DebugWizardStep4AdvancedProps {
 export const DebugWizardStep4Advanced: React.FC<DebugWizardStep4AdvancedProps> = ({
   customUuids,
   customResults,
-  updateDebugWizardState,
+  updateDebugWizardState
 }) => {
   const { t } = useTranslation(['wizard', 'common', 'codes']);
   const { connect, disconnect, device } = useBLEConnection();
@@ -59,14 +59,14 @@ export const DebugWizardStep4Advanced: React.FC<DebugWizardStep4AdvancedProps> =
     if (customUuids.includes(cleanUuid)) return;
 
     updateDebugWizardState({
-      customUuids: [...customUuids, cleanUuid],
+      customUuids: [...customUuids, cleanUuid]
     });
     setCustomUuidInput('');
   };
 
   const handleRemoveCustomUuid = (uuid: string) => {
     updateDebugWizardState({
-      customUuids: customUuids.filter((u) => u !== uuid),
+      customUuids: customUuids.filter((u) => u !== uuid)
     });
   };
 
@@ -122,7 +122,7 @@ export const DebugWizardStep4Advanced: React.FC<DebugWizardStep4AdvancedProps> =
                 serviceUuid: sUuid,
                 charUuid: char.uuid,
                 value: hex,
-                timestamp: new Date().toISOString(),
+                timestamp: new Date().toISOString()
               });
             } catch (e) {
               console.warn(`Failed to read char ${char.uuid} in service ${sUuid}`, e);
@@ -160,7 +160,7 @@ export const DebugWizardStep4Advanced: React.FC<DebugWizardStep4AdvancedProps> =
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }}
               onClick={() => setShowAdvanced(!showAdvanced)}
             >
@@ -269,7 +269,7 @@ export const DebugWizardStep4Advanced: React.FC<DebugWizardStep4AdvancedProps> =
                         primary={`Char: ${res.charUuid.substring(0, 8)}...`}
                         secondary={`Service: ${res.serviceUuid.substring(0, 8)}... | Val: ${res.value}`}
                         secondaryTypographyProps={{
-                          sx: { fontFamily: 'monospace', fontSize: '0.75rem' },
+                          sx: { fontFamily: 'monospace', fontSize: '0.75rem' }
                         }}
                       />
                     </ListItem>

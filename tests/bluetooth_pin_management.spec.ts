@@ -1,7 +1,7 @@
 import { test, expect, BLEOpcode } from './fixtures';
 
 test.describe('Bluetooth PIN Management', () => {
-  test.beforeEach(async ({ page, simulator }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
@@ -11,11 +11,7 @@ test.describe('Bluetooth PIN Management', () => {
     await simulator.connect();
 
     // 2. Add Code
-    const addBtn = page
-      .locator('button')
-      .filter({ has: page.locator('svg[data-testid="AddIcon"]') });
-    await expect(addBtn).toBeVisible();
-    await addBtn.click();
+    await page.getByTestId('add-code-button').click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
 
@@ -25,13 +21,13 @@ test.describe('Bluetooth PIN Management', () => {
     const nameInput = page.getByLabel(/Description|Name/i).first();
     await nameInput.fill('TestCode');
 
-    const saveBtn = page
-      .locator('.MuiDialogActions-root button')
-      .filter({ hasText: /Generate|Save/i });
+    const saveBtn = page.getByTestId('save-code-button');
+    await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
 
     // 3. Verify CREATE_MASTER_CODE (0x11)
-    await simulator.waitForTxOpcode(BLEOpcode.CREATE_MASTER_CODE);
+    // We increase timeout as there might be a DELETE task first (Opcode 0x0C)
+    await simulator.waitForTxOpcode(BLEOpcode.CREATE_MASTER_CODE, 40000);
 
     const events = await simulator.getTxEvents();
     const createEvent = events.find((e: any) => e.opcode === BLEOpcode.CREATE_MASTER_CODE);

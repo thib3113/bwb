@@ -45,7 +45,7 @@ export interface BoksContextType {
 
 export interface CodeContextType {
   createCode: (codeData: CodeCreationData) => Promise<void>;
-  deleteCode: (codeData: Partial<BoksCode> | string) => Promise<void>;
+  deleteCode: (codeData: string | BoksCode) => Promise<void>;
   onCodeUsed: (callback: (code: string) => void) => void;
 }
 

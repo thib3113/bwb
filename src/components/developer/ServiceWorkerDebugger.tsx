@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Box, Button, Card, CardContent, Typography, Alert, Divider } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Alert, Box, Button, Card, CardContent, Divider, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -18,6 +18,7 @@ export const ServiceWorkerDebugger = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchRegistrations();
   }, []);
 
@@ -85,7 +86,7 @@ export const ServiceWorkerDebugger = () => {
                       ? t('settings:developer.sw_waiting')
                       : reg.active
                         ? t('settings:developer.sw_active')
-                        : t('settings:developer.sw_unknown'),
+                        : t('settings:developer.sw_unknown')
                 })}
               </Typography>
 

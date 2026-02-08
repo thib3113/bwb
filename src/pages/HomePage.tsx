@@ -5,9 +5,9 @@ import { useDevice } from '../hooks/useDevice';
 import { OnboardingView } from '../components/layout/OnboardingView';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import {
-  History as HistoryIcon,
+  ListAlt as LogIcon,
   Settings as SettingsIcon,
-  VpnKey as VpnKeyIcon,
+  VpnKey as VpnKeyIcon
 } from '@mui/icons-material';
 
 interface OutletContextType {
@@ -74,7 +74,7 @@ export const HomePage = () => {
           left: 0,
           right: 0,
           zIndex: 1000,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.background.paper
         }}
       >
         <BottomNavigationAction
@@ -82,11 +82,7 @@ export const HomePage = () => {
           label={t('codes:title')}
           icon={<VpnKeyIcon />}
         />
-        <BottomNavigationAction
-          data-testid="nav-logs"
-          label={t('logs:title')}
-          icon={<HistoryIcon />}
-        />
+        <BottomNavigationAction data-testid="nav-logs" label={t('logs:title')} icon={<LogIcon />} />
         <BottomNavigationAction
           data-testid="nav-settings"
           label={t('settings:title')}

@@ -1,19 +1,19 @@
 import { EventEmitter } from '../utils/EventEmitter';
 import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
-import { PacketFactory } from '../ble/packets/PacketFactory';
 import {
   BATTERY_SERVICE_UUID,
   BLEOpcode,
   DEVICE_INFO_SERVICE_UUID,
   NOTIFY_CHAR_UUID,
   SERVICE_UUID,
-  WRITE_CHAR_UUID,
+  WRITE_CHAR_UUID
 } from '../utils/bleConstants';
 import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
-import { ParsedPayload } from '../utils/payloadParser';
+import { ParsedPayload, parsePayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
+import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
 import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
 import { getCharacteristicName, parseCharacteristicValue } from '../utils/bleUtils';
 
@@ -38,7 +38,7 @@ export enum BLEServiceEvent {
   PACKET_SENT = 'packet_sent',
   ERROR = 'error',
   CONNECTED = 'connected',
-  DISCONNECTED = 'disconnected',
+  DISCONNECTED = 'disconnected'
 }
 
 export type BLEServiceState =
@@ -47,6 +47,11 @@ export type BLEServiceState =
   | 'connecting'
   | 'connected'
   | 'disconnecting';
+
+// Type safe access to global test flags
+interface BoksWindow extends Window {
+  BOKS_SIMULATOR_ENABLED?: boolean;
+}
 
 export class BoksBLEService extends EventEmitter {
   private static instance: BoksBLEService;
@@ -60,8 +65,28 @@ export class BoksBLEService extends EventEmitter {
 
   private constructor() {
     super();
-    // Default to WebBluetooth, can be swapped via setAdapter
-    this.adapter = new WebBluetoothAdapter();
+
+    // Check for simulator flag early to avoid real Bluetooth prompts in tests
+    let useSimulator = false;
+
+    // 1. Check build-time constant (CI mode)
+    if (typeof __BOKS_SIMULATOR_AUTO_ENABLE__ !== 'undefined' && __BOKS_SIMULATOR_AUTO_ENABLE__) {
+      useSimulator = true;
+    }
+    // 2. Fallback to runtime flags
+    else if (typeof window !== 'undefined') {
+      const win = window as unknown as BoksWindow;
+      useSimulator =
+        win.BOKS_SIMULATOR_ENABLED === true ||
+        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
+    }
+
+    if (useSimulator) {
+      console.warn('⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️');
+      this.adapter = new SimulatedBluetoothAdapter();
+    } else {
+      this.adapter = new WebBluetoothAdapter();
+    }
 
     this.queue = new BLEQueue(async (request) => {
       this.lastSentOpcode = request.opcode;
@@ -181,18 +206,8 @@ export class BoksBLEService extends EventEmitter {
 
     if (parsed) {
       parsed.direction = 'RX';
-      // Use Factory to create rich object
-      const richPacket = PacketFactory.create(parsed.opcode, parsed.payload);
-      if (richPacket) {
-        // We cast because BoksRXPacket doesn't implement ParsedPayload interface formally yet,
-        // but we can wrap it or ensure it does.
-        // Or we just attach it as unknown/any to parsedPayload for logs.
-        // Actually, parsedPayload expects ParsedPayload interface.
-        // Let's assume PacketFactory returns something compatible or we wrap it.
-        // Ideally BoksRXPacket should implement ParsedPayload or we have a wrapper.
-        // For now, we will cast to any to satisfy TS, assuming the logger handles it.
-        parsed.parsedPayload = richPacket as unknown as ParsedPayload;
-      }
+      // Use our new payload parser for rich objects
+      parsed.parsedPayload = parsePayload(parsed.opcode, parsed.payload, parsed.raw);
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);
@@ -211,7 +226,7 @@ export class BoksBLEService extends EventEmitter {
           payload: new Uint8Array(0),
           raw: rawBytes,
           direction: 'RX',
-          isValidChecksum: false,
+          isValidChecksum: false
         } as BLEPacket,
         lastOp
       );
@@ -264,7 +279,7 @@ export class BoksBLEService extends EventEmitter {
       direction: 'TX',
       isValidChecksum: true,
       uuid: charUuid,
-      parsedPayload: logPacket, // Attach the packet object as payload info
+      parsedPayload: logPacket // Attach the packet object as payload info
     } as BLEPacket);
 
     try {
@@ -289,7 +304,7 @@ export class BoksBLEService extends EventEmitter {
             rawBytes,
             new Uint8Array(0),
             parsedValue // Display the parsed value directly
-          ),
+          )
         } as BLEPacket,
         BLEOpcode.INTERNAL_GATT_OPERATION
       );

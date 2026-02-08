@@ -1,9 +1,9 @@
 import {
-  DEVICE_INFO_CHARS,
   BATTERY_LEVEL_CHAR_UUID,
   BATTERY_PROPRIETARY_CHAR_UUID,
+  DEVICE_INFO_CHARS,
   NOTIFY_CHAR_UUID,
-  WRITE_CHAR_UUID,
+  WRITE_CHAR_UUID
 } from './bleConstants';
 
 export interface HardwareInference {
@@ -88,7 +88,7 @@ export function parseCharacteristicValue(uuid: string, data: DataView): string {
       const text = decoder.decode(data);
       // Remove null terminators or weird chars
       return text.replace(/\0/g, '').trim();
-    } catch (e) {
+    } catch {
       return 'Error decoding string';
     }
   }

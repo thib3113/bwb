@@ -7,7 +7,7 @@ import {
   BLEOpcode,
   DEVICE_INFO_CHARS,
   DEVICE_INFO_SERVICE_UUID,
-  SIMULATOR_BLE_ID,
+  SIMULATOR_BLE_ID
 } from '../../utils/bleConstants';
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
@@ -51,14 +51,14 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
         (masterCount >> 8) & 0XFF,
         masterCount & 0XFF,
         (singleCount >> 8) & 0XFF,
-        singleCount & 0XFF,
+        singleCount & 0XFF
       ]);
     }, 500);
 
     return {
       id: SIMULATOR_BLE_ID,
       name: SIMULATOR_BLE_ID,
-      gatt: { connected: true },
+      gatt: { connected: true }
     } as unknown as BluetoothDevice;
   }
 
@@ -73,7 +73,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     return {
       id: SIMULATOR_BLE_ID,
       name: SIMULATOR_BLE_ID,
-      gatt: { connected: true },
+      gatt: { connected: true }
     } as unknown as BluetoothDevice;
   }
 
@@ -81,7 +81,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     if (!this.isConnected) {
       console.error('[SimulatedAdapter] Write failed: Not connected', {
         opcode: data[0],
-        length: data[1],
+        length: data[1]
       });
       throw new Error('Simulator not connected');
     }
@@ -93,14 +93,22 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
     // Emit event for tests to verify what the App is sending (TX)
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('boks-tx', {
-          detail: {
-            opcode,
-            payload: Array.from(payload),
-          },
-        })
-      );
+      const detail = {
+        opcode,
+        payload: Array.from(payload)
+      };
+
+      // 1. Dispatch standard event
+      globalThis.window.dispatchEvent(new CustomEvent('boks-tx', { detail }));
+
+      // 2. Also push to a global buffer for cases where the listener isn't ready yet
+      globalThis.window._boks_tx_buffer = globalThis.window._boks_tx_buffer || [];
+      globalThis.window._boks_tx_buffer.push(detail);
+
+      // Keep it synchronized with txEvents if fixtures already set it up
+      if (globalThis.window.txEvents) {
+        globalThis.window.txEvents.push(detail);
+      }
     }
 
     // Pass to simulator

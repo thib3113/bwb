@@ -10,7 +10,7 @@ import {
   SessionContextType,
   SettingsContextType,
   TaskContextType,
-  ThemeContextType,
+  ThemeContextType
 } from './types';
 
 export const BLEContext = createContext<BLEContextType | undefined>(undefined);

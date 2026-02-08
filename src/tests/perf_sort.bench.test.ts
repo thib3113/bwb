@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { BoksCode, CodeStatus } from '../types';
-import { CODE_TYPES } from '../utils/constants';
+import { describe, expect, it } from 'vitest';
+import { BoksCode, CODE_TYPE, CodeStatus } from '../types';
 import { CODE_STATUS } from '../constants/codeStatus';
 
 // --- Original Logic (Copied for Baseline) ---
@@ -15,18 +14,14 @@ const sortCodesByPriorityOriginal = (codes: BoksCode[]) => {
       // Priority 2: Active codes (ON_DEVICE and not used)
       if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
         // For single-use codes, check if they've been used
-        if (code.type === CODE_TYPES.SINGLE) {
+        if (code.type === CODE_TYPE.SINGLE) {
           // Note: We can't use deriveCodeMetadata here due to circular dependency
           // For now, we'll just check if it's a single-use code
         }
         // For multi-use codes, check if they've been fully used
-        if (code.type === CODE_TYPES.MULTI) {
+        if (code.type === CODE_TYPE.MULTI) {
           // If uses >= maxUses, they're considered used (priority 3)
-          if (
-            code.uses !== undefined &&
-            code.maxUses !== undefined &&
-            code.uses >= code.maxUses
-          ) {
+          if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
             return 3;
           }
         }
@@ -67,12 +62,8 @@ const sortCodesByPriorityOptimized = (codes: BoksCode[]) => {
       return 1;
     }
     if (code.status === CODE_STATUS.ON_DEVICE || code.status === 'synced') {
-      if (code.type === CODE_TYPES.MULTI) {
-        if (
-          code.uses !== undefined &&
-          code.maxUses !== undefined &&
-          code.uses >= code.maxUses
-        ) {
+      if (code.type === CODE_TYPE.MULTI) {
+        if (code.uses !== undefined && code.maxUses !== undefined && code.uses >= code.maxUses) {
           return 3;
         }
       }
@@ -98,7 +89,7 @@ const sortCodesByPriorityOptimized = (codes: BoksCode[]) => {
         // So A (NaN) is "larger" index-wise? i.e. comes later in the array.
         // So NaN is "smaller" value-wise.
         // -Infinity works for that if we sort by `dateB - dateA`.
-        isNaNDate: isNaN(date),
+        isNaNDate: isNaN(date)
       };
     })
     .sort((a, b) => {
@@ -131,7 +122,8 @@ describe('Sort Codes Performance', () => {
     // Generate random codes
     for (let i = 0; i < CODE_COUNT; i++) {
       const status = statuses[i % statuses.length];
-      const type = i % 3 === 0 ? CODE_TYPES.MULTI : (i % 2 === 0 ? CODE_TYPES.SINGLE : CODE_TYPES.MASTER);
+      const type =
+        i % 3 === 0 ? CODE_TYPE.MULTI : i % 2 === 0 ? CODE_TYPE.SINGLE : CODE_TYPE.MASTER;
 
       codes.push({
         id: `code-${i}`,
@@ -152,7 +144,6 @@ describe('Sort Codes Performance', () => {
     codes.push({ ...codes[0], id: 'bad-date-1', created_at: 'invalid-date' });
     codes.push({ ...codes[1], id: 'bad-date-2', created_at: 'another-bad-one' });
 
-
     const startOriginal = performance.now();
     const sortedOriginal = sortCodesByPriorityOriginal(codes);
     const endOriginal = performance.now();
@@ -161,15 +152,19 @@ describe('Sort Codes Performance', () => {
     const sortedOptimized = sortCodesByPriorityOptimized(codes);
     const endOptimized = performance.now();
 
-    console.log(`Original Sort Time (${CODE_COUNT} codes): ${(endOriginal - startOriginal).toFixed(2)}ms`);
-    console.log(`Optimized Sort Time (${CODE_COUNT} codes): ${(endOptimized - startOptimized).toFixed(2)}ms`);
+    console.log(
+      `Original Sort Time (${CODE_COUNT} codes): ${(endOriginal - startOriginal).toFixed(2)}ms`
+    );
+    console.log(
+      `Optimized Sort Time (${CODE_COUNT} codes): ${(endOptimized - startOptimized).toFixed(2)}ms`
+    );
 
     // Verification: Arrays should be identical
     expect(sortedOptimized.length).toBe(sortedOriginal.length);
 
     // Check order
-    for(let i=0; i<sortedOriginal.length; i++) {
-        expect(sortedOptimized[i].id).toBe(sortedOriginal[i].id);
+    for (let i = 0; i < sortedOriginal.length; i++) {
+      expect(sortedOptimized[i].id).toBe(sortedOriginal[i].id);
     }
   });
 });

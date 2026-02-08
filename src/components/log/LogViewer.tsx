@@ -11,7 +11,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { db } from '../../db/db';
@@ -33,8 +33,6 @@ interface LogViewerProps {
 
 export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps) => {
   const { t, i18n } = useTranslation(['logs', 'common']);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tAny = t as any;
   const { activeDevice } = useDevice();
   const { isConnected } = useBLEConnection();
   const { isSyncingLogs, requestLogs } = useBLELogs();
@@ -74,6 +72,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
 
   // Parse logs using the new log parser utility
   // Optimized: Using useMemo instead of useEffect + useState to avoid double render.
+
   const parsedLogs = useMemo(() => {
     if (logs.length === 0) return [];
 
@@ -95,7 +94,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           // 2. Map Tag Type to localized string
           if (details.tag_type !== undefined) {
             // 1, 2, 3 -> localized string
-            details.tag_type = tAny(`nfc_tag_types.${details.tag_type}`);
+            details.tag_type = t(`nfc_tag_types.${details.tag_type}`);
           }
         }
 
@@ -103,7 +102,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           ...parsedLog,
           details,
           fullDate,
-          event: tAny(parsedLog.description),
+          event: t(parsedLog.description)
         };
       });
 
@@ -111,17 +110,18 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       return parsed;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(tAny('parse_error'), errorMessage);
+      console.error(t('parse_error'), errorMessage);
       // Side effect (notification) removed from render phase.
       return [];
     }
   }, [logs, i18n.language, t, nfcTags]);
 
   // Refresh logs function
+
   const refreshLogs = useCallback(async () => {
     if (!isConnected) {
       if (showNotification) {
-        showNotification(tAny('not_connected'), 'error');
+        showNotification(t('not_connected'), 'error');
       }
       return;
     }
@@ -129,9 +129,9 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
     await runTask(requestLogs, {
       showNotification,
       hideNotification,
-      loadingMsg: tAny('refresh_started'),
-      successMsg: tAny('refresh_success'),
-      errorMsg: tAny('refresh_failed'),
+      loadingMsg: t('refresh_started'),
+      successMsg: t('refresh_success'),
+      errorMsg: t('refresh_failed')
     });
   }, [isConnected, requestLogs, showNotification, hideNotification, t]);
 
@@ -139,7 +139,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
     <Box sx={{ p: 2, mb: 2, width: '100%' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h5" component="h2">
-          {tAny('title')} {logCount !== null && logCount > 0 && `(${logCount})`}
+          {t('title')} {logCount !== null && logCount > 0 && `(${logCount})`}
         </Typography>
         <Button
           variant="outlined"
@@ -147,13 +147,13 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           onClick={refreshLogs}
           disabled={!isConnected || isSyncingLogs}
         >
-          {tAny('refresh')}
+          {t('refresh')}
         </Button>
       </Box>
 
       {!isConnected && !activeDevice && logs.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          {tAny('connect_to_view')}
+          {t('connect_to_view')}
         </Alert>
       )}
 
@@ -165,15 +165,15 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           borderRadius: 1,
           p: 2,
           backgroundColor: 'background.paper',
-          fontFamily: 'Courier New, monospace',
+          fontFamily: 'Courier New, monospace'
         }}
       >
         {parsedLogs.length > 0 ? (
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>{tAny('timestamp')}</TableCell>
-                <TableCell>{tAny('event_label')}</TableCell>
+                <TableCell>{t('timestamp')}</TableCell>
+                <TableCell>{t('event_label')}</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -191,7 +191,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
                 day: '2-digit',
                 month: '2-digit',
                 hour: '2-digit',
-                minute: '2-digit',
+                minute: '2-digit'
               });
               const fullDate = date.toLocaleString(i18n.language);
 
@@ -208,8 +208,8 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
         ) : (
           <Typography align="center" sx={{ fontStyle: 'italic', py: 2 }} component="p">
             {isConnected || activeDevice
-              ? tAny('no_logs_when_connected')
-              : tAny('no_logs_when_disconnected')}
+              ? t('no_logs_when_connected')
+              : t('no_logs_when_disconnected')}
           </Typography>
         )}
       </Box>

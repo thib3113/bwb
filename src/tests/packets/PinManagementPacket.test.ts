@@ -1,13 +1,13 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   CreateMasterCodePacket,
-  CreateSingleUseCodePacket,
   CreateMultiUseCodePacket,
+  CreateSingleUseCodePacket,
   DeleteMasterCodePacket,
-  DeleteSingleUseCodePacket,
   DeleteMultiUseCodePacket,
+  DeleteSingleUseCodePacket
 } from '../../ble/packets/PinManagementPackets';
-import {BLEOpcode} from '../../utils/bleConstants';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 describe('Pin Management Packets (Full Suite)', () => {
   const configKey = 'ABCDEFGH';
@@ -73,9 +73,11 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "11 0F 41 41 42 42 43 43 44 44 31 32 33 34 00 00 01 FF";
+    const expectedHex = '11 0F 41 41 42 42 43 43 44 44 31 32 33 34 00 00 01 FF';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -87,10 +89,12 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
     // Sum: 18 + 14 + 532 (Key) + 202 (Code) = 766 -> 0xFE
-    const expectedHex = "12 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FE";
+    const expectedHex = '12 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FE';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -102,10 +106,12 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
     // Sum: 19 + 14 + 532 + 202 = 767 -> 0xFF
-    const expectedHex = "13 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FF";
+    const expectedHex = '13 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FF';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -117,10 +123,12 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
     // Sum: 12 + 9 + 532 + 1 = 554 -> 554 % 256 = 42 -> 0x2A
-    const expectedHex = "0C 09 41 41 42 42 43 43 44 44 01 2A";
+    const expectedHex = '0C 09 41 41 42 42 43 43 44 44 01 2A';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -132,10 +140,12 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
     // Sum: 13 + 14 + 532 + 202 = 761 -> 761 % 256 = 249 -> 0xF9
-    const expectedHex = "0D 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 F9";
+    const expectedHex = '0D 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 F9';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -147,10 +157,12 @@ describe('Pin Management Packets (Full Suite)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
     // Sum: 14 + 14 + 532 + 202 = 762 -> 762 % 256 = 250 -> 0xFA
-    const expectedHex = "0E 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FA";
+    const expectedHex = '0E 0E 41 41 42 42 43 43 44 44 31 32 33 34 00 00 FA';
     expect(toHex(binary)).toBe(expectedHex);
   });
 });

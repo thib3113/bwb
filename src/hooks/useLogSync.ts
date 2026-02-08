@@ -40,7 +40,7 @@ export const useLogSync = () => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT) {
         // Check if there are logs to retrieve
         if (packet.payload.length >= 2) {
-          const count = (packet.payload[0] << 8) | packet.payload[1];
+          const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
           if (count > 0) {
             setSyncing(true);
             logsBufferRef.current = []; // Clear buffer
@@ -59,14 +59,14 @@ export const useLogSync = () => {
           timestamp: new Date().toISOString(),
           opcode: packet.opcode,
           payload: packet.payload, // Uint8Array
-          device_id: activeDevice.id,
+          device_id: activeDevice.id
         };
         const fullBoksLog: BoksLog = {
           ...(rawEntry as unknown as BoksLog),
           event: 'BLE_PACKET', // Placeholder event
           type: 'info', // Placeholder type
           synced: false,
-          updated_at: Date.now(),
+          updated_at: Date.now()
         };
 
         const parsed = parseLog(fullBoksLog);

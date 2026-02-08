@@ -1,7 +1,7 @@
-import {describe, expect, it} from 'vitest';
-import {OpenDoorPacket} from '../../ble/packets/OpenDoorPacket';
-import {SetConfigurationPacket} from '../../ble/packets/SetConfigurationPacket';
-import {CreateMasterCodePacket} from '../../ble/packets/PinManagementPackets';
+import { describe, expect, it } from 'vitest';
+import { OpenDoorPacket } from '../../ble/packets/OpenDoorPacket';
+import { SetConfigurationPacket } from '../../ble/packets/SetConfigurationPacket';
+import { CreateMasterCodePacket } from '../../ble/packets/PinManagementPackets';
 
 describe('TX Packet Validation', () => {
   it('should throw if OpenDoorPacket has no pinCode', () => {

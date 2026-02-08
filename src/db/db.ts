@@ -23,7 +23,7 @@ export class BoksDatabase extends Dexie {
       codes: '&id, device_id, author_id, status, updated_at',
       logs: '&id, device_id, timestamp, updated_at',
       settings: '&key, updated_at',
-      nfc_tags: '&id, device_id, updated_at',
+      nfc_tags: '&id, device_id, updated_at'
     });
 
     console.log(
@@ -107,11 +107,12 @@ export class BoksDatabase extends Dexie {
           await this.users.add({
             id: 'local-user',
             is_offline: true,
-            updated_at: Date.now(),
+            updated_at: Date.now()
           });
           console.log('Default local user created');
         }
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as Error;
         console.error('Database integrity check failed:', error);
         if (error.name === 'NotFoundError' || error.message?.includes('object store')) {
           console.warn('Detected schema mismatch. Resetting database...');

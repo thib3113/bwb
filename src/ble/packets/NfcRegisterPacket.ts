@@ -18,7 +18,7 @@ export class NfcRegisterPacket extends BoksTXPacket {
           bytes[i] = parseInt(val.substring(i * 2, i * 2 + 2), 16);
         }
         return bytes;
-      }),
+      })
   });
 
   constructor(

@@ -15,7 +15,7 @@ export const DEVICE_INFO_CHARS = {
   'Firmware Revision': '00002a26-0000-1000-8000-00805f9b34fb',
   'Hardware Revision': '00002a27-0000-1000-8000-00805f9b34fb',
   'Software Revision': '00002a28-0000-1000-8000-00805f9b34fb',
-  'Manufacturer Name': '00002a29-0000-1000-8000-00805f9b34fb',
+  'Manufacturer Name': '00002a29-0000-1000-8000-00805f9b34fb'
 } as const;
 
 // Simulator Constants
@@ -71,7 +71,7 @@ export enum BLEOpcode {
   NOTIFY_DOOR_STATUS = 0x84,
   ANSWER_DOOR_STATUS = 0x85,
 
-  // HISTORY / LOGS
+  // LOGS
   LOG_CODE_BLE_VALID_HISTORY = 0x86,
   LOG_CODE_KEY_VALID_HISTORY = 0x87,
   LOG_CODE_BLE_INVALID_HISTORY = 0x88,
@@ -121,7 +121,7 @@ export enum BLEOpcode {
   ERROR_BAD_REQUEST = 0XE2,
 
   // INTERNAL / VIRTUAL OPCODES
-  INTERNAL_GATT_OPERATION = 0xFE,
+  INTERNAL_GATT_OPERATION = 0XFE
 }
 
 // Generate OPCODE_NAMES with a manual override for GATT_OPERATION
@@ -148,7 +148,7 @@ export const POWER_OFF_REASONS: Record<number, string> = {
   5: 'power_on',
   6: 'wakeup_nfc',
   7: 'wakeup_system_off',
-  8: 'wakeup_lpcomp',
+  8: 'wakeup_lpcomp'
 };
 
 // Diagnostic error codes mapping
@@ -157,7 +157,7 @@ export const DIAGNOSTIC_ERROR_CODES: Record<number, string> = {
   0x13: 'mfrc630_error_integrity',
   0x15: 'mfrc630_error_no_tag',
   0X0B: 'mfrc630_error_collision',
-  0x03: 'mfrc630_error_buffer',
+  0x03: 'mfrc630_error_buffer'
 };
 
 // Constant for stable empty array references

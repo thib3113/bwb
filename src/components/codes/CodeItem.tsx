@@ -5,7 +5,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -27,14 +27,7 @@ interface CodeItemProps {
   onDelete: (id: string) => void;
 }
 
-export const CodeItem = ({
-  code,
-  metadata,
-  hasIndexConflict,
-  onCopy,
-  onEdit,
-  onDelete,
-}: CodeItemProps) => {
+export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemProps) => {
   const { t } = useTranslation('codes');
 
   const isPendingDelete = code.status === CODE_STATUS.PENDING_DELETE;
@@ -58,7 +51,7 @@ export const CodeItem = ({
               : code.status === CODE_STATUS.PENDING_DELETE
                 ? 'error.main'
                 : 'default.main',
-        pl: 1,
+        pl: 1
       }}
     >
       <ListItemText
@@ -75,7 +68,7 @@ export const CodeItem = ({
         secondary={null}
         slotProps={{
           primary: { component: 'div' },
-          secondary: { component: 'div' },
+          secondary: { component: 'div' }
         }}
       />
       <ListItemSecondaryAction>

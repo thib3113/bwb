@@ -1,6 +1,13 @@
-import { renderHook, waitFor } from '@testing-library/preact';
-import { useState, useEffect } from 'preact/hooks';
-import { vi, describe, it, expect, beforeEach, afterEach, Mock } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import React, { useEffect, useState } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+// Imports after mocks
+import { useCodeLogic } from '../../hooks/useCodeLogic';
+import { db } from '../../db/db';
+import { APP_DEFAULTS } from '../../utils/constants';
+import { CODE_STATUS } from '../../constants/codeStatus';
+import { BLEContext, DeviceContext, LogContext, TaskContext } from '../../context/Contexts';
+import { BoksDevice, CODE_TYPE, UserRole } from '../../types';
 
 // Mock dependencies BEFORE imports
 vi.mock('react-i18next', () => ({
@@ -8,44 +15,36 @@ vi.mock('react-i18next', () => ({
     t: (key: string) => key,
     i18n: {
       changeLanguage: () => new Promise(() => {}),
-    },
+      language: 'en'
+    }
   }),
   initReactI18next: {
     type: '3rdParty',
-    init: () => {},
+    init: () => {}
   }
 }));
 
 // Mock dexie-react-hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: (querier: () => Promise<any[]> | any[], deps: any[]) => {
-    // Return empty array initially to be safe
-    const [data, setData] = useState<any[]>([]);
+  useLiveQuery: (querier: () => any) => {
+    const [data, setData] = useState<any>(undefined);
 
     useEffect(() => {
-       const fetchData = async () => {
-         try {
-           const res = await querier();
-           setData(res || []);
-         } catch (e) {
-           console.error(e);
-           setData([]);
-         }
-       }
-       fetchData();
-    }, []); // Run once
+      const fetchData = async () => {
+        try {
+          const res = await querier();
+          setData(res);
+        } catch (e) {
+          console.error(e);
+          setData([]);
+        }
+      };
+      fetchData();
+    }, []); // Run once for simple mock
 
     return data;
   }
 }));
-
-// Imports after mocks
-import { useCodeLogic } from '../../hooks/useCodeLogic';
-import { db } from '../../db/db';
-import { CODE_TYPES, APP_DEFAULTS } from '../../utils/constants';
-import { CODE_STATUS } from '../../constants/codeStatus';
-import { DeviceContext, TaskContext, BLEContext, LogContext } from '../../context/Contexts';
-import { BoksDevice, UserRole } from '../../types';
 
 // Mock dependencies
 const mockAddTask = vi.fn();
@@ -57,62 +56,67 @@ const activeDevice: BoksDevice = {
   id: 'test-device-id',
   ble_name: 'Test Device',
   friendly_name: 'Test Device',
-
-
   updated_at: Date.now(),
-
   role: UserRole.Admin,
-  sync_status: 'synced',
+  sync_status: 'synced'
 };
 
-const wrapper = ({ children }: { children: any }) => (
-  <DeviceContext.Provider value={{
-    activeDevice, codeCount: null,
-
-    refreshCodeCount: vi.fn(),
-    knownDevices: [],
-    setActiveDevice: vi.fn(),
-    updateDeviceBatteryLevel: vi.fn(),
-    registerDevice: vi.fn(),
-    removeDevice: vi.fn(),
-    updateDeviceName: vi.fn(),
-    updateDeviceDetails: vi.fn(),
-    toggleLaPoste: vi.fn(),
-    logCount: 0,
-    activeDeviceId: activeDevice.id
-  }}>
-    <LogContext.Provider value={{
-      log: vi.fn(),
-      addDebugLog: vi.fn(),
-      clearDebugLogs: vi.fn(),
-      logs: [],
-      debugLogs: [],
-      parseLog: vi.fn()
-    }}>
-      <BLEContext.Provider value={{
-        isConnected: false,
-        isConnecting: false,
-        connect: vi.fn(),
-        disconnect: vi.fn(),
-        sendRequest: mockSendRequest,
-        device: null,
-        error: null,
-        connectionState: 'disconnected',
-        sendPacket: vi.fn(),
-        getDeviceInfo: vi.fn(),
-        getBatteryInfo: vi.fn(),
-        readCharacteristic: vi.fn(),
-        registerCallback: vi.fn(),
-        unregisterCallback: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        toggleSimulator: vi.fn()
-      }}>
-        <TaskContext.Provider value={{
-          addTask: mockAddTask,
-          tasks: [],
-          retryTask: vi.fn(),
-        }}>
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <DeviceContext.Provider
+    value={{
+      activeDevice,
+      codeCount: null,
+      refreshCodeCount: vi.fn(),
+      knownDevices: [],
+      setActiveDevice: vi.fn(),
+      updateDeviceBatteryLevel: vi.fn(),
+      registerDevice: vi.fn(),
+      removeDevice: vi.fn(),
+      updateDeviceName: vi.fn(),
+      updateDeviceDetails: vi.fn(),
+      toggleLaPoste: vi.fn(),
+      logCount: 0,
+      activeDeviceId: activeDevice.id
+    }}
+  >
+    <LogContext.Provider
+      value={{
+        log: vi.fn(),
+        addDebugLog: vi.fn(),
+        clearDebugLogs: vi.fn(),
+        logs: [],
+        debugLogs: [],
+        parseLog: vi.fn()
+      }}
+    >
+      <BLEContext.Provider
+        value={{
+          isConnected: false,
+          isConnecting: false,
+          connect: vi.fn(),
+          disconnect: vi.fn(),
+          sendRequest: mockSendRequest,
+          device: null,
+          error: null,
+          connectionState: 'disconnected',
+          sendPacket: vi.fn(),
+          getDeviceInfo: vi.fn(),
+          getBatteryInfo: vi.fn(),
+          readCharacteristic: vi.fn(),
+          registerCallback: vi.fn(),
+          unregisterCallback: vi.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          toggleSimulator: vi.fn()
+        }}
+      >
+        <TaskContext.Provider
+          value={{
+            addTask: mockAddTask,
+            tasks: [],
+            retryTask: vi.fn()
+          }}
+        >
           {children}
         </TaskContext.Provider>
       </BLEContext.Provider>
@@ -139,7 +143,7 @@ describe('useCodeLogic', () => {
       {
         id: 'm1',
         device_id: activeDevice.id,
-        type: CODE_TYPES.MASTER,
+        type: CODE_TYPE.MASTER,
         code: '111111',
         name: 'Master Used',
         status: CODE_STATUS.ON_DEVICE,
@@ -151,7 +155,7 @@ describe('useCodeLogic', () => {
       {
         id: 'm2',
         device_id: activeDevice.id,
-        type: CODE_TYPES.MASTER,
+        type: CODE_TYPE.MASTER,
         code: '222222',
         name: 'Master Unused',
         status: CODE_STATUS.ON_DEVICE,
@@ -162,7 +166,7 @@ describe('useCodeLogic', () => {
       {
         id: 's1',
         device_id: activeDevice.id,
-        type: CODE_TYPES.SINGLE,
+        type: CODE_TYPE.SINGLE,
         code: '333333',
         name: 'Single Used',
         status: CODE_STATUS.ON_DEVICE,
@@ -174,7 +178,7 @@ describe('useCodeLogic', () => {
       {
         id: 's2',
         device_id: activeDevice.id,
-        type: CODE_TYPES.SINGLE,
+        type: CODE_TYPE.SINGLE,
         code: '444444',
         name: 'Single Unused',
         status: CODE_STATUS.ON_DEVICE,
@@ -184,12 +188,17 @@ describe('useCodeLogic', () => {
       }
     ]);
 
-    const { result } = renderHook(() => useCodeLogic(mockShowNotification, mockHideNotification), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.masterCodes).toHaveLength(2);
-      expect(result.current.temporaryCodes).toHaveLength(1);
-      expect(result.current.temporaryCodes[0].id).toBe('s2');
+    const { result } = renderHook(() => useCodeLogic(mockShowNotification, mockHideNotification), {
+      wrapper
     });
+
+    await waitFor(
+      () => {
+        expect(result.current.masterCodes).toHaveLength(2);
+        expect(result.current.temporaryCodes).toHaveLength(1);
+        expect(result.current.temporaryCodes[0].id).toBe('s2');
+      },
+      { timeout: 2000 }
+    );
   });
 });

@@ -8,7 +8,7 @@ import {
   Grid,
   Link,
   Paper,
-  Typography,
+  Typography
 } from '@mui/material';
 import { BugReport, GitHub } from '@mui/icons-material';
 import { GITHUB_ISSUES_URL, GITHUB_REPO_URL } from '../utils/constants';

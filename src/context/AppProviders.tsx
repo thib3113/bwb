@@ -1,4 +1,4 @@
-import { ComponentChildren } from 'preact';
+import { ReactNode } from 'react';
 import { AppThemeProvider } from './ThemeContext';
 import { DeveloperProvider } from './DeveloperContext';
 import { SettingsProvider } from './SettingsContext';
@@ -13,7 +13,7 @@ import { CodeProvider } from './CodeContext';
 import { DeviceLogProvider } from './DeviceLogContext';
 
 interface AppProvidersProps {
-  children: ComponentChildren;
+  children: ReactNode;
 }
 
 export const AppProviders = ({ children }: AppProvidersProps) => {

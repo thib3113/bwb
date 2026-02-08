@@ -34,7 +34,7 @@ function TabPanel(props: TabPanelProps) {
 function a11yProps(index: number) {
   return {
     id: `my-boks-tab-${index}`,
-    'aria-controls': `my-boks-tabpanel-${index}`,
+    'aria-controls': `my-boks-tabpanel-${index}`
   };
 }
 
@@ -183,7 +183,7 @@ export const MyBoksPage = () => {
       <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
         {knownDevices.length > 1 && (
           <Button startIcon={<ArrowBackIcon />} onClick={handleBackToList} sx={{ mb: 1 }}>
-            {t('common:back_to_list' as any)}
+            {t('common:back_to_list')}
           </Button>
         )}
         <Typography variant="h4" component="h1" gutterBottom>

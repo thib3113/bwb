@@ -1,37 +1,45 @@
 # Spécification : Synchronisation via Supabase (Cloud & Self-Hosted)
 
 ## 🎯 Objectif
+
 Permettre la synchronisation multi-appareils des Boks, des codes et des journaux d'événements en utilisant Supabase comme backend. L'architecture supporte une version "Cloud" officielle (avec abonnement utilisateur) et une version "Self-Hosted" (libre).
 
 ## ⚙️ Configuration de l'instance
+
 Dans la section **Avancé** des paramètres :
+
 - **Mode de synchronisation** : Sélecteur entre "Désactivé", "Boks Cloud" (par défaut), et "Instance personnalisée".
 - **Instance personnalisée** :
-    - `Supabase URL` (Ex : `https://xyz.supabase.co`)
-    - `Supabase Publishable Key` (Format : `sb_publishable_...`)
-    - `Supabase Auth URL`
+  - `Supabase URL` (Ex : `https://xyz.supabase.co`)
+  - `Supabase Publishable Key` (Format : `sb_publishable_...`)
+  - `Supabase Auth URL`
 - **Authentification** : Connexion via Email/Mot de passe.
 
 > [!TIP]
-> Nous utilisons exclusivement le nouveau format de clés d'API de Supabase (lancé en juin 2025). 
+> Nous utilisons exclusivement le nouveau format de clés d'API de Supabase (lancé en juin 2025).
+>
 > - **Clé Publishable** : Seule clé autorisée côté client.
 > - **Clé Secret** (`sb_secret_...`) : **Interdite** dans l'application, car elle contourne les politiques de sécurité (RLS) et provoquerait une erreur 401 dans le navigateur.
 
 ## 👥 Gestion des Rôles & Accès
+
 Le système repose sur une table de liaison `user_devices` (côté Supabase) définissant le rôle d'un utilisateur pour une Boks :
 
 ### 1. Rôle : Admin
+
 - Accès complet en lecture/écriture.
 - Seuls les Admins peuvent lire la `configuration_key` (table `device_secrets`).
 - Approuve les codes créés par les simples utilisateurs.
 - Si l'Admin est **Premium**, la Boks bénéficie de la synchronisation cloud.
 
 ### 2. Rôle : User
+
 - Accès limité : ne peut pas voir les secrets (`configuration_key`).
 - Peut créer des codes, mis automatiquement en `pending_approval`.
 - Bénéficie de la synchronisation cloud **uniquement si l'Admin de la Boks est Premium**.
 
 ## 💰 Modèle Économique (Boks Cloud)
+
 L'abonnement est lié à l'utilisateur qui possède/administre la Boks.
 
 1.  **Gratuit (Cloud)** :
@@ -49,6 +57,7 @@ L'abonnement est lié à l'utilisateur qui possède/administre la Boks.
 Pour supporter la synchronisation, l'architecture locale doit refléter le schéma distant tout en restant optimisée pour l'offline.
 
 ### 1. Schéma des tables Dexie
+
 ```typescript
 db.version(1).stores({
   profiles: 'id, updated_at', // id = Supabase User ID
@@ -60,9 +69,11 @@ db.version(1).stores({
 ```
 
 ### 2. Gestion automatique du champ `updated_at`
+
 Afin de garantir que "le plus récent gagne", un hook global sur Dexie met à jour automatiquement le timestamp à chaque écriture :
+
 ```typescript
-db.tables.forEach(table => {
+db.tables.forEach((table) => {
   table.hook('creating', (primKey, obj) => {
     obj.updated_at = Date.now();
   });
@@ -73,11 +84,13 @@ db.tables.forEach(table => {
 ```
 
 ### 3. Nettoyage des données (Wipe)
+
 Lors du **Logout**, une fonction `clearAllData()` est impérativement appelée pour vider toutes les tables Dexie et le localStorage, garantissant qu'un autre utilisateur sur le même navigateur ne voie pas les données précédentes.
 
 ---
 
 ## 🔄 Logique de Synchronisation
+
 - **Offline-First** : Dexie (Local) est la source immédiate.
 - **Conflits** : "Le plus récent gagne" via le champ `updated_at`.
 - **Filtre** : Les tables `codes` et `logs` ne synchronisent que les lignes dont le `device_id` appartient à une Boks activement Premium.
@@ -176,7 +189,7 @@ CREATE POLICY "Premium sync access" ON codes
       SELECT 1 FROM user_devices ud_member
       JOIN user_devices ud_admin ON ud_admin.device_id = ud_member.device_id
       JOIN profiles p_admin ON p_admin.id = ud_admin.user_id
-      WHERE ud_member.device_id = codes.device_id 
+      WHERE ud_member.device_id = codes.device_id
       AND ud_member.user_id = auth.uid()
       AND ud_admin.role = 'admin'
       AND p_admin.premium_until > NOW()
