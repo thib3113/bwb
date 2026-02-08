@@ -24,7 +24,7 @@ describe('OpenDoorPacket (0x01)', () => {
 
     let sum = 0;
     for (let i = 0; i < 8; i++) sum += fullPacket[i];
-    expect(fullPacket[8]).toBe(sum & 0XFF);
+    expect(fullPacket[8]).toBe(sum & 0xFF);
   });
 
   it('should generate exact hardcoded binary for "1234"', () => {

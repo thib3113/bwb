@@ -2,6 +2,7 @@ import { BoksLog } from '../types';
 import { isLogPayload, parsePayload } from './payloadParser';
 
 export interface ParsedLog extends BoksLog {
+  eventType: string;
   description: string;
   details: Record<string, unknown>;
 }
@@ -9,12 +10,33 @@ export interface ParsedLog extends BoksLog {
 /**
  * Parses a single log entry
  */
-export function parseLog(log: BoksLog): ParsedLog {
-  const payloadInstance = parsePayload(log.opcode, log.payload, log.raw);
+/**
+ * Parses a single log entry.
+ * Note: If payload/raw are missing, it provides minimal info.
+ */
+export function parseLog(log: Partial<BoksLog>): ParsedLog {
+  const opcode = log.opcode ?? 0;
+  const payload = log.payload ?? new Uint8Array(0);
+  const raw = log.raw ?? new Uint8Array(0);
+
+  const payloadInstance = parsePayload(opcode, payload, raw);
+
+  const baseLog: BoksLog = {
+    device_id: log.device_id ?? 'unknown',
+    timestamp: log.timestamp ?? new Date().toISOString(),
+    event: log.event ?? 'UNKNOWN',
+    type: log.type ?? 'info',
+    opcode,
+    payload,
+    raw,
+    synced: log.synced ?? false,
+    ...log,
+  };
 
   if (isLogPayload(payloadInstance)) {
     return {
-      ...log,
+      ...baseLog,
+      eventType: payloadInstance.constructor.name.replace('LogPayload', '').toLowerCase(),
       timestamp: payloadInstance.timestamp,
       description: payloadInstance.description,
       details: payloadInstance.toDetails(),
@@ -23,9 +45,10 @@ export function parseLog(log: BoksLog): ParsedLog {
 
   // Fallback for unknown opcodes
   return {
-    ...log,
+    ...baseLog,
+    eventType: 'unknown',
     description: 'logs:events.unknown',
-    details: { opcode: log.opcode },
+    details: { opcode: baseLog.opcode },
   };
 }
 

@@ -7,11 +7,16 @@ export abstract class BaseNfcLogPayload extends BaseLogPayload {
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     super(opcode, payload, raw);
     const specificPayload = payload.slice(3);
-    if (specificPayload.length >= 5) {
+    if (specificPayload.length >= 2) {
       this.tagType = specificPayload[0];
-      this.tagUid = Array.from(specificPayload.slice(1, 5))
-        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
-        .join(':');
+      const uidLen = specificPayload[1];
+      if (specificPayload.length >= 2 + uidLen) {
+        this.tagUid = Array.from(specificPayload.slice(2, 2 + uidLen))
+          .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+          .join(':');
+      } else {
+        this.tagUid = 'INVALID_UID';
+      }
     } else {
       this.tagType = 0;
       this.tagUid = 'UNKNOWN';

@@ -32,7 +32,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleLogCountPacket = (packet: BLEPacket) => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT && packet.payload.length >= 2) {
-        const count = (packet.payload[0] << 8) | packet.payload[1];
+        const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
         lastReceivedLogCountRef.current = count;
         console.log(`[DeviceLogContext] Updated lastReceivedLogCountRef: ${count}`);
       }
@@ -69,7 +69,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
         const packet = Array.isArray(response) ? response[0] : response;
 
         if (packet.payload.length >= 2) {
-          count = (packet.payload[0] << 8) | packet.payload[1];
+          count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
         } else {
           console.warn(
             `[DeviceLogContext] Invalid logs count response (len=${packet.payload.length}). Assuming 0 logs.`
@@ -98,7 +98,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             console.log(
               `[DeviceLogContext] End of history. Buffer contains ${logsBufferRef.current.length} logs.`
             );
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END, handleEndHistory);
             removeListener('*', handleLogPacket);
 
             // Save logs
@@ -124,7 +124,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             // Ignore TX and control packets
             if (
               packet.direction === 'TX' ||
-              packet.opcode === BLEOpcode.LOG_END_HISTORY ||
+              packet.opcode === BLEOpcode.LOG_END ||
               packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT
             )
               return;
@@ -158,12 +158,12 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           };
 
           // Subscribe to end of history and log packets BEFORE sending request
-          addListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+          addListener(BLEOpcode.LOG_END, handleEndHistory);
           addListener('*', handleLogPacket);
 
           // Use sendRequest with expectResponse: false to ensure it goes through queue
           sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch((err) => {
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END, handleEndHistory);
             removeListener('*', handleLogPacket);
             isSyncingRef.current = false;
             setIsSyncingLogs(false);

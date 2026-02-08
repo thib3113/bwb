@@ -37,7 +37,7 @@ describe('RX Packets Parsing', () => {
   it('should parse NfcScanResultPacket', () => {
     const packet = new NfcScanResultPacket(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT);
     // UID: AABBCCDD (Len: 4)
-    packet.parse(new Uint8Array([0x04, 0XAA, 0XBB, 0XCC, 0XDD]));
+    packet.parse(new Uint8Array([0x04, 0xAA, 0xBB, 0xCC, 0xDD]));
     expect(packet.uid).toBe('AA:BB:CC:DD');
     expect(packet.status).toBe('found');
   });

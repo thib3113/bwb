@@ -90,6 +90,9 @@ export class StorageService {
           event: log.event || 'UNKNOWN',
           type: log.type || 'info',
           synced: log.synced || false,
+          opcode: log.opcode ?? 0,
+          payload: log.payload ?? new Uint8Array(0),
+          raw: log.raw ?? new Uint8Array(0),
           ...log,
         } as BoksLog;
         logsToAdd.push(logEntry);

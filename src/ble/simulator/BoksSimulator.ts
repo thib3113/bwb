@@ -310,7 +310,7 @@ export class BoksSimulator extends EventEmitter {
 
     setTimeout(() => {
       const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0XFF, (count >> 8) & 0XFF]);
+      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xFF, (count >> 8) & 0xFF]);
     }, 150);
   }
 
@@ -348,10 +348,10 @@ export class BoksSimulator extends EventEmitter {
     }
     // Big Endian for Counts
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
-      (masterCount >> 8) & 0XFF,
-      masterCount & 0XFF,
-      (singleCount >> 8) & 0XFF,
-      singleCount & 0XFF,
+      (masterCount >> 8) & 0xFF,
+      masterCount & 0xFF,
+      (singleCount >> 8) & 0xFF,
+      singleCount & 0xFF,
     ]);
   }
 

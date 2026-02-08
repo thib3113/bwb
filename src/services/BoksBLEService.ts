@@ -10,7 +10,7 @@ import {
   WRITE_CHAR_UUID,
 } from '../utils/bleConstants';
 import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
-import { ParsedPayload } from '../utils/payloadParser';
+import { ParsedPayload, parsePayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BLEAdapter } from '../ble/adapter/BLEAdapter';
 import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
@@ -180,19 +180,9 @@ export class BoksBLEService extends EventEmitter {
     const lastOp = this.lastSentOpcode;
 
     if (parsed) {
-      parsed.direction = 'RX';
-      // Use Factory to create rich object
-      const richPacket = PacketFactory.create(parsed.opcode, parsed.payload);
-      if (richPacket) {
-        // We cast because BoksRXPacket doesn't implement ParsedPayload interface formally yet,
-        // but we can wrap it or ensure it does.
-        // Or we just attach it as unknown/any to parsedPayload for logs.
-        // Actually, parsedPayload expects ParsedPayload interface.
-        // Let's assume PacketFactory returns something compatible or we wrap it.
-        // Ideally BoksRXPacket should implement ParsedPayload or we have a wrapper.
-        // For now, we will cast to any to satisfy TS, assuming the logger handles it.
-        parsed.parsedPayload = richPacket as unknown as ParsedPayload;
-      }
+      parsed.direction = "RX";
+      // Use our new payload parser for rich objects
+      parsed.parsedPayload = parsePayload(parsed.opcode, parsed.payload, parsed.raw);
 
       // 1. Process the queue FIRST to resolve promises
       this.queue.handleResponse(parsed);

@@ -58,7 +58,7 @@ describe('packetParser', () => {
 
   describe('decodeStringPayload', () => {
     it('should decode UTF-8 string from payload', () => {
-      const payload = new Uint8Array([0x48, 0x65, 0X6C, 0X6C, 0X6F]); // "Hello"
+      const payload = new Uint8Array([0x48, 0x65, 0x6C, 0x6C, 0x6F]); // "Hello"
       const decoded = decodeStringPayload(payload);
 
       expect(decoded).toBe('Hello');
@@ -69,7 +69,7 @@ describe('packetParser', () => {
     it('should encode string to UTF-8 payload', () => {
       const str = 'Hello';
       const encoded = encodeStringPayload(str);
-      expect(Array.from(encoded)).toEqual([0x48, 0x65, 0X6C, 0X6C, 0X6F]);
+      expect(Array.from(encoded)).toEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F]);
     });
   });
 });

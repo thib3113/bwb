@@ -136,8 +136,9 @@ export interface BoksLog {
   event: string;
   type: string;
   data?: LogData;
-  opcode?: number;
-  payload?: Uint8Array;
+  opcode: number;
+  payload: Uint8Array;
+  raw: Uint8Array;
   synced: boolean; // Synced to Cloud?
   updated_at?: number;
 

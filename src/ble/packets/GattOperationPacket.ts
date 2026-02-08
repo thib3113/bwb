@@ -1,7 +1,7 @@
 import { BoksTXPacket } from './BoksTXPacket';
 import { BLEOpcode } from '../../utils/bleConstants';
 import { z } from 'zod';
-import { ParsedPayload } from '../../utils/payloads/base';
+import { ParsedPayload } from '../../utils/payloadParser';
 
 /**
  * A virtual packet used to represent internal GATT operations (Read/Write Char)

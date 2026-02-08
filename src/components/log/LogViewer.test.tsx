@@ -50,21 +50,23 @@ describe('LogViewer Render Performance', () => {
     // Mock logs
     const mockLogs = [
       {
-        id: 1,
+        id: '1',
         device_id: 'test-device',
         timestamp: new Date().toISOString(),
-        opcode: BLEOpcode.VALID_OPEN_CODE,
-        payload: new Uint8Array([0x01]),
+        opcode: BLEOpcode.LOG_CODE_BLE_VALID,
+        payload: new Uint8Array([0x00, 0x00, 0x00, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x00, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66]),
+        raw: new Uint8Array([0x86, 0x11, 0x00, 0x00, 0x00, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x00, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66]),
         synced: true,
         event: 'Raw Event 1',
         type: 'info',
       },
       {
-        id: 2,
+        id: '2',
         device_id: 'test-device',
         timestamp: new Date().toISOString(),
-        opcode: BLEOpcode.INVALID_OPEN_CODE,
-        payload: new Uint8Array([0x02]),
+        opcode: BLEOpcode.LOG_CODE_BLE_INVALID,
+        payload: new Uint8Array([0x00, 0x00, 0x00, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11]),
+        raw: new Uint8Array([0x88, 0x11, 0x00, 0x00, 0x00, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11]),
         synced: true,
         event: 'Raw Event 2',
         type: 'error',
@@ -108,7 +110,7 @@ describe('LogViewer Render Performance', () => {
 
     // We expect the parsed event description immediately.
     // We check for text content because MUI components might not render standard tags in this test env
-    expect(container.textContent).toContain('events.valid_open_code');
+    expect(container.textContent).toContain('logs:events.ble_valid');
 
     // And we explicitly expect NOT to see the raw event fallbacks
     expect(container.textContent).not.toContain('Raw Event 1');

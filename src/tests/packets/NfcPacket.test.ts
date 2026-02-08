@@ -6,7 +6,7 @@ import {BLEOpcode} from '../../utils/bleConstants';
 
 describe('NFC Packets (Full Suite)', () => {
   const configKey = 'ABCDEFGH';
-  const uidBytes = [0XAA, 0XBB, 0XCC, 0XDD];
+  const uidBytes = [0xAA, 0xBB, 0xCC, 0xDD];
 
   it('should construct NfcScanStart (0x17) full packet', () => {
     const packet = new NfcScanStartPacket(configKey);
@@ -67,7 +67,7 @@ describe('NFC Packets (Full Suite)', () => {
   it('should generate exact hardcoded binary for NfcRegisterPacket', () => {
     // 0x18 (Op) + 0x0D (Len=13) + "ABCDEFGH" + 0x04 (LenUID) + "AABBCCDD" + Checksum
     const configKey = 'ABCDEFGH';
-    const uidBytes = [0XAA, 0XBB, 0XCC, 0XDD];
+    const uidBytes = [0xAA, 0xBB, 0xCC, 0xDD];
     const packet = new NfcRegisterPacket(configKey, new Uint8Array(uidBytes));
     const binary = packet.toPacket();
 
@@ -82,7 +82,7 @@ describe('NFC Packets (Full Suite)', () => {
   it('should generate exact hardcoded binary for NfcUnregisterPacket', () => {
     // 0x19 (Op) + 0x0D (Len=13) + "ABCDEFGH" + 0x04 (LenUID) + "AABBCCDD" + Checksum
     const configKey = 'ABCDEFGH';
-    const uidBytes = [0XAA, 0XBB, 0XCC, 0XDD];
+    const uidBytes = [0xAA, 0xBB, 0xCC, 0xDD];
     const packet = new NfcUnregisterPacket(configKey, new Uint8Array(uidBytes));
     const binary = packet.toPacket();
 

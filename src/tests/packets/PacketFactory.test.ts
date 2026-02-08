@@ -29,7 +29,7 @@ describe('PacketFactory', () => {
   });
 
   it('should return null for unknown opcode', () => {
-    const packet = PacketFactory.create(0XFF, new Uint8Array(0));
+    const packet = PacketFactory.create(0xFF, new Uint8Array(0));
     expect(packet).toBeNull();
   });
 

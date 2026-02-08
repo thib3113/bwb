@@ -25,6 +25,14 @@ import { ScaleMeasureLogPayload } from './payloads/logs/ScaleMeasureLogPayload';
 import { KeyOpeningLogPayload } from './payloads/logs/KeyOpeningLogPayload';
 import { ErrorLogPayload } from './payloads/logs/ErrorLogPayload';
 
+export interface ParsedPayload {
+  opcode: number;
+  payload: Uint8Array;
+  raw: Uint8Array;
+  toString(): string;
+  toDetails(): Record<string, unknown>;
+}
+
 export function parsePayload(opcode: number, payload: Uint8Array, raw: Uint8Array): BasePayload {
   switch (opcode) {
     case BLEOpcode.NOTIFY_DOOR_STATUS:

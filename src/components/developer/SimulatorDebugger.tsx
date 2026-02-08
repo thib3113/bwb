@@ -22,14 +22,14 @@ import { SimulatorAPI } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
-  const { t } = useTranslation(['settings']);
+  const { t } = useTranslation(["settings"]);
   const { toggleSimulator } = useBLE();
   const [simulator, setSimulator] = useState<SimulatorAPI | null>(
     () => (window as any).boksSimulatorController || null
   );
   const [state, setState] = useState<any>(null);
   const [isEnabled, setIsEnabled] = useState(
-    () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
+    () => localStorage.getItem("BOKS_SIMULATOR_ENABLED") === "true"
   );
   const [isSimulatorRunning, setIsSimulatorRunning] = useState(
     () => !!(window as any).boksSimulatorController
@@ -42,7 +42,7 @@ export const SimulatorDebugger = () => {
         setState(controller.getState());
       }, 500);
       return () => clearInterval(interval);
-    }
+  }, []);
   }, []);
 
   const handleSimulatorToggle = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {

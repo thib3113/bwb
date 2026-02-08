@@ -25,7 +25,7 @@ export const useLogSync = () => {
 
     const handlePacket = (packet: BLEPacket) => {
       // If END_HISTORY (0x92)
-      if (packet.opcode === BLEOpcode.LOG_END_HISTORY) {
+      if (packet.opcode === BLEOpcode.LOG_END) {
         console.log('End of history received, saving logs...');
         if (logsBufferRef.current.length > 0 && activeDevice?.id) {
           StorageService.saveLogs(activeDevice.id, logsBufferRef.current)
@@ -40,7 +40,7 @@ export const useLogSync = () => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT) {
         // Check if there are logs to retrieve
         if (packet.payload.length >= 2) {
-          const count = (packet.payload[0] << 8) | packet.payload[1];
+          const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
           if (count > 0) {
             setSyncing(true);
             logsBufferRef.current = []; // Clear buffer

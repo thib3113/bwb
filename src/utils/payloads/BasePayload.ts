@@ -8,4 +8,12 @@ export abstract class BasePayload {
     this.payload = payload;
     this.raw = raw;
   }
+
+  toString(): string {
+    return `Payload(0x${this.opcode.toString(16).toUpperCase()})`;
+  }
+
+  toDetails(): Record<string, unknown> {
+    return {};
+  }
 }
