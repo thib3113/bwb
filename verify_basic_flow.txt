@@ -1,0 +1,499 @@
+
+> boks-web-ble@1.0.0 test:e2e /app
+> playwright test tests/basic_flow.spec.ts
+
+
+Running 3 tests using 1 worker
+[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770577616405}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+·[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770577622926}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+[Browser Console] [SimulatedAdapter] Connecting...
+[Browser Console] [Header Debug] Connected {hasActiveDevice: false, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in devices {id: d5673e5f-fceb-4b8a-9a49-33daf7a755db, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Creating in device_secrets {device_id: d5673e5f-fceb-4b8a-9a49-33daf7a755db, configuration_key: AABBCCDD}
+[Browser Console] [DB Hook] Cascading update to device d5673e5f-fceb-4b8a-9a49-33daf7a755db
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {updated_at: 1770577624313}
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in settings {key: lastActiveDeviceId, value: d5673e5f-fceb-4b8a-9a49-33daf7a755db}
+[Browser Console] [DB Hook] Updating in devices {battery_level: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577624412}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DB Hook] Updating in devices {firmware_revision: 10/125, hardware_version: 4.0, software_revision: 4.1.14}
+[Browser Console] [DB Hook] Updating in devices {master_code_count: 1, single_code_count: 0}
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Device state after C3 update: {id: d5673e5f-fceb-4b8a-9a49-33daf7a755db, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577624882}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: executing refreshCodeCount() first
+[Browser Console] [Simulator Fixture] Captured TX: 20
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Device state after C3 update: {id: d5673e5f-fceb-4b8a-9a49-33daf7a755db, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+Redirected to My Boks. Navigating back via Menu...
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: calling requestLogs()
+[Browser Console] [Simulator Fixture] Captured TX: 7
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceLogContext] Auto-sync: requestLogs() finished
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577627016}
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577627175}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+×[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770577644133}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+[Browser Console] [SimulatedAdapter] Connecting...
+[Browser Console] [Header Debug] Connected {hasActiveDevice: false, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in devices {id: 263151e0-cffa-4863-83ff-8dd97738f752, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Creating in device_secrets {device_id: 263151e0-cffa-4863-83ff-8dd97738f752, configuration_key: AABBCCDD}
+[Browser Console] [DB Hook] Cascading update to device 263151e0-cffa-4863-83ff-8dd97738f752
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DB Hook] Updating in devices {updated_at: 1770577645427}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in settings {key: lastActiveDeviceId, value: 263151e0-cffa-4863-83ff-8dd97738f752}
+[Browser Console] [DB Hook] Updating in devices {battery_level: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577645540}
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {firmware_revision: 10/125, hardware_version: 4.0, software_revision: 4.1.14}
+[Browser Console] [DB Hook] Updating in devices {master_code_count: 1, single_code_count: 0}
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 263151e0-cffa-4863-83ff-8dd97738f752, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577646204}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: executing refreshCodeCount() first
+[Browser Console] [Simulator Fixture] Captured TX: 20
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 263151e0-cffa-4863-83ff-8dd97738f752, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+Redirected to My Boks. Navigating back via Menu...
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: calling requestLogs()
+[Browser Console] [Simulator Fixture] Captured TX: 7
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceLogContext] Auto-sync: requestLogs() finished
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577648161}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577648357}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+×[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770577665037}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+[Browser Console] [SimulatedAdapter] Connecting...
+[Browser Console] [Header Debug] Connected {hasActiveDevice: false, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in devices {id: 4c83071b-a5b8-4102-b1fa-714fd26198d0, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Creating in device_secrets {device_id: 4c83071b-a5b8-4102-b1fa-714fd26198d0, configuration_key: AABBCCDD}
+[Browser Console] [DB Hook] Cascading update to device 4c83071b-a5b8-4102-b1fa-714fd26198d0
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DB Hook] Updating in devices {updated_at: 1770577666382}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in settings {key: lastActiveDeviceId, value: 4c83071b-a5b8-4102-b1fa-714fd26198d0}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Updating in devices {battery_level: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577666453}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {firmware_revision: 10/125, hardware_version: 4.0, software_revision: 4.1.14}
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {master_code_count: 1, single_code_count: 0}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 4c83071b-a5b8-4102-b1fa-714fd26198d0, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577666879}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: executing refreshCodeCount() first
+[Browser Console] [Simulator Fixture] Captured TX: 20
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 4c83071b-a5b8-4102-b1fa-714fd26198d0, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+Redirected to My Boks. Navigating back via Menu...
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceLogContext] Auto-sync: calling requestLogs()
+[Browser Console] [Simulator Fixture] Captured TX: 7
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceLogContext] Auto-sync: requestLogs() finished
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577668930}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577669091}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+F[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770577685009}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+[Browser Console] [SimulatedAdapter] Connecting...
+[Browser Console] [Header Debug] Connected {hasActiveDevice: false, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in devices {id: 92c9de90-7a9f-4082-b656-42ebd965578b, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Creating in device_secrets {device_id: 92c9de90-7a9f-4082-b656-42ebd965578b, configuration_key: AABBCCDD}
+[Browser Console] [DB Hook] Cascading update to device 92c9de90-7a9f-4082-b656-42ebd965578b
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {updated_at: 1770577686194}
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: undefined, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: undefined}
+[Browser Console] [DB Hook] Creating in settings {key: lastActiveDeviceId, value: 92c9de90-7a9f-4082-b656-42ebd965578b}
+[Browser Console] [DB Hook] Updating in devices {battery_level: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577686291}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DB Hook] Updating in devices {firmware_revision: 10/125, hardware_version: 4.0, software_revision: 4.1.14}
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DB Hook] Updating in devices {master_code_count: 1, single_code_count: 0}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 92c9de90-7a9f-4082-b656-42ebd965578b, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577686677}
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: executing refreshCodeCount() first
+[Browser Console] [Simulator Fixture] Captured TX: 20
+[Browser Console] [DeviceContext] 0xC3 received. Payload length: 4. Master=1, Single=0, Full: [0, 1, 0, 0]
+[Browser Console] [DeviceContext] Device state after C3 update: {id: 92c9de90-7a9f-4082-b656-42ebd965578b, ble_name: SIMULATOR-001, friendly_name: Boks Simulator, door_pin_code: 123456, role: admin}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceLogContext] Auto-sync: calling requestLogs()
+[Browser Console] [Simulator Fixture] Captured TX: 7
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceLogContext] Auto-sync: requestLogs() finished
+[Browser Console] [DeviceContext] 0x79 received (Req: 0x7). Logs: 0
+[Browser Console] [DeviceLogContext] Updated lastReceivedLogCountRef: 0
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+Redirected to My Boks. Navigating back via Menu...
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577689169}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DB Hook] Updating in devices {last_connected_at: 1770577689332}
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [Header Debug] Connected {hasActiveDevice: true, activeBattery: 100, hasDevice: true, deviceBattery: undefined, displayBatteryLevel: 100}
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [Simulator Fixture] Captured TX: 1
+[Browser Console] [Simulator] BLE Open Door Request: 123456
+[Browser Console] [Simulator] Door Opened via ble
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+[Browser Console] [DeviceContext] Standard Battery Level read: 100%
+[Browser Console] [DeviceContext] Firmware Revision: 10/125
+[Browser Console] [DeviceContext] Mapped HW Version: 4.0 from FW 10/125
+[Browser Console] [DeviceContext] Software Revision: 4.1.14
+·
+
+  1) [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('code-stats')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('code-stats')[22m
+
+
+      50 |
+      51 |     // Check if we received data (Codes count) using new test ID
+    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });
+         |                                                  ^
+      53 |   });
+      54 |
+      55 |   test('should open the door via simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:52:50
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('code-stats')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('code-stats')[22m
+
+
+      50 |
+      51 |     // Check if we received data (Codes count) using new test ID
+    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });
+         |                                                  ^
+      53 |   });
+      54 |
+      55 |   test('should open the door via simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:52:50
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('code-stats')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('code-stats')[22m
+
+
+      50 |
+      51 |     // Check if we received data (Codes count) using new test ID
+    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });
+         |                                                  ^
+      53 |   });
+      54 |
+      55 |   test('should open the door via simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:52:50
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry2/error-context.md
+
+  1 failed
+    [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator
+  2 passed (1.6m)
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=52,col=50::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('code-stats')%0A    Expected: visible%0A    Timeout: 10000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 10000ms%0A      - waiting for getByTestId('code-stats')%0A%0A%0A      50 |%0A      51 |     // Check if we received data (Codes count) using new test ID%0A    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });%0A         |                                                  ^%0A      53 |   });%0A      54 |%0A      55 |   test('should open the door via simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:52:50
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=52,col=50::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('code-stats')%0A    Expected: visible%0A    Timeout: 10000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 10000ms%0A      - waiting for getByTestId('code-stats')%0A%0A%0A      50 |%0A      51 |     // Check if we received data (Codes count) using new test ID%0A    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });%0A         |                                                  ^%0A      53 |   });%0A      54 |%0A      55 |   test('should open the door via simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:52:50
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=52,col=50::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('code-stats')%0A    Expected: visible%0A    Timeout: 10000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 10000ms%0A      - waiting for getByTestId('code-stats')%0A%0A%0A      50 |%0A      51 |     // Check if we received data (Codes count) using new test ID%0A    > 52 |     await expect(page.getByTestId('code-stats')).toBeVisible({ timeout: 10000 });%0A         |                                                  ^%0A      53 |   });%0A      54 |%0A      55 |   test('should open the door via simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:52:50
+::notice title=🎭 Playwright Run Summary::  1 failed%0A    [Mobile Chrome] › tests/basic_flow.spec.ts:13:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A  2 passed (1.6m)
+ ELIFECYCLE  Command failed with exit code 1.

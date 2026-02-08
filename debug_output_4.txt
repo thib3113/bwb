@@ -1,0 +1,15 @@
+
+> boks-web-ble@1.0.0 test:e2e /app
+> playwright test tests/debug_repro.spec.ts
+
+
+Running 1 test using 1 worker
+PAGE STATE: {
+  simulatorEnabled: [90mundefined[39m,
+  localStorageSimulator: [1mnull[22m,
+  navigatorBluetooth: [33mfalse[39m,
+  isWebBleSupportedFn: [32m'not exposed'[39m
+}
+·
+  1 passed (17.5s)
+::notice title=🎭 Playwright Run Summary::  1 passed (17.5s)

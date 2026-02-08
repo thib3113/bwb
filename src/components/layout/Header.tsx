@@ -261,7 +261,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         </IconButton>
 
         {knownDevices.length <= 1 && (
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} data-testid="app-header-title">
             Boks BLE
           </Typography>
         )}
@@ -441,7 +441,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         <Tooltip title={isConnected ? t('open_door') : t('connect_to_open_door')}>
           <span>
             <IconButton
-              aria-label="open door"
+              aria-label="open door" data-testid="open-door-button"
               color="inherit"
               onClick={handleOpenDoor}
               disabled={isOpening || !isConnected}

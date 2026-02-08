@@ -1,0 +1,260 @@
+
+> boks-web-ble@1.0.0 test:e2e /app
+> playwright test tests/basic_flow.spec.ts
+
+
+Running 3 tests using 1 worker
+××F××F××T
+
+  1) [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Boks BLE Control Panel', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Boks BLE Control Panel', { exact: true })[22m
+
+
+       7 |
+       8 |   test('should load the dashboard', async ({ page }) => {
+    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();
+         |                                                                             ^
+      10 |   });
+      11 |
+      12 |   test('should connect using the simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:9:77
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-b82ba-r-should-load-the-dashboard-Mobile-Chrome/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Boks BLE Control Panel', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Boks BLE Control Panel', { exact: true })[22m
+
+
+       7 |
+       8 |   test('should load the dashboard', async ({ page }) => {
+    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();
+         |                                                                             ^
+      10 |   });
+      11 |
+      12 |   test('should connect using the simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:9:77
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-b82ba-r-should-load-the-dashboard-Mobile-Chrome-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/basic_flow-Boks-Basic-Flow-b82ba-r-should-load-the-dashboard-Mobile-Chrome-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/basic_flow-Boks-Basic-Flow-b82ba-r-should-load-the-dashboard-Mobile-Chrome-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Boks BLE Control Panel', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Boks BLE Control Panel', { exact: true })[22m
+
+
+       7 |
+       8 |   test('should load the dashboard', async ({ page }) => {
+    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();
+         |                                                                             ^
+      10 |   });
+      11 |
+      12 |   test('should connect using the simulator', async ({ page }) => {
+        at /app/tests/basic_flow.spec.ts:9:77
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-b82ba-r-should-load-the-dashboard-Mobile-Chrome-retry2/error-context.md
+
+  2) [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('status-icon-disconnected')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('status-icon-disconnected')[22m
+
+
+      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)
+      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 15 |     await expect(disabledIcon).toBeVisible();
+         |                                ^
+      16 |
+      17 |     // Click the connect button
+      18 |     await page.getByTestId('connection-button').click();
+        at /app/tests/basic_flow.spec.ts:15:32
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('status-icon-disconnected')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('status-icon-disconnected')[22m
+
+
+      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)
+      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 15 |     await expect(disabledIcon).toBeVisible();
+         |                                ^
+      16 |
+      17 |     // Click the connect button
+      18 |     await page.getByTestId('connection-button').click();
+        at /app/tests/basic_flow.spec.ts:15:32
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('status-icon-disconnected')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTestId('status-icon-disconnected')[22m
+
+
+      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)
+      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 15 |     await expect(disabledIcon).toBeVisible();
+         |                                ^
+      16 |
+      17 |     // Click the connect button
+      18 |     await page.getByTestId('connection-button').click();
+        at /app/tests/basic_flow.spec.ts:15:32
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-a0eda-connect-using-the-simulator-Mobile-Chrome-retry2/error-context.md
+
+  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('connection-button')[22m
+
+
+      47 |     // 1. Connect
+      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 49 |     await page.getByTestId('connection-button').click();
+         |                                                 ^
+      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
+      51 |
+      52 |     // Check for battery percentage as confirmation of connection
+        at /app/tests/basic_flow.spec.ts:49:49
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-c9147-open-the-door-via-simulator-Mobile-Chrome/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('connection-button')[22m
+
+
+      47 |     // 1. Connect
+      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 49 |     await page.getByTestId('connection-button').click();
+         |                                                 ^
+      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
+      51 |
+      52 |     // Check for battery percentage as confirmation of connection
+        at /app/tests/basic_flow.spec.ts:49:49
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-c9147-open-the-door-via-simulator-Mobile-Chrome-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/basic_flow-Boks-Basic-Flow-c9147-open-the-door-via-simulator-Mobile-Chrome-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/basic_flow-Boks-Basic-Flow-c9147-open-the-door-via-simulator-Mobile-Chrome-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('connection-button')[22m
+
+
+      47 |     // 1. Connect
+      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');
+    > 49 |     await page.getByTestId('connection-button').click();
+         |                                                 ^
+      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
+      51 |
+      52 |     // Check for battery percentage as confirmation of connection
+        at /app/tests/basic_flow.spec.ts:49:49
+
+    Error Context: test-results/basic_flow-Boks-Basic-Flow-c9147-open-the-door-via-simulator-Mobile-Chrome-retry2/error-context.md
+
+  3 failed
+    [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard
+    [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator
+    [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard,line=9,col=77::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard %0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByText('Boks BLE Control Panel', { exact: true })%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByText('Boks BLE Control Panel', { exact: true })%0A%0A%0A       7 |%0A       8 |   test('should load the dashboard', async ({ page }) => {%0A    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();%0A         |                                                                             ^%0A      10 |   });%0A      11 |%0A      12 |   test('should connect using the simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:9:77
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard,line=9,col=77::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByText('Boks BLE Control Panel', { exact: true })%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByText('Boks BLE Control Panel', { exact: true })%0A%0A%0A       7 |%0A       8 |   test('should load the dashboard', async ({ page }) => {%0A    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();%0A         |                                                                             ^%0A      10 |   });%0A      11 |%0A      12 |   test('should connect using the simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:9:77
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard,line=9,col=77::  1) [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByText('Boks BLE Control Panel', { exact: true })%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByText('Boks BLE Control Panel', { exact: true })%0A%0A%0A       7 |%0A       8 |   test('should load the dashboard', async ({ page }) => {%0A    >  9 |     await expect(page.getByText('Boks BLE Control Panel', { exact: true })).toBeVisible();%0A         |                                                                             ^%0A      10 |   });%0A      11 |%0A      12 |   test('should connect using the simulator', async ({ page }) => {%0A        at /app/tests/basic_flow.spec.ts:9:77
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=15,col=32::  2) [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('status-icon-disconnected')%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByTestId('status-icon-disconnected')%0A%0A%0A      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)%0A      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 15 |     await expect(disabledIcon).toBeVisible();%0A         |                                ^%0A      16 |%0A      17 |     // Click the connect button%0A      18 |     await page.getByTestId('connection-button').click();%0A        at /app/tests/basic_flow.spec.ts:15:32
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=15,col=32::  2) [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('status-icon-disconnected')%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByTestId('status-icon-disconnected')%0A%0A%0A      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)%0A      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 15 |     await expect(disabledIcon).toBeVisible();%0A         |                                ^%0A      16 |%0A      17 |     // Click the connect button%0A      18 |     await page.getByTestId('connection-button').click();%0A        at /app/tests/basic_flow.spec.ts:15:32
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator,line=15,col=32::  2) [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: expect(locator).toBeVisible() failed%0A%0A    Locator: getByTestId('status-icon-disconnected')%0A    Expected: visible%0A    Timeout: 5000ms%0A    Error: element(s) not found%0A%0A    Call log:%0A      - Expect "toBeVisible" with timeout 5000ms%0A      - waiting for getByTestId('status-icon-disconnected')%0A%0A%0A      13 |     // Check we are initially disconnected (BluetoothDisabledIcon)%0A      14 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 15 |     await expect(disabledIcon).toBeVisible();%0A         |                                ^%0A      16 |%0A      17 |     // Click the connect button%0A      18 |     await page.getByTestId('connection-button').click();%0A        at /app/tests/basic_flow.spec.ts:15:32
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A    Test timeout of 30000ms exceeded.
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator,line=49,col=49::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A    Error: locator.click: Test timeout of 30000ms exceeded.%0A    Call log:%0A      - waiting for getByTestId('connection-button')%0A%0A%0A      47 |     // 1. Connect%0A      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 49 |     await page.getByTestId('connection-button').click();%0A         |                                                 ^%0A      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });%0A      51 |%0A      52 |     // Check for battery percentage as confirmation of connection%0A        at /app/tests/basic_flow.spec.ts:49:49
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 30000ms exceeded.
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator,line=49,col=49::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: locator.click: Test timeout of 30000ms exceeded.%0A    Call log:%0A      - waiting for getByTestId('connection-button')%0A%0A%0A      47 |     // 1. Connect%0A      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 49 |     await page.getByTestId('connection-button').click();%0A         |                                                 ^%0A      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });%0A      51 |%0A      52 |     // Check for battery percentage as confirmation of connection%0A        at /app/tests/basic_flow.spec.ts:49:49
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 30000ms exceeded.
+::error file=tests/basic_flow.spec.ts,title=[Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator,line=49,col=49::  3) [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: locator.click: Test timeout of 30000ms exceeded.%0A    Call log:%0A      - waiting for getByTestId('connection-button')%0A%0A%0A      47 |     // 1. Connect%0A      48 |     const disabledIcon = page.getByTestId('status-icon-disconnected');%0A    > 49 |     await page.getByTestId('connection-button').click();%0A         |                                                 ^%0A      50 |     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });%0A      51 |%0A      52 |     // Check for battery percentage as confirmation of connection%0A        at /app/tests/basic_flow.spec.ts:49:49
+::notice title=🎭 Playwright Run Summary::  3 failed%0A    [Mobile Chrome] › tests/basic_flow.spec.ts:8:3 › Boks Basic Flow (Simulator) › should load the dashboard %0A    [Mobile Chrome] › tests/basic_flow.spec.ts:12:3 › Boks Basic Flow (Simulator) › should connect using the simulator %0A    [Mobile Chrome] › tests/basic_flow.spec.ts:46:3 › Boks Basic Flow (Simulator) › should open the door via simulator
+ ELIFECYCLE  Command failed with exit code 1.

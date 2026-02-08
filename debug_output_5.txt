@@ -1,0 +1,30 @@
+
+> boks-web-ble@1.0.0 test:e2e /app
+> playwright test tests/debug_repro.spec.ts
+
+
+Running 1 test using 1 worker
+[Browser Console] [Fixture] Set BOKS_SIMULATOR_ENABLED to true
+[Browser Console] [vite] connecting...
+[Browser Console] [vite] connected.
+[Browser Console] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser Console] Database initialized with tables: [users, devices, device_secrets, codes, logs, settings, nfc_tags]
+[Browser Console] ⚠️ BOKS SIMULATOR ENABLED via localStorage ⚠️
+[Browser Console] [Main] React initialized
+[Browser Console] [Main] Rendering app...
+[Browser Console] [Main] Using basename: ""
+[Browser Console] [DB Hook] Creating in users {id: local-user, is_offline: true, updated_at: 1770576286663}
+[Browser Console] Default local user created
+[Browser Console] ⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️
+[Browser Console] [BoksSimulator] Controller exposed to window
+[Browser Console] ⚠️ USING BOKS SIMULATOR ADAPTER ⚠️
+[Browser Console] StorageService and DB exposed to window.boksDebug
+[Browser Console] [SessionProvider] Initialized
+PAGE STATE WITH SIMULATOR: {
+  simulatorEnabled: [33mtrue[39m,
+  localStorageSimulator: [32m'true'[39m,
+  navigatorBluetooth: [33mtrue[39m
+}
+·
+  1 passed (10.4s)
+::notice title=🎭 Playwright Run Summary::  1 passed (10.4s)

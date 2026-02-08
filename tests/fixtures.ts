@@ -13,7 +13,7 @@ export interface Simulator {
 }
 
 export const test = base.extend<{ simulator: Simulator }>({
-  simulator: async ({ page }, use) => {
+  simulator: [async ({ page }, use) => {
     // Enable console logging from browser to node console
     page.on('console', (msg) => {
       console.log(`[Browser Console] ${msg.text()}`);
@@ -265,5 +265,5 @@ export const test = base.extend<{ simulator: Simulator }>({
 
     // 3. Use the fixture
     await use(simulator);
-  }
+  }, { auto: true }]
 });

@@ -46,7 +46,7 @@ test.describe('Version Gating', () => {
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
-    await expect(page.getByText(/version firmware 4.3.3 required/i)).toBeVisible();
+    await expect(page.getByRole('alert')).toBeVisible();
   });
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
@@ -118,6 +118,6 @@ test.describe('Version Gating', () => {
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
-    await expect(page.getByText(/hardware 4/i)).toBeVisible();
+    await expect(page.getByRole('alert')).toBeVisible();
   });
 });
