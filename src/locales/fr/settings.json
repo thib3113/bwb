@@ -6,7 +6,7 @@
 		"light": "Clair",
 		"dark": "Sombre"
 	},
-	"auto_import": "Synchronisation automatique (Logs et Codes)",
+	"auto_import": "Synchronisation automatique (Journaux et Codes)",
 	"configuration_key": {
 		"label": "Clé de configuration",
 		"helper": "Utilisée pour les opérations sensibles"
