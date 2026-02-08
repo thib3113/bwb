@@ -1,9 +1,5 @@
 import { EventEmitter } from '../../utils/EventEmitter';
-import {
-  BLEOpcode,
-  SIMULATOR_DEFAULT_CONFIG_KEY,
-  SIMULATOR_DEFAULT_PIN
-} from '../../utils/bleConstants';
+import { BLEOpcode, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN } from '../../utils/bleConstants';
 import { createPacket } from '../../utils/packetParser';
 import { PacketFactory } from '../packets/PacketFactory';
 import { OpenDoorPacket } from '../packets/OpenDoorPacket';
@@ -311,7 +307,7 @@ export class BoksSimulator extends EventEmitter {
 
     setTimeout(() => {
       const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xff, (count >> 8) & 0xff]);
+      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0XFF, (count >> 8) & 0XFF]);
     }, 150);
   }
 
@@ -349,10 +345,10 @@ export class BoksSimulator extends EventEmitter {
     }
     // Big Endian for Counts
     this.sendNotification(BLEOpcode.NOTIFY_CODES_COUNT, [
-      (masterCount >> 8) & 0xff,
-      masterCount & 0xff,
-      (singleCount >> 8) & 0xff,
-      singleCount & 0xff
+      (masterCount >> 8) & 0XFF,
+      masterCount & 0XFF,
+      (singleCount >> 8) & 0XFF,
+      singleCount & 0XFF
     ]);
   }
 

@@ -26,7 +26,8 @@ const customRulesPlugin = {
                   node,
                   message: 'Hexadecimal literals must be uppercase.',
                   fix(fixer) {
-                    return fixer.replaceText(node, node.raw.toUpperCase());
+                    const fixed = '0x' + node.raw.slice(2).toUpperCase();
+                    return fixer.replaceText(node, fixed);
                   }
                 });
               }

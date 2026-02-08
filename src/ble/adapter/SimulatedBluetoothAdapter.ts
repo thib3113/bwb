@@ -48,10 +48,10 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
       // Code Count: Big Endian [MasterMSB, MasterLSB, SingleMSB, SingleLSB].
       this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [
-        (masterCount >> 8) & 0xff,
-        masterCount & 0xff,
-        (singleCount >> 8) & 0xff,
-        singleCount & 0xff
+        (masterCount >> 8) & 0XFF,
+        masterCount & 0XFF,
+        (singleCount >> 8) & 0XFF,
+        singleCount & 0XFF
       ]);
     }, 500);
 
