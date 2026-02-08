@@ -13,7 +13,7 @@ The Boks exposes two battery characteristics, and they behave very differently.
 **B. Proprietary Characteristic (`...0004`)**
 *   **Reliability:** **Low / Conditional**.
 *   **Behavior:** This characteristic often returns invalid data (e.g., all bytes `0xFF`) if the device has been idle.
-*   **Activation:** It typically only populates with valid detailed stats (voltage, temperature history) **immediately after a door event** (Open/Close).
+*   **Activation:** It typically only populates with valid detailed stats (voltage, temperature Log) **immediately after a door event** (Open/Close).
 *   **Parsing Logic:**
     *   If `Byte[0] == 0xFF`: Data is invalid/stale. Ignore it.
     *   If `Length == 6`: Detailed stats (`Level`, `Min`, `Mean`, `Max`, `Last`, `Temp`).

@@ -1,7 +1,7 @@
 # ADR 003: State Management & Persistence
 
 ## Context
-The app needs to manage ephemeral state (connection status, current logs) and persistent state (saved PIN codes, device keys, history).
+The app needs to manage ephemeral state (connection status, current logs) and persistent state (saved PIN codes, device keys, Log).
 
 ## Decision
 We use a hybrid approach: **React Context for UI State** and **IndexedDB for Data**.

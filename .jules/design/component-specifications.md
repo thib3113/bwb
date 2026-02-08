@@ -67,7 +67,7 @@ This document provides detailed specifications for each component in the new res
 **Dependencies**:
 - BottomNavigation, BottomNavigationAction from '@mui/material'
 - CodeManager, LogViewer, Configuration components
-- Icons: ListIcon (or KeyIcon), HistoryIcon (or ListAltIcon), SettingsIcon (or TuneIcon)
+- Icons: ListIcon (or KeyIcon), LogIcon (or ListAltIcon), SettingsIcon (or TuneIcon)
 
 ### DesktopView.jsx
 

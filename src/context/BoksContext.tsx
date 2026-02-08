@@ -172,12 +172,12 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     try {
       // Define Log Opcodes to capture
       const logOpcodes = [
-        BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
-        BLEOpcode.LOG_CODE_KEY_VALID_HISTORY,
-        BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY,
-        BLEOpcode.LOG_CODE_KEY_INVALID_HISTORY,
-        BLEOpcode.LOG_DOOR_CLOSE_HISTORY,
-        BLEOpcode.LOG_DOOR_OPEN_HISTORY,
+        BLEOpcode.LOG_CODE_BLE_VALID,
+        BLEOpcode.LOG_CODE_KEY_VALID,
+        BLEOpcode.LOG_CODE_BLE_INVALID,
+        BLEOpcode.LOG_CODE_KEY_INVALID,
+        BLEOpcode.LOG_DOOR_CLOSE,
+        BLEOpcode.LOG_DOOR_OPEN,
         BLEOpcode.LOG_EVENT_SCALE_MEASURE,
         BLEOpcode.LOG_EVENT_KEY_OPENING,
         BLEOpcode.LOG_EVENT_ERROR,
@@ -189,7 +189,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
       const packets = await sendRequest(new RequestLogsPacket(), {
         timeout: 60000, // 60s max for full sync
         strategy: (packet) => {
-          if (packet.opcode === BLEOpcode.LOG_END_HISTORY) return 'finish';
+          if (packet.opcode === BLEOpcode.LOG_END) return 'finish';
           if (logOpcodes.includes(packet.opcode)) return 'continue';
           return 'ignore';
         },

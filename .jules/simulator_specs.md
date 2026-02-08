@@ -67,7 +67,7 @@ The simulator **MUST** reproduce the firmware's inconsistent length calculation 
 *   **Behavior:** Stream the logs from `state.logs`.
 *   **Format:** One notification per log entry.
 *   **Speed:** Send one packet every ~50ms to simulate BLE throughput.
-*   **End:** Send `END_HISTORY (0x92)` when finished.
+*   **End:** Send `LOG_END (0x92)` when finished.
 
 ### `SET_CONFIGURATION (0x16)`
 *   **Logic:** Update internal flags (e.g., La Poste Scanning).
@@ -82,16 +82,16 @@ The simulator **MUST** reproduce the firmware's inconsistent length calculation 
 
 ## 4. Simulator Control & Logic Consistency
 
-The simulator must maintain a coherent internal history and state, even when subjected to rapid or "impossible" commands. It supports manual triggers (Playwright/Console) and an optional "Chaos Mode" (Autonomous behavior).
+The simulator must maintain a coherent internal Log and state, even when subjected to rapid or "impossible" commands. It supports manual triggers (Playwright/Console) and an optional "Chaos Mode" (Autonomous behavior).
 
-### Logical Consistency & History Synthesis
+### Logical Consistency & Log Synthesis
 1.  **State Mutual Exclusion:**
     *   A door cannot be opened if it is already `open`. Subsequent "Open" commands during this state will return `VALID_OPEN_CODE` but will NOT trigger new notifications or logs.
 2.  **Auto-Close:**
     *   Any opening event (BLE, NFC, Physical) triggers an automatic closing sequence after a delay (e.g., 5s to 30s). The sequence MUST be: `NOTIFY(Open) -> Log(Open) -> ... Delay ... -> Log(Close) -> NOTIFY(Closed)`.
 3.  **Log Synthesis (The "Time Travel" Rule):**
     *   The simulator does not need strict real-time debouncing.
-    *   When the App requests logs (`REQUEST_LOGS`), the simulator can synthesize a logical history.
+    *   When the App requests logs (`REQUEST_LOGS`), the simulator can synthesize a logical Log.
     *   *Example:* If the user triggers 3 openings in 1 second via the console, the simulator should record them with plausible timestamps (at least 2-5s apart) or merge them into a single coherent sequence (Open -> Close -> Open).
 
 ### Control Interface (DevTools & API)

@@ -7,7 +7,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { Code, History, Settings } from '@mui/icons-material';
+import { Code, ListAlt as Log, Settings } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CodeManager } from '../codes/CodeManager';
@@ -193,7 +193,7 @@ export const MobileView = ({
         }}
       >
         <BottomNavigationAction label={t('codes:title')} icon={<Code />} />
-        <BottomNavigationAction label={t('logs:title')} icon={<History />} />
+        <BottomNavigationAction label={t('logs:title')} icon={<Log />} />
         <BottomNavigationAction label={t('settings:title')} icon={<Settings />} />
       </BottomNavigation>
     </Box>

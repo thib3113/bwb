@@ -16,7 +16,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import HistoryIcon from '@mui/icons-material/History';
+import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
 import { SimulatorAPI } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
@@ -204,7 +204,7 @@ export const SimulatorDebugger = () => {
                   variant="subtitle2"
                   sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  <HistoryIcon />{' '}
+                  <LogIcon />{' '}
                   {t('settings:developer.simulator.logs_count', { count: state.logs.length })}
                 </Typography>
                 <Button

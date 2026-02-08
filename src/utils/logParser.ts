@@ -5,7 +5,7 @@
  */
 
 import {BoksLog} from '../types';
-import {parsePayload} from './payloadParser';
+import {parsePayload, ParsedPayload} from './payloadParser';
 import {BLEOpcode, DIAGNOSTIC_ERROR_CODES, POWER_OFF_REASONS} from './bleConstants';
 
 interface LogEventType {
@@ -13,20 +13,20 @@ interface LogEventType {
   description: string;
 }
 
-// Event types mapping from BoksHistoryEvent enum
+// Event types mapping from BoksLogEvent enum
 const LOG_EVENT_TYPES: Record<number, LogEventType> = {
   [BLEOpcode.VALID_OPEN_CODE]: { type: 'valid_open_code', description: 'events.valid_open_code' },
   [BLEOpcode.INVALID_OPEN_CODE]: { type: 'invalid_open_code', description: 'events.invalid_open_code' },
   [BLEOpcode.NOTIFY_DOOR_STATUS]: { type: 'notify_door_status', description: 'events.notify_door_status' },
   [BLEOpcode.ANSWER_DOOR_STATUS]: { type: 'answer_door_status', description: 'events.answer_door_status' },
-  [BLEOpcode.LOG_CODE_BLE_VALID_HISTORY]: { type: 'code_ble_valid', description: 'events.code_ble_valid' },
-  [BLEOpcode.LOG_CODE_KEY_VALID_HISTORY]: { type: 'code_key_valid', description: 'events.code_key_valid' },
-  [BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY]: { type: 'code_ble_invalid', description: 'events.code_ble_invalid' },
-  [BLEOpcode.LOG_CODE_KEY_INVALID_HISTORY]: { type: 'code_key_invalid', description: 'events.code_key_invalid' },
-  [BLEOpcode.LOG_DOOR_CLOSE_HISTORY]: { type: 'door_closed', description: 'events.door_closed' },
-  [BLEOpcode.LOG_DOOR_OPEN_HISTORY]: { type: 'door_opened', description: 'events.door_opened' },
-  [BLEOpcode.LOG_END_HISTORY]: { type: 'log_end_history', description: 'events.log_end_history' },
-  [BLEOpcode.LOG_HISTORY_ERASE]: { type: 'history_erase', description: 'events.history_erase' },
+  [BLEOpcode.LOG_CODE_BLE_VALID]: { type: 'code_ble_valid', description: 'events.code_ble_valid' },
+  [BLEOpcode.LOG_CODE_KEY_VALID]: { type: 'code_key_valid', description: 'events.code_key_valid' },
+  [BLEOpcode.LOG_CODE_BLE_INVALID]: { type: 'code_ble_invalid', description: 'events.code_ble_invalid' },
+  [BLEOpcode.LOG_CODE_KEY_INVALID]: { type: 'code_key_invalid', description: 'events.code_key_invalid' },
+  [BLEOpcode.LOG_DOOR_CLOSE]: { type: 'door_closed', description: 'events.door_closed' },
+  [BLEOpcode.LOG_DOOR_OPEN]: { type: 'door_opened', description: 'events.door_opened' },
+  [BLEOpcode.LOG_END]: { type: 'log_end_log', description: 'events.log_end_log' },
+  [BLEOpcode.LOG_ERASE]: { type: 'log_erase', description: 'events.log_erase' },
   [BLEOpcode.POWER_OFF]: { type: 'power_off', description: 'events.power_off' },
   [BLEOpcode.BLOCK_RESET]: { type: 'block_reset', description: 'events.block_reset' },
   [BLEOpcode.POWER_ON]: { type: 'power_on', description: 'events.power_on' },
@@ -41,7 +41,8 @@ const LOG_EVENT_TYPES: Record<number, LogEventType> = {
 export interface ParsedLog extends BoksLog {
   eventType: string;
   description: string;
-  details: Record<string, unknown>; // Use unknown instead of any
+  details: Record<string, unknown>;
+  payloadInstance?: ParsedPayload; // Structured payload instance
   hasDetails: boolean;
   raw: BoksLog; // Original raw log entry
 }
@@ -90,13 +91,14 @@ export function parseLog(logEntry: BoksLog): ParsedLog {
 
     // Parse payload using the new payload parser
     let details: Record<string, unknown> = {};
+    let payloadInstance: ParsedPayload | undefined;
     if (payloadBytes && opcode !== undefined) {
       const rawPacket = new Uint8Array(2 + payloadBytes.length);
       rawPacket[0] = opcode;
       rawPacket[1] = payloadBytes.length;
       rawPacket.set(payloadBytes, 2);
-      const parsedPayload = parsePayload(opcode, payloadBytes, rawPacket);
-      details = parsedPayload.toDetails();
+      payloadInstance = parsePayload(opcode, payloadBytes, rawPacket);
+      details = payloadInstance.toDetails();
     }
 
     // Handle special cases that need additional parsing
@@ -117,10 +119,10 @@ export function parseLog(logEntry: BoksLog): ParsedLog {
 
     // Determine if this log has meaningful details to display
     const hasDetails = [
-      BLEOpcode.LOG_CODE_BLE_VALID_HISTORY, // CODE_BLE_VALID_HISTORY (Code, MAC)
-      BLEOpcode.LOG_CODE_KEY_VALID_HISTORY, // CODE_KEY_VALID_HISTORY (Code)
-      BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY, // CODE_BLE_INVALID_HISTORY (Code, MAC)
-      BLEOpcode.LOG_CODE_KEY_INVALID_HISTORY, // CODE_KEY_INVALID_HISTORY (Code)
+      BLEOpcode.LOG_CODE_BLE_VALID, // LOG_CODE_BLE_VALID (Code, MAC)
+      BLEOpcode.LOG_CODE_KEY_VALID, // LOG_CODE_KEY_VALID (Code)
+      BLEOpcode.LOG_CODE_BLE_INVALID, // LOG_CODE_BLE_INVALID (Code, MAC)
+      BLEOpcode.LOG_CODE_KEY_INVALID, // LOG_CODE_KEY_INVALID (Code)
       BLEOpcode.POWER_OFF, // POWER_OFF (Reason)
       BLEOpcode.LOG_EVENT_ERROR, // LOG_EVENT_ERROR (Error code)
       BLEOpcode.LOG_EVENT_NFC_OPENING, // NFC_OPENING (UID)
@@ -137,6 +139,7 @@ export function parseLog(logEntry: BoksLog): ParsedLog {
       eventType: eventMapping.type,
       description: eventMapping.description,
       details,
+      payloadInstance,
       timestamp: String(logEntry.timestamp || new Date().toISOString()),
       raw: logEntry, // Keep original for reference
       hasDetails,

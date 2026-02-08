@@ -47,7 +47,7 @@ describe('BoksSimulator', () => {
 
     expect(controller.getState().isOpen).toBe(false);
     expect(controller.getState().logs).toHaveLength(2); // Open + Close
-    expect(controller.getState().logs[1].opcode).toBe(BLEOpcode.LOG_DOOR_CLOSE_HISTORY);
+    expect(controller.getState().logs[1].opcode).toBe(BLEOpcode.LOG_DOOR_CLOSE);
   });
 
   it('should handle BLE Open Door packet', () => {
@@ -107,7 +107,7 @@ describe('BoksSimulator', () => {
     // Expected emissions:
     // 1. Log 1
     // 2. Log 2
-    // 3. End History
+    // 3. End Log
     expect(emitSpy).toHaveBeenCalledTimes(3);
   });
 

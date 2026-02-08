@@ -34,7 +34,7 @@ This document defines the low-level communication protocol for the Boks hardware
 |:-----------|:------------------|:-----------------------------|:---------------------------|
 | `0x01`     | `OPEN_DOOR`       | Unlock request               | `[PIN_CODE]`               |
 | `0x02`     | `ASK_DOOR_STATUS` | Query state                  | None                       |
-| `0x03`     | `REQUEST_LOGS`    | Start history stream         | None                       |
+| `0x03`     | `REQUEST_LOGS`    | Start Log stream         | None                       |
 | `0x07`     | `GET_LOGS_COUNT`  | Query log quantity           | None                       |
 | `0x0C`     | `DELETE_MASTER`   | Remove master PIN            | `[ConfigKey, Index]`       |
 | `0x0D`     | `DELETE_SINGLE`   | Remove 1-use PIN             | `[ConfigKey, Code]`        |
@@ -64,7 +64,7 @@ This document defines the low-level communication protocol for the Boks hardware
 | `0x82`     | `INVALID_OPEN_CODE`     | PIN was incorrect                   |
 | `0x84`     | `NOTIFY_DOOR_STATUS`    | Auto-update: State changed          |
 | `0x85`     | `ANSWER_DOOR_STATUS`    | Response to `0x02`                  |
-| `0x92`     | `END_HISTORY`           | History stream finished             |
+| `0x92`     | `LOG_END`           | Log stream finished             |
 | `0xC3`     | `NOTIFY_CODES_COUNT`    | Response to `0x14` (or spontaneous) |
 | `0xC5`     | `NFC_TAG_REGISTER_SCAN_RESULT` | Tag scanned by reader        |
 | `0xE1`     | `ERROR_UNAUTHORIZED`    | Wrong `config_key`                  |
@@ -78,7 +78,7 @@ This document defines the low-level communication protocol for the Boks hardware
 | `0xC3` | `[Len=07, Master(2), Other(2)]` | **NOTIFY_CODES_COUNT**: Counts are uint16 BE. **WARNING**: `Len` is **Total Packet Length** (7). |
 | `0x84` | `[Len, Status, ...]` | **NOTIFY_DOOR_STATUS**: Detailed door/lock status. |
 
-## 5. History Event Opcodes (Log Stream)
+## 5. Log Event Opcodes (Log Stream)
 When `REQUEST_LOGS` (`0x03`) is active, the device streams these events.
 
 | Hex    | Event Name       | Meaning                     |

@@ -88,17 +88,17 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           const safetyTimeout = setTimeout(() => {
             if (isSimulator && isSyncingRef.current) {
               console.warn('[DeviceLogContext] Simulator: Log sync timed out, forcing completion.');
-              handleEndHistory();
+              handleEndLog();
             }
           }, 3000);
 
-          const handleEndHistory = () => {
+          const handleEndLog = () => {
             clearTimeout(safetyTimeout);
             log('End of logs received', 'info');
             console.log(
-              `[DeviceLogContext] End of history. Buffer contains ${logsBufferRef.current.length} logs.`
+              `[DeviceLogContext] End of Log. Buffer contains ${logsBufferRef.current.length} logs.`
             );
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END, handleEndLog);
             removeListener('*', handleLogPacket);
 
             // Save logs
@@ -124,7 +124,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             // Ignore TX and control packets
             if (
               packet.direction === 'TX' ||
-              packet.opcode === BLEOpcode.LOG_END_HISTORY ||
+              packet.opcode === BLEOpcode.LOG_END ||
               packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT
             )
               return;
@@ -157,13 +157,13 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
             }
           };
 
-          // Subscribe to end of history and log packets BEFORE sending request
-          addListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+          // Subscribe to end of Log and log packets BEFORE sending request
+          addListener(BLEOpcode.LOG_END, handleEndLog);
           addListener('*', handleLogPacket);
 
           // Use sendRequest with expectResponse: false to ensure it goes through queue
           sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch((err) => {
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
+            removeListener(BLEOpcode.LOG_END, handleEndLog);
             removeListener('*', handleLogPacket);
             isSyncingRef.current = false;
             setIsSyncingLogs(false);

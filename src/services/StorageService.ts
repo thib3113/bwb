@@ -1,8 +1,15 @@
 import { db } from '../db/db';
 import { BoksLog, BoksCode, CodeStatus, Settings, BoksSettings, UserRole } from '../types';
-import { BoksDevice, BoksNfcTag } from '../types/db';
+import { BoksDevice, BoksNfcTag, BoksNfcTagType } from '../types/db';
 import { BLEOpcode } from '../utils/bleConstants';
 import { CODE_TYPES } from '../utils/constants';
+import {
+  BleValidLogPayload,
+  KeyValidLogPayload,
+  NfcOpeningLogPayload,
+  NfcRegisteringLogPayload,
+} from '../utils/payloadParser';
+import { parseLog } from '../utils/logParser';
 
 interface RunTaskOptions {
   showNotification?: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -79,39 +86,33 @@ export class StorageService {
 
     try {
       const logsToAdd: BoksLog[] = [];
-      const tagsToUpdate: BoksNfcTag[] = [];
+      // Optimization: Using a Map to deduplicate tags in the same batch and prepare for bulk upsert
+      const tagsToUpdateMap = new Map<string, BoksNfcTag>();
 
       for (const log of logs) {
-        // Prepare Log
+        // Ensure log is parsed to get structured information (payloadInstance)
+        // We cast to BoksLog because parseLog expects it, and log is Partial<BoksLog>
+        const parsed = parseLog(log as BoksLog);
+
+        // Prepare Log for storage
         const logEntry = {
           id: log.id || crypto.randomUUID(),
           device_id: deviceId,
           timestamp: log.timestamp || new Date().toISOString(),
-          event: log.event || 'UNKNOWN',
-          type: log.type || 'info',
+          event: parsed.event || 'UNKNOWN',
+          type: parsed.type || 'info',
           synced: log.synced || false,
           ...log,
         } as BoksLog;
         logsToAdd.push(logEntry);
 
         // Check for Code Usage (Auto-Mark as Used)
-        // 0x86 (LOG_CODE_BLE_VALID_HISTORY) and 0x87 (LOG_CODE_KEY_VALID_HISTORY)
+        const payloadInstance = parsed.payloadInstance;
         if (
-          log.opcode === BLEOpcode.LOG_CODE_BLE_VALID_HISTORY ||
-          log.opcode === BLEOpcode.LOG_CODE_KEY_VALID_HISTORY
+          payloadInstance instanceof BleValidLogPayload ||
+          payloadInstance instanceof KeyValidLogPayload
         ) {
-          let usedCodeValue: string | undefined;
-
-          // Try to get code from details (if parsed)
-          // @ts-expect-error - 'details' is dynamic
-          if (log.details?.code) {
-            // @ts-expect-error
-            usedCodeValue = log.details.code;
-          }
-          // Try to get from data (legacy/mock)
-          else if (log.data?.code_value) {
-            usedCodeValue = log.data.code_value as string;
-          }
+          const usedCodeValue = payloadInstance.code;
 
           if (usedCodeValue) {
             console.log(`[StorageService] Detected usage of code: ${usedCodeValue}`);
@@ -146,19 +147,33 @@ export class StorageService {
         }
 
         // Check for NFC Tags in log details
-        // @ts-expect-error - 'details' comes from parseLog but is not on BoksLog interface
-        const details = log.details as Record<string, unknown> | undefined;
-        if (details && typeof details.tag_uid === 'string') {
-          tagsToUpdate.push({
-            id: crypto.randomUUID(), // New ID, but we might overwrite based on logic below
-            device_id: deviceId,
-            uid: details.tag_uid,
-            name: 'Utilisateur ' + details.tag_uid.substring(0, 5), // Default name
-            type: (details.tag_type as number) || 0,
-            last_seen_at: Date.now(),
-            created_at: Date.now(), // Will be ignored if updating
-            sync_status: 'created',
-          });
+        if (
+          payloadInstance instanceof NfcOpeningLogPayload ||
+          payloadInstance instanceof NfcRegisteringLogPayload
+        ) {
+          const tagUid = payloadInstance.tag_uid;
+          if (tagUid) {
+            const existingInBatch = tagsToUpdateMap.get(tagUid);
+
+            if (!existingInBatch) {
+              tagsToUpdateMap.set(tagUid, {
+                id: tagUid, // Use UID as primary key ID
+                device_id: deviceId,
+                uid: tagUid,
+                name: '', // Empty name, UI will handle display/translation
+                type: payloadInstance.tag_type || BoksNfcTagType.USER_BADGE,
+                last_seen_at: Date.now(),
+                created_at: Date.now(),
+                sync_status: 'created',
+              });
+            } else {
+              // Update the tag in the current batch (preserve earliest created_at, latest last_seen_at)
+              existingInBatch.last_seen_at = Date.now();
+              if (payloadInstance.tag_type) {
+                existingInBatch.type = payloadInstance.tag_type;
+              }
+            }
+          }
         }
       }
 
@@ -166,21 +181,39 @@ export class StorageService {
         await db.logs.bulkPut(logsToAdd);
       }
 
-      // Upsert Tags
-      if (tagsToUpdate.length > 0) {
-        for (const tag of tagsToUpdate) {
-          // Check if exists to preserve name
-          const existing = await db.nfc_tags.where({ device_id: deviceId, uid: tag.uid }).first();
+      // Bulk Upsert Tags
+      if (tagsToUpdateMap.size > 0) {
+        const uidsInBatch = Array.from(tagsToUpdateMap.keys());
+
+        // Performance Fix: Fetch all relevant tags for this device in ONE query instead of N queries in a loop.
+        // This solves the N+1 problem by reducing the number of database round-trips and transaction overhead.
+        // Even without a compound index on [device_id+uid], filtering by device_id and then by UID in memory
+        // is significantly faster than multiple separate await calls.
+        const existingTags = await db.nfc_tags
+          .where('device_id')
+          .equals(deviceId)
+          .filter((t) => uidsInBatch.includes(t.uid))
+          .toArray();
+
+        const existingMap = new Map(existingTags.map((t) => [t.uid, t]));
+        const tagsToPut: BoksNfcTag[] = [];
+
+        for (const [uid, tag] of tagsToUpdateMap) {
+          const existing = existingMap.get(uid);
           if (existing) {
-            await db.nfc_tags.update(existing.id, {
+            // Merge with existing to preserve ID and Name
+            tagsToPut.push({
+              ...existing,
               last_seen_at: tag.last_seen_at,
-              // Only update type if meaningful? Assuming log type is correct.
-              type: tag.type,
+              type: tag.type || existing.type,
             });
           } else {
-            // Only add if "User Badge" (0x03) or generic?
-            await db.nfc_tags.add(tag);
+            tagsToPut.push(tag);
           }
+        }
+
+        if (tagsToPut.length > 0) {
+          await db.nfc_tags.bulkPut(tagsToPut);
         }
       }
     } catch (error) {
@@ -426,7 +459,7 @@ export class StorageService {
           event: 'CODE_BLE_VALID',
           type: 'info',
           data: { code_index: 0, code_value: '123456' },
-          opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
+          opcode: BLEOpcode.LOG_CODE_BLE_VALID,
           payload: new Uint8Array([0x01, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]),
           synced: false,
         },
@@ -437,7 +470,7 @@ export class StorageService {
           event: 'DOOR_OPENED',
           type: 'info',
           data: {},
-          opcode: BLEOpcode.LOG_DOOR_OPEN_HISTORY,
+          opcode: BLEOpcode.LOG_DOOR_OPEN,
           payload: new Uint8Array([0x01]),
           synced: false,
         },

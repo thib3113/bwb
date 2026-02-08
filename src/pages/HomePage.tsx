@@ -5,7 +5,7 @@ import { useDevice } from '../hooks/useDevice';
 import { OnboardingView } from '../components/layout/OnboardingView';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import {
-  History as HistoryIcon,
+  Log as LogIcon,
   Settings as SettingsIcon,
   VpnKey as VpnKeyIcon,
 } from '@mui/icons-material';
@@ -85,7 +85,7 @@ export const HomePage = () => {
         <BottomNavigationAction
           data-testid="nav-logs"
           label={t('logs:title')}
-          icon={<HistoryIcon />}
+          icon={<LogIcon />}
         />
         <BottomNavigationAction
           data-testid="nav-settings"

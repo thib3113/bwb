@@ -141,10 +141,10 @@ export class BoksSimulator extends EventEmitter {
     // 2. Log Entry
     const logOpcode =
       source === 'ble'
-        ? BLEOpcode.LOG_CODE_BLE_VALID_HISTORY
+        ? BLEOpcode.LOG_CODE_BLE_VALID
         : source === 'nfc'
           ? BLEOpcode.LOG_EVENT_NFC_OPENING
-          : BLEOpcode.LOG_CODE_KEY_VALID_HISTORY; // fallback
+          : BLEOpcode.LOG_CODE_KEY_VALID; // fallback
     this.addLog(logOpcode, [0, 0, 0, 0]); // simplified payload
 
     // 3. Auto Close Schedule
@@ -161,7 +161,7 @@ export class BoksSimulator extends EventEmitter {
     this.sendNotification(BLEOpcode.NOTIFY_DOOR_STATUS, [0x01, 0x00]);
 
     // 2. Log Entry
-    this.addLog(BLEOpcode.LOG_DOOR_CLOSE_HISTORY, []);
+    this.addLog(BLEOpcode.LOG_DOOR_CLOSE, []);
 
     if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
   }
@@ -328,7 +328,7 @@ export class BoksSimulator extends EventEmitter {
     const interval = setInterval(() => {
       if (i >= sortedLogs.length) {
         clearInterval(interval);
-        this.sendNotification(BLEOpcode.LOG_END_HISTORY, []);
+        this.sendNotification(BLEOpcode.LOG_END, []);
         return;
       }
 

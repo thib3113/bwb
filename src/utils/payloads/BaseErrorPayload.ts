@@ -1,27 +1,28 @@
-// Code operation success/error payload
 import { ParsedPayload } from './base';
-import { BLEOpcode } from '../bleConstants';
 
-export class CodeOperationPayload implements ParsedPayload {
+export abstract class BaseErrorPayload implements ParsedPayload {
   opcode: number;
   payload: Uint8Array;
   raw: Uint8Array;
-  success: boolean;
+  errorCode: number;
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     this.opcode = opcode;
     this.payload = payload;
     this.raw = raw;
-    this.success = opcode === BLEOpcode.CODE_OPERATION_SUCCESS;
+    this.errorCode = payload.length >= 1 ? payload[0] : 0;
   }
 
+  abstract get errorMessage(): string;
+
   toString(): string {
-    return `Code Operation: ${this.success ? 'Success' : 'Error'}`;
+    return `Error: ${this.errorMessage} (${this.errorCode})`;
   }
 
   toDetails(): Record<string, unknown> {
     return {
-      success: this.success,
+      errorCode: this.errorCode,
+      errorMessage: this.errorMessage,
     };
   }
 }
