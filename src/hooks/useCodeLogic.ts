@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { BoksCode, CODE_TYPE, CodeMetadata } from '../types';
+import { BoksCode, CodeMetadata } from '../types';
+import { CODE_TYPE } from '../types/enums';
 import { APP_DEFAULTS } from '../utils/constants';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from '../services/StorageService';
