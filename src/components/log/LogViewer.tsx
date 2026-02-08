@@ -11,7 +11,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { db } from '../../db/db';
@@ -102,7 +102,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           ...parsedLog,
           details,
           fullDate,
-          event: t(parsedLog.description),
+          event: t(parsedLog.description)
         };
       });
 
@@ -131,7 +131,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       hideNotification,
       loadingMsg: t('refresh_started'),
       successMsg: t('refresh_success'),
-      errorMsg: t('refresh_failed'),
+      errorMsg: t('refresh_failed')
     });
   }, [isConnected, requestLogs, showNotification, hideNotification, t]);
 
@@ -165,7 +165,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
           borderRadius: 1,
           p: 2,
           backgroundColor: 'background.paper',
-          fontFamily: 'Courier New, monospace',
+          fontFamily: 'Courier New, monospace'
         }}
       >
         {parsedLogs.length > 0 ? (
@@ -191,7 +191,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
                 day: '2-digit',
                 month: '2-digit',
                 hour: '2-digit',
-                minute: '2-digit',
+                minute: '2-digit'
               });
               const fullDate = date.toLocaleString(i18n.language);
 

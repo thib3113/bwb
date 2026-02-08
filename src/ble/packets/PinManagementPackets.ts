@@ -10,7 +10,7 @@ export class CreateMasterCodePacket extends BoksTXPacket {
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
     index: z.coerce.number().min(0).max(255),
-    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long')
   });
 
   constructor(
@@ -57,7 +57,7 @@ export class CreateSingleUseCodePacket extends BoksTXPacket {
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
-    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long')
   });
 
   constructor(
@@ -97,7 +97,7 @@ export class CreateMultiUseCodePacket extends BoksTXPacket {
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
-    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long')
   });
 
   constructor(
@@ -136,7 +136,7 @@ export class DeleteMasterCodePacket extends BoksTXPacket {
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
-    index: z.coerce.number().min(0).max(255),
+    index: z.coerce.number().min(0).max(255)
   });
 
   constructor(
@@ -168,7 +168,7 @@ export class DeleteSingleUseCodePacket extends BoksTXPacket {
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
-    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long')
   });
 
   constructor(
@@ -208,7 +208,7 @@ export class DeleteMultiUseCodePacket extends BoksTXPacket {
 
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
-    code: z.string().min(4, 'Code too short').max(6, 'Code too long'),
+    code: z.string().min(4, 'Code too short').max(6, 'Code too long')
   });
 
   constructor(

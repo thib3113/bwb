@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { expect, test } from './fixtures';
 
 test.describe('Maintenance Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,11 +12,13 @@ test.describe('Maintenance Page', () => {
 
     // Wait for connection to establish
     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
-    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({
+      timeout: 20000
+    });
   });
 
   test('should navigate to maintenance page and run clean master codes script', async ({
-    page,
+    page
   }) => {
     // 1. Open Menu
     await page.getByRole('button', { name: 'menu' }).click();

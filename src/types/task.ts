@@ -10,7 +10,7 @@ export enum TaskType {
   GET_BATTERY_LEVEL = 'GET_BATTERY_LEVEL',
   UNLOCK_DOOR = 'UNLOCK_DOOR',
   LOCK_DOOR = 'LOCK_DOOR',
-  GET_DOOR_STATUS = 'GET_DOOR_STATUS',
+  GET_DOOR_STATUS = 'GET_DOOR_STATUS'
 }
 
 export interface BaseTask {

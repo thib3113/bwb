@@ -1,63 +1,63 @@
 {
-	"title": "Aidez nous",
-	"steps": {
-		"step1": "Connexion",
-		"step2": "Ouverture/Batterie",
-		"step3": "Questions",
-		"step4": "Avancé",
-		"step5": "Récapitulatif"
-	},
-	"connect": {
-		"title": "Étape 1 : Connexion à l'appareil Boks",
-		"desc": "Veuillez vous assurer que votre appareil Boks est allumé et à portée.",
-		"button": "Se connecter à l'appareil",
-		"success": "Connecté avec succès",
-		"ready": "Prêt à procéder au diagnostic"
-	},
-	"door": {
-		"title": "Étape 2 : Ouverture de porte & État de la batterie",
-		"desc": "Testez le mécanisme d'ouverture et vérifiez le niveau de batterie.",
-		"open": "Ouvrir la porte",
-		"opening": "Ouverture...",
-		"success": "Porte ouverte avec succès !",
-		"pin_placeholder": "Entrez le PIN (6 caractères)"
-	},
-	"battery": {
-		"wait": "Veuillez ouvrir la porte pour déclencher le diagnostic.",
-		"waiting_close": "En attente de la fermeture de la porte...",
-		"analyzing": "Analyse en cours...",
-		"standard_level": "Niveau Standard (BLE)",
-		"proprietary_data": "Données Propriétaires",
-		"voltage_last": "Tension (Last)",
-		"temperature": "Température",
-		"analysis": "Analyse",
-		"detected_type": "Type détecté"
-	},
-	"questions": {
-		"title": "Étape 3 : Questions Contextuelles",
-		"desc": "Ces informations nous aident à affiner le diagnostic.",
-		"has_scale": "Votre Boks a-t-elle une balance intégrée ?",
-		"anything_special": "Pensez-vous que votre Boks a quelque chose de spécial (comportement, ports physiques...) ?"
-	},
-	"advanced": {
-		"title": "Étape 4 : Débogage avancé",
-		"warning": "Cette section permet de collecter des données approfondies.",
-		"tutorial_title": "Comment faire ?",
-		"tutorial_desc": "Pour une analyse poussée, utilisez nRF Connect for Mobile.",
-		"explorer_title": "Explorateur de services (Manuel)",
-		"explorer_desc": "Si vous connaissez des UUID spécifiques, entrez-les ici.",
-		"explore_button": "Lancer l'exploration (Reconnexion)",
-		"exploring": "Exploration..."
-	},
-	"recap": {
-		"title": "Étape 5 : Résumé & Contribution",
-		"desc": "Voici les données collectées. Partagez-les si vous voyez des anomalies !",
-		"interesting_found": "Éléments inhabituels détectés. Vos données sont précieuses !",
-		"open_issue": "Ouvrir un ticket sur GitHub",
-		"copy_first": "Copiez d'abord le JSON ci-dessous"
-	},
-	"finished": {
-		"title": "Terminé",
-		"desc": "Vous avez terminé l'assistant de débogage."
-	}
+  "title": "Aidez nous",
+  "steps": {
+    "step1": "Connexion",
+    "step2": "Ouverture/Batterie",
+    "step3": "Questions",
+    "step4": "Avancé",
+    "step5": "Récapitulatif"
+  },
+  "connect": {
+    "title": "Étape 1 : Connexion à l'appareil Boks",
+    "desc": "Veuillez vous assurer que votre appareil Boks est allumé et à portée.",
+    "button": "Se connecter à l'appareil",
+    "success": "Connecté avec succès",
+    "ready": "Prêt à procéder au diagnostic"
+  },
+  "door": {
+    "title": "Étape 2 : Ouverture de porte & État de la batterie",
+    "desc": "Testez le mécanisme d'ouverture et vérifiez le niveau de batterie.",
+    "open": "Ouvrir la porte",
+    "opening": "Ouverture...",
+    "success": "Porte ouverte avec succès !",
+    "pin_placeholder": "Entrez le PIN (6 caractères)"
+  },
+  "battery": {
+    "wait": "Veuillez ouvrir la porte pour déclencher le diagnostic.",
+    "waiting_close": "En attente de la fermeture de la porte...",
+    "analyzing": "Analyse en cours...",
+    "standard_level": "Niveau Standard (BLE)",
+    "proprietary_data": "Données Propriétaires",
+    "voltage_last": "Tension (Last)",
+    "temperature": "Température",
+    "analysis": "Analyse",
+    "detected_type": "Type détecté"
+  },
+  "questions": {
+    "title": "Étape 3 : Questions Contextuelles",
+    "desc": "Ces informations nous aident à affiner le diagnostic.",
+    "has_scale": "Votre Boks a-t-elle une balance intégrée ?",
+    "anything_special": "Pensez-vous que votre Boks a quelque chose de spécial (comportement, ports physiques...) ?"
+  },
+  "advanced": {
+    "title": "Étape 4 : Débogage avancé",
+    "warning": "Cette section permet de collecter des données approfondies.",
+    "tutorial_title": "Comment faire ?",
+    "tutorial_desc": "Pour une analyse poussée, utilisez nRF Connect for Mobile.",
+    "explorer_title": "Explorateur de services (Manuel)",
+    "explorer_desc": "Si vous connaissez des UUID spécifiques, entrez-les ici.",
+    "explore_button": "Lancer l'exploration (Reconnexion)",
+    "exploring": "Exploration..."
+  },
+  "recap": {
+    "title": "Étape 5 : Résumé & Contribution",
+    "desc": "Voici les données collectées. Partagez-les si vous voyez des anomalies !",
+    "interesting_found": "Éléments inhabituels détectés. Vos données sont précieuses !",
+    "open_issue": "Ouvrir un ticket sur GitHub",
+    "copy_first": "Copiez d'abord le JSON ci-dessous"
+  },
+  "finished": {
+    "title": "Terminé",
+    "desc": "Vous avez terminé l'assistant de débogage."
+  }
 }

@@ -89,7 +89,7 @@ const sortCodesByPriorityOptimized = (codes: BoksCode[]) => {
         // So A (NaN) is "larger" index-wise? i.e. comes later in the array.
         // So NaN is "smaller" value-wise.
         // -Infinity works for that if we sort by `dateB - dateA`.
-        isNaNDate: isNaN(date),
+        isNaNDate: isNaN(date)
       };
     })
     .sort((a, b) => {
@@ -116,7 +116,7 @@ describe('Sort Codes Performance', () => {
       CODE_STATUS.ON_DEVICE,
       CODE_STATUS.PENDING_DELETE,
       'synced' as CodeStatus,
-      'rejected' as CodeStatus,
+      'rejected' as CodeStatus
     ];
 
     // Generate random codes
@@ -136,7 +136,7 @@ describe('Sort Codes Performance', () => {
         created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
         sync_status: 'created',
         uses: i % 5,
-        maxUses: 5,
+        maxUses: 5
       });
     }
 

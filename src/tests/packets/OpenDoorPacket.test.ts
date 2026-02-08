@@ -1,6 +1,6 @@
-import {describe, expect, it} from 'vitest';
-import {OpenDoorPacket} from '../../ble/packets/OpenDoorPacket';
-import {BLEOpcode} from '../../utils/bleConstants';
+import { describe, expect, it } from 'vitest';
+import { OpenDoorPacket } from '../../ble/packets/OpenDoorPacket';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 describe('OpenDoorPacket (0x01)', () => {
   it('should construct a valid Open Door full packet', () => {
@@ -24,7 +24,7 @@ describe('OpenDoorPacket (0x01)', () => {
 
     let sum = 0;
     for (let i = 0; i < 8; i++) sum += fullPacket[i];
-    expect(fullPacket[8]).toBe(sum & 0xFF);
+    expect(fullPacket[8]).toBe(sum & 0xff);
   });
 
   it('should generate exact hardcoded binary for "1234"', () => {
@@ -34,9 +34,11 @@ describe('OpenDoorPacket (0x01)', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "01 04 31 32 33 34 CF";
+    const expectedHex = '01 04 31 32 33 34 CF';
     expect(toHex(binary)).toBe(expectedHex);
   });
 });

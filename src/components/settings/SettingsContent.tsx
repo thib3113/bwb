@@ -13,7 +13,7 @@ import {
   IMPORT_EXPORT_MODES,
   LANGUAGES,
   SNACKBAR_SEVERITY,
-  THEME_MODES,
+  THEME_MODES
 } from '../../utils/constants';
 
 import { SettingsGeneral } from './sections/SettingsGeneral';
@@ -39,7 +39,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     autoImport: false,
     deviceNames: {},
     configurationKeys: {},
-    doorPinCodes: {},
+    doorPinCodes: {}
   });
 
   // State for import/export functionality
@@ -60,21 +60,21 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       autoImport: settings.autoImport ?? true,
       deviceNames: {},
       configurationKeys: {},
-      doorPinCodes: {},
+      doorPinCodes: {}
     });
   }, [settings, themeMode]);
 
   const handleThemeChange = (value: string) => {
     setDraftConfig((prev) => ({
       ...prev,
-      theme: value,
+      theme: value
     }));
   };
 
   const handleLanguageChange = (value: string) => {
     setDraftConfig((prev) => ({
       ...prev,
-      language: value,
+      language: value
     }));
   };
 
@@ -82,7 +82,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     const value = event.currentTarget.checked;
     setDraftConfig((prev) => ({
       ...prev,
-      autoImport: value,
+      autoImport: value
     }));
     // Instant update for this specific setting
     updateSetting('autoImport', value);
@@ -127,10 +127,10 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
         settings: {
           autoImport: settings.autoImport || false,
           language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
-          theme: themeMode || THEME_MODES.SYSTEM,
+          theme: themeMode || THEME_MODES.SYSTEM
         },
         devices: [],
-        codes: [],
+        codes: []
       };
 
       // Add device data and codes for each device
@@ -157,7 +157,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
           id: device.id,
           name: device.friendly_name,
           configuration_key: secrets?.configuration_key,
-          door_pin_code: device.door_pin_code,
+          door_pin_code: device.door_pin_code
         });
 
         exportData.codes.push(
@@ -166,7 +166,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
             const { id, device_id, ...codeWithoutIds } = code;
             return {
               deviceId: device.id,
-              ...codeWithoutIds,
+              ...codeWithoutIds
             };
           })
         );
@@ -234,21 +234,21 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
             friendly_name: device.name || `Imported Boks ${device.id.substring(0, 8)}`,
             last_connected_at: Date.now(),
             role: UserRole.Reader, // Default role for imported device if not specified
-            sync_status: 'synced',
+            sync_status: 'synced'
           });
 
           // Restore secrets if available
           if (device.configuration_key) {
             await db.device_secrets.add({
               device_id: device.id,
-              configuration_key: device.configuration_key,
+              configuration_key: device.configuration_key
             });
           }
 
           // Restore door pin code if available
           if (device.door_pin_code) {
             await db.devices.update(device.id, {
-              door_pin_code: device.door_pin_code,
+              door_pin_code: device.door_pin_code
             });
           }
         }
@@ -268,7 +268,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
               device_id: code.deviceId,
               status: code.status || 'synced',
               created_at: code.createdAt || new Date().toISOString(),
-              sync_status: 'synced',
+              sync_status: 'synced'
             } as BoksCode);
           }
         }

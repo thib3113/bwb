@@ -19,7 +19,7 @@ export class PowerOffLogPayload extends BaseLogPayload {
   toDetails(): Record<string, unknown> {
     return {
       ...super.toDetails(),
-      reason: this.reason,
+      reason: this.reason
     };
   }
 }

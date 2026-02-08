@@ -11,7 +11,7 @@ import {
   InputAdornment,
   Switch,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const [isTogglingLaPoste, setIsTogglingLaPoste] = useState(false);
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({
     key: !activeDevice?.configuration_key,
-    pin: !activeDevice?.door_pin_code,
+    pin: !activeDevice?.door_pin_code
   });
   const [deviceName, setDeviceName] = useState(activeDevice?.friendly_name || '');
   const [configurationKey, setConfigurationKey] = useState(activeDevice?.configuration_key || '');
@@ -47,7 +47,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const toggleFieldVisibility = (fieldId: string) => {
     setVisibleFields((prev) => ({
       ...prev,
-      [fieldId]: !prev[fieldId],
+      [fieldId]: !prev[fieldId]
     }));
   };
 
@@ -57,7 +57,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
         await updateDeviceDetails(deviceId, {
           friendly_name: deviceName,
           configuration_key: configurationKey,
-          door_pin_code: doorPinCode,
+          door_pin_code: doorPinCode
         });
       } catch (error) {
         console.error('Failed to update device details:', error);
@@ -143,8 +143,8 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
                           {visibleFields[`key`] ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
-                    ),
-                  },
+                    )
+                  }
                 }}
               />
             )}
@@ -168,8 +168,8 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
                         {visibleFields[`pin`] ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
-                  ),
-                },
+                  )
+                }
               }}
             />
 

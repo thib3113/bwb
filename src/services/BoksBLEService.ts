@@ -6,7 +6,7 @@ import {
   DEVICE_INFO_SERVICE_UUID,
   NOTIFY_CHAR_UUID,
   SERVICE_UUID,
-  WRITE_CHAR_UUID,
+  WRITE_CHAR_UUID
 } from '../utils/bleConstants';
 import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
 import { ParsedPayload, parsePayload } from '../utils/payloadParser';
@@ -38,7 +38,7 @@ export enum BLEServiceEvent {
   PACKET_SENT = 'packet_sent',
   ERROR = 'error',
   CONNECTED = 'connected',
-  DISCONNECTED = 'disconnected',
+  DISCONNECTED = 'disconnected'
 }
 
 export type BLEServiceState =
@@ -226,7 +226,7 @@ export class BoksBLEService extends EventEmitter {
           payload: new Uint8Array(0),
           raw: rawBytes,
           direction: 'RX',
-          isValidChecksum: false,
+          isValidChecksum: false
         } as BLEPacket,
         lastOp
       );
@@ -279,7 +279,7 @@ export class BoksBLEService extends EventEmitter {
       direction: 'TX',
       isValidChecksum: true,
       uuid: charUuid,
-      parsedPayload: logPacket, // Attach the packet object as payload info
+      parsedPayload: logPacket // Attach the packet object as payload info
     } as BLEPacket);
 
     try {
@@ -304,7 +304,7 @@ export class BoksBLEService extends EventEmitter {
             rawBytes,
             new Uint8Array(0),
             parsedValue // Display the parsed value directly
-          ),
+          )
         } as BLEPacket,
         BLEOpcode.INTERNAL_GATT_OPERATION
       );

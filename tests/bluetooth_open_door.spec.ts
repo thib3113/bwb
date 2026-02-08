@@ -1,4 +1,4 @@
-import { expect, test, BLEOpcode } from './fixtures';
+import { BLEOpcode, expect, test } from './fixtures';
 
 test.describe('Bluetooth Open Door Feature', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +10,9 @@ test.describe('Bluetooth Open Door Feature', () => {
     const disabledIcon = page.getByTestId('status-icon-disconnected');
     await page.getByTestId('connection-button').click();
     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
-    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({
+      timeout: 20000
+    });
 
     // 2. Click Open Door (Header Button)
     // Uses stored PIN '123456' from simulator device defaults

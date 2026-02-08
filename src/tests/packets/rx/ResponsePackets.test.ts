@@ -1,8 +1,8 @@
-import {describe, expect, it} from 'vitest';
-import {DoorStatusPacket} from '../../../ble/packets/rx/DoorStatusPacket';
-import {LogCountPacket} from '../../../ble/packets/rx/LogCountPacket';
-import {NfcScanResultPacket} from '../../../ble/packets/rx/NfcScanResultPacket';
-import {BLEOpcode} from '../../../utils/bleConstants';
+import { describe, expect, it } from 'vitest';
+import { DoorStatusPacket } from '../../../ble/packets/rx/DoorStatusPacket';
+import { LogCountPacket } from '../../../ble/packets/rx/LogCountPacket';
+import { NfcScanResultPacket } from '../../../ble/packets/rx/NfcScanResultPacket';
+import { BLEOpcode } from '../../../utils/bleConstants';
 
 describe('RX Packets Parsing', () => {
   it('should have correct static opcodes', () => {
@@ -37,7 +37,7 @@ describe('RX Packets Parsing', () => {
   it('should parse NfcScanResultPacket', () => {
     const packet = new NfcScanResultPacket(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT);
     // UID: AABBCCDD (Len: 4)
-    packet.parse(new Uint8Array([0x04, 0xAA, 0xBB, 0xCC, 0xDD]));
+    packet.parse(new Uint8Array([0x04, 0xaa, 0xbb, 0xcc, 0xdd]));
     expect(packet.uid).toBe('AA:BB:CC:DD');
     expect(packet.status).toBe('found');
   });

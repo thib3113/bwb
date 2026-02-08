@@ -32,7 +32,7 @@ export function formatLogDate(timestamp: number | string, locale: string): strin
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: false
     });
   } else {
     // Without year: Day/Month Hour:Minute
@@ -41,7 +41,7 @@ export function formatLogDate(timestamp: number | string, locale: string): strin
       month: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: false
     });
   }
 }
@@ -63,7 +63,7 @@ export function translateKey(key: string, t: TFunction<'logs'>): string {
     tag_type: t('tag_type'),
     initiatedBy: t('initiated_by'),
     bootReason: t('boot_reason'),
-    payload: t('payload'),
+    payload: t('payload')
   };
 
   return translations[key] || key;

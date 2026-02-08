@@ -37,7 +37,7 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
         justifyContent: 'center',
         height: '100%',
         p: 3,
-        textAlign: 'center',
+        textAlign: 'center'
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
@@ -58,7 +58,7 @@ export const OnboardingView = ({ showNotification }: OnboardingViewProps) => {
           py: 1.5,
           px: 4,
           fontSize: '1.1rem',
-          mb: 2,
+          mb: 2
         }}
       >
         {isConnecting ? (

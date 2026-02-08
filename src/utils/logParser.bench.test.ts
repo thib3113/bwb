@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parseLogs } from './logParser';
 import { BoksLog } from '../types';
 import { BLEOpcode } from './bleConstants';
@@ -16,7 +16,7 @@ describe('logParser Performance', () => {
       raw: new Uint8Array([0x81, 0x02, 0x01, 0x02]),
       synced: true,
       event: 'test_event',
-      type: 'info',
+      type: 'info'
     }));
 
     const start = performance.now();

@@ -8,7 +8,7 @@ export class NfcScanStartPacket extends BoksTXPacket {
   }
 
   static schema = z.object({
-    configKey: z.string().length(8, 'Config Key must be 8 characters'),
+    configKey: z.string().length(8, 'Config Key must be 8 characters')
   });
 
   constructor(public configKey: string = '') {

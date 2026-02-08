@@ -59,14 +59,14 @@ export const useLogSync = () => {
           timestamp: new Date().toISOString(),
           opcode: packet.opcode,
           payload: packet.payload, // Uint8Array
-          device_id: activeDevice.id,
+          device_id: activeDevice.id
         };
         const fullBoksLog: BoksLog = {
           ...(rawEntry as unknown as BoksLog),
           event: 'BLE_PACKET', // Placeholder event
           type: 'info', // Placeholder type
           synced: false,
-          updated_at: Date.now(),
+          updated_at: Date.now()
         };
 
         const parsed = parseLog(fullBoksLog);

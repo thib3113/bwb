@@ -25,7 +25,7 @@ export function initPWA() {
       },
       onOfflineReady() {
         console.log('[PWA] App ready to work offline');
-      },
+      }
     });
   }
 }

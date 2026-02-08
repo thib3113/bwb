@@ -2,31 +2,31 @@ import { useState } from 'react';
 import { db } from '../../db/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
   Box,
   Button,
   FormControl,
+  IconButton,
   InputLabel,
-  MenuItem,
-  Select,
-  Typography,
   List,
   ListItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  MenuItem,
+  Select,
   SelectChangeEvent,
-  TextField,
-  IconButton,
   Stack,
-  Alert,
+  TextField,
+  Typography
 } from '@mui/material';
-import { ExpandMore, Edit, Delete, Save, Cancel } from '@mui/icons-material';
+import { Cancel, Delete, Edit, ExpandMore, Save } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 const DBRowEditor = ({
   tableName,
   item,
-  primaryKey,
+  primaryKey
 }: {
   tableName: string;
   item: Record<string, unknown>;
@@ -109,7 +109,7 @@ const DBRowEditor = ({
           m: 0,
           p: 1,
           bgcolor: 'action.hover',
-          borderRadius: 1,
+          borderRadius: 1
         }}
       >
         {JSON.stringify(item, null, 2)}

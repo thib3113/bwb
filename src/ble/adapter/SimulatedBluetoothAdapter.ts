@@ -7,7 +7,7 @@ import {
   BLEOpcode,
   DEVICE_INFO_CHARS,
   DEVICE_INFO_SERVICE_UUID,
-  SIMULATOR_BLE_ID,
+  SIMULATOR_BLE_ID
 } from '../../utils/bleConstants';
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
@@ -48,17 +48,17 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
       // Code Count: Big Endian [MasterMSB, MasterLSB, SingleMSB, SingleLSB].
       this.simulator['sendNotification'](BLEOpcode.NOTIFY_CODES_COUNT, [
-        (masterCount >> 8) & 0XFF,
-        masterCount & 0XFF,
-        (singleCount >> 8) & 0XFF,
-        singleCount & 0XFF,
+        (masterCount >> 8) & 0xff,
+        masterCount & 0xff,
+        (singleCount >> 8) & 0xff,
+        singleCount & 0xff
       ]);
     }, 500);
 
     return {
       id: SIMULATOR_BLE_ID,
       name: SIMULATOR_BLE_ID,
-      gatt: { connected: true },
+      gatt: { connected: true }
     } as unknown as BluetoothDevice;
   }
 
@@ -73,7 +73,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     return {
       id: SIMULATOR_BLE_ID,
       name: SIMULATOR_BLE_ID,
-      gatt: { connected: true },
+      gatt: { connected: true }
     } as unknown as BluetoothDevice;
   }
 
@@ -81,7 +81,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     if (!this.isConnected) {
       console.error('[SimulatedAdapter] Write failed: Not connected', {
         opcode: data[0],
-        length: data[1],
+        length: data[1]
       });
       throw new Error('Simulator not connected');
     }
@@ -95,7 +95,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     if (typeof window !== 'undefined') {
       const detail = {
         opcode,
-        payload: Array.from(payload),
+        payload: Array.from(payload)
       };
 
       // 1. Dispatch standard event

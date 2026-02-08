@@ -1,10 +1,10 @@
 {
-	"connect_to_open_door": "Se connecter pour ouvrir",
-	"open_door": "Ouvrir la porte",
-	"door_closed": "Porte fermée",
-	"master_code_required": "Code permanent requis pour cette action",
-	"door_opening": "Ouverture de la porte en cours...",
-	"door_open_failed": "Échec de l'ouverture de la porte",
-	"battery_level": "Niveau de batterie : {{level}}%",
-	"maintenance": "Maintenance"
+  "connect_to_open_door": "Se connecter pour ouvrir",
+  "open_door": "Ouvrir la porte",
+  "door_closed": "Porte fermée",
+  "master_code_required": "Code permanent requis pour cette action",
+  "door_opening": "Ouverture de la porte en cours...",
+  "door_open_failed": "Échec de l'ouverture de la porte",
+  "battery_level": "Niveau de batterie : {{level}}%",
+  "maintenance": "Maintenance"
 }

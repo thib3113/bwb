@@ -8,6 +8,6 @@ export const useCodeCount = () => {
   }
   return {
     codeCount: context.codeCount,
-    refreshCodeCount: context.refreshCodeCount,
+    refreshCodeCount: context.refreshCodeCount
   };
 };

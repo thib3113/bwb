@@ -37,17 +37,17 @@ const DfuUpdatePage = lazy(() =>
 // Lazy loading tab components
 const CodeManagerWrapper = lazy(() =>
   import('./components/codes/CodeManagerWrapper').then((module) => ({
-    default: module.CodeManagerWrapper,
+    default: module.CodeManagerWrapper
   }))
 );
 const LogViewerWrapperComponent = lazy(() =>
   import('./components/log/LogViewerWrapper').then((module) => ({
-    default: module.LogViewerWrapper,
+    default: module.LogViewerWrapper
   }))
 );
 const SettingsContentWrapper = lazy(() =>
   import('./components/settings/SettingsContentWrapper').then((module) => ({
-    default: module.SettingsContentWrapper,
+    default: module.SettingsContentWrapper
   }))
 );
 
@@ -58,7 +58,7 @@ const LoadingFallback = () => (
       justifyContent: 'center',
       alignItems: 'center',
       height: '100%',
-      minHeight: '50vh',
+      minHeight: '50vh'
     }}
   >
     <CircularProgress />
@@ -74,7 +74,7 @@ export function App() {
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'info' as 'success' | 'error' | 'info' | 'warning',
+    severity: 'info' as 'success' | 'error' | 'info' | 'warning'
   });
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export function App() {
         ...window.boksDebug,
         mockData: StorageService.mockData,
         StorageService: StorageService,
-        db: db, // Explicitly expose db
+        db: db // Explicitly expose db
       };
       console.log('StorageService and DB exposed to window.boksDebug');
     }

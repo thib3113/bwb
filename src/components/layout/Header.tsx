@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppBar,
   Badge,
@@ -20,7 +19,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import {
   BatteryAlert,
@@ -30,13 +29,14 @@ import {
   BluetoothDisabled,
   BugReport as BugReportIcon,
   Build as BuildIcon,
+  DeveloperMode as DeveloperIcon,
   Handyman as MaintenanceIcon,
   Home as HomeIcon,
   Info as InfoIcon,
   MeetingRoom as MeetingRoomIcon,
   Menu as MenuIcon,
   Refresh,
-  Settings as SettingsIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import pkg from '../../../package.json';
@@ -48,7 +48,6 @@ import { useDoor } from '../../hooks/useDoor';
 import { useBLELogs } from '../../hooks/useBLELogs';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { useDeveloperContext } from '../../context/DeveloperContextTypes';
-import { DeveloperMode as DeveloperIcon } from '@mui/icons-material';
 
 import { runTask } from '../../utils/uiUtils';
 import { translateBLEError } from '../../utils/bleUtils';
@@ -90,7 +89,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         activeBattery: activeDevice?.battery_level,
         hasDevice: !!device,
         deviceBattery: device?.battery_level,
-        displayBatteryLevel,
+        displayBatteryLevel
       });
     }
   }, [isConnected, activeDevice, device, displayBatteryLevel]);
@@ -185,7 +184,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
     showNotification,
     t,
     activeDevice?.id,
-    updateDeviceBatteryLevel,
+    updateDeviceBatteryLevel
   ]);
 
   const handleConnectClick = async () => {
@@ -238,7 +237,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
       hideNotification,
       loadingMsg: t('logs:refresh_started'),
       successMsg: t('logs:refresh_success'),
-      errorMsg: t('logs:refresh_failed'),
+      errorMsg: t('logs:refresh_failed')
     });
     setIsRefreshingLogs(false);
   };
@@ -370,7 +369,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                   backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
                   color: devClickCount > 0 ? 'transparent' : 'inherit',
-                  transition: 'background 0.2s ease',
+                  transition: 'background 0.2s ease'
                 }}
               >
                 v{pkg.version}-{__COMMIT_HASH__}
@@ -391,9 +390,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                 '& .MuiSelect-icon': { color: 'white' },
                 '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.7)',
+                  borderColor: 'rgba(255, 255, 255, 0.7)'
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' }
               }}
             >
               {knownDevices.map((device) => (
@@ -449,7 +448,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
               size="small"
               sx={{
                 mr: 0.5,
-                opacity: isConnected ? 1 : 0.5,
+                opacity: isConnected ? 1 : 0.5
               }}
             >
               {isOpening ? (
@@ -482,7 +481,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
               overlap="circular"
               anchorOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: 'right'
               }}
               invisible={pendingCodesCount === 0}
             >

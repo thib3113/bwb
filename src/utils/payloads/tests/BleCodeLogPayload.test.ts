@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BleValidLogPayload } from '../logs/BleValidLogPayload';
 import { BLEOpcode } from '../../bleConstants';
 
@@ -9,7 +9,7 @@ describe('BleValidLogPayload', () => {
     const payload = new Uint8Array([
       0x00,
       0x00,
-      0x0A, // Age: 10s
+      0x0a, // Age: 10s
       ...new TextEncoder().encode('123456'), // Code: "123456"
       0x00,
       0x00, // Padding
@@ -18,7 +18,7 @@ describe('BleValidLogPayload', () => {
       0x44,
       0x33,
       0x22,
-      0x11, // MAC: 11:22:33:44:55:66 (Little Endian)
+      0x11 // MAC: 11:22:33:44:55:66 (Little Endian)
     ]);
 
     const instance = new BleValidLogPayload(opcode, payload, new Uint8Array());

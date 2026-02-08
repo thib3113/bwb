@@ -1,92 +1,91 @@
 {
-	"app_title": "Panneau de contrôle Boks BLE",
-	"my_boks": "Mes Boks",
-	"my_boks_one": "Ma Boks",
-	"my_boks_other": "Mes Boks",
-	"users": {
-		"title": "Utilisateurs"
-	},
-	"connecting": "Connexion en cours...",
-	"connected": "Connecté",
-	"disconnected": "Déconnecté",
-	"not_connected": {
-		"title": "Non connecté",
-		"message": "Veuillez vous connecter à une Boks pour continuer."
-	},
-	"web_ble_not_supported": {
-		"title": "Web Bluetooth non supporté",
-		"message": "Votre navigateur ne supporte pas Web Bluetooth. Veuillez utiliser Chrome, Edge ou Bluefy on iOS.",
-		"ios": "Sur iOS, vous devez utiliser un navigateur compatible Web Bluetooth comme Bluefy."
-	},
-	"offline_mode": "Vous êtes en mode hors ligne. Vous pouvez consulter et gérer les codes, mais vous ne pouvez pas synchroniser avec l'appareil.",
-	"cancel": "Annuler",
-	"save": "Enregistrer",
-	"delete": "Supprimer",
-	"edit": "Modifier",
-	"next": "Suivant",
-	"back": "Retour",
-	"finish": "Terminer",
-	"reset": "Réinitialiser",
-	"copy": "Copier",
-	"copied": "Copié !",
-	"yes": "Oui",
-	"no": "Non",
-	"unknown": "Inconnu",
-	"loading": "Chargement...",
-	"error": "Erreur",
-	"success": "Succès",
-	"warning": "Attention",
-	"info": "Information",
-	"battery_level": "Niveau de batterie",
-	"door": {
-		"title": "Contrôle de la porte",
-		"open": "Ouvrir la porte",
-		"opening": "Ouverture en cours...",
-		"closed": "Porte fermée",
-		"opening_failed": "Échec de l'ouverture de la porte"
-	},
-	"language": {
-		"select": "Sélectionner la langue",
-		"english": "Anglais",
-		"french": "Français"
-	},
-	"devices": {
-		"title": "Appareils enregistrés",
-		"device_name": "Nom de l'appareil",
-		"forget": "Oublier cet appareil"
-	},
-	"community": {
-		"title": "Communauté et Support",
-		"github": "Projet GitHub",
-		"github_issues": "Signaler un bug",
-		"donate": "Soutenir le projet",
-		"donate_description": "Si vous appréciez cet outil, vous pouvez soutenir son développement."
-	},
-	"ble": {
-		"connected": "Bluetooth connecté",
-		"connection_failed": "Échec de la connexion Bluetooth"
-	},
-	"connection": {
-		"connect": "Se connecter",
-		"disconnect": "Se déconnecter",
-		"connect_to_open": "Se connecter pour ouvrir"
-	},
-	"errors": {
-		"invalid_logs_count_response": "Réponse du nombre de journaux invalide",
-		"browser": {
-			"userCancelled": "La sélection a été annulée.",
-			"bluetoothDisabled": "Veuillez activer le Bluetooth sur votre appareil pour continuer.",
-			"noDeviceSelected": "Vous devez choisir un appareil pour établir la connexion."
-		}
-	},
-	"wizard": {
-		"title": "Assistant de Débogage"
-	},
-	"settings": {
-		"title": "Paramètres"
-	},
-	"master_code_required": "Code permanent requis pour cette action"
-,
-	"no_active_device": "Aucun appareil actif sélectionné",
-	"coming_soon": "Gestion des utilisateurs bientôt disponible"
+  "app_title": "Panneau de contrôle Boks BLE",
+  "my_boks": "Mes Boks",
+  "my_boks_one": "Ma Boks",
+  "my_boks_other": "Mes Boks",
+  "users": {
+    "title": "Utilisateurs"
+  },
+  "connecting": "Connexion en cours...",
+  "connected": "Connecté",
+  "disconnected": "Déconnecté",
+  "not_connected": {
+    "title": "Non connecté",
+    "message": "Veuillez vous connecter à une Boks pour continuer."
+  },
+  "web_ble_not_supported": {
+    "title": "Web Bluetooth non supporté",
+    "message": "Votre navigateur ne supporte pas Web Bluetooth. Veuillez utiliser Chrome, Edge ou Bluefy on iOS.",
+    "ios": "Sur iOS, vous devez utiliser un navigateur compatible Web Bluetooth comme Bluefy."
+  },
+  "offline_mode": "Vous êtes en mode hors ligne. Vous pouvez consulter et gérer les codes, mais vous ne pouvez pas synchroniser avec l'appareil.",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "delete": "Supprimer",
+  "edit": "Modifier",
+  "next": "Suivant",
+  "back": "Retour",
+  "finish": "Terminer",
+  "reset": "Réinitialiser",
+  "copy": "Copier",
+  "copied": "Copié !",
+  "yes": "Oui",
+  "no": "Non",
+  "unknown": "Inconnu",
+  "loading": "Chargement...",
+  "error": "Erreur",
+  "success": "Succès",
+  "warning": "Attention",
+  "info": "Information",
+  "battery_level": "Niveau de batterie",
+  "door": {
+    "title": "Contrôle de la porte",
+    "open": "Ouvrir la porte",
+    "opening": "Ouverture en cours...",
+    "closed": "Porte fermée",
+    "opening_failed": "Échec de l'ouverture de la porte"
+  },
+  "language": {
+    "select": "Sélectionner la langue",
+    "english": "Anglais",
+    "french": "Français"
+  },
+  "devices": {
+    "title": "Appareils enregistrés",
+    "device_name": "Nom de l'appareil",
+    "forget": "Oublier cet appareil"
+  },
+  "community": {
+    "title": "Communauté et Support",
+    "github": "Projet GitHub",
+    "github_issues": "Signaler un bug",
+    "donate": "Soutenir le projet",
+    "donate_description": "Si vous appréciez cet outil, vous pouvez soutenir son développement."
+  },
+  "ble": {
+    "connected": "Bluetooth connecté",
+    "connection_failed": "Échec de la connexion Bluetooth"
+  },
+  "connection": {
+    "connect": "Se connecter",
+    "disconnect": "Se déconnecter",
+    "connect_to_open": "Se connecter pour ouvrir"
+  },
+  "errors": {
+    "invalid_logs_count_response": "Réponse du nombre de journaux invalide",
+    "browser": {
+      "userCancelled": "La sélection a été annulée.",
+      "bluetoothDisabled": "Veuillez activer le Bluetooth sur votre appareil pour continuer.",
+      "noDeviceSelected": "Vous devez choisir un appareil pour établir la connexion."
+    }
+  },
+  "wizard": {
+    "title": "Assistant de Débogage"
+  },
+  "settings": {
+    "title": "Paramètres"
+  },
+  "master_code_required": "Code permanent requis pour cette action",
+  "no_active_device": "Aucun appareil actif sélectionné",
+  "coming_soon": "Gestion des utilisateurs bientôt disponible"
 }

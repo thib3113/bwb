@@ -1,21 +1,19 @@
-import { render, act, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, render, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { TaskProvider } from '../../context/TaskContext';
 import { TaskContext } from '../../context/Contexts';
 import { TaskContextType } from '../../context/types';
-import { useContext, useEffect } from 'react';
-import { TaskType, BoksTask } from '../../types/task';
+import React, { useContext, useEffect } from 'react';
+import { TaskType } from '../../types/task';
 import * as BLEConnectionHook from '../../hooks/useBLEConnection';
 import * as DeviceHook from '../../hooks/useDevice';
-import React from 'react';
-import { Mock } from 'vitest';
 
 // Mocks
 vi.mock('../../hooks/useBLEConnection', () => ({
-  useBLEConnection: vi.fn(),
+  useBLEConnection: vi.fn()
 }));
 vi.mock('../../hooks/useDevice', () => ({
-  useDevice: vi.fn(),
+  useDevice: vi.fn()
 }));
 vi.mock('../../db/db', () => ({
   db: {
@@ -24,26 +22,22 @@ vi.mock('../../db/db', () => ({
       where: vi.fn(() => ({
         equals: vi.fn(() => ({
           filter: vi.fn(() => ({
-            toArray: vi.fn(() => []),
-          })),
-        })),
-      })),
-    },
-  },
+            toArray: vi.fn(() => [])
+          }))
+        }))
+      }))
+    }
+  }
 }));
 vi.mock('../../services/StorageService', () => ({
   StorageService: {
     updateCodeStatus: vi.fn(),
-    removeCode: vi.fn(),
-  },
+    removeCode: vi.fn()
+  }
 }));
 
 // Helper component to trigger tasks
-const TaskTrigger = ({
-  onReady,
-}: {
-  onReady: (addTask: TaskContextType['addTask']) => void;
-}) => {
+const TaskTrigger = ({ onReady }: { onReady: (addTask: TaskContextType['addTask']) => void }) => {
   const context = useContext(TaskContext);
 
   useEffect(() => {
@@ -77,14 +71,14 @@ describe('TaskContext Race Condition', () => {
 
     (BLEConnectionHook.useBLEConnection as unknown as Mock).mockReturnValue({
       isConnected: true,
-      sendRequest: sendRequestMock,
+      sendRequest: sendRequestMock
     });
 
     (DeviceHook.useDevice as unknown as Mock).mockReturnValue({
       activeDevice: {
         id: 'test-device',
-        configuration_key: '12345678',
-      },
+        configuration_key: '12345678'
+      }
     });
   });
 
@@ -111,13 +105,13 @@ describe('TaskContext Race Condition', () => {
           type: TaskType.ADD_SINGLE_USE_CODE,
           deviceId: 'test-device',
           priority: 1,
-          payload: { code: '111111', codeId: 'code1' },
+          payload: { code: '111111', codeId: 'code1' }
         });
         addTaskFn({
           type: TaskType.ADD_SINGLE_USE_CODE,
           deviceId: 'test-device',
           priority: 1,
-          payload: { code: '222222', codeId: 'code2' },
+          payload: { code: '222222', codeId: 'code2' }
         });
       }
     });

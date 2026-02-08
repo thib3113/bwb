@@ -19,7 +19,7 @@ export class ErrorLogPayload extends BaseLogPayload {
   toDetails(): Record<string, unknown> {
     return {
       ...super.toDetails(),
-      error: this.errorCode,
+      error: this.errorCode
     };
   }
 }

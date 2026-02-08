@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
+  Chip,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Typography,
-  Paper,
-  Chip,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useBLE } from '../../hooks/useBLE';
@@ -65,7 +65,7 @@ export const PacketLogger = () => {
                         hour: '2-digit',
                         minute: '2-digit',
                         second: '2-digit',
-                        fractionalSecondDigits: 3,
+                        fractionalSecondDigits: 3
                       })}
                     </TableCell>
                     <TableCell>

@@ -5,7 +5,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -51,7 +51,7 @@ export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemP
               : code.status === CODE_STATUS.PENDING_DELETE
                 ? 'error.main'
                 : 'default.main',
-        pl: 1,
+        pl: 1
       }}
     >
       <ListItemText
@@ -68,7 +68,7 @@ export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemP
         secondary={null}
         slotProps={{
           primary: { component: 'div' },
-          secondary: { component: 'div' },
+          secondary: { component: 'div' }
         }}
       />
       <ListItemSecondaryAction>

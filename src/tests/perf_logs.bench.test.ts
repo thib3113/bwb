@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../db/db';
 import { BoksLog } from '../types';
 
@@ -80,7 +80,7 @@ describe('Log Fetching Performance', () => {
     // Verify sort order of optimized result
     for (let i = 0; i < optimizedResult.length - 1; i++) {
       const current = new Date(optimizedResult[i].timestamp).getTime();
-      const next = new Date(optimizedResult[i+1].timestamp).getTime();
+      const next = new Date(optimizedResult[i + 1].timestamp).getTime();
       expect(current).toBeGreaterThanOrEqual(next);
     }
 

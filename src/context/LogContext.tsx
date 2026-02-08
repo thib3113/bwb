@@ -48,7 +48,7 @@ export const LogProvider = ({ children }: LogProviderProps) => {
       log,
       addDebugLog,
       clearDebugLogs,
-      parseLog,
+      parseLog
     }),
     [logs, debugLogs, log, addDebugLog, clearDebugLogs, parseLog]
   );

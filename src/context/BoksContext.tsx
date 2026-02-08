@@ -22,7 +22,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     addListener,
     removeListener,
     isConnected,
-    device: bleDevice,
+    device: bleDevice
   } = useBLE();
   const { activeDevice, registerDevice } = useDevice();
 
@@ -182,7 +182,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         BLEOpcode.LOG_EVENT_KEY_OPENING,
         BLEOpcode.LOG_EVENT_ERROR,
         BLEOpcode.LOG_EVENT_NFC_OPENING,
-        BLEOpcode.LOG_EVENT_NFC_REGISTERING,
+        BLEOpcode.LOG_EVENT_NFC_REGISTERING
       ];
 
       // Request logs and wait for stream end
@@ -192,7 +192,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
           if (packet.opcode === BLEOpcode.LOG_END_HISTORY) return 'finish';
           if (logOpcodes.includes(packet.opcode)) return 'continue';
           return 'ignore';
-        },
+        }
       });
 
       if (Array.isArray(packets)) {
@@ -206,7 +206,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
           timestamp: new Date().toISOString(), // Actual timestamp should be parsed from payload
           event: 'LOG_ENTRY',
           type: 'info',
-          synced: false,
+          synced: false
         }));
 
         await StorageService.saveLogs(activeDevice.id, logsToSave);
@@ -229,7 +229,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
       openDoor,
       isSynchronizing,
       setIsSynchronizing,
-      syncLogs,
+      syncLogs
     }),
     [doorStatus, isOpening, isSynchronizing, openDoor, syncLogs]
   );

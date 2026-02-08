@@ -1,9 +1,9 @@
 import {
-  DEVICE_INFO_CHARS,
   BATTERY_LEVEL_CHAR_UUID,
   BATTERY_PROPRIETARY_CHAR_UUID,
+  DEVICE_INFO_CHARS,
   NOTIFY_CHAR_UUID,
-  WRITE_CHAR_UUID,
+  WRITE_CHAR_UUID
 } from './bleConstants';
 
 export interface HardwareInference {

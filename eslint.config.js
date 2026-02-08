@@ -13,49 +13,55 @@ const customRulesPlugin = {
       meta: {
         type: 'layout',
         docs: {
-          description: 'Enforce uppercase hexadecimal literals',
+          description: 'Enforce uppercase hexadecimal literals'
         },
-        fixable: 'code',
+        fixable: 'code'
       },
       create(context) {
         return {
           Literal(node) {
-            if (
-              typeof node.value === 'number' &&
-              node.raw &&
-              /^0x[0-9a-f]+$/i.test(node.raw)
-            ) {
+            if (typeof node.value === 'number' && node.raw && /^0x[0-9a-f]+$/i.test(node.raw)) {
               if (/[a-f]/.test(node.raw)) {
                 context.report({
                   node,
                   message: 'Hexadecimal literals must be uppercase.',
                   fix(fixer) {
                     return fixer.replaceText(node, node.raw.toUpperCase());
-                  },
+                  }
                 });
               }
             }
-          },
+          }
         };
-      },
-    },
-  },
+      }
+    }
+  }
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'dev-dist', 'tests/**', 'src/tests/**', '**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'] },
+  {
+    ignores: [
+      'dist',
+      'dev-dist',
+      'tests/**',
+      'src/tests/**',
+      '**/__tests__/**',
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}'
+    ]
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: globals.browser
     },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       prettier: prettier,
-      'custom-rules': customRulesPlugin,
+      'custom-rules': customRulesPlugin
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -63,8 +69,8 @@ export default tseslint.config(
       'prettier/prettier': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
-      'custom-rules/uppercase-hex': 'error',
-    },
+      'custom-rules/uppercase-hex': 'error'
+    }
   },
   {
     files: [
@@ -74,11 +80,11 @@ export default tseslint.config(
       'src/tests/**/*.test.ts',
       'src/ble/adapter/SimulatedBluetoothAdapter.ts',
       'src/ble/simulator/BoksSimulator.ts',
-      'src/pages/DfuUpdatePage.tsx',
+      'src/pages/DfuUpdatePage.tsx'
     ],
     rules: {
-      'prettier/prettier': 'off',
-    },
+      'prettier/prettier': 'off'
+    }
   },
   eslintConfigPrettier
 );

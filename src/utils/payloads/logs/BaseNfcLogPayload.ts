@@ -27,7 +27,7 @@ export abstract class BaseNfcLogPayload extends BaseLogPayload {
     return {
       ...super.toDetails(),
       tag_uid: this.tagUid,
-      tag_type: this.tagType,
+      tag_type: this.tagType
     };
   }
 }

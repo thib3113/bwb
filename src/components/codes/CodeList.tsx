@@ -17,7 +17,7 @@ export const CodeList = ({
   hasIndexConflict,
   onCopy,
   onEdit,
-  onDelete,
+  onDelete
 }: CodeListProps) => {
   return (
     <List>

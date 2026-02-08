@@ -42,7 +42,7 @@ export class StorageService {
           created_at: existing?.created_at || new Date().toISOString(),
           sync_status: code.sync_status || 'created',
           // Merge other props
-          ...code,
+          ...code
         } as BoksCode;
         codesToPut.push(newCode);
       }
@@ -92,7 +92,7 @@ export class StorageService {
           opcode: log.opcode ?? 0,
           payload: log.payload ?? new Uint8Array(0),
           raw: log.raw ?? new Uint8Array(0),
-          ...log,
+          ...log
         } as BoksLog;
         logsToAdd.push(logEntry);
 
@@ -137,7 +137,7 @@ export class StorageService {
               );
 
               await db.codes.update(codeToUpdate.id, {
-                usedAt: logEntry.timestamp as string,
+                usedAt: logEntry.timestamp as string
                 // We DO NOT change status to 'used', we keep it 'on_device' so it doesn't disappear from the device view unexpectedly
                 // UI will handle the 'used' appearance based on usedAt
               });
@@ -156,7 +156,7 @@ export class StorageService {
             type: (details.tag_type as number) || 0,
             last_seen_at: Date.now(),
             created_at: Date.now(), // Will be ignored if updating
-            sync_status: 'created',
+            sync_status: 'created'
           });
         }
       }
@@ -182,7 +182,7 @@ export class StorageService {
             tagsToPut.push({
               ...existing,
               last_seen_at: tag.last_seen_at,
-              type: tag.type,
+              type: tag.type
             });
           } else {
             tagsToPut.push(tag);
@@ -216,7 +216,7 @@ export class StorageService {
   static async updateCodeStatus(deviceId: string, id: string, status: CodeStatus): Promise<void> {
     try {
       await db.codes.update(id, {
-        status: status,
+        status: status
       });
     } catch (error) {
       console.error(`Failed to update code status for device ${deviceId}:`, error);
@@ -272,7 +272,7 @@ export class StorageService {
       // Strictly flat object storage
       await db.settings.put({
         key: key as string,
-        value: value as string | number | boolean | object | null,
+        value: value as string | number | boolean | object | null
       });
     } catch (error) {
       console.error(`Failed to save setting ${key as string}:`, error);
@@ -303,7 +303,7 @@ export class StorageService {
       loadingMsg,
       successMsg,
       errorMsg,
-      minDuration = 500,
+      minDuration = 500
     } = options;
 
     if (showNotification && loadingMsg) {
@@ -358,7 +358,7 @@ export class StorageService {
         id: localUserId,
         email: 'local@example.com',
         is_offline: true,
-        updated_at: Date.now(),
+        updated_at: Date.now()
       });
 
       // Create a mock device
@@ -371,14 +371,14 @@ export class StorageService {
         last_connected_at: Date.now(),
         hardware_version: '4.0',
         software_revision: '4.4.0',
-        la_poste_activated: true,
+        la_poste_activated: true
       };
       await db.devices.put(mockDevice);
 
       // Create mock secrets
       await db.device_secrets.put({
         device_id: boksUuid,
-        configuration_key: 'AABBCCDD',
+        configuration_key: 'AABBCCDD'
       });
 
       // Create mock codes
@@ -393,7 +393,7 @@ export class StorageService {
           name: 'Code Maître Principal',
           index: 0,
           created_at: new Date().toISOString(),
-          sync_status: 'synced',
+          sync_status: 'synced'
         },
         {
           id: crypto.randomUUID(),
@@ -404,7 +404,7 @@ export class StorageService {
           status: 'on_device',
           name: 'Code Livreur (Utilisé)',
           created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          sync_status: 'synced',
+          sync_status: 'synced'
         },
         {
           id: crypto.randomUUID(),
@@ -415,7 +415,7 @@ export class StorageService {
           status: 'pending_add', // Waiting to be added
           name: 'Code Famille',
           created_at: new Date().toISOString(),
-          sync_status: 'created',
+          sync_status: 'created'
         },
         {
           id: crypto.randomUUID(),
@@ -426,8 +426,8 @@ export class StorageService {
           status: 'pending_add', // Changed from pending_approval to pending_add
           name: 'Demande Ami',
           created_at: new Date().toISOString(),
-          sync_status: 'created',
-        },
+          sync_status: 'created'
+        }
       ];
       await StorageService.saveCodes(boksUuid, mockCodes);
 
@@ -442,7 +442,7 @@ export class StorageService {
           data: { code_index: 0, code_value: '123456' },
           opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
           payload: new Uint8Array([0x01, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36]),
-          synced: false,
+          synced: false
         },
         {
           id: crypto.randomUUID(),
@@ -453,8 +453,8 @@ export class StorageService {
           data: {},
           opcode: BLEOpcode.LOG_DOOR_OPEN_HISTORY,
           payload: new Uint8Array([0x01]),
-          synced: false,
-        },
+          synced: false
+        }
       ];
       await StorageService.saveLogs(boksUuid, mockLogs);
 

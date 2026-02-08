@@ -39,7 +39,7 @@ describe('useTaskConsistency', () => {
       name: 'Test Code',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     // 2. Render hook
@@ -53,8 +53,8 @@ describe('useTaskConsistency', () => {
           deviceId: deviceId,
           payload: expect.objectContaining({
             code: '123456',
-            codeId: 'code-1',
-          }),
+            codeId: 'code-1'
+          })
         })
       );
     });
@@ -71,7 +71,7 @@ describe('useTaskConsistency', () => {
       name: 'Delete Me',
       created_at: new Date().toISOString(),
       sync_status: 'synced',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     // 2. Render hook
@@ -87,8 +87,8 @@ describe('useTaskConsistency', () => {
           payload: expect.objectContaining({
             code: '654321',
             codeId: 'code-2',
-            codeType: CODE_TYPE.MULTI,
-          }),
+            codeType: CODE_TYPE.MULTI
+          })
         })
       );
     });
@@ -108,7 +108,7 @@ describe('useTaskConsistency', () => {
       name: 'Master Key',
       created_at: new Date().toISOString(),
       sync_status: 'created',
-      author_id: 'user-1',
+      author_id: 'user-1'
     });
 
     renderHook(() => useTaskConsistency(deviceId), { wrapper });
@@ -120,8 +120,8 @@ describe('useTaskConsistency', () => {
           deviceId: deviceId,
           payload: expect.objectContaining({
             code: '999999',
-            codeId: 'code-master',
-          }),
+            codeId: 'code-master'
+          })
         })
       );
     });

@@ -12,16 +12,19 @@ This document provides detailed specifications for each component in the new res
 
 **Props**: None
 
-**State**: 
+**State**:
+
 - Uses `useMediaQuery` to determine screen size
 
 **Responsibilities**:
+
 - Detect screen size using Material-UI's `useMediaQuery`
 - Render MobileView when screen width ≤ 768px
 - Render DesktopView when screen width > 768px
 - Provide consistent layout structure for both views
 
 **Dependencies**:
+
 - `useMediaQuery` from '@mui/material'
 - MobileView component
 - DesktopView component
@@ -35,12 +38,14 @@ This document provides detailed specifications for each component in the new res
 **State**: None
 
 **Responsibilities**:
+
 - Display app title ("Boks Web BLE")
 - Render ConnectionManager component
 - Render LanguageSelector component
 - Maintain consistent styling across views
 
 **Dependencies**:
+
 - AppBar, Toolbar, Typography from '@mui/material'
 - ConnectionManager component
 - LanguageSelector component
@@ -52,19 +57,23 @@ This document provides detailed specifications for each component in the new res
 **Props**: None
 
 **State**:
+
 - `activeTab`: integer representing the currently active tab (0: Codes, 1: Logs, 2: Configuration)
 
 **Responsibilities**:
+
 - Display bottom navigation with three tabs
 - Switch main content based on active tab
 - Handle tab change events
 - Maintain tab state
 
 **Components**:
+
 - MainContent (conditionally renders CodeManager, LogViewer, or Configuration)
 - BottomNavigation with BottomNavigationAction components
 
 **Dependencies**:
+
 - BottomNavigation, BottomNavigationAction from '@mui/material'
 - CodeManager, LogViewer, Configuration components
 - Icons: ListIcon (or KeyIcon), HistoryIcon (or ListAltIcon), SettingsIcon (or TuneIcon)
@@ -75,22 +84,26 @@ This document provides detailed specifications for each component in the new res
 
 **Props**: None
 
-**State**: 
+**State**:
+
 - `configOpen`: boolean representing whether configuration modal is open
 
 **Responsibilities**:
+
 - Display CodeManager in main content area
 - Display LogViewer in side panel
 - Provide button to open ConfigurationModal
 - Handle configuration modal open/close state
 
 **Components**:
+
 - MainContent (always renders CodeManager)
 - SidePanel (always renders LogViewer)
 - ConfigurationButton (opens ConfigurationModal)
 - ConfigurationModal (dialog for settings)
 
 **Dependencies**:
+
 - Drawer from '@mui/material'
 - CodeManager, LogViewer, ConfigurationModal components
 
@@ -99,17 +112,20 @@ This document provides detailed specifications for each component in the new res
 **Purpose**: Floating action button for creating new codes.
 
 **Props**:
+
 - `onClick`: function to handle button click
 - `isVisible`: boolean to control visibility
 
 **State**: None
 
 **Responsibilities**:
+
 - Display FAB in bottom right corner
 - Only visible when connected to a device
 - Trigger code creation dialog on click
 
 **Dependencies**:
+
 - Fab, AddIcon from '@mui/material'
 
 ## Shared Components
@@ -121,18 +137,21 @@ This document provides detailed specifications for each component in the new res
 **Props**: None
 
 **State**:
+
 - `isConnected`: boolean representing connection status
 - `device`: object representing connected device
 - `batteryLevel`: integer representing battery level
 - `isConnecting`: boolean representing connection state
 
 **Responsibilities**:
+
 - Handle connect/disconnect actions
 - Display connection status
 - Display battery level when connected
 - Show battery icon with appropriate styling
 
 **Dependencies**:
+
 - Button, CircularProgress, Typography, Box, Tooltip, IconButton from '@mui/material'
 - BatteryFullIcon, BatteryAlertIcon, BluetoothConnectedIcon, BluetoothDisabledIcon from '@mui/icons-material'
 - useBLE hook
@@ -142,12 +161,14 @@ This document provides detailed specifications for each component in the new res
 **Purpose**: Manage code creation, listing, and deletion.
 
 **Props**:
+
 - `deviceId`: string representing the connected device ID
 - `showAddForm`: boolean to control add form visibility
 - `setShowAddForm`: function to update add form visibility
 - `showNotification`: function to display notifications
 
 **State**:
+
 - `codes`: array of code objects from localStorage
 - `newCode`: string for new code input
 - `codeType`: string representing code type ('master', 'single', 'multi')
@@ -156,6 +177,7 @@ This document provides detailed specifications for each component in the new res
 - `codeError`: string for code validation errors
 
 **Responsibilities**:
+
 - Display list of saved codes
 - Handle code creation with validation
 - Handle code deletion
@@ -163,7 +185,8 @@ This document provides detailed specifications for each component in the new res
 - Provide add code form in dialog
 
 **Dependencies**:
-- useState, useEffect from 'preact/hooks'
+
+- useState, useEffect from 'react'
 - useLocalStorage hook
 - useTranslation hook
 - Various Material-UI components for UI
@@ -173,22 +196,26 @@ This document provides detailed specifications for each component in the new res
 **Purpose**: Display device logs.
 
 **Props**:
+
 - `deviceId`: string representing the connected device ID
 - `showNotification`: function to display notifications
 
 **State**:
+
 - `logs`: array of log objects from localStorage
 - `parsedLogs`: array of parsed log objects
 - `pendingLogsCount`: integer representing pending logs count
 
 **Responsibilities**:
+
 - Display logs in a table format
 - Parse logs for code usage information
 - Handle log refresh actions
 - Show pending logs count
 
 **Dependencies**:
-- useState, useEffect from 'preact/hooks'
+
+- useState, useEffect from 'react'
 - useLocalStorage hook
 - useTranslation hook
 - useBLE hook
@@ -199,19 +226,23 @@ This document provides detailed specifications for each component in the new res
 **Purpose**: Display and manage application settings.
 
 **Props**:
+
 - `open`: boolean to control modal visibility
 - `onClose`: function to handle modal close
 
 **State**:
+
 - Configuration settings (TBD based on requirements)
 
 **Responsibilities**:
+
 - Display configuration options
 - Handle setting changes
 - Save settings to localStorage
 - Provide save/cancel actions
 
 **Dependencies**:
+
 - Dialog, DialogTitle, DialogContent, DialogActions from '@mui/material'
 - Various form components from '@mui/material'
 
@@ -222,19 +253,23 @@ This document provides detailed specifications for each component in the new res
 **Purpose**: Modal dialog for configuration settings.
 
 **Props**:
+
 - `open`: boolean to control modal visibility
 - `onClose`: function to handle modal close
 
 **State**:
+
 - Configuration settings (TBD)
 
 **Responsibilities**:
+
 - Display configuration options in a modal dialog
 - Handle setting changes
 - Save settings
 - Provide save/cancel actions
 
 **Dependencies**:
+
 - Dialog, DialogTitle, DialogContent, DialogActions from '@mui/material'
 - Various form components from '@mui/material'
 
@@ -257,7 +292,9 @@ const isMobile = useMediaQuery(theme.breakpoints.down('md')); // <= 768px
 MainLayout will conditionally render MobileView or DesktopView based on screen size:
 
 ```javascript
-{isMobile ? <MobileView /> : <DesktopView />}
+{
+  isMobile ? <MobileView /> : <DesktopView />;
+}
 ```
 
 ## Component Communication

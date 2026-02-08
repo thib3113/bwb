@@ -71,7 +71,7 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         name: codeData.name || '',
         status: CODE_STATUS.PENDING_ADD,
         sync_status: 'created',
-        created_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
 
       await StorageService.saveCodes(deviceId, [codeToSave]);
@@ -99,8 +99,8 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         priority: 1, // High priority for code creation
         payload: {
           code: codeData.code,
-          codeId: codeId,
-        },
+          codeId: codeId
+        }
       });
     },
     [activeDevice, addTask]
@@ -134,8 +134,8 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
         payload: {
           code: codeObj.code,
           codeId: codeObj.id,
-          codeType: codeObj.type,
-        },
+          codeType: codeObj.type
+        }
       });
     },
     [activeDevice, addTask]
@@ -158,7 +158,7 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
       createCode,
       deleteCode,
       // syncPendingActions, // Deprecated
-      onCodeUsed,
+      onCodeUsed
     }),
     [createCode, deleteCode, onCodeUsed]
   );

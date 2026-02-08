@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runTask } from './uiUtils';
 import { UI_MINIMUM_DURATION_MS } from './bleConstants';
 
@@ -23,7 +23,7 @@ describe('runTask', () => {
       showNotification,
       hideNotification,
       loadingMsg: 'Loading...',
-      successMsg: 'Success!',
+      successMsg: 'Success!'
     });
 
     expect(showNotification).toHaveBeenCalledWith('Loading...', 'info');
@@ -50,7 +50,7 @@ describe('runTask', () => {
       showNotification,
       hideNotification,
       // No loadingMsg
-      successMsg: 'Success!',
+      successMsg: 'Success!'
     });
 
     // Should not show loading

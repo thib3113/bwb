@@ -1,8 +1,8 @@
 import { BLEAdapter } from './BLEAdapter';
 import {
   BluetoothDevice,
-  BluetoothRemoteGATTServer,
   BluetoothRemoteGATTCharacteristic,
+  BluetoothRemoteGATTServer
 } from '../../types';
 
 export class WebBluetoothAdapter implements BLEAdapter {
@@ -18,7 +18,7 @@ export class WebBluetoothAdapter implements BLEAdapter {
   async connect(serviceUuid: string, optionalServices: string[]): Promise<BluetoothDevice> {
     const device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [serviceUuid] }],
-      optionalServices,
+      optionalServices
     });
 
     this.device = device as unknown as BluetoothDevice;

@@ -77,8 +77,8 @@ export const useTaskConsistency = (deviceId: string | null) => {
                 priority: 3, // Consistency checks have lower priority
                 payload: {
                   code: code.code,
-                  codeId: code.id,
-                },
+                  codeId: code.id
+                }
               });
             } else if (code.status === CODE_STATUS.PENDING_DELETE) {
               // For Master Codes, track the index to prevent duplicates
@@ -98,8 +98,8 @@ export const useTaskConsistency = (deviceId: string | null) => {
                 payload: {
                   code: code.code,
                   codeId: code.id,
-                  codeType: code.type,
-                },
+                  codeType: code.type
+                }
               });
             }
           }

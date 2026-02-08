@@ -8,7 +8,7 @@ import {
   DialogTitle,
   IconButton,
   TextField,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
 import { ContentCopy } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +31,7 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
   onClose,
   onContentChange,
   onImport,
-  onCopySuccess,
+  onCopySuccess
 }) => {
   const { t } = useTranslation(['settings', 'common']);
 
@@ -75,8 +75,8 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
             }
             slotProps={{
               input: {
-                readOnly: mode === IMPORT_EXPORT_MODES.EXPORT,
-              },
+                readOnly: mode === IMPORT_EXPORT_MODES.EXPORT
+              }
             }}
           />
           {mode === IMPORT_EXPORT_MODES.EXPORT && (
@@ -87,7 +87,7 @@ export const ImportExportDialog: React.FC<ImportExportDialogProps> = ({
                   position: 'absolute',
                   right: 8,
                   top: 8,
-                  zIndex: 1,
+                  zIndex: 1
                 }}
               >
                 <ContentCopy />

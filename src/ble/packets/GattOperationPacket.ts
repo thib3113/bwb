@@ -19,7 +19,7 @@ export class GattOperationPacket extends BoksTXPacket implements ParsedPayload {
 
   static schema = z.object({
     uuid: z.string(),
-    description: z.string().optional(),
+    description: z.string().optional()
   });
 
   constructor(
@@ -37,7 +37,7 @@ export class GattOperationPacket extends BoksTXPacket implements ParsedPayload {
   toDetails(): Record<string, unknown> {
     return {
       uuid: this.uuid,
-      description: this.description,
+      description: this.description
     };
   }
 

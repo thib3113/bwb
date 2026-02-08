@@ -135,12 +135,12 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
                 timestamp: new Date().toISOString(),
                 opcode: packet.opcode,
                 payload: packet.payload,
-                device_id: activeDevice.id,
+                device_id: activeDevice.id
               };
               const fullBoksLog: BoksLog = {
                 ...(rawEntry as unknown as BoksLog),
                 event: 'BLE_PACKET',
-                type: 'info',
+                type: 'info'
               };
 
               const parsed = parseLog(fullBoksLog);
@@ -227,7 +227,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
     activeDevice,
     requestLogs,
     refreshCodeCount,
-    settingsContext?.settings.autoImport,
+    settingsContext?.settings.autoImport
   ]);
 
   // Reset sync ref on disconnect
@@ -240,7 +240,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(
     () => ({
       isSyncingLogs,
-      requestLogs,
+      requestLogs
     }),
     [isSyncingLogs, requestLogs]
   );

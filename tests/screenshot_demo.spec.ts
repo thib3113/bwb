@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { expect, test } from './fixtures';
 
 test('Generate screenshot of codes view with mixed statuses', async ({ page, simulator }) => {
   // 1. Initial Setup
@@ -6,7 +6,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
 
   // Wait for simulator controller
   await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
-    timeout: 30000,
+    timeout: 30000
   });
 
   // 2. Connect
@@ -51,7 +51,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         status: 'on_device',
         name: 'Master Principal',
         created_at: new Date().toISOString(),
-        sync_status: 'synced',
+        sync_status: 'synced'
       },
       {
         id: 'single-active',
@@ -61,7 +61,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         status: 'on_device',
         name: 'Livreur Demain',
         created_at: new Date().toISOString(),
-        sync_status: 'synced',
+        sync_status: 'synced'
       },
       {
         id: 'single-used',
@@ -72,7 +72,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         usedAt: new Date(Date.now() - 3600000).toISOString(),
         name: 'Livreur Passé (Utilisé)',
         created_at: new Date(Date.now() - 86400000).toISOString(),
-        sync_status: 'synced',
+        sync_status: 'synced'
       },
       {
         id: 'multi-active',
@@ -84,8 +84,8 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
         uses: 5,
         maxUses: 10,
         created_at: new Date().toISOString(),
-        sync_status: 'synced',
-      },
+        sync_status: 'synced'
+      }
     ];
 
     await StorageService.saveCodes(deviceId, codes);

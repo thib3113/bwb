@@ -35,7 +35,9 @@ export const test = base.extend<{ simulator: Simulator }>({
         navigator.bluetooth = navigator.bluetooth || {};
         // @ts-ignore
         navigator.bluetooth.requestDevice = async () => {
-          console.warn('[Test Mock] navigator.bluetooth.requestDevice called but we are using simulator!');
+          console.warn(
+            '[Test Mock] navigator.bluetooth.requestDevice called but we are using simulator!'
+          );
           // Return a dummy device if something calls it, but we expect toggleSimulator to prevent this
           return {
             id: 'mock-device',
@@ -48,11 +50,11 @@ export const test = base.extend<{ simulator: Simulator }>({
                     writeValue: async () => {},
                     readValue: async () => new DataView(new ArrayBuffer(1)),
                     startNotifications: async () => {},
-                    addEventListener: () => {},
-                  }),
-                }),
-              }),
-            },
+                    addEventListener: () => {}
+                  })
+                })
+              })
+            }
           };
         };
       }
@@ -114,8 +116,9 @@ export const test = base.extend<{ simulator: Simulator }>({
               const win = window as any;
               const events = win.txEvents || [];
               const buffer = win._boks_tx_buffer || [];
-              return events.some((e: any) => e.opcode === op) || 
-                     buffer.some((e: any) => e.opcode === op);
+              return (
+                events.some((e: any) => e.opcode === op) || buffer.some((e: any) => e.opcode === op)
+              );
             },
             { op: opcode },
             { timeout }
@@ -149,7 +152,12 @@ export const test = base.extend<{ simulator: Simulator }>({
           // Merge and de-duplicate by JSON representation
           const all = [...events];
           buffer.forEach((be: any) => {
-            if (!all.some((e: any) => e.opcode === be.opcode && JSON.stringify(e.payload) === JSON.stringify(be.payload))) {
+            if (
+              !all.some(
+                (e: any) =>
+                  e.opcode === be.opcode && JSON.stringify(e.payload) === JSON.stringify(be.payload)
+              )
+            ) {
               all.push(be);
             }
           });
@@ -252,10 +260,10 @@ export const test = base.extend<{ simulator: Simulator }>({
             console.log('[Simulator Fixture] Already connected (or icon not found).');
           }
         }
-      },
+      }
     };
 
     // 3. Use the fixture
     await use(simulator);
-  },
+  }
 });

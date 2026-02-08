@@ -6,48 +6,48 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system') => {
     palette: {
       mode: isDarkMode ? 'dark' : 'light',
       primary: {
-        main: '#1a73e8', // Original blue
+        main: '#1a73e8' // Original blue
       },
       secondary: {
-        main: '#50e3c2', // Secondary color from custom.css
+        main: '#50e3c2' // Secondary color from custom.css
       },
       error: {
-        main: '#e74c3c', // Danger color from custom.css
+        main: '#e74c3c' // Danger color from custom.css
       },
       success: {
-        main: '#2ecc71', // Success color from custom.css
+        main: '#2ecc71' // Success color from custom.css
       },
       warning: {
-        main: '#f39c12', // Warning color from custom.css
+        main: '#f39c12' // Warning color from custom.css
       },
       background: {
         default: isDarkMode ? '#121212' : '#f8f9fa',
-        paper: isDarkMode ? '#1e1e1e' : '#ffffff',
-      },
+        paper: isDarkMode ? '#1e1e1e' : '#ffffff'
+      }
     },
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       h4: {
-        fontWeight: 600,
+        fontWeight: 600
       },
       h5: {
-        fontWeight: 600,
-      },
+        fontWeight: 600
+      }
     },
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            textTransform: 'none', // Disable uppercase transformation
-          },
-        },
+            textTransform: 'none' // Disable uppercase transformation
+          }
+        }
       },
       MuiAppBar: {
         defaultProps: {
-          enableColorOnDark: true,
-        },
-      },
-    },
+          enableColorOnDark: true
+        }
+      }
+    }
   });
 };
 

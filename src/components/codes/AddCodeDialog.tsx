@@ -14,7 +14,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
+  TextField
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CachedIcon from '@mui/icons-material/Cached';
@@ -163,8 +163,8 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                           {showCode ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
-                    ),
-                  },
+                    )
+                  }
                 }}
               />
               <IconButton onClick={() => setCode(generateCode())} aria-label={t('generate')}>
@@ -205,7 +205,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 fullWidth
                 disabled={!isAdmin} // If User (Non-Admin): Cannot edit Index (hide it or disable it)
                 slotProps={{
-                  htmlInput: { min: 0, max: 255 },
+                  htmlInput: { min: 0, max: 255 }
                 }}
               />
             )}
@@ -217,7 +217,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 onChange={(e) => setUses(parseInt(e.currentTarget.value) || 1)}
                 fullWidth
                 slotProps={{
-                  htmlInput: { min: 1, max: 3 },
+                  htmlInput: { min: 1, max: 3 }
                 }}
               />
             )}

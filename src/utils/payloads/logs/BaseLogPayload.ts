@@ -29,7 +29,7 @@ export abstract class BaseLogPayload {
   toDetails(): Record<string, unknown> {
     return {
       age: this.age,
-      opcode: this.opcode,
+      opcode: this.opcode
     };
   }
 }

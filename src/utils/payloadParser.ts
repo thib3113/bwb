@@ -58,7 +58,7 @@ const PAYLOAD_CONSTRUCTORS: PayloadConstructor[] = [
   KeyOpeningLogPayload,
   ErrorLogPayload,
   NfcOpeningLogPayload,
-  NfcRegisteringLogPayload,
+  NfcRegisteringLogPayload
 ];
 
 export function parsePayload(opcode: number, payload: Uint8Array, raw: Uint8Array): BasePayload {

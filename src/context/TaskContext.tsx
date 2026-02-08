@@ -14,7 +14,7 @@ import {
   CreateSingleUseCodePacket,
   DeleteMasterCodePacket,
   DeleteMultiUseCodePacket,
-  DeleteSingleUseCodePacket,
+  DeleteSingleUseCodePacket
 } from '../ble/packets/PinManagementPackets';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
@@ -49,8 +49,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
             ...(taskData.payload as AddCodePayload),
             codeId: undefined, // Explicitly remove codeId
             codeType: 'master',
-            index: (taskData.payload as AddCodePayload).index, // PASS THE INDEX HERE!
-          },
+            index: (taskData.payload as AddCodePayload).index // PASS THE INDEX HERE!
+          }
         } as unknown as BoksTask;
 
         // Create the add task
@@ -60,7 +60,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           createdAt: new Date(),
           attempts: 0,
           status: 'pending',
-          sync_status: 'created',
+          sync_status: 'created'
         } as unknown as BoksTask;
 
         // Add both tasks to the queue
@@ -73,7 +73,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
           createdAt: new Date(),
           attempts: 0,
           status: 'pending',
-          sync_status: 'created',
+          sync_status: 'created'
         } as unknown as BoksTask;
 
         setTasks((prevTasks) => [...prevTasks, task]);
@@ -91,7 +91,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
               status: 'pending',
               attempts: 0,
               error: undefined,
-              lastAttemptAt: undefined,
+              lastAttemptAt: undefined
             }
           : task
       )
@@ -120,7 +120,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
               ? {
                   ...t,
                   status: 'processing',
-                  lastAttemptAt: new Date(),
+                  lastAttemptAt: new Date()
                 }
               : t
           )
@@ -319,7 +319,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                   ...t,
                   status: 'failed',
                   error: error instanceof Error ? error.message : String(error),
-                  attempts: t.attempts + 1,
+                  attempts: t.attempts + 1
                 }
               : t
           )
@@ -433,7 +433,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     () => ({
       addTask,
       retryTask,
-      tasks,
+      tasks
     }),
     [addTask, retryTask, tasks]
   );

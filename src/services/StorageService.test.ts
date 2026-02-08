@@ -23,14 +23,14 @@ describe('StorageService', () => {
         id: 'code-1',
         code: '123456',
         type: CODE_TYPE.MASTER,
-        status: CODE_STATUS.SYNCED,
+        status: CODE_STATUS.SYNCED
       },
       {
         id: 'code-2',
         code: '654321',
         type: CODE_TYPE.SINGLE,
-        status: CODE_STATUS.SYNCED,
-      },
+        status: CODE_STATUS.SYNCED
+      }
     ];
 
     await StorageService.saveCodes(testBoksId, codes);
@@ -45,12 +45,12 @@ describe('StorageService', () => {
     // Note: saveCodes currently deletes all existing codes for the device before adding new ones
     // so we are testing that behavior here
     const initialCodes: Partial<BoksCode>[] = [
-      { id: 'code-1', code: '111111', type: CODE_TYPE.MASTER },
+      { id: 'code-1', code: '111111', type: CODE_TYPE.MASTER }
     ];
     await StorageService.saveCodes(testBoksId, initialCodes);
 
     const newCodes: Partial<BoksCode>[] = [
-      { id: 'code-2', code: '222222', type: CODE_TYPE.SINGLE },
+      { id: 'code-2', code: '222222', type: CODE_TYPE.SINGLE }
     ];
     await StorageService.saveCodes(testBoksId, newCodes);
 
@@ -64,7 +64,7 @@ describe('StorageService', () => {
     const codesWithoutIds: Partial<BoksCode>[] = [
       { code: '111111', type: CODE_TYPE.MASTER },
       { code: '222222', type: CODE_TYPE.SINGLE },
-      { code: '333333', type: CODE_TYPE.MULTI },
+      { code: '333333', type: CODE_TYPE.MULTI }
     ];
 
     await StorageService.saveCodes(testBoksId, codesWithoutIds);
@@ -81,7 +81,7 @@ describe('StorageService', () => {
   it('should remove a code correctly', async () => {
     const codes: Partial<BoksCode>[] = [
       { id: 'code-1', code: '123456', type: CODE_TYPE.MASTER },
-      { id: 'code-2', code: '654321', type: CODE_TYPE.SINGLE },
+      { id: 'code-2', code: '654321', type: CODE_TYPE.SINGLE }
     ];
     await StorageService.saveCodes(testBoksId, codes);
 

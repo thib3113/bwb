@@ -40,7 +40,7 @@ export function parsePacket(data: DataView): BLEPacket | null {
     opcode,
     payload,
     raw: bytes,
-    isValidChecksum,
+    isValidChecksum
   };
 }
 

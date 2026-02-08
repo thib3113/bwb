@@ -13,7 +13,7 @@ import {
   CreateSingleUseCodePacket,
   DeleteMasterCodePacket,
   DeleteMultiUseCodePacket,
-  DeleteSingleUseCodePacket,
+  DeleteSingleUseCodePacket
 } from './PinManagementPackets';
 import { RequestLogsPacket } from './RequestLogsPacket';
 import { GetLogsCountPacket } from './GetLogsCountPacket';

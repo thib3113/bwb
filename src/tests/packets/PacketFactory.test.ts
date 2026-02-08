@@ -1,9 +1,9 @@
-import {describe, expect, it} from 'vitest';
-import {PacketFactory} from '../../ble/packets/PacketFactory';
-import {BLEOpcode} from '../../utils/bleConstants';
-import {DoorStatusPacket} from '../../ble/packets/rx/DoorStatusPacket';
-import {LogCountPacket} from '../../ble/packets/rx/LogCountPacket';
-import {OperationSuccessPacket} from '../../ble/packets/rx/OperationSuccessPacket';
+import { describe, expect, it } from 'vitest';
+import { PacketFactory } from '../../ble/packets/PacketFactory';
+import { BLEOpcode } from '../../utils/bleConstants';
+import { DoorStatusPacket } from '../../ble/packets/rx/DoorStatusPacket';
+import { LogCountPacket } from '../../ble/packets/rx/LogCountPacket';
+import { OperationSuccessPacket } from '../../ble/packets/rx/OperationSuccessPacket';
 
 describe('PacketFactory', () => {
   it('should create OperationSuccessPacket for 0x77', () => {
@@ -29,7 +29,7 @@ describe('PacketFactory', () => {
   });
 
   it('should return null for unknown opcode', () => {
-    const packet = PacketFactory.create(0xFF, new Uint8Array(0));
+    const packet = PacketFactory.create(0xff, new Uint8Array(0));
     expect(packet).toBeNull();
   });
 

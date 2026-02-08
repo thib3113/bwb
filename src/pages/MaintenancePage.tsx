@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Card,
-  CardContent,
   CardActions,
-  Typography,
-  LinearProgress,
+  CardContent,
   Container,
-  Alert,
+  LinearProgress,
   List,
   ListItem,
   ListItemText,
   Paper,
+  Typography
 } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +80,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           checkStop: () => {
             // Stop functionality not implemented yet
           },
-          t,
+          t
         },
         { bleService, configKey }
       );
@@ -240,7 +240,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
         break; // Stop outer loop
       }
     }
-  },
+  }
 };
 
 // --- Page Component ---

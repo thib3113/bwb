@@ -10,7 +10,7 @@ import {
   FormControlLabel,
   Slider,
   Switch,
-  Typography,
+  Typography
 } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
@@ -18,7 +18,7 @@ import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
-import { SimulatorAPI, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
+import { BoksState, LogEntry, SimulatorAPI } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
@@ -102,7 +102,7 @@ export const SimulatorDebugger = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  mb: 2,
+                  mb: 2
                 }}
               >
                 <Typography
@@ -113,7 +113,7 @@ export const SimulatorDebugger = () => {
                   {t('settings:developer.simulator.status', {
                     status: state.isOpen
                       ? t('settings:developer.simulator.open')
-                      : t('settings:developer.simulator.closed'),
+                      : t('settings:developer.simulator.closed')
                   })}
                 </Typography>
                 <FormControlLabel
@@ -224,7 +224,7 @@ export const SimulatorDebugger = () => {
                   fontFamily: 'monospace',
                   bgcolor: 'rgba(0,0,0,0.03)',
                   p: 1,
-                  borderRadius: 1,
+                  borderRadius: 1
                 }}
               >
                 {state.logs.length === 0

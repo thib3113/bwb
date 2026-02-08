@@ -7,7 +7,7 @@ import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router
 import {
   ListAlt as LogIcon,
   Settings as SettingsIcon,
-  VpnKey as VpnKeyIcon,
+  VpnKey as VpnKeyIcon
 } from '@mui/icons-material';
 
 interface OutletContextType {
@@ -74,7 +74,7 @@ export const HomePage = () => {
           left: 0,
           right: 0,
           zIndex: 1000,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.background.paper
         }}
       >
         <BottomNavigationAction

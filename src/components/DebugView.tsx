@@ -9,7 +9,7 @@ import {
   ListItemText,
   Snackbar,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -21,7 +21,7 @@ import {
   BLEOpcode,
   DEVICE_INFO_CHARS,
   DEVICE_INFO_SERVICE_UUID,
-  OPCODE_NAMES,
+  OPCODE_NAMES
 } from '../utils/bleConstants';
 import { formatPayload } from '../utils/payloadFormatter';
 
@@ -31,10 +31,7 @@ const KNOWN_UUID_NAMES: Record<string, string> = {
   [BATTERY_PROPRIETARY_CHAR_UUID]: 'Battery Data (Proprietary)',
   [BATTERY_SERVICE_UUID]: 'Battery Service',
   [DEVICE_INFO_SERVICE_UUID]: 'Device Info Service',
-  ...Object.entries(DEVICE_INFO_CHARS).reduce(
-    (acc, [name, uuid]) => ({ ...acc, [uuid]: name }),
-    {}
-  ),
+  ...Object.entries(DEVICE_INFO_CHARS).reduce((acc, [name, uuid]) => ({ ...acc, [uuid]: name }), {})
 };
 
 interface DebugPacket {
@@ -73,7 +70,7 @@ export const DebugView = () => {
           : undefined,
       opcodeName: log.opcode !== undefined ? getOpcodeName(log.opcode) : undefined,
       payload: log.payload,
-      raw: log.raw,
+      raw: log.raw
     }));
     const json = JSON.stringify(exportData);
     navigator.clipboard.writeText(json);
@@ -152,7 +149,7 @@ export const DebugView = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           borderBottom: 1,
-          borderColor: 'divider',
+          borderColor: 'divider'
         }}
       >
         <Typography variant="h6">BLE Activity Logger</Typography>
@@ -218,7 +215,7 @@ export const DebugView = () => {
                       mt: 0.5,
                       fontFamily: 'monospace',
                       fontSize: '0.85rem',
-                      wordBreak: 'break-all',
+                      wordBreak: 'break-all'
                     }}
                   >
                     {packet.type === 'packet' ? (
@@ -249,7 +246,7 @@ export const DebugView = () => {
                 }
                 slotProps={{
                   primary: { component: 'div' },
-                  secondary: { component: 'div' },
+                  secondary: { component: 'div' }
                 }}
               />
             </ListItem>

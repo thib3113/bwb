@@ -10,7 +10,7 @@ export class SetConfigurationPacket extends BoksTXPacket {
   static schema = z.object({
     configKey: z.string().length(8, 'Config Key must be 8 characters'),
     configType: z.coerce.number().min(0).max(255),
-    configValue: z.coerce.number().min(0).max(255),
+    configValue: z.coerce.number().min(0).max(255)
   });
 
   constructor(

@@ -1,41 +1,40 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { LogViewer } from './LogViewer';
 import { BLEOpcode } from '../../utils/bleConstants';
-// Mock necessary hooks
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { language: 'en' },
-  }),
-}));
-
-vi.mock('../../hooks/useDevice', () => ({
-  useDevice: vi.fn(),
-}));
-
-vi.mock('../../hooks/useBLEConnection', () => ({
-  useBLEConnection: vi.fn(),
-}));
-
-vi.mock('../../hooks/useBLELogs', () => ({
-  useBLELogs: vi.fn(),
-}));
-
-vi.mock('../../hooks/useLogCount', () => ({
-  useLogCount: vi.fn(),
-}));
-
-vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: vi.fn(),
-}));
-
 // Import mocks to configure them
 import { useDevice } from '../../hooks/useDevice';
 import { useBLEConnection } from '../../hooks/useBLEConnection';
 import { useBLELogs } from '../../hooks/useBLELogs';
 import { useLogCount } from '../../hooks/useLogCount';
 import { useLiveQuery } from 'dexie-react-hooks';
+// Mock necessary hooks
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en' }
+  })
+}));
+
+vi.mock('../../hooks/useDevice', () => ({
+  useDevice: vi.fn()
+}));
+
+vi.mock('../../hooks/useBLEConnection', () => ({
+  useBLEConnection: vi.fn()
+}));
+
+vi.mock('../../hooks/useBLELogs', () => ({
+  useBLELogs: vi.fn()
+}));
+
+vi.mock('../../hooks/useLogCount', () => ({
+  useLogCount: vi.fn()
+}));
+
+vi.mock('dexie-react-hooks', () => ({
+  useLiveQuery: vi.fn()
+}));
 
 describe('LogViewer Render Performance', () => {
   beforeEach(() => {
@@ -56,15 +55,15 @@ describe('LogViewer Render Performance', () => {
         opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
         payload: new Uint8Array([
           0x00, 0x00, 0x00, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x00, 0x00, 0x11, 0x22, 0x33, 0x44,
-          0x55, 0x66,
+          0x55, 0x66
         ]),
         raw: new Uint8Array([
           0x86, 0x11, 0x00, 0x00, 0x00, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x00, 0x00, 0x11, 0x22,
-          0x33, 0x44, 0x55, 0x66,
+          0x33, 0x44, 0x55, 0x66
         ]),
         synced: true,
         event: 'Raw Event 1',
-        type: 'info',
+        type: 'info'
       },
       {
         id: '2',
@@ -73,16 +72,16 @@ describe('LogViewer Render Performance', () => {
         opcode: BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY,
         payload: new Uint8Array([
           0x00, 0x00, 0x00, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x66, 0x55, 0x44, 0x33,
-          0x22, 0x11,
+          0x22, 0x11
         ]),
         raw: new Uint8Array([
           0x88, 0x11, 0x00, 0x00, 0x00, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x00, 0x00, 0x66, 0x55,
-          0x44, 0x33, 0x22, 0x11,
+          0x44, 0x33, 0x22, 0x11
         ]),
         synced: true,
         event: 'Raw Event 2',
-        type: 'error',
-      },
+        type: 'error'
+      }
     ];
 
     (useLiveQuery as any).mockReturnValue(mockLogs);

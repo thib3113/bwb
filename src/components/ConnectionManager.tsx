@@ -10,7 +10,7 @@ import {
   IconButton,
   Tooltip,
   Typography,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import BatteryFullIcon from '@mui/icons-material/BatteryFull';

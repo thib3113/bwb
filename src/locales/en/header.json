@@ -1,10 +1,10 @@
 {
-	"connect_to_open_door": "Connect to open",
-	"open_door": "Open Door",
-	"door_closed": "Door closed",
-	"master_code_required": "Master code required for this action",
-	"door_opening": "Opening door...",
-	"door_open_failed": "Failed to open door",
-	"battery_level": "Battery level: {{level}}%",
-	"maintenance": "Maintenance"
+  "connect_to_open_door": "Connect to open",
+  "open_door": "Open Door",
+  "door_closed": "Door closed",
+  "master_code_required": "Master code required for this action",
+  "door_opening": "Opening door...",
+  "door_open_failed": "Failed to open door",
+  "battery_level": "Battery level: {{level}}%",
+  "maintenance": "Maintenance"
 }

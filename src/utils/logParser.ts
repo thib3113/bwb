@@ -30,7 +30,7 @@ export function parseLog(log: Partial<BoksLog>): ParsedLog {
     payload,
     raw,
     synced: log.synced ?? false,
-    ...log,
+    ...log
   };
 
   if (isLogPayload(payloadInstance)) {
@@ -39,7 +39,7 @@ export function parseLog(log: Partial<BoksLog>): ParsedLog {
       eventType: payloadInstance.constructor.name.replace('LogPayload', '').toLowerCase(),
       timestamp: payloadInstance.timestamp,
       description: payloadInstance.description,
-      details: payloadInstance.toDetails(),
+      details: payloadInstance.toDetails()
     };
   }
 
@@ -48,7 +48,7 @@ export function parseLog(log: Partial<BoksLog>): ParsedLog {
     ...baseLog,
     eventType: 'unknown',
     description: 'logs:events.unknown',
-    details: { opcode: baseLog.opcode },
+    details: { opcode: baseLog.opcode }
   };
 }
 

@@ -35,7 +35,9 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     }
 
     // Check for battery percentage as confirmation of connection
-    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({
+      timeout: 20000
+    });
 
     // Optional: Check if we received data (e.g., Codes count)
     await expect(page.getByText(/Codes \(Total:/)).toBeVisible({ timeout: 10000 });
@@ -48,7 +50,9 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
 
     // Check for battery percentage as confirmation of connection
-    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('connection-status-indicator').getByText('%')).toBeVisible({
+      timeout: 20000
+    });
 
     // Wait for potential redirect logic to trigger (it has 1.5s delay)
     await page.waitForTimeout(2000);
@@ -75,12 +79,12 @@ test.describe('Boks Basic Flow (Simulator)', () => {
     // 3. Verify Feedback
     // Using regex for flexibility
     await expect(page.getByText(/Opening door|Success|Opening.../i)).toBeVisible({
-      timeout: 10000,
+      timeout: 10000
     });
 
     // 4. Wait for close
     await expect(page.getByText(/Opening door|Success|Opening.../i)).not.toBeVisible({
-      timeout: 15000,
+      timeout: 15000
     });
   });
 });

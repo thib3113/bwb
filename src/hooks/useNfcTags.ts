@@ -65,7 +65,7 @@ export const useNfcTags = () => {
         [
           BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT,
           BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS,
-          BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT,
+          BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT
         ].includes(packet.opcode)
       ) {
         // Use the Packet Class to parse cleanly
@@ -126,7 +126,7 @@ export const useNfcTags = () => {
         if (existing) {
           await db.nfc_tags.update(existing.id, {
             name,
-            updated_at: Date.now(),
+            updated_at: Date.now()
           });
         } else {
           await db.nfc_tags.add({
@@ -136,7 +136,7 @@ export const useNfcTags = () => {
             name,
             type: BoksNfcTagType.USER_BADGE, // Default to User Badge for manual add
             created_at: Date.now(),
-            sync_status: 'created',
+            sync_status: 'created'
           });
         }
 
@@ -183,6 +183,6 @@ export const useNfcTags = () => {
     startScan,
     registerTag,
     unregisterTag,
-    resetScan,
+    resetScan
   };
 };

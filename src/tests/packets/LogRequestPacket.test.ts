@@ -1,7 +1,7 @@
-import {describe, expect, it} from 'vitest';
-import {GetLogsCountPacket} from '../../ble/packets/GetLogsCountPacket';
-import {RequestLogsPacket} from '../../ble/packets/RequestLogsPacket';
-import {BLEOpcode} from '../../utils/bleConstants';
+import { describe, expect, it } from 'vitest';
+import { GetLogsCountPacket } from '../../ble/packets/GetLogsCountPacket';
+import { RequestLogsPacket } from '../../ble/packets/RequestLogsPacket';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 describe('Log Packets', () => {
   it('should construct GetLogsCount (0x07) full packet', () => {
@@ -30,9 +30,11 @@ describe('Log Packets', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "03 00 03";
+    const expectedHex = '03 00 03';
     expect(toHex(binary)).toBe(expectedHex);
   });
 
@@ -44,9 +46,11 @@ describe('Log Packets', () => {
     const binary = packet.toPacket();
 
     const toHex = (buffer: Uint8Array) =>
-      Array.from(buffer).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+      Array.from(buffer)
+        .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 
-    const expectedHex = "07 00 07";
+    const expectedHex = '07 00 07';
     expect(toHex(binary)).toBe(expectedHex);
   });
 });

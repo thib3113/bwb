@@ -53,7 +53,7 @@ export const DebugWizardStep5Recap: React.FC<DebugWizardStep5RecapProps> = ({
   customUuids,
   customResults,
   serviceUuid,
-  serviceResults,
+  serviceResults
 }) => {
   const { t } = useTranslation(['wizard', 'common', 'codes']);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -64,7 +64,7 @@ export const DebugWizardStep5Recap: React.FC<DebugWizardStep5RecapProps> = ({
       id: device?.id,
       firmwareVersion,
       hardwareInference,
-      deviceInfo,
+      deviceInfo
     },
     status: {
       battery: batteryData,
@@ -72,19 +72,19 @@ export const DebugWizardStep5Recap: React.FC<DebugWizardStep5RecapProps> = ({
       doorTest: {
         attempted: !!pinCode,
         success: openDoorSuccess,
-        error: openDoorError,
-      },
+        error: openDoorError
+      }
     },
     questionAnswers,
     customDiscovery: {
       uuids: customUuids,
-      results: customResults,
+      results: customResults
     },
     advanced: {
       serviceUuid,
-      results: serviceResults,
+      results: serviceResults
     },
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   };
 
   const jsonString = JSON.stringify(recapData, null, 2);
@@ -160,7 +160,7 @@ export const DebugWizardStep5Recap: React.FC<DebugWizardStep5RecapProps> = ({
           variant="outlined"
           InputProps={{
             readOnly: true,
-            style: { fontFamily: 'monospace', fontSize: '0.875rem' },
+            style: { fontFamily: 'monospace', fontSize: '0.875rem' }
           }}
         />
         <IconButton

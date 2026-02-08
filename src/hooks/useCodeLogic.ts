@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState, useEffect } from 'react';
 import { db } from '../db/db';
 import { BoksCode, CODE_TYPE, CodeMetadata } from '../types';
 import { APP_DEFAULTS } from '../utils/constants';
@@ -44,7 +43,26 @@ export const useCodeLogic = (
   const masterCodes = useMemo(() => codes.filter((c) => c.type === CODE_TYPE.MASTER), [codes]);
 
   const temporaryCodes = useMemo(
-    () => codes.filter((c) => c.type === CODE_TYPE.SINGLE || c.type === CODE_TYPE.MULTI),
+    () =>
+      codes.filter((c) => {
+        if (c.type !== CODE_TYPE.SINGLE && c.type !== CODE_TYPE.MULTI) return false;
+
+        // Filter out used codes
+        // 1. Explicit usedAt (Single use)
+        if (c.usedAt && c.type === CODE_TYPE.SINGLE) return false;
+
+        // 2. Max uses reached (Multi use)
+        if (
+          c.type === CODE_TYPE.MULTI &&
+          c.uses !== undefined &&
+          c.maxUses !== undefined &&
+          c.uses >= c.maxUses
+        ) {
+          return false;
+        }
+
+        return true;
+      }),
     [codes]
   );
 
@@ -61,14 +79,14 @@ export const useCodeLogic = (
           return {
             used: false,
             usedDate: usedDate,
-            lastUsed: usedDate, // For consistency
+            lastUsed: usedDate // For consistency
           };
         }
 
         return {
           used: true,
           usedDate: usedDate,
-          lastUsed: usedDate, // For consistency
+          lastUsed: usedDate // For consistency
         };
       }
 
@@ -124,7 +142,7 @@ export const useCodeLogic = (
           code,
           priority: getPriority(code),
           date: isNaN(date) ? -Infinity : date,
-          isNaNDate: isNaN(date),
+          isNaNDate: isNaN(date)
         };
       })
       .sort((a, b) => {
@@ -177,8 +195,8 @@ export const useCodeLogic = (
               payload: {
                 code: overwriteCode.code,
                 codeId: overwriteCode.id,
-                codeType: overwriteCode.type,
-              },
+                codeType: overwriteCode.type
+              }
             });
           }
         }
@@ -202,8 +220,8 @@ export const useCodeLogic = (
           // Pour les codes multi-usages, ajouter les propriétés uses et maxUses
           ...(newCodeData.type === CODE_TYPE.MULTI && {
             uses: 0,
-            maxUses: newCodeData.maxUses || newCodeData.uses || 1, // Handle both potential property names
-          }),
+            maxUses: newCodeData.maxUses || newCodeData.uses || 1 // Handle both potential property names
+          })
         };
 
         // Add the new code to the database
@@ -232,8 +250,8 @@ export const useCodeLogic = (
           payload: {
             code: codeEntry.code,
             codeId: codeEntry.id,
-            index: codeEntry.index, // Required for Master Code operations
-          },
+            index: codeEntry.index // Required for Master Code operations
+          }
         });
 
         showNotification(t('added'), 'success');
@@ -262,8 +280,8 @@ export const useCodeLogic = (
             payload: {
               code: codeToDelete.code,
               codeId: codeToDelete.id,
-              codeType: codeToDelete.type,
-            },
+              codeType: codeToDelete.type
+            }
           });
         }
 
@@ -321,6 +339,6 @@ export const useCodeLogic = (
     handleDeleteCode,
     deriveCodeMetadata,
     getFilteredCodes,
-    handleCopyCode,
+    handleCopyCode
   };
 };

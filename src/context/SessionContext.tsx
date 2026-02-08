@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { SERVICE_UUID } from '../utils/bleConstants';
 import { SessionContext } from './Contexts';
-import { BatteryData, BatteryAnalysis } from '../hooks/useBatteryDiagnostics';
+import { BatteryAnalysis, BatteryData } from '../hooks/useBatteryDiagnostics';
 import { HardwareInference } from '../utils/bleUtils';
 
 interface DebugWizardState {
@@ -37,7 +37,7 @@ const defaultDebugWizardState: DebugWizardState = {
   serviceResults: [],
   questionAnswers: [],
   customUuids: [],
-  customResults: [],
+  customResults: []
 };
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
@@ -51,7 +51,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const updateDebugWizardState = useCallback((newState: Partial<DebugWizardState>) => {
     setDebugWizardState((prev) => ({
       ...prev,
-      ...newState,
+      ...newState
     }));
   }, []);
 
@@ -63,7 +63,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     () => ({
       debugWizardState,
       updateDebugWizardState,
-      resetDebugWizardState,
+      resetDebugWizardState
     }),
     [debugWizardState, updateDebugWizardState, resetDebugWizardState]
   );

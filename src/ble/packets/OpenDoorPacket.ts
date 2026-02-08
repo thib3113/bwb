@@ -8,7 +8,7 @@ export class OpenDoorPacket extends BoksTXPacket {
   }
 
   static schema = z.object({
-    pinCode: z.string().min(1, 'PIN Code is required'),
+    pinCode: z.string().min(1, 'PIN Code is required')
   });
 
   constructor(public pinCode: string = '') {

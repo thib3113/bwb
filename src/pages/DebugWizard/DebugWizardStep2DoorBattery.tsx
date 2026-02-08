@@ -9,7 +9,7 @@ import {
   Divider,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -44,7 +44,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
   waitingForClose,
   isReadingBattery,
   isPreparing,
-  analysis,
+  analysis
 }) => {
   const { t } = useTranslation();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,7 +140,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                     bgcolor: 'background.paper',
                     borderRadius: 1,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: 'divider'
                   }}
                 >
                   {/* Standard Level */}
@@ -278,7 +278,7 @@ export const DebugWizardStep2DoorBattery: React.FC<DebugWizardStep2DoorBatteryPr
                             border: '1px solid',
                             borderColor: 'divider',
                             borderRadius: 1,
-                            bgcolor: 'background.paper',
+                            bgcolor: 'background.paper'
                           }}
                         >
                           <Typography variant="caption" display="block" color="text.secondary">

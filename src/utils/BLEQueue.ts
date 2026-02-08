@@ -98,7 +98,7 @@ export class BLEQueue {
         timestamp: Date.now(),
         options,
         accumulatedPackets: [],
-        packet,
+        packet
       });
       this.processNext();
     });
@@ -195,7 +195,7 @@ export class BLEQueue {
       BLEOpcode.DELETE_MASTER_CODE,
       BLEOpcode.DELETE_SINGLE_USE_CODE,
       BLEOpcode.DELETE_MULTI_USE_CODE,
-      BLEOpcode.REACTIVATE_CODE,
+      BLEOpcode.REACTIVATE_CODE
     ];
 
     if (

@@ -17,7 +17,7 @@ interface DebugWizardStep3QuestionsProps {
 
 export const DebugWizardStep3Questions: React.FC<DebugWizardStep3QuestionsProps> = ({
   questionAnswers,
-  onAnswerQuestion,
+  onAnswerQuestion
 }) => {
   const { t } = useTranslation(['wizard', 'common']);
 
@@ -26,13 +26,13 @@ export const DebugWizardStep3Questions: React.FC<DebugWizardStep3QuestionsProps>
     {
       id: 'has_scale',
       text: t('questions.has_scale'),
-      expected: 'Non',
+      expected: 'Non'
     },
     {
       id: 'anything_special',
       text: t('questions.anything_special'),
-      expected: 'Non',
-    },
+      expected: 'Non'
+    }
   ];
 
   return (

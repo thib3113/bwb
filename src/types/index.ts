@@ -1,13 +1,13 @@
 export enum CODE_TYPE {
   MASTER = 'master',
   SINGLE = 'single',
-  MULTI = 'multi',
+  MULTI = 'multi'
 }
 
 export enum UserRole {
   Owner = 'owner',
   Admin = 'admin',
-  Reader = 'reader',
+  Reader = 'reader'
 }
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted';

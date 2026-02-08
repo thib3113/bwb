@@ -5,7 +5,7 @@ export enum NfcScanResultStatus {
   FOUND = 'found',
   ALREADY_EXISTS = 'already_exists',
   TIMEOUT = 'timeout',
-  UNKNOWN = 'unknown',
+  UNKNOWN = 'unknown'
 }
 
 export class NfcScanResultPacket extends BoksRXPacket {
@@ -13,7 +13,7 @@ export class NfcScanResultPacket extends BoksRXPacket {
     return [
       BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT,
       BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS,
-      BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT,
+      BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT
     ];
   }
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Collapse, IconButton, Table, TableBody, TableCell, TableRow } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
-import { ParsedLogDisplay, formatLogDate, translateKey } from './logUtils';
+import { formatLogDate, ParsedLogDisplay, translateKey } from './logUtils';
 
 interface LogItemProps {
   log: ParsedLogDisplay; // Use ParsedLogDisplay here
@@ -49,7 +49,7 @@ export const LogItem = ({ log }: LogItemProps) => {
                   {(() => {
                     // Use log.details directly, no need for log.raw.details as BoksLog doesn't have it
                     const combinedDetails: Record<string, unknown> = {
-                      ...log.details,
+                      ...log.details
                     };
 
                     // Remove 'age' field from details as requested

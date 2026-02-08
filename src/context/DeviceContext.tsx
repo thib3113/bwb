@@ -14,7 +14,7 @@ import {
   DEVICE_INFO_SERVICE_UUID,
   SIMULATOR_BLE_ID,
   SIMULATOR_DEFAULT_CONFIG_KEY,
-  SIMULATOR_DEFAULT_PIN,
+  SIMULATOR_DEFAULT_PIN
 } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
@@ -23,7 +23,7 @@ import { SetConfigurationPacket } from '../ble/packets/SetConfigurationPacket';
 // Hardware Revisions Map (Internal Firmware Revision -> Hardware Version)
 const PCB_VERSIONS: Record<string, string> = {
   '10/125': '4.0',
-  '10/cd': '3.0',
+  '10/cd': '3.0'
 };
 
 // Ensure StorageService is exposed for debugging
@@ -46,7 +46,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     if (!devicesQuery) return [];
     return devicesQuery.map((device) => ({
       ...device,
-      ...(secretsQuery?.find((s) => s.device_id === device.id) || {}),
+      ...(secretsQuery?.find((s) => s.device_id === device.id) || {})
     })) as (BoksDevice & Partial<DeviceSecrets>)[];
   }, [devicesQuery, secretsQuery]);
 
@@ -76,7 +76,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
           await db.devices.update(currentId, {
             master_code_count: master,
-            single_code_count: single,
+            single_code_count: single
           });
 
           const updated = await db.devices.get(currentId);
@@ -115,7 +115,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
         // Update device with battery level
         await db.devices.update(currentId, {
-          battery_level: batteryLevel,
+          battery_level: batteryLevel
         });
       }
     };
@@ -160,7 +160,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       const deviceToUpdate = await db.devices.get(deviceId);
       if (deviceToUpdate) {
         await db.devices.update(deviceId, {
-          battery_level: batteryLevel,
+          battery_level: batteryLevel
         });
       }
     } catch (error) {
@@ -192,7 +192,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
           targetId = existingDevice.id;
           // Update last seen timestamp
           await db.devices.update(existingDevice.id, {
-            last_connected_at: Date.now(),
+            last_connected_at: Date.now()
           });
         } else {
           isNewDevice = true;
@@ -212,13 +212,13 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             role: UserRole.Admin, // Default role for locally discovered devices
             sync_status: 'created',
             last_connected_at: Date.now(),
-            la_poste_activated: false, // Default to false
+            la_poste_activated: false // Default to false
           });
 
           // Initialize secrets (auto-fill for simulator)
           await db.device_secrets.add({
             device_id: targetId,
-            configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined,
+            configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined
           });
         }
 
@@ -311,7 +311,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       if (deviceToUpdate) {
         await db.devices.update(deviceId, {
           friendly_name: newName,
-          sync_status: 'updated', // Mark for sync
+          sync_status: 'updated' // Mark for sync
         });
       }
     } catch (error) {
@@ -332,7 +332,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
           if (Object.keys(publicDetails).length > 0) {
             await db.devices.update(deviceId, {
               ...publicDetails,
-              sync_status: 'updated',
+              sync_status: 'updated'
             });
           }
 
@@ -340,14 +340,14 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
           if (door_pin_code !== undefined) {
             await db.devices.update(deviceId, {
               door_pin_code: door_pin_code,
-              sync_status: 'updated',
+              sync_status: 'updated'
             });
           }
 
           // Update configuration_key in device_secrets table
           if (configuration_key !== undefined) {
             const secretUpdate: Partial<DeviceSecrets> = {
-              configuration_key: configuration_key,
+              configuration_key: configuration_key
             };
 
             const existingSecret = await db.device_secrets.get(deviceId);
@@ -356,7 +356,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             } else {
               await db.device_secrets.add({
                 device_id: deviceId,
-                ...secretUpdate,
+                ...secretUpdate
               });
             }
           }
@@ -406,7 +406,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     return {
       master,
       single,
-      total: master + single,
+      total: master + single
     };
   }, [activeDevice]);
 
@@ -448,7 +448,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
       // Update local DB state
       await db.devices.update(deviceId, {
-        la_poste_activated: enable,
+        la_poste_activated: enable
       });
     } catch (error) {
       console.error('Failed to toggle La Poste:', error);
@@ -470,7 +470,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCount,
       updateDeviceBatteryLevel,
-      toggleLaPoste,
+      toggleLaPoste
     }),
     [
       knownDevices,
@@ -485,7 +485,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCount,
       updateDeviceBatteryLevel,
-      toggleLaPoste,
+      toggleLaPoste
     ]
   );
 

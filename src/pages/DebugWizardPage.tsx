@@ -10,7 +10,7 @@ import {
   Stepper,
   Typography,
   useMediaQuery,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useBLEConnection } from '../hooks/useBLEConnection';
@@ -33,7 +33,7 @@ export const DebugWizardPage = () => {
     t('wizard:steps.step2'),
     t('wizard:steps.step3'),
     t('wizard:steps.step4'),
-    t('wizard:steps.step5'),
+    t('wizard:steps.step5')
   ];
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -56,7 +56,7 @@ export const DebugWizardPage = () => {
     batteryData,
     batteryAnalysis: analysis,
     customUuids = [],
-    customResults = [],
+    customResults = []
   } = debugWizardState;
 
   const { openDoor, isOpening, doorStatus } = useDoor();
@@ -64,10 +64,10 @@ export const DebugWizardPage = () => {
     isReading: isReadingBattery,
     batteryData: localBatteryData,
     analysis: localAnalysis,
-    readBatteryDiagnostics,
+    readBatteryDiagnostics
   } = useBatteryDiagnostics({
     batteryData: debugWizardState.batteryData,
-    analysis: debugWizardState.batteryAnalysis,
+    analysis: debugWizardState.batteryAnalysis
   });
 
   const [isLoadingInfo, setIsLoadingInfo] = useState(false);
@@ -141,7 +141,7 @@ export const DebugWizardPage = () => {
           updateDebugWizardState({
             firmwareVersion: displayVersion,
             hardwareInference: inference,
-            deviceInfo: info,
+            deviceInfo: info
           });
           console.log('DebugWizard: Called updateDebugWizardState with:', displayVersion);
         } catch (e) {
@@ -187,7 +187,7 @@ export const DebugWizardPage = () => {
 
     if (!pinCode || pinCode.length < 4) {
       updateDebugWizardState({
-        openDoorError: 'Veuillez entrer un code PIN valide (au moins 4 chiffres)',
+        openDoorError: 'Veuillez entrer un code PIN valide (au moins 4 chiffres)'
       });
       return;
     }
@@ -215,7 +215,7 @@ export const DebugWizardPage = () => {
     const userClaim = hardwareQa
       ? {
           answer: hardwareQa.answer,
-          inference: hardwareInference || { battery: 'Unknown', label: 'Unknown' },
+          inference: hardwareInference || { battery: 'Unknown', label: 'Unknown' }
         }
       : undefined;
 
@@ -248,7 +248,7 @@ export const DebugWizardPage = () => {
     if (localBatteryData) {
       updateDebugWizardState({
         batteryData: localBatteryData,
-        batteryAnalysis: localAnalysis,
+        batteryAnalysis: localAnalysis
       });
     }
   }, [localBatteryData, localAnalysis, updateDebugWizardState]);
@@ -261,7 +261,7 @@ export const DebugWizardPage = () => {
       id: questionId,
       answer,
       expected,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
 
     if (existingIndex >= 0) {
@@ -368,7 +368,7 @@ export const DebugWizardPage = () => {
               sx={{
                 bgcolor: 'transparent',
                 justifyContent: 'center',
-                '& .MuiMobileStepper-dot': { mx: 0.5 },
+                '& .MuiMobileStepper-dot': { mx: 0.5 }
               }}
             />
             <Typography variant="subtitle2" align="center" color="primary" sx={{ mt: 1 }}>

@@ -1,18 +1,18 @@
 /// <reference types="web-bluetooth" />
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
   Box,
   Button,
-  Typography,
-  Paper,
-  Alert,
-  LinearProgress,
   Container,
-  Stack,
   Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  LinearProgress,
+  Paper,
+  Stack,
+  Typography
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +44,7 @@ const DFU_ERRORS: Record<number, string> = {
   0X0B: 'Hash failed (Integrity error)',
   0X0C: 'Signature failed (Authentication error)',
   0X0D: 'Hardware version error (Wrong firmware for this PCB)',
-  0X0E: 'Software version error (Downgrade blocked)',
+  0X0E: 'Software version error (Downgrade blocked)'
 };
 
 export const DfuUpdatePage = () => {
@@ -220,8 +220,8 @@ export const DfuUpdatePage = () => {
           DFU_SERVICE_UUID,
           BATTERY_SERVICE_UUID,
           DEVICE_INFO_SERVICE_UUID,
-          GENERIC_ACCESS_SERVICE_UUID,
-        ],
+          GENERIC_ACCESS_SERVICE_UUID
+        ]
       });
 
       log(`Connected to ${device.name}`);
@@ -567,7 +567,7 @@ export const DfuUpdatePage = () => {
           bgcolor: 'grey.900',
           color: 'common.white',
           fontFamily: 'monospace',
-          fontSize: '0.75rem',
+          fontSize: '0.75rem'
         }}
       >
         {logs.length === 0 && (

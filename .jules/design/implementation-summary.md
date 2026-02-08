@@ -143,6 +143,7 @@ const isMobile = useMediaQuery(theme.breakpoints.down('md')); // <= 768px
 ## Expected Outcomes
 
 ### Mobile View
+
 - Bottom navigation with Codes, Logs, and Configuration tabs
 - Single main content area that switches based on active tab
 - Accordion organization for codes
@@ -150,6 +151,7 @@ const isMobile = useMediaQuery(theme.breakpoints.down('md')); // <= 768px
 - Battery icon in header
 
 ### Desktop View
+
 - Main content area showing code management
 - Right sidebar showing logs
 - Settings button in header that opens configuration in a modal
@@ -157,6 +159,7 @@ const isMobile = useMediaQuery(theme.breakpoints.down('md')); // <= 768px
 - Battery icon in header
 
 ### Both Views
+
 - Consistent header with app title, connection controls, and language selector
 - Proper responsive behavior at 768px breakpoint
 - Accessible and usable interface

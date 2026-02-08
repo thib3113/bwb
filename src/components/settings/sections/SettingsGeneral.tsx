@@ -18,7 +18,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
   autoImport,
   onLanguageChange,
   onThemeChange,
-  onAutoImportChange,
+  onAutoImportChange
 }) => {
   const { t } = useTranslation(['common', 'settings']);
 

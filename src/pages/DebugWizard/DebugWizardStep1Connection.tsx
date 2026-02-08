@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Divider,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import BluetoothIcon from '@mui/icons-material/Bluetooth';
@@ -35,7 +35,7 @@ export const DebugWizardStep1Connection: React.FC<DebugWizardStep1ConnectionProp
   device,
   firmwareVersion,
   isLoadingInfo,
-  onRetryFetch,
+  onRetryFetch
 }) => {
   const { t } = useTranslation(['wizard', 'common']);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

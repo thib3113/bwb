@@ -6,7 +6,7 @@ import {
   Box,
   Button,
   Divider,
-  Typography,
+  Typography
 } from '@mui/material';
 import { ExpandMore, FileDownload, FileUpload } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';

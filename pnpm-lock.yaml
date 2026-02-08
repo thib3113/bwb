@@ -38,9 +38,6 @@ importers:
       i18next-browser-languagedetector:
         specifier: ^8.2.0
         version: 8.2.0
-      preact-material-components:
-        specifier: ^1.6.1
-        version: 1.6.1(preact@10.28.3)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -72,12 +69,12 @@ importers:
       '@playwright/test':
         specifier: ^1.58.1
         version: 1.58.1
-      '@testing-library/preact':
-        specifier: ^3.2.4
-        version: 3.2.4(preact@10.28.3)
+      '@testing-library/dom':
+        specifier: ^10.4.1
+        version: 10.4.1
       '@testing-library/react':
-        specifier: ^16.3.1
-        version: 16.3.2(@testing-library/dom@8.20.1)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@types/node':
         specifier: ^25.0.3
         version: 25.1.0
@@ -1048,135 +1045,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@material/animation@0.39.0':
-    resolution: {integrity: sha512-f3BGCba0GdYY+eGFnK0L08HLyljgEyBvMLoJoutP225IpvzsLLTqumL/796nFCsouWn6E3G+8BUVjAtzTjU2lA==}
-
-  '@material/auto-init@0.39.0':
-    resolution: {integrity: sha512-rh/YbGupzHiY9b3V/KFBzoEKcBCY8KDXQZNnNFZwP3fwDaaU6pSbVwg5jKfR6QfrQZF7AetdCYJj0p5UKDcvnA==}
-
-  '@material/base@0.39.0':
-    resolution: {integrity: sha512-B+vMqnOR2JU2dzv/5UPKQUAZAj739pMkJkt3Zy7sJaQnw3j8wTKxiUMUhd9ZHaPx1FBlUNMn2PwOq8YZIn0svA==}
-
-  '@material/button@0.39.3':
-    resolution: {integrity: sha512-O4QcglZ9kgixhHbUk+vLZYm5LKgImqd8VUeClBXL3sDrqNSQX047D17fLk6Fy3n3WKroZ1WkVbM9T9gQTBmaxA==}
-
-  '@material/card@0.39.3':
-    resolution: {integrity: sha512-5g+fgkMbYIztfME9nYVgPhQNE705rdEvS6oCbEGZuHgglSdhCqmAgvptc/fGh7DiDN5gYevr8RoTE5SU/oWTAg==}
-
-  '@material/checkbox@0.39.3':
-    resolution: {integrity: sha512-9mVGnsuWJqQtTJlTaV6QY916w7mNBA1m2vdRrGGcAE30svp0fb9SSOaPxZ8aC7GcRTBk+WafHbN9ZYjJQSURkA==}
-
-  '@material/chips@0.39.3':
-    resolution: {integrity: sha512-nOYTOhIafeZ3oL0nlbaYL9nBk0jtSEjpt35W/bndgur07ulkbjbQRC5O0p6nhVwD4FNOW5erwGzE3B6JRguyig==}
-
-  '@material/dialog@0.39.3':
-    resolution: {integrity: sha512-S2pe2swjCgHe9nDHGA7RrZmNM3ub4gI0bhrTQNoPZo5QNrJ63qiruT68t0//ZAr8d6st4O1Pgd4UWpr3aA5nrg==}
-
-  '@material/drawer@0.39.3':
-    resolution: {integrity: sha512-1fHj7AIxviPc2L4o3NWPvRLGReiBul8jcRkhkkVDVvtUhDaijAKVotanTkXuaOuIDfINXO2gUtxp7ec8KYEzTw==}
-
-  '@material/elevation@0.39.1':
-    resolution: {integrity: sha512-ir0lqwpkXhJxUQ6KdCTsM2wZze3Oc54knUMbCUnitOWzIRBvlXUO0zlpld5pj3Mb6ApESA6BiaJb4JfEZmX2MA==}
-
-  '@material/fab@0.39.3':
-    resolution: {integrity: sha512-pCsl9DBk/TjtHub5BlyxHNT0mviNWKP8F++qCR1i2yZYombdRjeJ/IJsvZImM8jm2MNYhpnuQtQXzXbxBB8F3Q==}
-
-  '@material/floating-label@0.39.1':
-    resolution: {integrity: sha512-Ry833abXfBsjdNTRkjSfsSzhV4RQ0BilvpRnP+6uf10f5A8UVK3rTBMJv3TtF/7wwojJtbgf8wAJz0JhZW/7oQ==}
-
-  '@material/form-field@0.39.3':
-    resolution: {integrity: sha512-F/p5gZuk3kUDuu3vN+wtttc8Av1BHmj2eDCGNzcg4snK8GqIMEwxl+klbIpkrOA9bQ7C69PKeOGKgoFRisT4eQ==}
-
-  '@material/grid-list@0.39.1':
-    resolution: {integrity: sha512-Ta+0u/WQvTvHQZpLisnukrdBuDYZLGpeLTWr/shJByhzuTqvGOHuRdfCKk/TcWetaQAHeo4nRXvG+/tg+0/ZbQ==}
-
-  '@material/icon-button@0.39.3':
-    resolution: {integrity: sha512-qogYy2MCC3PjOZt+93fD9sWgFYOVexXF3xjiZhDuP3zBy4fdSfaq0xx6P3vPZDEgG6JgDkedRuM6EBAU8FfU3A==}
-
-  '@material/icon-toggle@0.39.3':
-    resolution: {integrity: sha512-SDpDimYmpDgV8cFYGFP8yXIrxrKd9WQaqRCN9EqS9X41dPmp8xSVCPCern6uLb1wD1IVAFxhVi5EaKLg4/Xa8w==}
-
-  '@material/image-list@0.39.1':
-    resolution: {integrity: sha512-yU03vElpgypqiwe0tJYyNs52wzDyciigq48CpXkTfLe/7yozJD5jtw71/RSVw+WGpgxJ66nfRLPtFk5iviEgag==}
-
-  '@material/layout-grid@0.39.0':
-    resolution: {integrity: sha512-F2V7cf7pJtlDyHKJJ1u7Xn6JWfiY7bFbg33QnhRXYTAhDF5aEcFPeSh9CK8ZZZ4Bom9gzfms2VXWXClbfQgE2Q==}
-
-  '@material/line-ripple@0.39.3':
-    resolution: {integrity: sha512-EWAWVYhRUWKWVeKFjntiNKe9OF99jwxxsj4j7FVgVD/XCCqDC5GpUEnIP8pjRVCFzmrO8Io3V5x8BipqSlOqUA==}
-
-  '@material/linear-progress@0.39.1':
-    resolution: {integrity: sha512-rYgtSCjTe5eT10XNMuidizhcW7fpbpXYDMR2HsosZL++zTRN3UB6ifkqNdqO1EVu7N4D3/Zb1E1dsdJfpY8Fhg==}
-
-  '@material/list@0.39.3':
-    resolution: {integrity: sha512-FaEPzkx/iloZDGsZmOHUfomdMEnEvezYIo6ldmddB2BPQOrDeqbPBsvslR0ak8InpGocoWhLRk46ZjBIIJEDNA==}
-
-  '@material/menu-surface@0.39.1':
-    resolution: {integrity: sha512-dkb+9qI8BsUNUQxHfaJknCbyg/VTaJemEIbj+8kAaOn/47aem1or+yQos+uXPJZEQt/VHp5L1N9BKIzd5VcrUQ==}
-
-  '@material/menu@0.39.3':
-    resolution: {integrity: sha512-a4nYyWThDF8hjXyGzPM5tz7e3k1lLgiEUbjr5Rvos24AFFR6HTur2nlQehoUl2Wg+X3x1Ajpf/AbEaA6S4tzDw==}
-
-  '@material/notched-outline@0.39.1':
-    resolution: {integrity: sha512-EONvwh31IMeTChz6eqg/rMndfWaRTd/tqjR0dXSaimu4NBDBnPnUq6A4vVhBuAFFIjHU48Jw6HplnfqqDRMN1g==}
-
-  '@material/radio@0.39.3':
-    resolution: {integrity: sha512-xHqioZCBClF3vhZear9Qi8fwLzTxFPkuvsFfIaPuTLwG9UfkS5IptThSTEoqbaB0X+Vdn0fl5wRk535hfcKyNw==}
-
-  '@material/ripple@0.39.3':
-    resolution: {integrity: sha512-MwQjgwK9h13MdKGJT3RTDf9NjCoAS3LmnFpz1fxXgExA1QnoUbB1o7cEaPmqAtZopKVDCf52w1l6Mpf9qEhnCQ==}
-
-  '@material/rtl@0.39.1':
-    resolution: {integrity: sha512-6RcXv6tQladbl+SboEHUykiDAz7dE5DjBuLNV0KD7yEUCcUV41WXZ5e4oUd1nDWnK0vHzFtNM7D6BGMPZ2T3zA==}
-
-  '@material/select@0.39.3':
-    resolution: {integrity: sha512-PW7LUt4YqZj3g2WVFbNjIR/igQYkmBe8oeEBjsHKMzWJkqABi+3koeEHCu+YuqaGT/yHwyocGia8y2QNvpn5jA==}
-
-  '@material/selection-control@0.39.3':
-    resolution: {integrity: sha512-Aia0R7/MuW3Whjj8fQnNzINAvQosL7d9+5M/kut657P6u+7KLUQJr204GU8cWvxGthG85XneWz3hDTGjhqagiw==}
-
-  '@material/shape@0.39.0':
-    resolution: {integrity: sha512-ZqEZuzX3lC3TYiEwqn/+kSn6G/ogFvyXT1UIUYf5auD2cQ4cKdy07XCJ/gCtlmDQz+g0Ed4Fwp10fYnvnL2hCQ==}
-
-  '@material/slider@0.39.1':
-    resolution: {integrity: sha512-pv3FrqLgEGqzt4CoN94SGIND9YyGp39NFIk5h9OruQZah8zjPm2lh7CGJ9UkkMGR7Zpxm44E+eqjvEli9LNniw==}
-
-  '@material/snackbar@0.39.1':
-    resolution: {integrity: sha512-cvzu7eGJcs+taLO12QeTYMlQyYuWcsAftRc5ADbC1AF08mPjQXvlyJscSkzXZcnXvh1/jVB+r+iW9eHL3mAOmw==}
-
-  '@material/switch@0.39.3':
-    resolution: {integrity: sha512-2R/rAOlJjvAsfPBIL6yClAGBFINt3T4YVCMIrFx2PuWxpRZbiqbEoUlESIf5r5xXrTPtaMLvX8j7BJbtYXGi9A==}
-
-  '@material/tab-bar@0.39.3':
-    resolution: {integrity: sha512-DF33bY39cnoLg0zK9EjXz4GOVj0pk7J8DSup7aLhHr0UgLOEmVX/o3XmQBG7esdSScQcwwluiEiYbwqqYkWcZQ==}
-
-  '@material/tab-indicator@0.39.3':
-    resolution: {integrity: sha512-o6RU7PIJrDjbI/Sm//fftNtjl1XUftDKNnZfb27pCzT+IxHRt1prOJmee5y0sZqNAzb9kWb2J8GenIVAmqDzeg==}
-
-  '@material/tab-scroller@0.39.3':
-    resolution: {integrity: sha512-CHWKuzhvR75P6pliLbwBkSIWDbC6YH+DLQEETTmeZXtLXDdvPpNpycfxBRdWK8KuDfhmWOjji+jCx4QYAmILNQ==}
-
-  '@material/tab@0.39.3':
-    resolution: {integrity: sha512-7MMsO5jSdwlwgEuULBLAdzz8g/jKGkjqCCBgiHMe+E6dNQsQUB9yQyN3EUs+6+nVTdxKGQf5SN7ApFPgtJYMDA==}
-
-  '@material/tabs@0.39.3':
-    resolution: {integrity: sha512-FpAiZXddf3AR/Mvpq0yZM2vetcsUML+SZI9RhHLvbN+pXfQLqkneJuTPvQ49OYpMx45wxsGsFaN8wKinXDfiuw==}
-
-  '@material/textfield@0.39.3':
-    resolution: {integrity: sha512-FGCyA4fCjUkw8PCQoLAlVKR7Cd0scw4036Lk0l5SBd7DwZQ6Rq63wAx0kbE5CLovysoonU6xBSwsnAfN8uUSDg==}
-
-  '@material/theme@0.39.1':
-    resolution: {integrity: sha512-c7xjzzHdF4kBl66VJfATBAV9cwD/6TOyVPOWiK5rPxmu9g7uEAe1HmupqJRR1pMFCPX2w85gfvIsxh79EU6YJA==}
-
-  '@material/toolbar@0.39.3':
-    resolution: {integrity: sha512-Mddr9nWO2a03G2xbg4jpxwGVNyKD8qlXtNVUkR1zPZW2kP6qMcr6klZxmSvmEGWQaiA7wGYWKsPeAU6L9nGxMg==}
-
-  '@material/top-app-bar@0.39.3':
-    resolution: {integrity: sha512-GLq0NuBVMZpHWZJa8gpevk5oIj7nIVQFDuqI4IG7MfG1kuwn5Qzf5Zj/ZX5d2NwLGb5K/+7CvvrgD9TwWK/C8A==}
-
-  '@material/typography@0.39.0':
-    resolution: {integrity: sha512-S7YTR2mXuAaPvsgX6jyT1YvWQhH2xHWi+SKJvlunoF/Dw6vq6Ud+APmqigHVRPNCcFt4zkbM7C64IxYjjkIApQ==}
-
   '@messageformat/core@3.4.0':
     resolution: {integrity: sha512-NgCFubFFIdMWJGN5WuQhHCNmzk7QgiVfrViFxcS99j7F5dDS5EP6raR54I+2ydhe4+5/XTn/YIEppFaqqVWHsw==}
 
@@ -1510,15 +1378,9 @@ packages:
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     resolution: {integrity: sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==}
 
-  '@testing-library/dom@8.20.1':
-    resolution: {integrity: sha512-/DiOQ5xBxgdYRC8LNk7U+RWat0S3qRLeIw3ZIkMQ9kkVlRmwD/Eg8k8CqIpD6GW7u20JIUOfMKbxtiLutpjQ4g==}
-    engines: {node: '>=12'}
-
-  '@testing-library/preact@3.2.4':
-    resolution: {integrity: sha512-F+kJ243LP6VmEK1M809unzTE/ijg+bsMNuiRN0JEDIJBELKKDNhdgC/WrUSZ7klwJvtlO3wQZ9ix+jhObG07Fg==}
-    engines: {node: '>= 12'}
-    peerDependencies:
-      preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
+  '@testing-library/dom@10.4.1':
+    resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
+    engines: {node: '>=18'}
 
   '@testing-library/react@16.3.2':
     resolution: {integrity: sha512-XU5/SytQM+ykqMnAnvB2umaJNIOsLF3PVv//1Ew4CTcpz0/BRyy/af40qqrt7SjKpDdT1saBMc42CUok5gaw+g==}
@@ -1784,8 +1646,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  aria-query@5.1.3:
-    resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
+  aria-query@5.3.0:
+    resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
 
   array-buffer-byte-length@1.0.2:
     resolution: {integrity: sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==}
@@ -1850,9 +1712,6 @@ packages:
 
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
-
-  bind-decorator@1.0.11:
-    resolution: {integrity: sha512-yzkH0uog6Vv/vQ9+rhSKxecnqGUZHYncg7qS7voz3Q76+TAi1SGiOKk2mlOvusQnFz9Dc4BC/NMkeXu11YgjJg==}
 
   boolify@1.0.1:
     resolution: {integrity: sha512-ma2q0Tc760dW54CdOyJjhrg/a54317o1zYADQJFgperNGKIKgAUGIcKnuMiff8z57+yGlrGNEt4lPgZfCgTJgA==}
@@ -2014,10 +1873,6 @@ packages:
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
-  deep-equal@2.2.3:
-    resolution: {integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==}
-    engines: {node: '>= 0.4'}
-
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
@@ -2032,6 +1887,10 @@ packages:
   define-properties@1.2.1:
     resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
     engines: {node: '>= 0.4'}
+
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
 
   dexie-react-hooks@4.2.0:
     resolution: {integrity: sha512-u7KqTX9JpBQK8+tEyA9X0yMGXlSCsbm5AU64N6gjvGk/IutYDpLBInMYEAEC83s3qhIvryFS+W+sqLZUBEvePQ==}
@@ -2103,9 +1962,6 @@ packages:
   es-errors@1.3.0:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
-
-  es-get-iterator@1.1.3:
-    resolution: {integrity: sha512-sPZmqHBe6JIiTfN5q2pEi//TwxmAFHwj/XEuYjTuse78i8KxaqMTTzxPoFKuzRpDpTJ+0NAbpfenkmH2rePtuw==}
 
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
@@ -2306,12 +2162,6 @@ packages:
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
-
-  focus-trap@2.4.6:
-    resolution: {integrity: sha512-vWZTPtBU6pBoyWZDRZJHkXsyP2ZCZBHE3DRVXnSVdQKH/mcDtu9S5Kz8CUDyIqpfZfLEyI9rjKJLnc4Y40BRBg==}
-
-  focus-trap@3.0.0:
-    resolution: {integrity: sha512-jTFblf0tLWbleGjj2JZsAKbgtZTdL1uC48L8FcmSDl4c2vDoU4NycN1kgV5vJhuq1mxNFkw7uWZ1JAGlINWvyw==}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -2539,10 +2389,6 @@ packages:
 
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
-    engines: {node: '>= 0.4'}
-
-  is-arguments@1.2.0:
-    resolution: {integrity: sha512-7bVbi0huj/wrIAOzb8U1aszg9kdi3KN/CyU19CTI7tAoZYEZoL9yCDXpbXN+uPsuWnP02cyug1gleqq+TU+YCA==}
     engines: {node: '>= 0.4'}
 
   is-array-buffer@3.0.5:
@@ -2823,9 +2669,6 @@ packages:
     resolution: {integrity: sha512-2L3MIgJynYrZ3TYMriLDLWocz15okFakV6J12HXvMXDHui2x/zgChzg1u9mFFGbbGWE+GsLpQByt4POb9Or+uA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  material-components-web@0.39.3:
-    resolution: {integrity: sha512-u5RcFjRHi1TjTq3XIKx6npERF/j1d0Cdzi7AdFt3yjvKOMsCxaamjSlu7fScyblBQ8nzuFRbuc3ctkiiS3h+IQ==}
-
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -2887,10 +2730,6 @@ packages:
 
   object-inspect@1.13.4:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
-    engines: {node: '>= 0.4'}
-
-  object-is@1.1.6:
-    resolution: {integrity: sha512-F8cZ+KfGlSGi09lJT7/Nd6KJZ9ygtvYC0/UYYLI9nmQKLMnydpB9yvbv9K1uSkEu7FU9vYPmVwLg328tX+ot3Q==}
     engines: {node: '>= 0.4'}
 
   object-keys@1.1.1:
@@ -2998,14 +2837,6 @@ packages:
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
-
-  preact-material-components@1.6.1:
-    resolution: {integrity: sha512-MgCcZx4EdZ29qCATRCcD9PoVxSbFvPS5uOvQSwiI6FMXrHsI6TnkX8ER+7mPpyuHIVYo81O0EsBAW04xiz0x5w==}
-    peerDependencies:
-      preact: '*'
-
-  preact@10.28.3:
-    resolution: {integrity: sha512-tCmoRkPQLpBeWzpmbhryairGnhW9tKV6c6gr/w+RhoRoKEJwsjzipwp//1oCpGPOchvSLaAPlpcJi9MwMmoPyA==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -3422,12 +3253,6 @@ packages:
     resolution: {integrity: sha512-Bh7QjT8/SuKUIfObSXNHNSK6WHo6J1tHCqJsuaFDP7gP0fkzSfTxI8y85JrppZ0h8l0maIgc2tfuZQ6/t3GtnQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tabbable@1.1.3:
-    resolution: {integrity: sha512-nOWwx35/JuDI4ONuF0ZTo6lYvI0fY0tZCH1ErzY2EXfu4az50ZyiUX8X073FLiZtmWUVlkRnuXsehjJgCw9tYg==}
-
-  tabbable@3.1.2:
-    resolution: {integrity: sha512-wjB6puVXTYO0BSFtCmWQubA/KIn7Xvajw0x0l6eJUudMG/EAiJvIUnyNX6xO4NpGrJ16lbD0eUseB9WxW0vlpQ==}
-
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
     engines: {node: '>=8'}
@@ -3831,10 +3656,6 @@ packages:
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
-
-  xtend@4.0.2:
-    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
-    engines: {node: '>=0.4'}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -4943,295 +4764,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@material/animation@0.39.0': {}
-
-  '@material/auto-init@0.39.0': {}
-
-  '@material/base@0.39.0': {}
-
-  '@material/button@0.39.3':
-    dependencies:
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/card@0.39.3':
-    dependencies:
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-
-  '@material/checkbox@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/selection-control': 0.39.3
-      '@material/theme': 0.39.1
-
-  '@material/chips@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/checkbox': 0.39.3
-      '@material/ripple': 0.39.3
-      '@material/typography': 0.39.0
-
-  '@material/dialog@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-      focus-trap: 2.4.6
-
-  '@material/drawer@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/list': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-      focus-trap: 3.0.0
-
-  '@material/elevation@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/theme': 0.39.1
-
-  '@material/fab@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/floating-label@0.39.1':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/form-field@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/selection-control': 0.39.3
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/grid-list@0.39.1':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/icon-button@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/theme': 0.39.1
-
-  '@material/icon-toggle@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/theme': 0.39.1
-
-  '@material/image-list@0.39.1':
-    dependencies:
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/layout-grid@0.39.0': {}
-
-  '@material/line-ripple@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/theme': 0.39.1
-
-  '@material/linear-progress@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/theme': 0.39.1
-
-  '@material/list@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/menu-surface@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-
-  '@material/menu@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/list': 0.39.3
-      '@material/menu-surface': 0.39.1
-      '@material/rtl': 0.39.1
-
-  '@material/notched-outline@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-
-  '@material/radio@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/selection-control': 0.39.3
-      '@material/theme': 0.39.1
-
-  '@material/ripple@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/theme': 0.39.1
-
-  '@material/rtl@0.39.1': {}
-
-  '@material/select@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/floating-label': 0.39.1
-      '@material/line-ripple': 0.39.3
-      '@material/notched-outline': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/selection-control@0.39.3':
-    dependencies:
-      '@material/ripple': 0.39.3
-
-  '@material/shape@0.39.0': {}
-
-  '@material/slider@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-
-  '@material/snackbar@0.39.1':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/switch@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/selection-control': 0.39.3
-      '@material/theme': 0.39.1
-
-  '@material/tab-bar@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/tab': 0.39.3
-      '@material/tab-scroller': 0.39.3
-
-  '@material/tab-indicator@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/theme': 0.39.1
-
-  '@material/tab-scroller@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/tab': 0.39.3
-
-  '@material/tab@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/tab-indicator': 0.39.3
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/tabs@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/textfield@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/floating-label': 0.39.1
-      '@material/line-ripple': 0.39.3
-      '@material/notched-outline': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/theme@0.39.1': {}
-
-  '@material/toolbar@0.39.3':
-    dependencies:
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/top-app-bar@0.39.3':
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/base': 0.39.0
-      '@material/elevation': 0.39.1
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/theme': 0.39.1
-      '@material/typography': 0.39.0
-
-  '@material/typography@0.39.0': {}
-
   '@messageformat/core@3.4.0':
     dependencies:
       '@messageformat/date-skeleton': 1.1.0
@@ -5501,26 +5033,21 @@ snapshots:
       magic-string: 0.25.9
       string.prototype.matchall: 4.0.12
 
-  '@testing-library/dom@8.20.1':
+  '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.28.6
+      '@babel/code-frame': 7.29.0
       '@babel/runtime': 7.28.6
       '@types/aria-query': 5.0.4
-      aria-query: 5.1.3
-      chalk: 4.1.2
+      aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
+      picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/preact@3.2.4(preact@10.28.3)':
-    dependencies:
-      '@testing-library/dom': 8.20.1
-      preact: 10.28.3
-
-  '@testing-library/react@16.3.2(@testing-library/dom@8.20.1)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@testing-library/react@16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@testing-library/dom': 8.20.1
+      '@testing-library/dom': 10.4.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
     optionalDependencies:
@@ -5824,9 +5351,9 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  aria-query@5.1.3:
+  aria-query@5.3.0:
     dependencies:
-      deep-equal: 2.2.3
+      dequal: 2.0.3
 
   array-buffer-byte-length@1.0.2:
     dependencies:
@@ -5896,8 +5423,6 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
-
-  bind-decorator@1.0.11: {}
 
   boolify@1.0.1: {}
 
@@ -6064,27 +5589,6 @@ snapshots:
 
   decimal.js@10.6.0: {}
 
-  deep-equal@2.2.3:
-    dependencies:
-      array-buffer-byte-length: 1.0.2
-      call-bind: 1.0.8
-      es-get-iterator: 1.1.3
-      get-intrinsic: 1.3.0
-      is-arguments: 1.2.0
-      is-array-buffer: 3.0.5
-      is-date-object: 1.1.0
-      is-regex: 1.2.1
-      is-shared-array-buffer: 1.0.4
-      isarray: 2.0.5
-      object-is: 1.1.6
-      object-keys: 1.1.1
-      object.assign: 4.1.7
-      regexp.prototype.flags: 1.5.4
-      side-channel: 1.1.0
-      which-boxed-primitive: 1.1.1
-      which-collection: 1.0.2
-      which-typed-array: 1.1.20
-
   deep-is@0.1.4: {}
 
   deepmerge@4.3.1: {}
@@ -6100,6 +5604,8 @@ snapshots:
       define-data-property: 1.1.4
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
+
+  dequal@2.0.3: {}
 
   dexie-react-hooks@4.2.0(@types/react@19.2.13)(dexie@4.3.0)(react@19.2.4):
     dependencies:
@@ -6212,18 +5718,6 @@ snapshots:
   es-define-property@1.0.1: {}
 
   es-errors@1.3.0: {}
-
-  es-get-iterator@1.1.3:
-    dependencies:
-      call-bind: 1.0.8
-      get-intrinsic: 1.3.0
-      has-symbols: 1.1.0
-      is-arguments: 1.2.0
-      is-map: 2.0.3
-      is-set: 2.0.3
-      is-string: 1.1.1
-      isarray: 2.0.5
-      stop-iteration-iterator: 1.1.0
 
   es-module-lexer@1.7.0: {}
 
@@ -6501,15 +5995,6 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  focus-trap@2.4.6:
-    dependencies:
-      tabbable: 1.1.3
-
-  focus-trap@3.0.0:
-    dependencies:
-      tabbable: 3.1.2
-      xtend: 4.0.2
-
   for-each@0.3.5:
     dependencies:
       is-callable: 1.2.7
@@ -6760,11 +6245,6 @@ snapshots:
       es-errors: 1.3.0
       hasown: 2.0.2
       side-channel: 1.1.0
-
-  is-arguments@1.2.0:
-    dependencies:
-      call-bound: 1.0.4
-      has-tostringtag: 1.0.2
 
   is-array-buffer@3.0.5:
     dependencies:
@@ -7041,51 +6521,6 @@ snapshots:
 
   map-obj@5.0.0: {}
 
-  material-components-web@0.39.3:
-    dependencies:
-      '@material/animation': 0.39.0
-      '@material/auto-init': 0.39.0
-      '@material/base': 0.39.0
-      '@material/button': 0.39.3
-      '@material/card': 0.39.3
-      '@material/checkbox': 0.39.3
-      '@material/chips': 0.39.3
-      '@material/dialog': 0.39.3
-      '@material/drawer': 0.39.3
-      '@material/elevation': 0.39.1
-      '@material/fab': 0.39.3
-      '@material/floating-label': 0.39.1
-      '@material/form-field': 0.39.3
-      '@material/grid-list': 0.39.1
-      '@material/icon-button': 0.39.3
-      '@material/icon-toggle': 0.39.3
-      '@material/image-list': 0.39.1
-      '@material/layout-grid': 0.39.0
-      '@material/line-ripple': 0.39.3
-      '@material/linear-progress': 0.39.1
-      '@material/list': 0.39.3
-      '@material/menu': 0.39.3
-      '@material/menu-surface': 0.39.1
-      '@material/notched-outline': 0.39.1
-      '@material/radio': 0.39.3
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/select': 0.39.3
-      '@material/selection-control': 0.39.3
-      '@material/shape': 0.39.0
-      '@material/slider': 0.39.1
-      '@material/snackbar': 0.39.1
-      '@material/switch': 0.39.3
-      '@material/tab': 0.39.3
-      '@material/tab-bar': 0.39.3
-      '@material/tab-indicator': 0.39.3
-      '@material/tab-scroller': 0.39.3
-      '@material/textfield': 0.39.3
-      '@material/theme': 0.39.1
-      '@material/toolbar': 0.39.3
-      '@material/top-app-bar': 0.39.3
-      '@material/typography': 0.39.0
-
   math-intrinsics@1.1.0: {}
 
   mdn-data@2.12.2: {}
@@ -7132,11 +6567,6 @@ snapshots:
   object-assign@4.1.1: {}
 
   object-inspect@1.13.4: {}
-
-  object-is@1.1.6:
-    dependencies:
-      call-bind: 1.0.8
-      define-properties: 1.2.1
 
   object-keys@1.1.1: {}
 
@@ -7240,50 +6670,6 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
-
-  preact-material-components@1.6.1(preact@10.28.3):
-    dependencies:
-      '@babel/runtime': 7.28.6
-      '@material/animation': 0.39.0
-      '@material/auto-init': 0.39.0
-      '@material/base': 0.39.0
-      '@material/button': 0.39.3
-      '@material/card': 0.39.3
-      '@material/checkbox': 0.39.3
-      '@material/chips': 0.39.3
-      '@material/dialog': 0.39.3
-      '@material/drawer': 0.39.3
-      '@material/elevation': 0.39.1
-      '@material/fab': 0.39.3
-      '@material/form-field': 0.39.3
-      '@material/grid-list': 0.39.1
-      '@material/icon-toggle': 0.39.3
-      '@material/layout-grid': 0.39.0
-      '@material/line-ripple': 0.39.3
-      '@material/linear-progress': 0.39.1
-      '@material/list': 0.39.3
-      '@material/menu': 0.39.3
-      '@material/notched-outline': 0.39.1
-      '@material/radio': 0.39.3
-      '@material/ripple': 0.39.3
-      '@material/rtl': 0.39.1
-      '@material/select': 0.39.3
-      '@material/selection-control': 0.39.3
-      '@material/slider': 0.39.1
-      '@material/snackbar': 0.39.1
-      '@material/switch': 0.39.3
-      '@material/tab-bar': 0.39.3
-      '@material/tabs': 0.39.3
-      '@material/textfield': 0.39.3
-      '@material/theme': 0.39.1
-      '@material/toolbar': 0.39.3
-      '@material/top-app-bar': 0.39.3
-      '@material/typography': 0.39.0
-      bind-decorator: 1.0.11
-      material-components-web: 0.39.3
-      preact: 10.28.3
-
-  preact@10.28.3: {}
 
   prelude-ls@1.2.1: {}
 
@@ -7767,10 +7153,6 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.2.9
 
-  tabbable@1.1.3: {}
-
-  tabbable@3.1.2: {}
-
   temp-dir@2.0.0: {}
 
   tempy@0.6.0:
@@ -8228,8 +7610,6 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xmlchars@2.2.0: {}
-
-  xtend@4.0.2: {}
 
   y18n@5.0.8: {}
 

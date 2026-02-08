@@ -7,6 +7,7 @@ This document describes the architecture of the refactored Boks Web BLE applicat
 ## Current Architecture
 
 The current application has a simple structure with:
+
 - A single App component that manages the entire layout
 - Fixed header with app title, connection manager, and language selector
 - Two-column grid layout for code management and logs when connected
@@ -21,33 +22,33 @@ The current application has a simple structure with:
 graph TD
     A[App] --> B[MainLayout]
     A --> C[Notifications]
-    
+
     B --> D[Header]
     B --> E{isMobile?}
     B --> F[FloatingActionButton]
-    
+
     E -->|Yes| G[MobileView]
     E -->|No| H[DesktopView]
-    
+
     D --> I[Typography - App Title]
     D --> J[ConnectionManager]
     D --> K[LanguageSelector]
-    
+
     G --> L[MainContent]
     G --> M[BottomNavigation]
-    
+
     H --> N[MainContent]
     H --> O[SidePanel]
     H --> P[ConfigurationButton]
-    
+
     L --> Q[Routed Components]
     M --> R[BottomNavigationAction - Codes]
     M --> S[BottomNavigationAction - Logs]
     M --> T[BottomNavigationAction - Configuration]
-    
+
     N --> U[CodeManager]
     O --> V[LogViewer]
-    
+
     Q --> W[CodeManager]
     Q --> X[LogViewer]
     Q --> Y[Configuration]
@@ -56,30 +57,39 @@ graph TD
 ### Key Components
 
 #### MainLayout
+
 The root layout component that handles responsive behavior:
+
 - Uses `useMediaQuery` to detect screen size
 - Conditionally renders MobileView or DesktopView
 - Manages global layout structure
 
 #### Header
+
 Consistent header across both views:
+
 - App title
 - ConnectionManager with integrated battery indicator
 - LanguageSelector
 
 #### MobileView
+
 Mobile-specific implementation:
+
 - BottomNavigation with three tabs (Codes, Logs, Configuration)
 - Tab-based routing for main content
 - Accordion organization for codes
 
 #### DesktopView
+
 Desktop-specific implementation:
+
 - Split view with main content and side panel
 - Configuration modal accessible via header button
 - Persistent layout elements
 
 #### Shared Components
+
 - **ConnectionManager**: Handles Bluetooth connection and displays battery level
 - **CodeManager**: Manages code creation, listing, and deletion
 - **LogViewer**: Displays device logs
@@ -100,10 +110,12 @@ Desktop-specific implementation:
 ### Responsive Design
 
 #### Breakpoints
+
 - Mobile: Screen width ≤ 768px
 - Desktop: Screen width > 768px
 
 #### Implementation
+
 - Material-UI's `useMediaQuery` with theme breakpoints
 - Conditional rendering based on screen size
 - Responsive spacing and typography
@@ -111,50 +123,60 @@ Desktop-specific implementation:
 ### UI/UX Improvements
 
 #### Connect Button
+
 - Text changed from "Se connecter à l'appareil" to "Se connecter"
 - Color updated to differentiate from header
 
 #### Mobile Layout
+
 - Bottom navigation with three tabs
 - Accordion organization for codes (Permanent, Single Use)
 - Tab-based content switching
 
 #### Desktop Layout
+
 - Main content area for code management
 - Side panel for logs
 - Configuration modal accessible via header button
 
 #### Code Management
+
 - Floating Action Button (+) in bottom right for code creation
 - Accordion organization for mobile view
 
 #### Header
+
 - Integrated battery level icon
 - Consistent across both views
 
 ## Implementation Plan
 
 ### Phase 1: Foundation
+
 1. Create MainLayout component with responsive detection
 2. Refactor ConnectionManager to integrate battery indicator
 3. Create Header component
 
 ### Phase 2: Mobile Implementation
+
 4. Create MobileView with bottom navigation
 5. Implement tab-based routing
 6. Update CodeManager with accordion organization
 
 ### Phase 3: Desktop Implementation
+
 7. Create DesktopView with side panel
 8. Implement configuration modal
 9. Set up main content area
 
 ### Phase 4: UI Enhancements
+
 10. Implement FloatingActionButton
 11. Update styling for consistency
 12. Ensure proper spacing and typography
 
 ### Phase 5: Testing
+
 13. Test responsive behavior across screen sizes
 14. Verify functionality on target browsers
 15. Conduct accessibility review

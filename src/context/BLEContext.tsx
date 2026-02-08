@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback, ReactNode, useMemo } from 'react';
-import { BoksBLEService, BLEServiceEvent, BLEServiceState } from '../services/BoksBLEService';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { BLEServiceEvent, BLEServiceState, BoksBLEService } from '../services/BoksBLEService';
 import { BLEPacket } from '../utils/packetParser';
 import {
+  BATTERY_LEVEL_CHAR_UUID,
+  BATTERY_SERVICE_UUID,
   BLEOpcode,
   DEVICE_INFO_CHARS,
-  DEVICE_INFO_SERVICE_UUID,
-  BATTERY_SERVICE_UUID,
-  BATTERY_LEVEL_CHAR_UUID,
+  DEVICE_INFO_SERVICE_UUID
 } from '../utils/bleConstants';
 import { BLEContext } from './Contexts';
 import { useLogContext } from '../hooks/useLogContext';
@@ -55,7 +55,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         id: Date.now() + Math.random(),
         timestamp: new Date(),
         raw: `State changed: ${state.toUpperCase()}`,
-        type: 'system',
+        type: 'system'
       });
     });
 
@@ -67,7 +67,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         id: Date.now() + Math.random(),
         timestamp: new Date(),
         raw: `Connected to ${dev.name || dev.id}`,
-        type: 'system',
+        type: 'system'
       });
     });
 
@@ -78,7 +78,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         id: Date.now() + Math.random(),
         timestamp: new Date(),
         raw: `Disconnected`,
-        type: 'system',
+        type: 'system'
       });
     });
 
@@ -107,7 +107,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         opcode: packet.opcode,
         payload: displayPayload,
         raw: hex,
-        type: 'packet',
+        type: 'packet'
       });
     });
 
@@ -136,7 +136,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         opcode: packet.opcode,
         payload: displayPayload,
         raw: hex,
-        type: 'packet',
+        type: 'packet'
       });
     });
 
@@ -149,7 +149,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
         id: Date.now() + Math.random(),
         timestamp: new Date(),
         raw: `Error: ${errorMsg}`,
-        type: 'error',
+        type: 'error'
       });
     });
 
@@ -285,12 +285,12 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
           const opcode = packet[0];
           const payload = packet.slice(2, packet.length - 1);
           await bleService.sendRequest(new RawTXPacket(opcode, payload), {
-            expectResponse: false,
+            expectResponse: false
           });
         } else {
           // New architecture: Pass the packet object directly
           await bleService.sendRequest(packet, {
-            expectResponse: false,
+            expectResponse: false
           });
         }
       },
@@ -312,7 +312,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       unregisterCallback: () => {},
       addListener,
       removeListener,
-      toggleSimulator,
+      toggleSimulator
     }),
     [
       device,
@@ -327,7 +327,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       removeListener,
       bleService,
       getDeviceInfo,
-      toggleSimulator,
+      toggleSimulator
     ]
   );
 

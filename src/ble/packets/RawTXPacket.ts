@@ -8,7 +8,7 @@ import { z } from 'zod';
 export class RawTXPacket extends BoksTXPacket {
   static schema = z.object({
     opcode: z.number(),
-    payload: z.any(), // Uint8Array usually
+    payload: z.any() // Uint8Array usually
   });
 
   constructor(
