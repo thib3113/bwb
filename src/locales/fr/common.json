@@ -80,6 +80,12 @@
       "userCancelled": "La sélection a été annulée.",
       "bluetoothDisabled": "Veuillez activer le Bluetooth sur votre appareil pour continuer.",
       "noDeviceSelected": "Vous devez choisir un appareil pour établir la connexion."
+    },
+    "version": {
+      "update_required_title": "Mise à jour nécessaire",
+      "update_required_message": "Le logiciel de votre Boks est obsolète (< 4.1.14). Veuillez effectuer une mise à jour pour continuer à utiliser l'application.",
+      "unknown_hardware_title": "Matériel incompatible",
+      "unknown_hardware_message": "La version matérielle de votre Boks n'est pas reconnue ou n'est pas compatible avec cette application."
     }
   },
   "wizard": {
