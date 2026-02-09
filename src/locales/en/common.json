@@ -15,11 +15,13 @@
   },
   "web_ble_not_supported": {
     "title": "Web Bluetooth Not Supported",
-    "message": "Your browser does not support Web Bluetooth. Please use Chrome, Edge, or Bluefy on iOS.",
-    "ios": "On iOS, you must use a Web Bluetooth capable browser like Bluefy."
+    "message": "Your browser does not support Web Bluetooth. Please use Google Chrome.",
+    "ios_message": "On iOS, standard browsers (Safari, Chrome) do not support Web Bluetooth.",
+    "ios_action": "Please use the Bluefy app to access this service.",
+    "chrome_update": "If you are using Chrome, ensure it is up to date or check your Bluetooth settings."
   },
   "web_ble_not_supported_title": "Web Bluetooth Not Supported",
-  "web_ble_not_supported_message": "Your browser does not support Web Bluetooth. Please use Chrome, Edge, or Bluefy on iOS.",
+  "web_ble_not_supported_message": "Your browser does not support Web Bluetooth. Please use Google Chrome.",
   "web_ble_not_supported_ios": "On iOS, you must use a Web Bluetooth capable browser like Bluefy.",
   "offline_mode": "You are in offline mode. You can view and manage codes, but cannot sync with the device.",
   "cancel": "Cancel",

@@ -7,7 +7,7 @@ test.describe('Compatibility Checks', () => {
     timezoneId: 'Europe/Paris'
   });
 
-  test('should show blocking message on iOS without WebBluetooth', async ({ page }) => {
+  test('should show blocking message and Bluefy link on iOS without WebBluetooth', async ({ page }) => {
     // 1. Disable Simulator explicitly to ensure isWebBleSupported() relies on navigator.bluetooth
     await page.addInitScript(() => {
       // Mock navigator.bluetooth to be undefined
@@ -23,11 +23,16 @@ test.describe('Compatibility Checks', () => {
 
     await page.goto('/');
 
-    // 2. Expect the blocking message (English or French)
-    const blockingMessage = page.getByText(/Sur iOS, vous devez utiliser un navigateur compatible Web Bluetooth comme Bluefy|On iOS, you must use a Web Bluetooth capable browser like Bluefy/);
+    // 2. Expect the blocking message specific to iOS
+    const blockingMessage = page.getByText('Sur iOS, les navigateurs standards (Safari, Chrome) ne supportent pas le Bluetooth Web');
     await expect(blockingMessage).toBeVisible({ timeout: 10000 });
 
-    // 3. Take Screenshot
+    // 3. Expect Bluefy Link Button
+    const bluefyButton = page.getByRole('link', { name: 'Télécharger Bluefy' });
+    await expect(bluefyButton).toBeVisible();
+    await expect(bluefyButton).toHaveAttribute('href', 'https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055');
+
+    // 4. Take Screenshot
     await page.screenshot({ path: 'compatibility-ios-error.png', fullPage: true });
   });
 });

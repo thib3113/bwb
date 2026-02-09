@@ -3,7 +3,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { StorageService } from './services/StorageService';
 import { db } from './db/db'; // Import DB to expose it
-import { Alert, Box, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Paper, Snackbar, Typography } from '@mui/material';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTaskConsistency } from './hooks/useTaskConsistency';
 import { useDevice } from './hooks/useDevice';
@@ -108,6 +108,13 @@ export function App() {
     return /iPad|iPhone|iPod/.test(userAgent) && !globalThis.window.MSStream;
   };
 
+  // Check if user is on Chrome
+  const isChrome = () => {
+    // noinspection JSDeprecatedSymbols
+    const userAgent = navigator.userAgent || navigator.vendor || globalThis.window.opera || '';
+    return /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+  };
+
   // Check if Web BLE is supported
   const isWebBleSupported = () => {
     if (typeof window !== 'undefined') {
@@ -134,6 +141,52 @@ export function App() {
 
   const handleCloseNotification = () => {
     setNotification({ ...notification, open: false });
+  };
+
+  const getCompatibilityMessage = () => {
+    if (isIOS()) {
+      return (
+        <Box data-testid="ios-compatibility-message">
+          <Typography variant="body1" component="p" gutterBottom>
+            {t('common:web_ble_not_supported.ios_message')}
+          </Typography>
+          <Typography variant="body1" component="p" sx={{ fontWeight: 'bold' }}>
+            {t('common:web_ble_not_supported.ios_action')}
+          </Typography>
+          <Button
+            data-testid="bluefy-download-button"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            href="https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Télécharger Bluefy
+          </Button>
+        </Box>
+      );
+    }
+
+    if (isChrome()) {
+        return (
+            <Box data-testid="chrome-compatibility-message">
+              <Typography variant="body1" component="p">
+                {t('common:web_ble_not_supported_message')}
+              </Typography>
+              <Typography variant="body2" component="p" sx={{ mt: 1, color: 'text.secondary' }}>
+                {t('common:web_ble_not_supported.chrome_update')}
+              </Typography>
+            </Box>
+        );
+    }
+
+    // Default for Firefox, Safari Desktop, etc.
+    return (
+        <Typography data-testid="generic-compatibility-message" variant="body1" component="p">
+            {t('common:web_ble_not_supported_message')}
+        </Typography>
+    );
   };
 
   return (
@@ -190,18 +243,11 @@ export function App() {
           </Routes>
         </Suspense>
       ) : (
-        <Paper sx={{ textAlign: 'center', p: 3, color: 'error.main' }}>
-          <Typography variant="h5" component="h1">
+        <Paper data-testid="web-ble-not-supported-card" sx={{ textAlign: 'center', p: 4, m: 2, color: 'error.main' }}>
+          <Typography variant="h5" component="h1" gutterBottom>
             {t('common:web_ble_not_supported_title')}
           </Typography>
-          <Typography variant="body1" component="p">
-            {t('common:web_ble_not_supported_message')}
-          </Typography>
-          {isIOS() && (
-            <Typography variant="body2" component="p">
-              {t('common:web_ble_not_supported_ios')}
-            </Typography>
-          )}
+          {getCompatibilityMessage()}
         </Paper>
       )}
 
