@@ -1,5 +1,6 @@
-import { BoksSimulator, SimulatorAPI } from '../ble/simulator/BoksSimulator';
+import { BoksSimulator } from '../ble/simulator/BoksSimulator';
 import { BoksDatabase } from '../db/db';
+import { StorageService } from '../services/StorageService';
 
 declare global {
   interface Window {
@@ -11,20 +12,19 @@ declare global {
 
     // Simulator State & Control
     boksSimulator?: BoksSimulator;
-    boksSimulatorController?: SimulatorAPI;
 
-    // Event Buffers
+    // Event Buffers for Playwright
     _boks_tx_buffer?: Array<{ opcode: number; payload: number[] }>;
     txEvents?: Array<{ opcode: number; payload: number[] }>;
 
-    // Browser Detection
+    // Browser Detection (Legacy/External)
     opera?: string;
     MSStream?: unknown;
 
     // Debug Tools exposed to window
     boksDebug?: {
       mockData?: (mockDeviceId?: string) => Promise<void>;
-      StorageService?: unknown;
+      StorageService?: typeof StorageService;
       db?: BoksDatabase;
       [key: string]: unknown;
     };

@@ -17,9 +17,6 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
   constructor() {
     this.simulator = BoksSimulator.getInstance();
-    if (typeof window !== "undefined") {
-      window.boksSimulator = this.simulator;
-    }
     // Pipe simulator notifications to the callback
     this.simulator.on('notification', (rawPacket: unknown) => {
       if (this.notificationCallback && this.isConnected && rawPacket instanceof Uint8Array) {
@@ -132,10 +129,6 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     // 2. Device Info Service
     if (serviceUuid === DEVICE_INFO_SERVICE_UUID) {
       const encoder = new TextEncoder();
-      if (charUuid === DEVICE_INFO_CHARS['Hardware Revision']) {
-        const data = encoder.encode(state.hardwareRevision);
-        return new DataView(data.buffer);
-      }
       if (charUuid === DEVICE_INFO_CHARS['Firmware Revision']) {
         // HW Version
         const data = encoder.encode(state.firmwareRevision);

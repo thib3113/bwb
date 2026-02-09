@@ -35,9 +35,9 @@ test.describe('Door Control Feature', () => {
     // 5. Force Close via Simulator
     // We access the exposed boksSimulator instance on the page
     await page.evaluate(() => {
-      const sim = window.boksSimulator;
-      if (sim && typeof sim.triggerDoorClose === 'function') {
-        sim.triggerDoorClose();
+      const controller = window.boksSimulator;
+      if (controller && typeof controller.triggerDoorClose === 'function') {
+        controller.triggerDoorClose();
       } else {
         console.warn('boksSimulator or triggerDoorClose not found on window');
       }

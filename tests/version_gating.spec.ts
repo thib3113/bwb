@@ -17,12 +17,12 @@ test.describe('Version Gating', () => {
     page,
     simulator
   }) => {
-    await page.waitForFunction(() => window.boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      const controller = window.boksSimulatorController;
+      const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
         // SW: 4.2.0, FW: 10/125, HW: 4.0 (default)
         controller.setVersion('4.2.0', '10/125');
@@ -53,12 +53,12 @@ test.describe('Version Gating', () => {
   });
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
-    await page.waitForFunction(() => window.boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      const controller = window.boksSimulatorController;
+      const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
         controller.setVersion('4.3.0', '10/125');
       }
@@ -94,15 +94,15 @@ test.describe('Version Gating', () => {
   });
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
-    await page.waitForFunction(() => window.boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      const controller = window.boksSimulatorController;
+      const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
-        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0), HW override: 3.0
-        controller.setVersion('4.5.0', '10/cd', '3.0');
+        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0)
+        controller.setVersion('4.5.0', '10/cd');
       }
     });
 

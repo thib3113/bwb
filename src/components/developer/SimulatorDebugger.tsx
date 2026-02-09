@@ -18,28 +18,26 @@ import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
-import { BoksState, LogEntry, SimulatorAPI } from '../../ble/simulator/BoksSimulator';
+import { BoksSimulator, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { toggleSimulator } = useBLE();
-  const [simulator, setSimulator] = useState<SimulatorAPI | null>(
-    () => window.boksSimulatorController || null
+  const [simulator, setSimulator] = useState<BoksSimulator | null>(
+    () => (window.boksSimulator as BoksSimulator) || null
   );
   const [state, setState] = useState<BoksState | null>(null);
   const [isEnabled, setIsEnabled] = useState(
     () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
-  const [isSimulatorRunning, setIsSimulatorRunning] = useState(
-    () => !!window.boksSimulatorController
-  );
+  const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!window.boksSimulator);
 
   useEffect(() => {
-    const controller = window.boksSimulatorController;
+    const controller = window.boksSimulator as BoksSimulator;
     if (controller) {
       const interval = setInterval(() => {
-        setState(controller.getState());
+        setState(controller.getPublicState());
       }, 500);
       return () => clearInterval(interval);
     }
@@ -52,7 +50,7 @@ export const SimulatorDebugger = () => {
       // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-          const controller = window.boksSimulatorController;
+          const controller = window.boksSimulator as BoksSimulator;
           if (controller) {
             setSimulator(controller);
             setIsSimulatorRunning(true);

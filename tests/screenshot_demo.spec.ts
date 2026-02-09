@@ -5,7 +5,7 @@ test('Generate screenshot of codes view with mixed statuses', async ({ page, sim
   await page.goto('/');
 
   // Wait for simulator controller
-  await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+  await page.waitForFunction(() => (window as any).boksSimulator, null, {
     timeout: 30000
   });
 

@@ -14,15 +14,15 @@ test.describe('Version Gating - Hardware Mapping', () => {
   });
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
-    await page.waitForFunction(() => window.boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      const controller = window.boksSimulatorController;
-      if (controller && typeof controller.setVersion === 'function') {
-        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0), HW override: 3.0
-        controller.setVersion('4.5.0', '10/cd', '3.0');
+      const controller = window.boksSimulator;
+      if (controller) {
+        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0)
+        controller.setVersion('4.5.0', '10/cd');
       }
     });
 
@@ -33,7 +33,7 @@ test.describe('Version Gating - Hardware Mapping', () => {
     // Wait for DB sync
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        const db = window.boksDebug?.db as any;
+        const db = window.boksDebug?.db;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;

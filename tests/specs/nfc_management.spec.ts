@@ -5,26 +5,25 @@ test.describe('NFC Management', () => {
     await page.goto('/');
   });
 
-  // FIXME: Simulator timing issues in CI
-  test.fixme('should add and delete NFC tag with simulator verification', async ({ page, simulator }) => {
+  test('should add and delete NFC tag with simulator verification', async ({ page, simulator }) => {
     // 0. Setup Compatible Firmware/Hardware for NFC
     await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      const sim = window.boksSimulator;
-      if (sim && typeof sim.setVersion === 'function') {
-        sim.setVersion('4.3.3', '10/125', '4.0');
+      const controller = window.boksSimulator;
+      if (controller) {
+        controller.setVersion('4.3.3', '10/125');
       }
     });
 
-    // 1. Connect
-    await simulator.connect();
+    // 1. Connect and stay on the redirect page (which is /my-boks for new devices)
+    await simulator.connect({ skipReturnToHome: true });
 
     // 1.5 Ensure Secrets Exist
     await page.evaluate(async () => {
-       const db = window.boksDebug?.db as any;
+       const db = window.boksDebug?.db;
        if (db) {
          await db.device_secrets.put({
             device_id: 'SIMULATOR-001',
@@ -34,8 +33,14 @@ test.describe('NFC Management', () => {
        }
     });
 
-    // 2. Navigate to My Boks Page
-    await page.goto('/my-boks');
+    // 2. Ensure we are on My Boks page via UI navigation if not already there
+    const url = page.url();
+    if (!url.includes('/my-boks')) {
+      const menuBtn = page.getByLabel('menu');
+      await expect(menuBtn).toBeVisible();
+      await menuBtn.click();
+      await page.getByTestId('nav-my-boks').click();
+    }
 
     // 3. Open NFC Tab
     const nfcTab = page.getByTestId('tab-nfc');
@@ -51,23 +56,34 @@ test.describe('NFC Management', () => {
 
     const startScanBtn = page.getByRole('button', { name: /Start/i });
     await expect(startScanBtn).toBeVisible();
+
+    // Ensure connection is stable before clicking start
+    await expect(page.getByTestId('status-icon-connected')).toBeVisible({ timeout: 10000 });
+
     await startScanBtn.click();
 
-    await page.waitForTimeout(2000);
+    // 4.5 Wait for REGISTER_NFC_TAG_SCAN_START (0x17)
+    await simulator.waitForTxOpcode(BLEOpcode.REGISTER_NFC_TAG_SCAN_START);
+
+    await page.waitForTimeout(1000);
 
     // 5. Trigger simulated tag scan
     await page.evaluate(() => {
        const sim = window.boksSimulator;
-       if (sim && typeof sim.triggerNfcScan === 'function') {
+       if (sim) {
          sim.triggerNfcScan('04:A1:B2:C3:D4:E5:F6');
        }
     });
 
     // 6. Register Tag
     const alert = page.getByRole('alert');
-    await expect(alert).toBeVisible({ timeout: 10000 });
-
-    await expect(alert).toContainText(/04|A1/);
+    try {
+      await expect(alert).toBeVisible({ timeout: 15000 });
+      await expect(alert).toContainText(/04|A1/);
+    } catch (e) {
+      await page.screenshot({ path: 'test-results/nfc-scan-error.png' });
+      throw e;
+    }
 
     const input = page.locator('.MuiDialog-root input[type="text"]');
     await expect(input).toBeVisible();
