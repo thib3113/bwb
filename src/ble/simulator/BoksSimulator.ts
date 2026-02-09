@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from '../../utils/EventEmitter';
 import {
   BLEOpcode,
   SIMULATOR_DEFAULT_CONFIG_KEY,
