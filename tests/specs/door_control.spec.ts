@@ -5,46 +5,45 @@ test.describe('Door Control Feature', () => {
     await page.goto('/');
   });
 
-  test('should open the door via simulator', async ({ page, simulator }) => {
+  test('should open the door via simulator and verify state change', async ({ page, simulator }) => {
     // 1. Connect
-    const disabledIcon = page.getByTestId('status-icon-disconnected');
     await page.getByTestId('connection-button').click();
-    await expect(disabledIcon).not.toBeVisible({ timeout: 40000 });
+    await expect(page.getByTestId('status-icon-connected')).toBeVisible({ timeout: 40000 });
 
-    // Wait for potential redirect logic
-    await page.waitForTimeout(2000);
+    const openBtn = page.getByTestId('open-door-button');
+    await expect(openBtn).toBeEnabled();
 
-    // Handle potential redirect
-    if (page.url().includes('my-boks')) {
-      console.log('Redirected to My Boks. Navigating back via Menu...');
-      await page.getByLabel('menu').click();
-      // Use Test ID for home navigation
-      await page.getByTestId('nav-home').click();
-      await page.waitForURL(/.*\/codes/);
-    }
+    // Verify initial state (Closed)
+    // We check that it is NOT 'open'
+    await expect(openBtn).not.toHaveAttribute('data-door-status', 'open');
 
-    // Wait a bit for device context to settle
-    await page.waitForTimeout(500);
+    // 2. Click Open Door
+    await openBtn.click();
 
-    // 2. Click Open Door (Header Button) using new Test ID
-    await page.getByTestId('open-door-button').click();
-
-    // 3. Verify Feedback using Simulator Events
-    // Wait for OPEN_DOOR opcode (0x01)
-    await simulator.waitForTxOpcode(BLEOpcode.OPEN_DOOR);
-
+    // 3. Verify Simulator received the command
+    await simulator.waitForTxOpcode(BLEOpcode.OPEN_DOOR, 10000);
     const events = await simulator.getTxEvents();
     const openDoorEvent = events.find((e: any) => e.opcode === BLEOpcode.OPEN_DOOR);
-
     expect(openDoorEvent).toBeDefined();
     // Default PIN is '123456' -> [49, 50, 51, 52, 53, 54]
     expect(openDoorEvent.payload).toEqual([49, 50, 51, 52, 53, 54]);
 
-    // Also verify UI feedback (Role Alert)
-    const alert = page.getByRole('alert').first();
-    await expect(alert).toBeVisible({ timeout: 10000 });
+    // 4. Verify UI state change to OPEN
+    // Wait for the attribute to update.
+    await expect(openBtn).toHaveAttribute('data-door-status', 'open', { timeout: 10000 });
 
-    // 4. Wait for close
-    await expect(alert).not.toBeVisible({ timeout: 15000 });
+    // 5. Force Close via Simulator
+    // We access the exposed boksSimulator instance on the page
+    await page.evaluate(() => {
+      const sim = window.boksSimulator;
+      if (sim && typeof sim.triggerDoorClose === 'function') {
+        sim.triggerDoorClose();
+      } else {
+        console.warn('boksSimulator or triggerDoorClose not found on window');
+      }
+    });
+
+    // 6. Verify UI state change to CLOSED
+    await expect(openBtn).not.toHaveAttribute('data-door-status', 'open', { timeout: 5000 });
   });
 });

@@ -87,7 +87,9 @@ export const NfcTagsTab = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" data-testid="nfc-tags-title">{t('settings:nfc.title')}</Typography>
+        <Typography variant="h6" data-testid="nfc-tags-title">
+          {t('settings:nfc.title')}
+        </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
           {t('settings:nfc.add_tag')}
         </Button>
