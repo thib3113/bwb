@@ -261,7 +261,12 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         </IconButton>
 
         {knownDevices.length <= 1 && (
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1 }}
+            data-testid="app-header-title"
+          >
             Boks BLE
           </Typography>
         )}
@@ -278,7 +283,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           >
             <List sx={{ flexGrow: 1 }}>
               <ListItem disablePadding>
-                <ListItemButton onClick={handleNavigation('/')}>
+                <ListItemButton onClick={handleNavigation('/')} data-testid="nav-home">
                   <ListItemIcon>
                     <HomeIcon />
                   </ListItemIcon>
@@ -286,7 +291,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
-                <ListItemButton onClick={handleNavigation('/my-boks')}>
+                <ListItemButton onClick={handleNavigation('/my-boks')} data-testid="nav-my-boks">
                   <ListItemIcon>
                     <MeetingRoomIcon />
                   </ListItemIcon>
@@ -442,6 +447,8 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
           <span>
             <IconButton
               aria-label="open door"
+              data-testid="open-door-button"
+              data-door-status={doorStatus}
               color="inherit"
               onClick={handleOpenDoor}
               disabled={isOpening || !isConnected}

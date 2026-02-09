@@ -1,26 +1,6 @@
 export * from './enums';
 import { CODE_TYPE, CodeStatus, SyncStatus, UserRole } from './enums';
 
-// Augment global Window interface for non-standard browser properties and debug tools
-declare global {
-  interface Window {
-    BOKS_SIMULATOR_ENABLED?: boolean;
-    enableBoksSimulator?: () => void;
-    toggleSimulator?: (enable: boolean) => void;
-    _boks_tx_buffer?: Array<{ opcode: number; payload: number[] }>;
-    txEvents?: Array<{ opcode: number; payload: number[] }>;
-    opera?: string;
-    MSStream?: unknown;
-    boksSimulatorController?: import('../ble/simulator/BoksSimulator').SimulatorAPI;
-    boksDebug: {
-      mockData?: (mockDeviceId?: string) => Promise<void>;
-      StorageService?: unknown;
-      db?: unknown;
-      [key: string]: unknown;
-    };
-  }
-}
-
 export interface BoksUser {
   id: string; // UUID
   email?: string;

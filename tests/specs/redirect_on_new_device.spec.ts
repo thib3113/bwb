@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('New Device Redirect', () => {
   test('should redirect to settings tab when adding a new device', async ({ page }) => {

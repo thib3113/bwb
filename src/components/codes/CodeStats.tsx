@@ -17,7 +17,7 @@ export const CodeStats = ({ masterCodesCount, temporaryCodesCount, codeCount }: 
   const { t } = useTranslation('codes');
 
   return (
-    <Typography variant="subtitle1" color="textSecondary" sx={{ mb: 2 }}>
+    <Typography variant="subtitle1" color="textSecondary" sx={{ mb: 2 }} data-testid="code-stats">
       {t('master_codes')}: {masterCodesCount}
       {codeCount && ` / ${codeCount.master} ${t('on_device_count')}`}
       {' | '}

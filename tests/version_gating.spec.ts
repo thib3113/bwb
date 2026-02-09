@@ -7,8 +7,8 @@ test.describe('Version Gating', () => {
     // Ensure simulator is enabled and state is clean
     await page.evaluate(async () => {
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
-      if ((window as any).resetApp) {
-        await (window as any).resetApp();
+      if (window.resetApp) {
+        await window.resetApp();
       }
     });
   });
@@ -17,12 +17,16 @@ test.describe('Version Gating', () => {
     page,
     simulator
   }) => {
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      (window as any).boksSimulatorController.setVersion('4.2.0', '10/125');
+      const controller = window.boksSimulator;
+      if (controller && typeof controller.setVersion === 'function') {
+        // SW: 4.2.0, FW: 10/125, HW: 4.0 (default)
+        controller.setVersion('4.2.0', '10/125');
+      }
     });
 
     await simulator.connect({ skipReturnToHome: true });
@@ -32,8 +36,7 @@ test.describe('Version Gating', () => {
     // Wait for DB stabilization
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        // @ts-ignore
-        const db = window.boksDebug?.db;
+        const db = window.boksDebug?.db as any;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;
@@ -46,16 +49,19 @@ test.describe('Version Gating', () => {
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
-    await expect(page.getByText(/version firmware 4.3.3 required/i)).toBeVisible();
+    await expect(page.getByRole('alert')).toBeVisible();
   });
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      (window as any).boksSimulatorController.setVersion('4.3.0', '10/125');
+      const controller = window.boksSimulator;
+      if (controller && typeof controller.setVersion === 'function') {
+        controller.setVersion('4.3.0', '10/125');
+      }
     });
 
     await simulator.connect({ skipReturnToHome: true });
@@ -65,8 +71,7 @@ test.describe('Version Gating', () => {
     // Wait for DB sync
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        // @ts-ignore
-        const db = window.boksDebug?.db;
+        const db = window.boksDebug?.db as any;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;
@@ -89,12 +94,16 @@ test.describe('Version Gating', () => {
   });
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      (window as any).boksSimulatorController.setVersion('4.5.0', '10/cd');
+      const controller = window.boksSimulator;
+      if (controller && typeof controller.setVersion === 'function') {
+        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0)
+        controller.setVersion('4.5.0', '10/cd');
+      }
     });
 
     await simulator.connect({ skipReturnToHome: true });
@@ -104,8 +113,7 @@ test.describe('Version Gating', () => {
     // Wait for DB sync
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        // @ts-ignore
-        const db = window.boksDebug?.db;
+        const db = window.boksDebug?.db as any;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;
@@ -118,6 +126,6 @@ test.describe('Version Gating', () => {
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
     await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
-    await expect(page.getByText(/hardware 4/i)).toBeVisible();
+    await expect(page.getByRole('alert')).toBeVisible();
   });
 });

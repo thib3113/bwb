@@ -9,8 +9,6 @@ import { PacketFactory } from '../packets/PacketFactory';
 import { OpenDoorPacket } from '../packets/OpenDoorPacket';
 import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
-// --- Interfaces ---
-
 export interface LogEntry {
   opcode: number;
   timestamp: number; // Unix timestamp in ms (simulated)
@@ -28,17 +26,6 @@ export interface BoksState {
   softwareRevision: string; // Maps to Software Version
 }
 
-// Controller API exposed to window
-export interface SimulatorAPI {
-  enableChaos(enabled: boolean): void;
-  setVersion(sw: string, hw: string): void;
-  setBatteryLevel(level: number): void;
-  triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string): void;
-  triggerDoorClose(): void;
-  reset(): void;
-  getState(): BoksState;
-}
-
 export class BoksSimulator extends EventEmitter {
   private static instance: BoksSimulator | null = null;
   private state: BoksState;
@@ -53,31 +40,27 @@ export class BoksSimulator extends EventEmitter {
   }
 
   constructor() {
-    console.log('[BoksSimulator] Controller exposed to window');
     super();
     this.state = this.getInitialState();
 
-    // Expose controller
+    // Expose instance for tests/debug
     if (typeof window !== 'undefined') {
-      window.boksSimulatorController = {
-        enableChaos: (e: boolean) => this.setChaosMode(e),
-        setVersion: (sw, hw) => {
-          this.state.softwareRevision = sw;
-          this.state.firmwareRevision = hw;
-        },
-        setBatteryLevel: (l: number) => {
-          this.state.batteryLevel = l;
-        },
-        triggerDoorOpen: (s: 'ble' | 'nfc' | 'button', c?: string) => this.triggerDoorOpen(s, c),
-        triggerDoorClose: () => this.triggerDoorClose(),
-        reset: () => this.reset(),
-        getState: () => ({ ...this.state })
-      } as SimulatorAPI;
+      window.boksSimulator = this;
+      console.log('[BoksSimulator] Instance exposed to window.boksSimulator');
     }
   }
 
   public getPublicState(): BoksState {
-    return this.state;
+    return { ...this.state };
+  }
+
+  public setVersion(software: string, firmware: string) {
+    this.state.softwareRevision = software;
+    this.state.firmwareRevision = firmware;
+  }
+
+  public setBatteryLevel(level: number) {
+    this.state.batteryLevel = level;
   }
 
   private getInitialState(): BoksState {
@@ -125,6 +108,16 @@ export class BoksSimulator extends EventEmitter {
   }
 
   // --- External Triggers ---
+
+  public triggerNfcScan(uid: string) {
+    console.log(`[Simulator] NFC Tag Scanned for Registration: ${uid}`);
+    // Convert hex string (e.g. "04:A1:B2") to bytes
+    const bytes = uid.split(':').map((b) => parseInt(b, 16));
+
+    // Send NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT (0xC5)
+    // Payload usually: UID bytes
+    this.sendNotification(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT, bytes);
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public triggerDoorOpen(source: 'ble' | 'nfc' | 'button', _code?: string) {
@@ -226,6 +219,15 @@ export class BoksSimulator extends EventEmitter {
         break;
       case BLEOpcode.SET_CONFIGURATION:
         this.handleSetConfiguration();
+        break;
+      case 0x17:
+        this.handleRegisterNfcTagScanStart();
+        break;
+      case BLEOpcode.REGISTER_NFC_TAG:
+        this.handleRegisterNfcTag(payload);
+        break;
+      case BLEOpcode.UNREGISTER_NFC_TAG:
+        this.handleUnregisterNfcTag(payload);
         break;
       default:
         console.warn(`[Simulator] Unknown opcode 0x${opcode.toString(16)}`);
@@ -365,5 +367,26 @@ export class BoksSimulator extends EventEmitter {
     } else {
       this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
     }
+  }
+
+  // --- NFC Handlers ---
+
+  private handleRegisterNfcTagScanStart() {
+    // Ack success to allow UI to proceed to 'Scanning...'
+    console.log('[Simulator] NFC Scan Started (Ack 0x77)');
+    this.sendNotification(0x77, []);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private handleRegisterNfcTag(_payload: Uint8Array) {
+    // Payload: Key + UID + Type?
+    // Assuming simplified success
+    this.sendNotification(BLEOpcode.NOTIFY_NFC_TAG_REGISTERED_SUCCESS, []);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private handleUnregisterNfcTag(_payload: Uint8Array) {
+    // Payload: Key + UID?
+    this.sendNotification(BLEOpcode.NOTIFY_NFC_TAG_UNREGISTERED_SUCCESS, []);
   }
 }

@@ -1,19 +1,19 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { expect, test as base } from '@playwright/test';
+import { test as base, expect, Page } from '@playwright/test';
+import { BLEOpcode } from '../src/utils/bleConstants';
 
-// Re-export constants for easy access in tests
-export { BLEOpcode } from '../src/utils/bleConstants';
-export { expect } from '@playwright/test';
+// Re-export specific expectations and utilities
+export { expect, BLEOpcode };
 
 export interface Simulator {
   waitForTxOpcode(opcode: number, timeout?: number): Promise<void>;
+  waitForTxOpcodes(opcodes: number[], timeout?: number): Promise<void>;
   getTxEvents(): Promise<any[]>;
   clearTxEvents(): Promise<void>;
   connect(options?: { skipReturnToHome?: boolean }): Promise<void>;
 }
 
 export const test = base.extend<{ simulator: Simulator }>({
-  simulator: async ({ page }, use) => {
+  simulator: [async ({ page }, use) => {
     // Enable console logging from browser to node console
     page.on('console', (msg) => {
       console.log(`[Browser Console] ${msg.text()}`);
@@ -69,27 +69,25 @@ export const test = base.extend<{ simulator: Simulator }>({
       // Ensure persistence across reloads
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
 
-      // @ts-expect-error - Custom global flag
       window.BOKS_SIMULATOR_ENABLED = true;
 
       // Initialize txEvents from buffer or as empty array
-      // @ts-expect-error - Custom global storage
-      window.txEvents = (window as any)._boks_tx_buffer || [];
+      window.txEvents = window._boks_tx_buffer || [];
 
       window.addEventListener('boks-tx', (e: any) => {
-        // @ts-expect-error - Custom global storage
-        window.txEvents.push(e.detail);
+        if (window.txEvents) {
+          window.txEvents.push(e.detail);
+        }
         console.log(`[Simulator Fixture] Captured TX: ${e.detail.opcode}`);
       });
 
       // Helper to reset app state (Clear DB + Disconnect)
-      // @ts-expect-error - Custom global helper
       window.resetApp = async () => {
         console.log('[Test] Resetting App State...');
 
         // 1. Clear DB
+        const db = window.boksDebug?.db as any;
         // @ts-ignore
-        const db = window.boksDebug?.db;
         if (db) {
           await db.devices.clear();
           await db.device_secrets.clear();
@@ -113,9 +111,8 @@ export const test = base.extend<{ simulator: Simulator }>({
         try {
           await page.waitForFunction(
             ({ op }) => {
-              const win = window as any;
-              const events = win.txEvents || [];
-              const buffer = win._boks_tx_buffer || [];
+              const events = window.txEvents || [];
+              const buffer = window._boks_tx_buffer || [];
               return (
                 events.some((e: any) => e.opcode === op) || buffer.some((e: any) => e.opcode === op)
               );
@@ -126,14 +123,13 @@ export const test = base.extend<{ simulator: Simulator }>({
         } catch (e) {
           // Debugging info
           const state = await page.evaluate(() => {
-            const win = window as any;
             return {
-              hasTxEvents: !!win.txEvents,
-              txEventsLength: win.txEvents?.length,
-              txEvents: win.txEvents,
-              hasBuffer: !!win._boks_tx_buffer,
-              bufferLength: win._boks_tx_buffer?.length,
-              simulatorEnabled: win.BOKS_SIMULATOR_ENABLED,
+              hasTxEvents: !!window.txEvents,
+              txEventsLength: window.txEvents?.length,
+              txEvents: window.txEvents,
+              hasBuffer: !!window._boks_tx_buffer,
+              bufferLength: window._boks_tx_buffer?.length,
+              simulatorEnabled: window.BOKS_SIMULATOR_ENABLED,
               localStorageSimulator: localStorage.getItem('BOKS_SIMULATOR_ENABLED')
             };
           });
@@ -144,11 +140,37 @@ export const test = base.extend<{ simulator: Simulator }>({
           throw e;
         }
       },
+      waitForTxOpcodes: async (opcodes, timeout = 30000) => {
+        try {
+          await page.waitForFunction(
+            ({ ops }) => {
+              const events = window.txEvents || [];
+              const buffer = window._boks_tx_buffer || [];
+              const allEvents = [...events];
+              // Merge buffer if unique
+              buffer.forEach((be: any) => {
+                 if (!allEvents.some((e: any) => e.opcode === be.opcode && JSON.stringify(e.payload) === JSON.stringify(be.payload))) {
+                    allEvents.push(be);
+                 }
+              });
+
+              // Check if ALL opcodes are present
+              return ops.every(op => allEvents.some((e: any) => e.opcode === op));
+            },
+            { ops: opcodes },
+            { timeout }
+          );
+        } catch (e) {
+           console.error(
+            `[Simulator Fixture] waitForTxOpcodes(${JSON.stringify(opcodes)}) failed.`
+          );
+          throw e;
+        }
+      },
       getTxEvents: async () => {
         return await page.evaluate(() => {
-          const win = window as any;
-          const events = win.txEvents || [];
-          const buffer = win._boks_tx_buffer || [];
+          const events = window.txEvents || [];
+          const buffer = window._boks_tx_buffer || [];
           // Merge and de-duplicate by JSON representation
           const all = [...events];
           buffer.forEach((be: any) => {
@@ -166,7 +188,6 @@ export const test = base.extend<{ simulator: Simulator }>({
       },
       clearTxEvents: async () => {
         await page.evaluate(() => {
-          // @ts-expect-error - Custom global storage
           window.txEvents = [];
         });
       },
@@ -187,8 +208,8 @@ export const test = base.extend<{ simulator: Simulator }>({
 
         // Force enable simulator
         await page.evaluate(async () => {
-          if ((window as any).toggleSimulator) {
-            (window as any).toggleSimulator(true);
+          if (window.toggleSimulator) {
+            window.toggleSimulator(true);
             await new Promise((r) => setTimeout(r, 200));
           } else {
             throw new Error('toggleSimulator not found');
@@ -199,65 +220,40 @@ export const test = base.extend<{ simulator: Simulator }>({
         const isOnboarding = await onboarding.isVisible();
         console.log('[Simulator Fixture] Onboarding visible:', isOnboarding);
         if (isOnboarding) {
-          await onboarding.getByRole('button', { name: /connect/i }).click();
+          await onboarding.getByTestId('connect-button').click();
           await page.waitForTimeout(4000);
 
-          // Handle potential redirect for new devices
-          await page.waitForTimeout(3000); // Wait for potential redirect logic (1.5s delay)
-          console.log('[Simulator Fixture] Checking URL for redirect:', page.url());
+          try {
+             await page.waitForURL(/.*\/my-boks/, { timeout: 5000 });
+             console.log('[Simulator Fixture] Redirected to My Boks.');
+             if (!options.skipReturnToHome) {
+                console.log('[Simulator Fixture] Navigating back via Menu...');
+                const menuBtn = page.getByLabel('menu');
+                await expect(menuBtn).toBeVisible();
+                await menuBtn.click();
 
-          if (page.url().includes('my-boks')) {
-            if (options.skipReturnToHome) {
-              console.log('[Simulator Fixture] Redirected to My Boks. Staying there as requested.');
-            } else {
-              console.log('[Simulator Fixture] Redirected to My Boks. Navigating back via Menu...');
-              // Ensure drawer is openable
-              const menuBtn = page.getByLabel('menu');
-              await expect(menuBtn).toBeVisible();
-              await menuBtn.click();
+                const homeLink = page.getByTestId('nav-home');
+                await expect(homeLink).toBeVisible();
+                await homeLink.click();
 
-              // Click Home
-              const homeLink = page.getByText('Home');
-              await expect(homeLink).toBeVisible();
-              await homeLink.click();
-
-              // Wait for navigation
-              await page.waitForURL(/.*\/codes/);
-
-              // Ensure dashboard is ready
-              await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 10000 });
-            }
+                await page.waitForURL(/.*\/codes/);
+                await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 10000 });
+             }
+          } catch (e) {
+             console.log('[Simulator Fixture] No redirect detected or timed out, assuming standard flow.');
           }
         } else {
           // Onboarding not visible. We are on Dashboard.
-          // Try to ensure connection.
-          console.log('[Simulator Fixture] Onboarding not visible. checking connection status...');
-
-          // Wait for either connected or disconnected icon
-          try {
-            await page.waitForSelector(
-              'svg[data-testid="BluetoothDisabledIcon"], svg[data-testid="BluetoothConnectedIcon"]',
-              { timeout: 5000 }
-            );
-          } catch {
-            console.log(
-              '[Simulator Fixture] Could not find any bluetooth icon. Are we on the right page?'
-            );
-          }
-
           const disconnectedIcon = page.locator('svg[data-testid="BluetoothDisabledIcon"]');
           const count = await disconnectedIcon.count();
           const visible = count > 0 && (await disconnectedIcon.first().isVisible());
-          console.log('[Simulator Fixture] Checking status...');
+
           if (visible) {
             console.log('[Simulator Fixture] Disconnected. Connecting via Header...');
-            await page
-              .getByRole('button', { name: /connect/i })
-              .first()
-              .click();
-            await page.waitForTimeout(4000);
+            await page.getByTestId('connection-button').click();
+            await page.waitForTimeout(4000); // Connection delay
           } else {
-            console.log('[Simulator Fixture] Already connected (or icon not found).');
+            console.log('[Simulator Fixture] Already connected.');
           }
         }
       }
@@ -265,5 +261,5 @@ export const test = base.extend<{ simulator: Simulator }>({
 
     // 3. Use the fixture
     await use(simulator);
-  }
+  }, { auto: true }]
 });

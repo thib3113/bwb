@@ -187,6 +187,18 @@ export class BLEQueue {
     )
       return true;
 
+    if (
+      requestOpcode === BLEOpcode.REGISTER_NFC_TAG &&
+      responseOpcode === BLEOpcode.NOTIFY_NFC_TAG_REGISTERED_SUCCESS
+    )
+      return true;
+
+    if (
+      requestOpcode === BLEOpcode.UNREGISTER_NFC_TAG &&
+      responseOpcode === BLEOpcode.NOTIFY_NFC_TAG_UNREGISTERED_SUCCESS
+    )
+      return true;
+
     // Configuration
     const configOps = [
       BLEOpcode.CREATE_MASTER_CODE,
@@ -195,7 +207,8 @@ export class BLEQueue {
       BLEOpcode.DELETE_MASTER_CODE,
       BLEOpcode.DELETE_SINGLE_USE_CODE,
       BLEOpcode.DELETE_MULTI_USE_CODE,
-      BLEOpcode.REACTIVATE_CODE
+      BLEOpcode.REACTIVATE_CODE,
+      BLEOpcode.REGISTER_NFC_TAG_SCAN_START
     ];
 
     if (

@@ -12,13 +12,13 @@ test.describe('Bluetooth Logs Feature', () => {
     // 1.5. Navigate to Logs via Bottom Navigation
     // Ensure we are on the dashboard with bottom nav
     await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 15000 });
-    await page.getByRole('button', { name: /Logs/i }).click();
+    await page.getByTestId('nav-logs').click();
 
     // 2. Click Refresh Logs
     const logsSection = page
       .locator('div')
       .filter({ has: page.getByRole('heading', { name: /Logs/i }) });
-    const refreshBtn = logsSection.getByRole('button', { name: /Refresh/i });
+    const refreshBtn = page.getByTestId('refresh-logs-button');
     await expect(refreshBtn).toBeVisible();
     await expect(refreshBtn).toBeEnabled({ timeout: 15000 });
     await refreshBtn.click();
