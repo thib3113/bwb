@@ -1,25 +1,29 @@
 import { expect, test } from '../fixtures';
 
-test.describe('Version Gating - Hardware', () => {
+test.describe('Version Gating - Hardware Mapping', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
 
     // Ensure simulator is enabled and state is clean
     await page.evaluate(async () => {
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
-      if ((window as any).resetApp) {
-        await (window as any).resetApp();
+      if (window.resetApp) {
+        await window.resetApp();
       }
     });
   });
 
   test('should handle hardware version mapping', async ({ page, simulator }) => {
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulatorController, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      (window as any).boksSimulatorController.setVersion('4.5.0', '10/cd');
+      const controller = window.boksSimulatorController;
+      if (controller && typeof controller.setVersion === 'function') {
+        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0), HW override: 3.0
+        controller.setVersion('4.5.0', '10/cd', '3.0');
+      }
     });
 
     await simulator.connect({ skipReturnToHome: true });
@@ -29,8 +33,7 @@ test.describe('Version Gating - Hardware', () => {
     // Wait for DB sync
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        // @ts-ignore
-        const db = window.boksDebug?.db;
+        const db = window.boksDebug?.db as any;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;

@@ -5,6 +5,7 @@ test.describe('NFC Management', () => {
     await page.goto('/');
   });
 
+  // FIXME: Simulator timing issues in CI
   test.fixme('should add and delete NFC tag with simulator verification', async ({ page, simulator }) => {
     // 0. Setup Compatible Firmware/Hardware for NFC
     await page.waitForFunction(() => window.boksSimulator, null, {
@@ -14,14 +15,14 @@ test.describe('NFC Management', () => {
     await page.evaluate(() => {
       const sim = window.boksSimulator;
       if (sim && typeof sim.setVersion === 'function') {
-        sim.setVersion('10/125', '4.0', '4.3.3');
+        sim.setVersion('4.3.3', '10/125', '4.0');
       }
     });
 
     // 1. Connect
     await simulator.connect();
 
-    // 1.5 Ensure Secrets Exist (Workaround for potential onboarding issue in test environment)
+    // 1.5 Ensure Secrets Exist
     await page.evaluate(async () => {
        const db = window.boksDebug?.db as any;
        if (db) {
@@ -30,7 +31,6 @@ test.describe('NFC Management', () => {
             configuration_key: 'AABBCCDD', // Default simulator key
             door_pin_code: '123456'
          });
-         console.log('Injected secrets for SIMULATOR-001');
        }
     });
 

@@ -120,7 +120,7 @@ export const SimulatorDebugger = () => {
                   control={
                     <Switch
                       checked={state.chaosMode}
-                      onChange={(_e, checked) => simulator?.enableChaos(checked)}
+                      onChange={(_e, checked) => simulator?.setChaosMode(checked)}
                       color="secondary"
                     />
                   }

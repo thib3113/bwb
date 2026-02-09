@@ -7,12 +7,13 @@ describe('BoksSimulator', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    simulator = new BoksSimulator();
+    simulator = BoksSimulator.getInstance();
   });
 
   afterEach(() => {
     simulator.reset();
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it('should initialize with default state', () => {
@@ -114,10 +115,10 @@ describe('BoksSimulator', () => {
   it('should toggle Chaos Mode', () => {
     const controller = (window as any).boksSimulatorController as SimulatorAPI;
 
-    controller.enableChaos(true);
+    controller.setChaosMode(true);
     expect(controller.getState().chaosMode).toBe(true);
 
-    controller.enableChaos(false);
+    controller.setChaosMode(false);
     expect(controller.getState().chaosMode).toBe(false);
   });
 

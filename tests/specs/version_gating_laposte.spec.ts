@@ -7,19 +7,22 @@ test.describe('Version Gating - La Poste', () => {
     // Ensure simulator is enabled and state is clean
     await page.evaluate(async () => {
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
-      if ((window as any).resetApp) {
-        await (window as any).resetApp();
+      if (window.resetApp) {
+        await window.resetApp();
       }
     });
   });
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
-    await page.waitForFunction(() => (window as any).boksSimulatorController, null, {
+    await page.waitForFunction(() => window.boksSimulatorController, null, {
       timeout: 30000
     });
 
     await page.evaluate(() => {
-      (window as any).boksSimulatorController.setVersion('4.3.0', '10/125');
+      const controller = window.boksSimulatorController;
+      if (controller && typeof controller.setVersion === 'function') {
+        controller.setVersion('4.3.0', '10/125');
+      }
     });
 
     await simulator.connect({ skipReturnToHome: true });
@@ -29,8 +32,7 @@ test.describe('Version Gating - La Poste', () => {
     // Wait for DB sync
     await page.waitForFunction(
       async ({ sw, hw }) => {
-        // @ts-ignore
-        const db = window.boksDebug?.db;
+        const db = window.boksDebug?.db as any;
         if (!db) return false;
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;

@@ -1,4 +1,4 @@
-import { EventEmitter } from '../../utils/EventEmitter';
+import EventEmitter from 'events';
 import {
   BLEOpcode,
   SIMULATOR_DEFAULT_CONFIG_KEY,
@@ -9,92 +9,94 @@ import { PacketFactory } from '../packets/PacketFactory';
 import { OpenDoorPacket } from '../packets/OpenDoorPacket';
 import { DeleteMasterCodePacket } from '../packets/PinManagementPackets';
 
-// --- Interfaces ---
-
 export interface LogEntry {
   opcode: number;
-  timestamp: number; // Unix timestamp in ms (simulated)
   payload: number[];
+  timestamp: number;
 }
 
 export interface BoksState {
   isOpen: boolean;
-  pinCodes: Map<string, string>; // code -> type (master/single/multi)
+  pinCodes: Map<string, 'master' | 'single' | 'multi'>;
   logs: LogEntry[];
   configKey: string;
   chaosMode: boolean;
   batteryLevel: number;
-  firmwareRevision: string; // Maps to Hardware Version
+  firmwareRevision: string;
   hardwareRevision: string;
   softwareRevision: string;
 }
 
-// Controller API exposed to window
 export interface SimulatorAPI {
-  enableChaos(enabled: boolean): void;
-  setVersion(sw: string, hw: string): void;
-  setBatteryLevel(level: number): void;
-  triggerDoorOpen(source: 'ble' | 'nfc' | 'button', code?: string): void;
-  triggerNfcScan(uid: string): void;
-  triggerDoorClose(): void;
-  reset(): void;
-  getState(): BoksState;
+  getState: () => BoksState;
+  reset: () => void;
+  triggerDoorOpen: (source: 'ble' | 'nfc' | 'button', code?: string) => void;
+  triggerDoorClose: () => void;
+  setChaosMode: (enabled: boolean) => void;
+  setVersion: (software: string, firmware: string, hardware?: string) => void;
+  setBatteryLevel: (level: number) => void;
+  addLog: (opcode: number, payload: number[]) => void;
+  createCode: (type: 'master' | 'single' | 'multi', code: string) => void;
 }
 
 export class BoksSimulator extends EventEmitter {
-  private static instance: BoksSimulator | null = null;
+  private static instance: BoksSimulator;
   private state: BoksState;
   private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
-  private chaosTimer: ReturnType<typeof setTimeout> | null = null;
+  private chaosTimer: ReturnType<typeof setInterval> | null = null;
 
-  public static getInstance(): BoksSimulator {
+  private constructor() {
+    super();
+    this.state = this.getInitialState();
+
+    // Expose control API to window for tests
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).boksSimulatorController = {
+        getState: () => this.getPublicState(),
+        reset: () => this.reset(),
+        triggerDoorOpen: (s, c) => this.triggerDoorOpen(s, c),
+        triggerDoorClose: () => this.triggerDoorClose(),
+        setChaosMode: (e) => this.setChaosMode(e),
+        setVersion: (sw, fw, hw) => this.setVersion(sw, fw, hw),
+        setBatteryLevel: (l) => this.setBatteryLevel(l),
+        addLog: (op, pl) => this.addLog(op, pl),
+        createCode: (t, c) => this.handleCreateCode(new TextEncoder().encode('dummy' + c), t)
+      } as SimulatorAPI;
+      console.log('[BoksSimulator] Controller exposed to window');
+    }
+  }
+
+  static getInstance(): BoksSimulator {
     if (!BoksSimulator.instance) {
       BoksSimulator.instance = new BoksSimulator();
     }
     return BoksSimulator.instance;
   }
 
-  constructor() {
-    console.log('[BoksSimulator] Controller exposed to window');
-    super();
-    this.state = this.getInitialState();
-
-    // Expose controller
-    if (typeof window !== 'undefined') {
-      window.boksSimulatorController = {
-        enableChaos: (e: boolean) => this.setChaosMode(e),
-        setVersion: (sw, hw) => {
-          this.state.softwareRevision = sw;
-          this.state.firmwareRevision = hw;
-        },
-        setBatteryLevel: (l: number) => {
-          this.state.batteryLevel = l;
-        },
-        triggerDoorOpen: (s: 'ble' | 'nfc' | 'button', c?: string) => this.triggerDoorOpen(s, c),
-        triggerNfcScan: (uid: string) => this.triggerNfcScan(uid),
-        triggerDoorClose: () => this.triggerDoorClose(),
-        reset: () => this.reset(),
-        getState: () => ({ ...this.state })
-      } as SimulatorAPI;
-    }
-  }
-
-  public getPublicState(): BoksState {
-    return this.state;
+  public getPublicState() {
+    // Return a copy to prevent mutation
+    return {
+      ...this.state,
+      pinCodes: new Map(this.state.pinCodes),
+      logs: [...this.state.logs]
+    };
   }
 
   private getInitialState(): BoksState {
+    const codes = new Map<string, 'master' | 'single' | 'multi'>();
+    codes.set(SIMULATOR_DEFAULT_PIN, 'master');
+
     return {
       isOpen: false,
-      pinCodes: new Map([[SIMULATOR_DEFAULT_PIN, 'master']]),
+      pinCodes: codes,
       logs: [],
       configKey: SIMULATOR_DEFAULT_CONFIG_KEY,
       chaosMode: false,
       batteryLevel: 100,
-      firmwareRevision: "10/125",
-    hardwareRevision: "4.0",
-    softwareRevision: "4.2.0",
-
+      firmwareRevision: '10/125',
+      hardwareRevision: '4.0',
+      softwareRevision: '4.2.0'
     };
   }
 
@@ -111,6 +113,10 @@ export class BoksSimulator extends EventEmitter {
     } else {
       if (this.chaosTimer) clearInterval(this.chaosTimer);
     }
+  }
+
+  public setBatteryLevel(level: number) {
+    this.state.batteryLevel = Math.max(0, Math.min(100, level));
   }
 
   private startChaosLoop() {
@@ -131,16 +137,16 @@ export class BoksSimulator extends EventEmitter {
 
   // --- External Triggers ---
 
-  public setVersion(firmware: string, hardware: string, software: string) {
+  public setVersion(software: string, firmware: string, hardware: string = '4.0') {
+    this.state.softwareRevision = software;
     this.state.firmwareRevision = firmware;
     this.state.hardwareRevision = hardware;
-    this.state.softwareRevision = software;
   }
 
   public triggerNfcScan(uid: string) {
     console.log(`[Simulator] NFC Tag Scanned for Registration: ${uid}`);
     // Convert hex string (e.g. "04:A1:B2") to bytes
-    const bytes = uid.split(':').map(b => parseInt(b, 16));
+    const bytes = uid.split(':').map((b) => parseInt(b, 16));
 
     // Send NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT (0xC5)
     // Payload usually: UID bytes
