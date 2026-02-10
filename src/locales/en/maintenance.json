@@ -23,5 +23,6 @@
     "error_index": "Index {{index}} returned Error (Empty?), moving on."
   },
   "run": "Run",
+  "stop": "Stop",
   "progress": "{{percent}}%"
 }
