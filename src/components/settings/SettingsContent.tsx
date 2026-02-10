@@ -36,10 +36,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
   const [draftConfig, setDraftConfig] = useState<SettingsConfig>({
     language: LANGUAGES.EN,
     theme: THEME_MODES.SYSTEM,
-    autoImport: false,
-    deviceNames: {},
-    configurationKeys: {},
-    doorPinCodes: {}
+    autoImport: false
   });
 
   // State for import/export functionality
@@ -57,10 +54,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     setDraftConfig({
       language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
       theme: themeMode || THEME_MODES.SYSTEM,
-      autoImport: settings.autoImport ?? true,
-      deviceNames: {},
-      configurationKeys: {},
-      doorPinCodes: {}
+      autoImport: settings.autoImport ?? true
     });
   }, [settings, themeMode]);
 
