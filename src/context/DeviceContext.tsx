@@ -212,7 +212,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             role: UserRole.Admin, // Default role for locally discovered devices
             sync_status: 'created',
             last_connected_at: Date.now(),
-            la_poste_activated: false // Default to false
+            la_poste_activated: false,
+            auto_sync: true
           });
 
           // Initialize secrets (auto-fill for simulator)

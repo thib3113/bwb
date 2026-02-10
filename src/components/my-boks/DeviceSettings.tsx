@@ -34,6 +34,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const [deviceName, setDeviceName] = useState(activeDevice?.friendly_name || '');
   const [configurationKey, setConfigurationKey] = useState(activeDevice?.configuration_key || '');
   const [doorPinCode, setDoorPinCode] = useState(activeDevice?.door_pin_code || '');
+  const [autoSync, setAutoSync] = useState(activeDevice?.auto_sync ?? false);
 
   // Sync state with activeDevice changes (e.g. after loading from DB)
   React.useEffect(() => {
@@ -41,6 +42,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       setDeviceName(activeDevice.friendly_name || '');
       setConfigurationKey(activeDevice.configuration_key || '');
       setDoorPinCode(activeDevice.door_pin_code || '');
+      setAutoSync(activeDevice.auto_sync ?? false);
     }
   }, [activeDevice]);
 
@@ -94,6 +96,20 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       .replace(/[^0-9A-F]/g, '');
     const finalValue = sanitized.slice(-8);
     setConfigurationKey(finalValue);
+  };
+
+  const handleAutoSyncChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked;
+    setAutoSync(checked);
+    if (activeDevice) {
+      try {
+        await updateDeviceDetails(deviceId, {
+          auto_sync: checked
+        });
+      } catch (error) {
+        console.error('Failed to update auto sync:', error);
+      }
+    }
   };
 
   const handleDoorPinCodeChange = (value: string) => {
@@ -173,6 +189,10 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
               }}
             />
 
+            <FormControlLabel
+              control={<Switch checked={autoSync} onChange={handleAutoSyncChange} />}
+              label={t('settings:device_auto_sync')}
+            />
             {/* La Poste Activation - Only for HW 4.0 and SW >= 4.2.0 */}
             {activeDevice.hardware_version === '4.0' &&
               activeDevice.software_revision &&

@@ -7,6 +7,7 @@
     "dark": "Sombre"
   },
   "auto_import": "Synchronisation automatique (Logs et Codes)",
+    "device_auto_sync": "Synchronisation automatique (Logs et Codes)",
   "configuration_key": {
     "label": "Clé de configuration",
     "helper": "Utilisée pour les opérations sensibles"

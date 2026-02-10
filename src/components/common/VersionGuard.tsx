@@ -18,8 +18,7 @@ export const VersionGuard = () => {
 
   // Check Hardware Version (Must be mapped if firmware is present)
   // Logic: If we have a firmware revision (meaning we read it), we MUST have a mapped hardware version.
-  const isUnknownHardware =
-    activeDevice.firmware_revision && !activeDevice.hardware_version;
+  const isUnknownHardware = activeDevice.firmware_revision && !activeDevice.hardware_version;
 
   if (!isOldSoftware && !isUnknownHardware) return null;
 
@@ -74,11 +73,7 @@ export const VersionGuard = () => {
         >
           {title}
         </Typography>
-        <Typography
-          data-testid="version-guard-message"
-          variant="body1"
-          color="text.secondary"
-        >
+        <Typography data-testid="version-guard-message" variant="body1" color="text.secondary">
           {message}
         </Typography>
       </Paper>

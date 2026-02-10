@@ -14,6 +14,7 @@ export interface BoksDevice {
   friendly_name: string;
   configuration_key?: string; // configuration Key. If present, user is Admin.
   door_pin_code?: string;
+  auto_sync?: boolean;
   role: UserRole;
   sync_status: SyncStatus;
   last_connected_at?: number;
@@ -111,7 +112,6 @@ export interface BoksLog {
 }
 
 export interface Settings {
-  autoImport: boolean;
   lastActiveDeviceId?: string;
   language?: string;
   theme?: string;
@@ -202,7 +202,6 @@ export interface ExportData {
   version?: number;
   timestamp?: string;
   settings: {
-    autoImport: boolean;
     language: string;
     theme: string;
   };
@@ -211,6 +210,7 @@ export interface ExportData {
     name: string;
     configuration_key?: string;
     door_pin_code?: string;
+    auto_sync?: boolean;
   }[];
   codes: Array<Partial<BoksCode> & { deviceId: string }>;
 }
