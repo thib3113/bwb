@@ -5,6 +5,7 @@ import { SettingsModal } from '../settings/SettingsModal';
 import { useError } from '../../hooks/useError';
 import { Outlet } from 'react-router-dom';
 import { SettingsConfig } from '../settings/types';
+import { VersionGuard } from '../common/VersionGuard';
 
 interface MainLayoutProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -29,6 +30,9 @@ export const MainLayout = ({ showNotification, hideNotification }: MainLayoutPro
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {/* Version Guard Overlay */}
+      <VersionGuard />
+
       {/* Header */}
       <Header
         onSettingsClick={() => setShowSettings(true)}

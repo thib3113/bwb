@@ -40,3 +40,5 @@ export const SNACKBAR_SEVERITY = {
   INFO: 'info',
   WARNING: 'warning'
 } as const;
+
+export const MIN_FIRMWARE_VERSION = "4.1.14"
