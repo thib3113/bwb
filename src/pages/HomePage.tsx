@@ -4,11 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDevice } from '../hooks/useDevice';
 import { OnboardingView } from '../components/layout/OnboardingView';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import {
-  ListAlt as LogIcon,
-  Settings as SettingsIcon,
-  VpnKey as VpnKeyIcon
-} from '@mui/icons-material';
+import { ListAlt as LogIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
 
 interface OutletContextType {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -26,7 +22,6 @@ export const HomePage = () => {
   // Determine active tab based on current location
   const getActiveTab = () => {
     if (location.pathname.endsWith('/logs')) return 1;
-    if (location.pathname.endsWith('/settings')) return 2;
     return 0; // default to codes tab
   };
 
@@ -44,11 +39,9 @@ export const HomePage = () => {
       case 1:
         navigate('/logs');
         break;
-      case 2:
-        navigate('/settings');
-        break;
       default:
         navigate('/codes');
+        break;
     }
   };
 
@@ -83,11 +76,6 @@ export const HomePage = () => {
           icon={<VpnKeyIcon />}
         />
         <BottomNavigationAction data-testid="nav-logs" label={t('logs:title')} icon={<LogIcon />} />
-        <BottomNavigationAction
-          data-testid="nav-settings"
-          label={t('settings:title')}
-          icon={<SettingsIcon />}
-        />
       </BottomNavigation>
     </Box>
   );

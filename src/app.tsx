@@ -169,23 +169,23 @@ export function App() {
     }
 
     if (isChrome()) {
-        return (
-            <Box data-testid="chrome-compatibility-message">
-              <Typography variant="body1" component="p">
-                {t('common:web_ble_not_supported_message')}
-              </Typography>
-              <Typography variant="body2" component="p" sx={{ mt: 1, color: 'text.secondary' }}>
-                {t('common:web_ble_not_supported.chrome_update')}
-              </Typography>
-            </Box>
-        );
+      return (
+        <Box data-testid="chrome-compatibility-message">
+          <Typography variant="body1" component="p">
+            {t('common:web_ble_not_supported_message')}
+          </Typography>
+          <Typography variant="body2" component="p" sx={{ mt: 1, color: 'text.secondary' }}>
+            {t('common:web_ble_not_supported.chrome_update')}
+          </Typography>
+        </Box>
+      );
     }
 
     // Default for Firefox, Safari Desktop, etc.
     return (
-        <Typography data-testid="generic-compatibility-message" variant="body1" component="p">
-            {t('common:web_ble_not_supported_message')}
-        </Typography>
+      <Typography data-testid="generic-compatibility-message" variant="body1" component="p">
+        {t('common:web_ble_not_supported_message')}
+      </Typography>
     );
   };
 
@@ -210,6 +210,14 @@ export function App() {
               <Route path="/maintenance" element={<MaintenancePage />} />
               <Route path="/developer" element={<DeveloperPage />} />
               <Route path="/update" element={<DfuUpdatePage />} />
+              <Route
+                path="/settings"
+                element={
+                  <Suspense fallback={<LoadingFallback />}>
+                    <SettingsContentWrapper />
+                  </Suspense>
+                }
+              />
               <Route path="/" element={<HomePage />}>
                 <Route index element={<Navigate to="/codes" replace />} />
                 <Route
@@ -228,14 +236,6 @@ export function App() {
                     </Suspense>
                   }
                 />
-                <Route
-                  path="settings"
-                  element={
-                    <Suspense fallback={<LoadingFallback />}>
-                      <SettingsContentWrapper />
-                    </Suspense>
-                  }
-                />
               </Route>
             </Route>
             {/* Catch-all route for unknown paths */}
@@ -243,7 +243,10 @@ export function App() {
           </Routes>
         </Suspense>
       ) : (
-        <Paper data-testid="web-ble-not-supported-card" sx={{ textAlign: 'center', p: 4, m: 2, color: 'error.main' }}>
+        <Paper
+          data-testid="web-ble-not-supported-card"
+          sx={{ textAlign: 'center', p: 4, m: 2, color: 'error.main' }}
+        >
           <Typography variant="h5" component="h1" gutterBottom>
             {t('common:web_ble_not_supported_title')}
           </Typography>

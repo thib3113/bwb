@@ -28,15 +28,14 @@ interface SettingsContentProps {
 }
 
 export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsContentProps) => {
-  const { settings, updateSetting } = useSettings();
+  const { settings } = useSettings();
   const { mode: themeMode, setThemeMode } = useTheme();
   const { t } = useTranslation(['common', 'settings']);
 
   // Draft state for settings
   const [draftConfig, setDraftConfig] = useState<SettingsConfig>({
     language: LANGUAGES.EN,
-    theme: THEME_MODES.SYSTEM,
-    autoImport: false
+    theme: THEME_MODES.SYSTEM
   });
 
   // State for import/export functionality
@@ -53,8 +52,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
   useEffect(() => {
     setDraftConfig({
       language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
-      theme: themeMode || THEME_MODES.SYSTEM,
-      autoImport: settings.autoImport ?? true
+      theme: themeMode || THEME_MODES.SYSTEM
     });
   }, [settings, themeMode]);
 
@@ -72,16 +70,6 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     }));
   };
 
-  const handleAutoImportChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.checked;
-    setDraftConfig((prev) => ({
-      ...prev,
-      autoImport: value
-    }));
-    // Instant update for this specific setting
-    updateSetting('autoImport', value);
-  };
-
   const handleSave = useCallback(() => {
     // Apply language changes
     i18n.changeLanguage(draftConfig.language);
@@ -90,12 +78,11 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     setThemeMode(draftConfig.theme);
 
     // Update settings
-    updateSetting('autoImport', draftConfig.autoImport);
 
     if (onSave) {
       onSave(draftConfig);
     }
-  }, [draftConfig, setThemeMode, updateSetting, onSave]);
+  }, [draftConfig, setThemeMode, onSave]);
 
   // Listen for mobile save event
   useEffect(() => {
@@ -119,7 +106,6 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       // Prepare export data structure
       const exportData: ExportData = {
         settings: {
-          autoImport: settings.autoImport || false,
           language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
           theme: themeMode || THEME_MODES.SYSTEM
         },
@@ -151,7 +137,8 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
           id: device.id,
           name: device.friendly_name,
           configuration_key: secrets?.configuration_key,
-          door_pin_code: device.door_pin_code
+          door_pin_code: device.door_pin_code,
+          auto_sync: device.auto_sync
         });
 
         exportData.codes.push(
@@ -196,13 +183,12 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       }
 
       // Import settings
+      let globalAutoImport;
       if (importData.settings) {
-        const { autoImport, language, theme } = importData.settings;
+        const { language, theme } = importData.settings;
+        globalAutoImport = importData.settings.autoImport;
 
         // Update global settings
-        if (autoImport !== undefined) {
-          updateSetting('autoImport', autoImport);
-        }
 
         // Update language if different
         if (language && language !== i18n.language) {
@@ -214,7 +200,6 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
           setThemeMode(theme);
         }
       }
-
       // Import devices and codes
       for (const device of importData.devices) {
         // Check if device already exists using UUID primary key
@@ -228,7 +213,8 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
             friendly_name: device.name || `Imported Boks ${device.id.substring(0, 8)}`,
             last_connected_at: Date.now(),
             role: UserRole.Reader, // Default role for imported device if not specified
-            sync_status: 'synced'
+            sync_status: 'synced',
+            auto_sync: device.auto_sync ?? globalAutoImport ?? true
           });
 
           // Restore secrets if available
@@ -242,12 +228,12 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
           // Restore door pin code if available
           if (device.door_pin_code) {
             await db.devices.update(device.id, {
-              door_pin_code: device.door_pin_code
+              door_pin_code: device.door_pin_code,
+              auto_sync: device.auto_sync
             });
           }
         }
       }
-
       // Import codes for each device
       for (const code of importData.codes) {
         if (code.deviceId) {
@@ -300,10 +286,8 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       <SettingsGeneral
         language={draftConfig.language}
         theme={draftConfig.theme}
-        autoImport={draftConfig.autoImport ?? true}
         onLanguageChange={handleLanguageChange}
         onThemeChange={handleThemeChange}
-        onAutoImportChange={handleAutoImportChange}
       />
 
       <SettingsCommunity />

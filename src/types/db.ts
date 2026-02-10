@@ -37,6 +37,7 @@ export interface BoksDevice {
 
   // Configuration
   la_poste_activated?: boolean;
+  auto_sync?: boolean;
 }
 
 export interface DeviceSecrets {

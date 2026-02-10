@@ -6,7 +6,8 @@
     "light": "Light",
     "dark": "Dark"
   },
-  "auto_import": "Auto-Sync (Logs & Codes)",
+  "auto_import": "Auto-Sync (Logs "auto_import": "Auto-Sync (Logs & Codes)", Codes)",
+    "device_auto_sync": "Auto-sync logs & codes",
   "configuration_key": {
     "label": "Configuration Key",
     "helper": "Used for sensitive operations"

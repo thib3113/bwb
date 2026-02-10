@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBLEEvents } from '../hooks/useBLEEvents';
 import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
@@ -7,7 +7,7 @@ import { parseLog } from '../utils/logParser';
 import { useBLE } from '../hooks/useBLE';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BoksLog } from '../types';
-import { DeviceLogContext, SettingsContext } from './Contexts';
+import { DeviceLogContext } from './Contexts';
 import { GetLogsCountPacket } from '../ble/packets/GetLogsCountPacket';
 import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 
@@ -15,7 +15,6 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
   const { activeDevice, refreshCodeCount } = useDevice();
   const { addListener, removeListener } = useBLEEvents();
-  const settingsContext = useContext(SettingsContext);
 
   const { sendRequest, log, isConnected } = useBLE();
 
@@ -26,6 +25,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const hasAutoSyncedRef = useRef(false);
 
   // Check if we are in Simulator Mode
+  const autoSyncEnabled = activeDevice?.auto_sync ?? true;
   const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
 
   // Global listener for log counts (can be spontaneous or requested)
@@ -186,15 +186,9 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [activeDevice, addListener, removeListener, sendRequest, log, isSimulator]);
-
   // Auto-import logs on connection if enabled
   useEffect(() => {
-    if (
-      isConnected &&
-      activeDevice &&
-      settingsContext?.settings.autoImport &&
-      !hasAutoSyncedRef.current
-    ) {
+    if (isConnected && activeDevice && autoSyncEnabled && !hasAutoSyncedRef.current) {
       // Optimized sequence: Codes first (triggers 0x14 -> 0x79 implicit), then Logs
       const timer = setTimeout(async () => {
         try {
@@ -222,13 +216,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [
-    isConnected,
-    activeDevice,
-    requestLogs,
-    refreshCodeCount,
-    settingsContext?.settings.autoImport
-  ]);
+  }, [isConnected, activeDevice, requestLogs, refreshCodeCount, autoSyncEnabled]);
 
   // Reset sync ref on disconnect
   useEffect(() => {

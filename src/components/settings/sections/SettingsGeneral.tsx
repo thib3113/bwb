@@ -1,24 +1,19 @@
 import React from 'react';
-import { FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, THEME_MODES } from '../../../utils/constants';
 
 interface SettingsGeneralProps {
   language: string;
   theme: string;
-  autoImport: boolean;
   onLanguageChange: (value: string) => void;
   onThemeChange: (value: string) => void;
-  onAutoImportChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
   language,
   theme,
-  autoImport,
   onLanguageChange,
-  onThemeChange,
-  onAutoImportChange
+  onThemeChange
 }) => {
   const { t } = useTranslation(['common', 'settings']);
 
@@ -47,11 +42,6 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
           <MenuItem value={THEME_MODES.DARK}>{t('settings:theme.dark')}</MenuItem>
         </Select>
       </FormControl>
-      <FormControlLabel
-        control={<Switch checked={autoImport} onChange={onAutoImportChange} color="primary" />}
-        label={t('settings:auto_import')}
-        sx={{ mt: 2, mb: 1 }}
-      />
     </>
   );
 };

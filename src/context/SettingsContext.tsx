@@ -8,20 +8,14 @@ interface SettingsProviderProps {
 }
 
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
-  const [settings, setSettings] = useState<Settings>({
-    autoImport: true
-  });
+  const [settings, setSettings] = useState<Settings>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load settings from DB on init
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const autoImportValue = await StorageService.getSetting('autoImport');
-
-        setSettings({
-          autoImport: (autoImportValue as boolean) ?? true
-        });
+        setSettings({});
         setIsLoaded(true);
       } catch (e) {
         console.error('Failed to load settings from DB', e);
