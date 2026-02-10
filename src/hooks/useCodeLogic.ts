@@ -1,3 +1,4 @@
+import { BLEOpcode } from '../utils/bleConstants';
 import { useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
@@ -95,10 +96,22 @@ export const useCodeLogic = (
       if (!logs || logs.length === 0) return {};
 
       if (code.type === CODE_TYPE.MASTER) {
-        // ... (Logic for master logs remains if needed, but master codes aren't usually 'used' once)
-        // But maybe 'lastUsed' is useful for Master codes too
-        // Find the most recent log entry for this master code index
-        // TODO: Improve this with proper Opcode checks
+        // Find the most recent log entry for this master code
+        const lastUsageLog = logs.find(
+          (log) =>
+            (log.opcode === BLEOpcode.LOG_CODE_BLE_VALID_HISTORY ||
+              log.opcode === BLEOpcode.LOG_CODE_KEY_VALID_HISTORY) &&
+            log.data?.code === code.code
+        );
+
+        if (lastUsageLog) {
+          const usedDate = new Date(lastUsageLog.timestamp);
+          return {
+            used: false,
+            usedDate: usedDate,
+            lastUsed: usedDate
+          };
+        }
       } else if (code.type === CODE_TYPE.SINGLE) {
         // Fallback for single use
         // ...
