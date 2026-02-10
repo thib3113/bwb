@@ -25,7 +25,7 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const hasAutoSyncedRef = useRef(false);
 
   // Check if we are in Simulator Mode
-  const autoSyncEnabled = activeDevice?.auto_sync ?? true;
+  const autoSyncEnabled = activeDevice?.auto_sync ?? false;
   const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
 
   // Global listener for log counts (can be spontaneous or requested)

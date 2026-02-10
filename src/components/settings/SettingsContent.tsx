@@ -214,7 +214,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
             last_connected_at: Date.now(),
             role: UserRole.Reader, // Default role for imported device if not specified
             sync_status: 'synced',
-            auto_sync: device.auto_sync ?? globalAutoImport ?? true
+            auto_sync: device.auto_sync ?? globalAutoImport ?? false
           });
 
           // Restore secrets if available

@@ -34,7 +34,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const [deviceName, setDeviceName] = useState(activeDevice?.friendly_name || '');
   const [configurationKey, setConfigurationKey] = useState(activeDevice?.configuration_key || '');
   const [doorPinCode, setDoorPinCode] = useState(activeDevice?.door_pin_code || '');
-  const [autoSync, setAutoSync] = useState(activeDevice?.auto_sync ?? true);
+  const [autoSync, setAutoSync] = useState(activeDevice?.auto_sync ?? false);
 
   // Sync state with activeDevice changes (e.g. after loading from DB)
   React.useEffect(() => {
@@ -42,7 +42,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       setDeviceName(activeDevice.friendly_name || '');
       setConfigurationKey(activeDevice.configuration_key || '');
       setDoorPinCode(activeDevice.door_pin_code || '');
-      setAutoSync(activeDevice.auto_sync ?? true);
+      setAutoSync(activeDevice.auto_sync ?? false);
     }
   }, [activeDevice]);
 
