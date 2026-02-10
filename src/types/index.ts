@@ -34,7 +34,6 @@ export interface BoksDevice {
   firmware_revision?: string;
   software_revision?: string;
   la_poste_activated?: boolean;
-  auto_sync?: boolean;
 }
 
 export interface BoksCode {
