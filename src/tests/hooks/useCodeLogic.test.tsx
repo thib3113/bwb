@@ -7,7 +7,8 @@ import { db } from '../../db/db';
 import { APP_DEFAULTS } from '../../utils/constants';
 import { CODE_STATUS } from '../../constants/codeStatus';
 import { BLEContext, DeviceContext, LogContext, TaskContext } from '../../context/Contexts';
-import { BoksDevice, CODE_TYPE, UserRole } from '../../types';
+import { BoksDevice, CODE_TYPE, UserRole, BoksCode } from '../../types';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 // Mock dependencies BEFORE imports
 vi.mock('react-i18next', () => ({
@@ -201,4 +202,85 @@ describe('useCodeLogic', () => {
       { timeout: 2000 }
     );
   });
+
+  it('should correctly identify last usage of master code from logs', async () => {
+    const now = new Date();
+    const older = new Date(now.getTime() - 100000);
+    const newer = new Date(now.getTime() - 50000);
+
+    // Add master code
+    const masterCode: BoksCode = {
+      id: 'm_test',
+      device_id: activeDevice.id,
+      type: CODE_TYPE.MASTER,
+      code: '999999',
+      name: 'Test Master',
+      status: CODE_STATUS.ON_DEVICE,
+      created_at: older.toISOString(),
+      author_id: APP_DEFAULTS.AUTHOR_ID,
+      sync_status: 'synced'
+    };
+
+    await db.codes.add(masterCode);
+
+    // Add logs
+    await db.logs.bulkAdd([
+      {
+        id: 'log1',
+        device_id: activeDevice.id,
+        timestamp: older.getTime(),
+        opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY, // 0x86
+        payload: new Uint8Array([]),
+        raw: new Uint8Array([]),
+        data: { code: '999999' },
+        event: 'CODE_BLE_VALID',
+        type: 'info',
+        synced: true,
+        updated_at: Date.now()
+      },
+      {
+        id: 'log2',
+        device_id: activeDevice.id,
+        timestamp: newer.getTime(),
+        opcode: BLEOpcode.LOG_CODE_KEY_VALID_HISTORY, // 0x87
+        payload: new Uint8Array([]),
+        raw: new Uint8Array([]),
+        data: { code: '999999' },
+        event: 'CODE_KEY_VALID',
+        type: 'info',
+        synced: true,
+        updated_at: Date.now()
+      },
+      {
+        id: 'log3',
+        device_id: activeDevice.id,
+        timestamp: newer.getTime() + 1000,
+        opcode: BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
+        payload: new Uint8Array([]),
+        raw: new Uint8Array([]),
+        data: { code: 'OTHER' }, // Different code
+        event: 'CODE_BLE_VALID',
+        type: 'info',
+        synced: true,
+        updated_at: Date.now()
+      }
+    ]);
+
+    const { result } = renderHook(() => useCodeLogic(mockShowNotification, mockHideNotification), {
+      wrapper
+    });
+
+    await waitFor(() => {
+        // Wait for logs to be loaded
+        if (result.current.logs.length === 0) throw new Error('Logs not loaded yet');
+
+        // We can pass our code object to deriveCodeMetadata
+        const metadata = result.current.deriveCodeMetadata(masterCode as any);
+
+        expect(metadata.lastUsed).toBeDefined();
+        expect(metadata.lastUsed?.getTime()).toBe(newer.getTime());
+        expect(metadata.used).toBe(false);
+    }, { timeout: 2000 });
+  });
+
 });
