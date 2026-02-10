@@ -86,8 +86,8 @@ The `DeviceContext` will evolve from a simple state holder to a robust manager o
 
 ## 4. Todo List
 
-- [ ] Refactor `DeviceContext.jsx`
-- [ ] Update `ConfigurationModal.jsx`
-- [ ] Update `Header.jsx`
-- [ ] Verify `useBLE` integration
+- [x] Refactor `DeviceContext.jsx`
+- [x] Update `ConfigurationModal.jsx` (Cancelled: Device settings moved to "My Boks" section)
+- [x] Update `Header.jsx`
+- [x] Verify `useBLE` integration
 - [ ] Test Offline Switching
