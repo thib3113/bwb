@@ -7,7 +7,7 @@ import { db } from '../../db/db';
 import { APP_DEFAULTS } from '../../utils/constants';
 import { CODE_STATUS } from '../../constants/codeStatus';
 import { BLEContext, DeviceContext, LogContext, TaskContext } from '../../context/Contexts';
-import { BoksDevice, CODE_TYPE, UserRole } from '../../types';
+import { BoksDevice, CODE_TYPE, UserRole, BoksCode } from '../../types';
 import { BLEOpcode } from '../../utils/bleConstants';
 
 // Mock dependencies BEFORE imports
@@ -209,7 +209,7 @@ describe('useCodeLogic', () => {
     const newer = new Date(now.getTime() - 50000);
 
     // Add master code
-    const masterCode = {
+    const masterCode: BoksCode = {
       id: 'm_test',
       device_id: activeDevice.id,
       type: CODE_TYPE.MASTER,
