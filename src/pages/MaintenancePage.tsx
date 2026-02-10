@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Alert,
   Box,
@@ -14,7 +14,7 @@ import {
   Paper,
   Typography
 } from '@mui/material';
-import { PlayArrow } from '@mui/icons-material';
+import { PlayArrow, Stop } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { useDevice } from '../hooks/useDevice';
@@ -50,6 +50,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { activeDevice } = useDevice(); // To check if connected/config key exists
+  const stopRequested = useRef(false);
 
   const handleRun = async () => {
     // Basic checks
@@ -69,6 +70,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
     setProgress(0);
     setLogs([]);
     setError(null);
+    stopRequested.current = false;
 
     const log = (msg: string) => setLogs((prev) => [...prev.slice(-4), msg]); // Keep last 5 logs
 
@@ -78,7 +80,9 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           setProgress,
           log,
           checkStop: () => {
-            // Stop functionality not implemented yet
+            if (stopRequested.current) {
+              throw new Error('STOPPED_BY_USER');
+            }
           },
           t
         },
@@ -89,8 +93,12 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
     } catch (err: unknown) {
       console.error(err);
       const msg = err instanceof Error ? err.message : String(err);
-      setError(t('status.error', { message: msg }));
-      log(t('status.error', { message: msg }));
+      if (msg === 'STOPPED_BY_USER') {
+        log(t('status.stopped_user'));
+      } else {
+        setError(t('status.error', { message: msg }));
+        log(t('status.error', { message: msg }));
+      }
     } finally {
       setRunning(false);
     }
@@ -140,15 +148,23 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
         )}
       </CardContent>
       <CardActions>
-        <Button
-          size="small"
-          variant="contained"
-          startIcon={<PlayArrow />}
-          onClick={handleRun}
-          disabled={running}
-        >
-          {t('run')}
-        </Button>
+        {!running ? (
+          <Button size="small" variant="contained" startIcon={<PlayArrow />} onClick={handleRun}>
+            {t('run')}
+          </Button>
+        ) : (
+          <Button
+            size="small"
+            variant="contained"
+            color="error"
+            startIcon={<Stop />}
+            onClick={() => {
+              stopRequested.current = true;
+            }}
+          >
+            {t('stop')}
+          </Button>
+        )}
       </CardActions>
     </Card>
   );

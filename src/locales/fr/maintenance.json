@@ -23,5 +23,6 @@
     "error_index": "L'index {{index}} a renvoyé une erreur (Vide ?), on continue."
   },
   "run": "Lancer",
+  "stop": "Arrêter",
   "progress": "{{percent}}%"
 }
