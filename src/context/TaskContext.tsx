@@ -374,15 +374,14 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
     // Auto Sync Check
     if (!autoSync && !manualSyncRequestId) {
-        // Check for urgent tasks (Unlock/Lock)
-        const hasUrgentTasks = pendingTasks.some(t =>
-            t.type === TaskType.UNLOCK_DOOR ||
-            t.type === TaskType.LOCK_DOOR
-        );
+      // Check for urgent tasks (Unlock/Lock)
+      const hasUrgentTasks = pendingTasks.some(
+        (t) => t.type === TaskType.UNLOCK_DOOR || t.type === TaskType.LOCK_DOOR
+      );
 
-        if (!hasUrgentTasks) {
-            return;
-        }
+      if (!hasUrgentTasks) {
+        return;
+      }
     }
 
     const processNextTask = async () => {
@@ -447,17 +446,21 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
         // Double check urgency if we bypassed the early return
         if (!autoSync && !manualSyncRequestId) {
-           if (nextTask && nextTask.type !== TaskType.UNLOCK_DOOR && nextTask.type !== TaskType.LOCK_DOOR) {
-               // If the first task is NOT urgent, but we had some urgent task in the list,
-               // we should probably prioritize the urgent one?
-               // But our sort function sorts by priority. Urgent tasks (priority 0?) should be first.
-               // Check priority assignment:
-               // UNLOCK_DOOR priority? Not set in typical usage, default?
-               // Let's assume the user doesn't queue Unlock commands offline typically.
-               // But if they did, we should let it through.
-               // If nextTask is not urgent, we skip it.
-               return;
-           }
+          if (
+            nextTask &&
+            nextTask.type !== TaskType.UNLOCK_DOOR &&
+            nextTask.type !== TaskType.LOCK_DOOR
+          ) {
+            // If the first task is NOT urgent, but we had some urgent task in the list,
+            // we should probably prioritize the urgent one?
+            // But our sort function sorts by priority. Urgent tasks (priority 0?) should be first.
+            // Check priority assignment:
+            // UNLOCK_DOOR priority? Not set in typical usage, default?
+            // Let's assume the user doesn't queue Unlock commands offline typically.
+            // But if they did, we should let it through.
+            // If nextTask is not urgent, we skip it.
+            return;
+          }
         }
 
         if (nextTask) {
@@ -468,7 +471,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       } catch (err) {
         console.error('[TaskContext] Task processing error:', err);
         // Wait 2s before processing next task to flush any late responses
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } finally {
         isProcessingRef.current = false;
         // Check if there are more pending tasks to decide if we should clear isProcessing
