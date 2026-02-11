@@ -14,9 +14,11 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SyncIcon from '@mui/icons-material/Sync';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { CodeList } from './CodeList';
+import { useTaskContext } from '../../hooks/useTaskContext';
 
 interface CodeManagerProps {
   showAddForm?: boolean;
@@ -33,11 +35,15 @@ export const CodeManager = ({
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
+  const { tasks, syncTasks } = useTaskContext();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['permanent', 'temporary'])
   ); // 'permanent', 'temporary'
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
+
+  const autoSync = activeDevice?.auto_sync ?? false;
+  const pendingCount = tasks.filter((t) => t.status === 'pending' && t.deviceId === activeDevice?.id).length;
 
   const {
     masterCodes,
@@ -65,6 +71,18 @@ export const CodeManager = ({
           {t('title')} {codeCount && `(Total: ${codeCount.total})`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          {!autoSync && pendingCount > 0 && (
+            <Button
+              variant="contained"
+              color="warning"
+              startIcon={<SyncIcon />}
+              onClick={syncTasks}
+              size="small"
+              sx={{ mr: 1 }}
+            >
+              {t('sync_pending', { count: pendingCount })}
+            </Button>
+          )}
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}

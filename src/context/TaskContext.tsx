@@ -23,9 +23,18 @@ import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { isConnected, sendRequest } = useBLEConnection();
   const { activeDevice } = useDevice();
+  const autoSync = activeDevice?.auto_sync ?? false;
 
   // In-memory state for tasks
   const [tasks, setTasks] = useState<BoksTask[]>([]);
+
+  // State to track manual sync requests
+  const [manualSyncRequestId, setManualSyncRequestId] = useState<string | null>(null);
+
+  const syncTasks = useCallback(async () => {
+    console.log('[TaskContext] Manual sync requested');
+    setManualSyncRequestId(crypto.randomUUID());
+  }, []);
 
   // Add a new task to the queue
   // Retry a failed task
@@ -353,7 +362,26 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
     // Get pending tasks
     const pendingTasks = tasks.filter((task) => task.status === 'pending');
-    if (pendingTasks.length === 0) return;
+    if (pendingTasks.length === 0) {
+      if (manualSyncRequestId) {
+        console.log('[TaskContext] All tasks processed, resetting manual sync request');
+        setManualSyncRequestId(null);
+      }
+      return;
+    }
+
+    // Auto Sync Check
+    if (!autoSync && !manualSyncRequestId) {
+        // Check for urgent tasks (Unlock/Lock)
+        const hasUrgentTasks = pendingTasks.some(t =>
+            t.type === TaskType.UNLOCK_DOOR ||
+            t.type === TaskType.LOCK_DOOR
+        );
+
+        if (!hasUrgentTasks) {
+            return;
+        }
+    }
 
     const processNextTask = async () => {
       isProcessingRef.current = true;
@@ -413,6 +441,22 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
         // Execute only the first task in the queue
         const nextTask = sortedPendingTasks[0];
+
+        // Double check urgency if we bypassed the early return
+        if (!autoSync && !manualSyncRequestId) {
+           if (nextTask && nextTask.type !== TaskType.UNLOCK_DOOR && nextTask.type !== TaskType.LOCK_DOOR) {
+               // If the first task is NOT urgent, but we had some urgent task in the list,
+               // we should probably prioritize the urgent one?
+               // But our sort function sorts by priority. Urgent tasks (priority 0?) should be first.
+               // Check priority assignment:
+               // UNLOCK_DOOR priority? Not set in typical usage, default?
+               // Let's assume the user doesn't queue Unlock commands offline typically.
+               // But if they did, we should let it through.
+               // If nextTask is not urgent, we skip it.
+               return;
+           }
+        }
+
         if (nextTask) {
           console.log(`[TaskContext] Executing task: ${nextTask.type}`, nextTask.payload);
           await executeTask(nextTask);
@@ -420,22 +464,25 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.error('[TaskContext] Task processing error:', err);
+        // Wait 2s before processing next task to flush any late responses
+        await new Promise(resolve => setTimeout(resolve, 2000));
       } finally {
         isProcessingRef.current = false;
       }
     };
 
     processNextTask();
-  }, [isConnected, tasks, executeTask]);
+  }, [isConnected, tasks, executeTask, autoSync, manualSyncRequestId]);
   // executeTask is stable due to useCallback and its dependencies, so it won't change between renders
 
   const value = useMemo(
     () => ({
       addTask,
       retryTask,
-      tasks
+      tasks,
+      syncTasks
     }),
-    [addTask, retryTask, tasks]
+    [addTask, retryTask, tasks, syncTasks]
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

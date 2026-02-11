@@ -77,7 +77,7 @@ describe('TaskContext Race Condition', () => {
     (DeviceHook.useDevice as unknown as Mock).mockReturnValue({
       activeDevice: {
         id: 'test-device',
-        configuration_key: '12345678'
+        configuration_key: '12345678', auto_sync: true
       }
     });
   });
