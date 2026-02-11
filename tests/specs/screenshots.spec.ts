@@ -10,22 +10,44 @@ test.describe('Screenshots', () => {
       timeout: 30000
     });
 
-    // 2. Inject Mock Data (Offline Device + Codes)
+    // 2. Navigate to Codes FIRST
+    const nav = page.getByTestId('main-nav');
+    await expect(nav).toBeVisible({ timeout: 10000 });
+
+    const codesTab = page.getByTestId('nav-codes');
+    await expect(codesTab).toBeVisible();
+    await codesTab.click();
+
+    // Ensure we are on the page
+    await expect(page.locator('.MuiList-root').first()).toBeVisible();
+
+    // 3. Inject Mock Data (Offline Device + Codes) - Injecting while on page triggers reactivity
     await page.evaluate(async () => {
       const boksDebug = (window as any).boksDebug;
       const StorageService = boksDebug.StorageService;
       const db = boksDebug.db;
 
-      // Ensure a device exists (Offline)
-      let deviceId = 'OFFLINE-DEVICE-001';
-      await db.devices.put({
-        id: deviceId,
-        ble_name: 'Boks Offline',
-        friendly_name: 'Ma Boks (Hors Ligne)',
-        role: 'owner',
-        sync_status: 'synced',
-        updated_at: Date.now() - 86400000 // 1 day ago
-      });
+      // Dynamic Device Fetching
+      const devices = await db.devices.toArray();
+      const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
+
+      let deviceId = device ? device.id : 'OFFLINE-DEVICE-001';
+
+      if (!device) {
+          await db.devices.put({
+            id: deviceId,
+            ble_name: 'Boks Offline',
+            friendly_name: 'Ma Boks (Hors Ligne)',
+            role: 'owner',
+            sync_status: 'synced',
+            updated_at: Date.now() - 86400000 // 1 day ago
+          });
+      } else {
+          console.log('Using existing device:', deviceId);
+      }
+
+      // Force active device selection just in case
+      localStorage.setItem('lastActiveDeviceId', deviceId);
 
       // Clear existing codes for this device
       await db.codes.where('device_id').equals(deviceId).delete();
@@ -149,34 +171,14 @@ test.describe('Screenshots', () => {
       ];
 
       await StorageService.saveCodes(deviceId, codes);
-      console.log('Mock codes injected for offline device ' + deviceId);
-
-      // Force active device selection
-      localStorage.setItem('lastActiveDeviceId', deviceId);
+      console.log('Mock codes injected for device ' + deviceId);
     });
 
-    // Reload to pick up the new active device if needed, or navigate
-    await page.reload();
-    await page.waitForFunction(() => (window as any).boksSimulator, null, { timeout: 30000 });
-
-    // 3. Go to Codes Tab
-    // Wait for nav to be visible first
-    const nav = page.getByTestId('main-nav');
-    await expect(nav).toBeVisible({ timeout: 10000 });
-
-    const codesTab = page.getByTestId('nav-codes');
-    await expect(codesTab).toBeVisible();
-    await codesTab.click();
-
-    // 4. Verify Content
-    // Use first list locator if multiple exist (to satisfy strict mode)
-    // and wait for ANY text content to be safe
-    await expect(page.locator('.MuiList-root').first()).toBeVisible();
-
-    // Fallback: Check for ANY of the expected texts, not strict on which one appears first
-    // This reduces flakiness if sorting changes
-    await expect(page.locator('body')).toContainText('Code Maître', { timeout: 15000 });
-    await expect(page.locator('body')).toContainText('Livreur');
+    // 4. Verify Content using Data Test IDs
+    // Since we injected data while the component was mounted, useLiveQuery should update immediately.
+    await expect(page.getByTestId('code-item-123456')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('code-item-987654')).toBeVisible();
+    await expect(page.getByTestId('code-item-555333')).toBeVisible();
 
     // 5. Screenshot
     await page.screenshot({ path: 'test-results/screenshots/codes-offline.png', fullPage: true });
