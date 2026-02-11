@@ -149,25 +149,30 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 onChange={(e) => setCode(e.currentTarget.value.trim().toUpperCase())}
                 fullWidth
                 type={showCode ? 'text' : 'password'}
-                slotProps={{
-                  htmlInput: { maxLength: 6 },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle code visibility"
-                          onClick={() => setShowCode(!showCode)}
-                          edge="end"
-                          size="small"
-                        >
-                          {showCode ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }
+                inputProps={{
+                  maxLength: 6,
+                  'data-testid': 'code-pin-input'
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle code visibility"
+                        onClick={() => setShowCode(!showCode)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showCode ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
                 }}
               />
-              <IconButton onClick={() => setCode(generateCode())} aria-label={t('generate')}>
+              <IconButton
+                onClick={() => setCode(generateCode())}
+                aria-label={t('generate')}
+                data-testid="generate-code-button"
+              >
                 <CachedIcon />
               </IconButton>
             </Box>
@@ -176,6 +181,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
               value={name}
               onChange={(e) => setName(e.currentTarget.value)}
               placeholder={t('description_placeholder')}
+              inputProps={{ 'data-testid': 'code-name-input' }}
               fullWidth
               required
             />
@@ -185,6 +191,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 value={type}
                 onChange={(e) => setType((e.target as HTMLInputElement).value as CODE_TYPE)}
                 label={t('type_label')}
+                data-testid="code-type-select"
               >
                 {/* Master code availability logic:
                  * If Admin: Can ONLY create Master Code IF configurationKey is present
@@ -205,8 +212,10 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 onChange={(e) => setIndex(parseInt(e.currentTarget.value) || 0)}
                 fullWidth
                 disabled={!isAdmin} // If User (Non-Admin): Cannot edit Index (hide it or disable it)
-                slotProps={{
-                  htmlInput: { min: 0, max: 255 }
+                inputProps={{
+                  min: 0,
+                  max: 255,
+                  'data-testid': 'code-index-input'
                 }}
               />
             )}
@@ -217,8 +226,10 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 value={uses}
                 onChange={(e) => setUses(parseInt(e.currentTarget.value) || 1)}
                 fullWidth
-                slotProps={{
-                  htmlInput: { min: 1, max: 3 }
+                inputProps={{
+                  min: 1,
+                  max: 3,
+                  'data-testid': 'code-uses-input'
                 }}
               />
             )}
@@ -239,7 +250,6 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
           </Button>
         </DialogActions>
       </Dialog>
-      {/* Removed Overwrite Confirmation Dialog */}
     </>
   );
 };
