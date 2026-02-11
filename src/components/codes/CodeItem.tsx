@@ -38,6 +38,8 @@ export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemP
   return (
     <ListItem
       divider
+      data-testid={`code-item-${code.code}`}
+      data-status={code.status}
       sx={{
         opacity: isDimmed ? 0.6 : 1,
         backgroundColor: isDimmed ? 'action.selected' : 'inherit',
@@ -79,12 +81,22 @@ export const CodeItem = ({ code, metadata, onCopy, onEdit, onDelete }: CodeItemP
         </Tooltip>
 
         <Tooltip title={t('edit_description')}>
-          <IconButton edge="end" aria-label="edit" onClick={() => onEdit(code)}>
+          <IconButton
+            edge="end"
+            aria-label="edit"
+            onClick={() => onEdit(code)}
+            data-testid={`edit-code-${code.code}`}
+          >
             <EditIcon />
           </IconButton>
         </Tooltip>
 
-        <IconButton edge="end" aria-label="delete" onClick={() => onDelete(code.id)}>
+        <IconButton
+          edge="end"
+          aria-label="delete"
+          onClick={() => onDelete(code.id)}
+          data-testid={`delete-code-${code.code}`}
+        >
           <DeleteIcon />
         </IconButton>
       </ListItemSecondaryAction>
