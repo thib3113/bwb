@@ -15,7 +15,7 @@ const mockTasks: BoksTask[] = [];
 
 // Wrapper to provide the mocked context
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <TaskContext.Provider value={{ addTask: mockAddTask, tasks: mockTasks, retryTask: vi.fn() }}>
+  <TaskContext.Provider value={{ addTask: mockAddTask, tasks: mockTasks, retryTask: vi.fn(), syncTasks: vi.fn() }}>
     {children}
   </TaskContext.Provider>
 );

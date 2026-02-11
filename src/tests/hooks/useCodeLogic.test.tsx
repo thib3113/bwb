@@ -115,7 +115,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
           value={{
             addTask: mockAddTask,
             tasks: [],
-            retryTask: vi.fn()
+            retryTask: vi.fn(), syncTasks: vi.fn()
           }}
         >
           {children}
