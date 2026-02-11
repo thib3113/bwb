@@ -27,6 +27,7 @@ export const LogItem = ({ log }: LogItemProps) => {
             const detailsWithoutAgeAndTimestamp = { ...log.details };
             delete detailsWithoutAgeAndTimestamp['age'];
             delete detailsWithoutAgeAndTimestamp['timestamp'];
+            delete detailsWithoutAgeAndTimestamp['opcode'];
             const hasOtherDetails = Object.keys(detailsWithoutAgeAndTimestamp).length > 0;
 
             return hasOtherDetails ? (
@@ -56,6 +57,7 @@ export const LogItem = ({ log }: LogItemProps) => {
                     delete combinedDetails['age'];
                     // Also remove 'timestamp' field from details as requested
                     delete combinedDetails['timestamp'];
+                    delete combinedDetails['opcode'];
 
                     return Object.entries(combinedDetails).map(([key, value]) => (
                       <TableRow key={key}>
