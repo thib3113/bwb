@@ -7,14 +7,15 @@ export interface ParsedLog extends BoksLog {
   details: Record<string, unknown>;
 }
 
-/**
- * Parses a single log entry
- */
+export interface ParseLogOptions {
+  preserveTimestamp?: boolean;
+}
+
 /**
  * Parses a single log entry.
  * Note: If payload/raw are missing, it provides minimal info.
  */
-export function parseLog(log: Partial<BoksLog>): ParsedLog {
+export function parseLog(log: Partial<BoksLog>, options?: ParseLogOptions): ParsedLog {
   const opcode = log.opcode ?? 0;
   const payload = log.payload ?? new Uint8Array(0);
   const raw = log.raw ?? new Uint8Array(0);
@@ -34,10 +35,16 @@ export function parseLog(log: Partial<BoksLog>): ParsedLog {
   };
 
   if (isLogPayload(payloadInstance)) {
+    // If preserveTimestamp is true and we have a timestamp in the input log, use it.
+    // Otherwise use the recalculated timestamp from payloadInstance (based on age).
+    const timestampToUse = (options?.preserveTimestamp && log.timestamp)
+      ? String(log.timestamp)
+      : payloadInstance.timestamp;
+
     return {
       ...baseLog,
       eventType: payloadInstance.constructor.name.replace('LogPayload', '').toLowerCase(),
-      timestamp: payloadInstance.timestamp,
+      timestamp: timestampToUse,
       description: payloadInstance.description,
       details: payloadInstance.toDetails()
     };
@@ -55,6 +62,6 @@ export function parseLog(log: Partial<BoksLog>): ParsedLog {
 /**
  * Parses multiple log entries
  */
-export function parseLogs(logs: BoksLog[]): ParsedLog[] {
-  return logs.map(parseLog);
+export function parseLogs(logs: BoksLog[], options?: ParseLogOptions): ParsedLog[] {
+  return logs.map((log) => parseLog(log, options));
 }

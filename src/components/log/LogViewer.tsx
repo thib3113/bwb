@@ -78,33 +78,35 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
 
     try {
       console.log(`[LogViewer] Starting parseLogs with ${logs.length} logs`);
-      const parsed: ParsedLogDisplay[] = parseLogs(logs).map((parsedLog) => {
-        const date = new Date(parsedLog.timestamp);
-        const fullDate = date.toLocaleString(i18n.language);
+      const parsed: ParsedLogDisplay[] = parseLogs(logs, { preserveTimestamp: true }).map(
+        (parsedLog) => {
+          const date = new Date(parsedLog.timestamp);
+          const fullDate = date.toLocaleString(i18n.language);
 
-        // Map NFC details if available
-        const details = { ...parsedLog.details };
-        if (typeof details.tag_uid === 'string') {
-          // 1. Map UID to Name
-          const tag = nfcTags?.find((t) => t.uid === details.tag_uid);
-          if (tag) {
-            details.tag_uid = `${tag.name} (${details.tag_uid})`;
+          // Map NFC details if available
+          const details = { ...parsedLog.details };
+          if (typeof details.tag_uid === 'string') {
+            // 1. Map UID to Name
+            const tag = nfcTags?.find((t) => t.uid === details.tag_uid);
+            if (tag) {
+              details.tag_uid = `${tag.name} (${details.tag_uid})`;
+            }
+
+            // 2. Map Tag Type to localized string
+            if (details.tag_type !== undefined) {
+              // 1, 2, 3 -> localized string
+              details.tag_type = t(`nfc_tag_types.${details.tag_type}`);
+            }
           }
 
-          // 2. Map Tag Type to localized string
-          if (details.tag_type !== undefined) {
-            // 1, 2, 3 -> localized string
-            details.tag_type = t(`nfc_tag_types.${details.tag_type}`);
-          }
+          return {
+            ...parsedLog,
+            details,
+            fullDate,
+            event: t(parsedLog.description)
+          };
         }
-
-        return {
-          ...parsedLog,
-          details,
-          fullDate,
-          event: t(parsedLog.description)
-        };
-      });
+      );
 
       console.log(`[LogViewer] Parsing finished. parsedLogs: ${parsed.length}`, parsed);
       return parsed;
