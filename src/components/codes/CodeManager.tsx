@@ -41,9 +41,11 @@ export const CodeManager = ({
     new Set(['permanent', 'temporary'])
   ); // 'permanent', 'temporary'
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const autoSync = activeDevice?.auto_sync ?? false;
   const pendingCount = tasks.filter((t) => t.status === 'pending' && t.deviceId === activeDevice?.id).length;
+  const shouldShowSyncButton = !autoSync && pendingCount > 0;
 
   const {
     masterCodes,
@@ -64,6 +66,26 @@ export const CodeManager = ({
     setIsAddDialogOpen(true);
   }, []);
 
+  const handleRefreshOrSync = async () => {
+    setIsRefreshing(true);
+    try {
+      if (shouldShowSyncButton) {
+        // Trigger sync first
+        await syncTasks();
+        // Give it a moment to process or just refresh count immediately?
+        // Task processing is async in background.
+        // We can wait a bit or just refresh count.
+        // If we refresh count immediately, it might not reflect changes yet if tasks are slow.
+        // But user sees something happening.
+      }
+      await refreshCodeCount();
+    } catch (error) {
+      console.error('Failed to refresh/sync:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -71,25 +93,17 @@ export const CodeManager = ({
           {t('title')} {codeCount && `(Total: ${codeCount.total})`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          {!autoSync && pendingCount > 0 && (
-            <Button
-              variant="contained"
-              color="warning"
-              startIcon={<SyncIcon />}
-              onClick={syncTasks}
-              size="small"
-              sx={{ mr: 1 }}
-            >
-              {t('sync_pending', { count: pendingCount })}
-            </Button>
-          )}
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={refreshCodeCount}
+            variant={shouldShowSyncButton ? "contained" : "outlined"}
+            color={shouldShowSyncButton ? "warning" : "primary"}
+            startIcon={shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />}
+            onClick={handleRefreshOrSync}
+            disabled={isRefreshing}
             size="small"
           >
-            {t('refresh')}
+            {shouldShowSyncButton
+              ? t('sync_pending', { count: pendingCount })
+              : t('refresh')}
           </Button>
           <IconButton
             color="primary"
