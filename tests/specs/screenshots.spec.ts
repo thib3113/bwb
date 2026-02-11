@@ -27,11 +27,10 @@ test.describe('Screenshots', () => {
         const addBtn = page.getByTestId('add-code-button');
         await addBtn.click();
 
-        // Select type (Dropdown trigger is usually a div with role button or combobox)
+        // Select type
         const typeSelect = page.getByTestId('code-type-select');
         await typeSelect.click();
 
-        // Select Option using new testIDs
         if (type === 'master') {
             await page.getByTestId('option-master').click();
         } else {
@@ -45,7 +44,7 @@ test.describe('Screenshots', () => {
         // Save
         await page.getByTestId('save-code-button').click();
 
-        // Wait for it to appear using CodeItem testID (uses PIN code)
+        // Wait for it to appear
         await expect(page.getByTestId(`code-item-${code}`)).toBeVisible();
         await page.waitForTimeout(500);
     };
@@ -57,23 +56,13 @@ test.describe('Screenshots', () => {
     await createCode('single', '998877', 'Livreur (Synchronisé)');
 
     // 4. Go Offline
-    // Click header connection button to disconnect
+    // Click header connection button to disconnect.
+    // Logic in Header.tsx: if (isConnected) disconnect();
+    // It's a direct toggle, no dialog.
     await page.getByTestId('connection-button').click();
 
-    // Handle Disconnect Dialog if it appears (Checking for 'Confirm' or similar button)
-    // Assuming standard MUI dialog, usually primary button is confirm.
-    // Since we can't use text, we try to find the dialog action button.
-    // Or we assume the connection button toggles directly if not locked.
-    // If a dialog appears, it usually has role 'dialog'.
-    const dialog = page.getByRole('dialog');
-    if (await dialog.isVisible()) {
-        // Click the primary button in the dialog (usually the last button or confirm)
-        // This is a guess, but standard MUI confirms are usually "primary" buttons.
-        await dialog.getByRole('button').last().click();
-    }
-
     // Wait for "Disconnected" state
-    await expect(page.getByTestId('BluetoothDisabledIcon')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('status-icon-disconnected')).toBeVisible({ timeout: 5000 });
 
     // 5. Create "Pending" Codes (Offline)
 
@@ -84,7 +73,7 @@ test.describe('Screenshots', () => {
     const deleteBtn = page.getByTestId('delete-code-123456');
     await deleteBtn.click();
 
-    // Confirm delete dialog - same strategy, click primary button
+    // Confirm delete dialog - uses generic dialog structure
     const deleteDialog = page.getByRole('dialog');
     if (await deleteDialog.isVisible()) {
         await deleteDialog.getByRole('button').last().click();
@@ -112,14 +101,12 @@ test.describe('Screenshots', () => {
       const boksDebug = (window as any).boksDebug;
       const db = boksDebug.db;
 
-      // Find the connected simulator device
       const devices = await db.devices.toArray();
       const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
       const deviceId = device ? device.id : 'SIMULATOR-001';
 
       console.log('Injecting logs for online device:', deviceId);
 
-      // Clear existing logs
       await db.logs.where('device_id').equals(deviceId).delete();
 
       const now = Date.now();
@@ -203,7 +190,6 @@ test.describe('Screenshots', () => {
         }
       ];
 
-      // Add logs directly to DB
       await db.logs.bulkAdd(logs);
       console.log('Mock logs injected.');
     });
