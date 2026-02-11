@@ -27,6 +27,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   // In-memory state for tasks
   const [tasks, setTasks] = useState<BoksTask[]>([]);
+  // Exposed processing state
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // State to track manual sync requests
   const [manualSyncRequestId, setManualSyncRequestId] = useState<string | null>(null);
@@ -344,7 +346,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     [sendRequest, activeDevice?.id, activeDevice?.configuration_key, activeDevice?.door_pin_code]
   );
 
-  // Ref for tracking processing state
+  // Ref for tracking processing state to avoid duplicate execution
   const isProcessingRef = useRef(false);
 
   // Task runner - processes pending tasks when connected
@@ -385,6 +387,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
     const processNextTask = async () => {
       isProcessingRef.current = true;
+      setIsProcessing(true); // Signal start of processing cycle
       try {
         // Get the actual list of pending tasks again within the async function
         const currentPendingTasks = tasks.filter((task) => task.status === 'pending');
@@ -468,6 +471,26 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         await new Promise(resolve => setTimeout(resolve, 2000));
       } finally {
         isProcessingRef.current = false;
+        // Check if there are more pending tasks to decide if we should clear isProcessing
+        // Actually, since this Effect runs on state change, if there are pending tasks, it will run again.
+        // So we can check if there are no pending tasks left to clear state?
+        // Or simply clear it here, and the next iteration (if any) will set it back to true.
+        // However, this might cause flicker.
+        // Let's rely on the Effect re-triggering. If no pending tasks, Effect runs -> finds 0 pending -> returns.
+        // We need to set isProcessing to false when the queue is empty.
+
+        // But we are inside the async function. The effect dependency 'tasks' will change when executeTask calls setTasks.
+        // So the Effect will re-run.
+        // If we set isProcessing(false) here, it might flicker true/false between tasks.
+        // But 'isProcessing' is mainly for UI feedback.
+        // A better approach: Set isProcessing = true if pending > 0.
+        // But we already have logic for that in the Effect start.
+
+        // Let's check remaining tasks
+        // We can't see the *future* state here easily.
+        // But we can just set it to false here. If the loop continues, it sets it to true immediately?
+        // React batching might help.
+        setIsProcessing(false);
       }
     };
 
@@ -480,9 +503,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       addTask,
       retryTask,
       tasks,
-      syncTasks
+      syncTasks,
+      isProcessing
     }),
-    [addTask, retryTask, tasks, syncTasks]
+    [addTask, retryTask, tasks, syncTasks, isProcessing]
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

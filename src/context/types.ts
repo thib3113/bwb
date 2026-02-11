@@ -140,6 +140,7 @@ export interface TaskContextType {
   retryTask: (taskId: string) => void;
   tasks: BoksTask[];
   syncTasks: () => Promise<void>;
+  isProcessing: boolean;
 }
 
 export interface ThemeContextType {

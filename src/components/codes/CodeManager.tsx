@@ -20,6 +20,7 @@ import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { CodeList } from './CodeList';
 import { useTaskContext } from '../../hooks/useTaskContext';
 import { useBLEConnection } from '../../hooks/useBLEConnection';
+import { useDeviceLogContext } from '../../hooks/useDeviceLogContext';
 
 interface CodeManagerProps {
   showAddForm?: boolean;
@@ -48,18 +49,21 @@ export const CodeManager = ({
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
-  const { tasks, syncTasks } = useTaskContext();
+  const { tasks, syncTasks, isProcessing } = useTaskContext();
+  const { isSyncingLogs } = useDeviceLogContext();
   const { isConnected } = useBLEConnection();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['permanent', 'temporary'])
   ); // 'permanent', 'temporary'
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const autoSync = activeDevice?.auto_sync ?? false;
   const pendingCount = tasks.filter((t) => t.status === 'pending' && t.deviceId === activeDevice?.id).length;
   const shouldShowSyncButton = !autoSync && pendingCount > 0;
+
+  // Combine process states
+  const isBusy = isProcessing || isSyncingLogs;
 
   const {
     masterCodes,
@@ -81,22 +85,19 @@ export const CodeManager = ({
   }, []);
 
   const handleRefreshOrSync = async () => {
-    setIsRefreshing(true);
     try {
       if (shouldShowSyncButton) {
-        // Trigger sync first
+        // Trigger sync tasks
         await syncTasks();
       }
       await refreshCodeCount();
     } catch (error) {
       console.error('Failed to refresh/sync:', error);
-    } finally {
-      setIsRefreshing(false);
     }
   };
 
   const getButtonIcon = () => {
-    if (isRefreshing) {
+    if (isBusy) {
       // Spinning icon
       return shouldShowSyncButton ? <SyncIcon sx={spinAnimation} /> : <RefreshIcon sx={spinAnimation} />;
     }
@@ -116,7 +117,7 @@ export const CodeManager = ({
             color={shouldShowSyncButton ? "warning" : "primary"}
             startIcon={getButtonIcon()}
             onClick={handleRefreshOrSync}
-            disabled={!isConnected || isRefreshing}
+            disabled={!isConnected || isBusy}
             size="small"
           >
             {shouldShowSyncButton
