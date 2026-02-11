@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Avatar,
@@ -72,17 +72,6 @@ export const NfcTagsTab = () => {
       }
     }
   };
-
-  // Auto-set default name when UID found
-  useEffect(() => {
-    if (scannedUid && !tagName) {
-      const defaultName = `Badge ${scannedUid.substring(0, 5)}`;
-      if (tagName !== defaultName) {
-        setTagName(defaultName);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scannedUid]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -193,6 +182,7 @@ export const NfcTagsTab = () => {
                     fullWidth
                     value={tagName}
                     onChange={(e) => setTagName((e.target as HTMLInputElement).value)}
+                    required
                   />
                 </Box>
               )}
@@ -208,7 +198,7 @@ export const NfcTagsTab = () => {
             </Button>
           ) : null}
           {(scanStatus === NfcScanStatus.FOUND || scanStatus === NfcScanStatus.ERROR_EXISTS) && (
-            <Button onClick={handleRegister} variant="contained" disabled={!tagName}>
+            <Button onClick={handleRegister} variant="contained" disabled={!tagName.trim()}>
               {t('settings:nfc.add_tag')}
             </Button>
           )}
