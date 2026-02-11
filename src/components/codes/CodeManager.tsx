@@ -14,9 +14,13 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SyncIcon from '@mui/icons-material/Sync';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { CodeList } from './CodeList';
+import { useTaskContext } from '../../hooks/useTaskContext';
+import { useBLEConnection } from '../../hooks/useBLEConnection';
+import { useDeviceLogContext } from '../../hooks/useDeviceLogContext';
 
 interface CodeManagerProps {
   showAddForm?: boolean;
@@ -24,6 +28,18 @@ interface CodeManagerProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
   hideNotification: () => void;
 }
+
+const spinAnimation = {
+  animation: 'spin 1s linear infinite',
+  '@keyframes spin': {
+    '0%': {
+      transform: 'rotate(0deg)',
+    },
+    '100%': {
+      transform: 'rotate(360deg)',
+    },
+  },
+};
 
 export const CodeManager = ({
   showAddForm,
@@ -33,11 +49,21 @@ export const CodeManager = ({
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
+  const { tasks, syncTasks, isProcessing } = useTaskContext();
+  const { isSyncingLogs } = useDeviceLogContext();
+  const { isConnected } = useBLEConnection();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['permanent', 'temporary'])
   ); // 'permanent', 'temporary'
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
+
+  const autoSync = activeDevice?.auto_sync ?? false;
+  const pendingCount = tasks.filter((t) => t.status === 'pending' && t.deviceId === activeDevice?.id).length;
+  const shouldShowSyncButton = !autoSync && pendingCount > 0;
+
+  // Combine process states
+  const isBusy = isProcessing || isSyncingLogs;
 
   const {
     masterCodes,
@@ -58,6 +84,27 @@ export const CodeManager = ({
     setIsAddDialogOpen(true);
   }, []);
 
+  const handleRefreshOrSync = async () => {
+    try {
+      if (shouldShowSyncButton) {
+        // Trigger sync tasks
+        await syncTasks();
+      }
+      await refreshCodeCount();
+    } catch (error) {
+      console.error('Failed to refresh/sync:', error);
+    }
+  };
+
+  const getButtonIcon = () => {
+    if (isBusy) {
+      // Spinning icon
+      return shouldShowSyncButton ? <SyncIcon sx={spinAnimation} /> : <RefreshIcon sx={spinAnimation} />;
+    }
+    // Static icon
+    return shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />;
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -66,12 +113,16 @@ export const CodeManager = ({
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={refreshCodeCount}
+            variant={shouldShowSyncButton ? "contained" : "outlined"}
+            color={shouldShowSyncButton ? "warning" : "primary"}
+            startIcon={getButtonIcon()}
+            onClick={handleRefreshOrSync}
+            disabled={!isConnected || isBusy}
             size="small"
           >
-            {t('refresh')}
+            {shouldShowSyncButton
+              ? t('sync_pending', { count: pendingCount })
+              : t('refresh')}
           </Button>
           <IconButton
             color="primary"

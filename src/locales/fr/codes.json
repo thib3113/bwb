@@ -38,6 +38,7 @@
   "edit_description": "Modifier la description",
   "confirm_overwrite": "L'index {{index}} est déjà utilisé. Remplacer ?",
   "pending_add": "Ajout en attente de synchronisation",
+  "sync_pending": "Synchroniser ({{count}})",
   "config_key_missing": "Clé de configuration manquante. Le code sera enregistré localement à titre informatif uniquement.",
   "not_connected": "Non connecté",
   "added": "Code ajouté avec succès",

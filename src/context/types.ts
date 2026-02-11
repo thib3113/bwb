@@ -139,6 +139,8 @@ export interface TaskContextType {
   addTask: (task: Omit<BoksTask, 'id' | 'createdAt' | 'attempts' | 'status'>) => void;
   retryTask: (taskId: string) => void;
   tasks: BoksTask[];
+  syncTasks: () => Promise<void>;
+  isProcessing: boolean;
 }
 
 export interface ThemeContextType {

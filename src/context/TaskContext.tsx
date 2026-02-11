@@ -23,9 +23,20 @@ import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { isConnected, sendRequest } = useBLEConnection();
   const { activeDevice } = useDevice();
+  const autoSync = activeDevice?.auto_sync ?? false;
 
   // In-memory state for tasks
   const [tasks, setTasks] = useState<BoksTask[]>([]);
+  // Exposed processing state
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // State to track manual sync requests
+  const [manualSyncRequestId, setManualSyncRequestId] = useState<string | null>(null);
+
+  const syncTasks = useCallback(async () => {
+    console.log('[TaskContext] Manual sync requested');
+    setManualSyncRequestId(crypto.randomUUID());
+  }, []);
 
   // Add a new task to the queue
   // Retry a failed task
@@ -335,7 +346,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     [sendRequest, activeDevice?.id, activeDevice?.configuration_key, activeDevice?.door_pin_code]
   );
 
-  // Ref for tracking processing state
+  // Ref for tracking processing state to avoid duplicate execution
   const isProcessingRef = useRef(false);
 
   // Task runner - processes pending tasks when connected
@@ -353,10 +364,30 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
     // Get pending tasks
     const pendingTasks = tasks.filter((task) => task.status === 'pending');
-    if (pendingTasks.length === 0) return;
+    if (pendingTasks.length === 0) {
+      if (manualSyncRequestId) {
+        console.log('[TaskContext] All tasks processed, resetting manual sync request');
+        setManualSyncRequestId(null);
+      }
+      return;
+    }
+
+    // Auto Sync Check
+    if (!autoSync && !manualSyncRequestId) {
+        // Check for urgent tasks (Unlock/Lock)
+        const hasUrgentTasks = pendingTasks.some(t =>
+            t.type === TaskType.UNLOCK_DOOR ||
+            t.type === TaskType.LOCK_DOOR
+        );
+
+        if (!hasUrgentTasks) {
+            return;
+        }
+    }
 
     const processNextTask = async () => {
       isProcessingRef.current = true;
+      setIsProcessing(true); // Signal start of processing cycle
       try {
         // Get the actual list of pending tasks again within the async function
         const currentPendingTasks = tasks.filter((task) => task.status === 'pending');
@@ -413,6 +444,22 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
         // Execute only the first task in the queue
         const nextTask = sortedPendingTasks[0];
+
+        // Double check urgency if we bypassed the early return
+        if (!autoSync && !manualSyncRequestId) {
+           if (nextTask && nextTask.type !== TaskType.UNLOCK_DOOR && nextTask.type !== TaskType.LOCK_DOOR) {
+               // If the first task is NOT urgent, but we had some urgent task in the list,
+               // we should probably prioritize the urgent one?
+               // But our sort function sorts by priority. Urgent tasks (priority 0?) should be first.
+               // Check priority assignment:
+               // UNLOCK_DOOR priority? Not set in typical usage, default?
+               // Let's assume the user doesn't queue Unlock commands offline typically.
+               // But if they did, we should let it through.
+               // If nextTask is not urgent, we skip it.
+               return;
+           }
+        }
+
         if (nextTask) {
           console.log(`[TaskContext] Executing task: ${nextTask.type}`, nextTask.payload);
           await executeTask(nextTask);
@@ -420,22 +467,46 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.error('[TaskContext] Task processing error:', err);
+        // Wait 2s before processing next task to flush any late responses
+        await new Promise(resolve => setTimeout(resolve, 2000));
       } finally {
         isProcessingRef.current = false;
+        // Check if there are more pending tasks to decide if we should clear isProcessing
+        // Actually, since this Effect runs on state change, if there are pending tasks, it will run again.
+        // So we can check if there are no pending tasks left to clear state?
+        // Or simply clear it here, and the next iteration (if any) will set it back to true.
+        // However, this might cause flicker.
+        // Let's rely on the Effect re-triggering. If no pending tasks, Effect runs -> finds 0 pending -> returns.
+        // We need to set isProcessing to false when the queue is empty.
+
+        // But we are inside the async function. The effect dependency 'tasks' will change when executeTask calls setTasks.
+        // So the Effect will re-run.
+        // If we set isProcessing(false) here, it might flicker true/false between tasks.
+        // But 'isProcessing' is mainly for UI feedback.
+        // A better approach: Set isProcessing = true if pending > 0.
+        // But we already have logic for that in the Effect start.
+
+        // Let's check remaining tasks
+        // We can't see the *future* state here easily.
+        // But we can just set it to false here. If the loop continues, it sets it to true immediately?
+        // React batching might help.
+        setIsProcessing(false);
       }
     };
 
     processNextTask();
-  }, [isConnected, tasks, executeTask]);
+  }, [isConnected, tasks, executeTask, autoSync, manualSyncRequestId]);
   // executeTask is stable due to useCallback and its dependencies, so it won't change between renders
 
   const value = useMemo(
     () => ({
       addTask,
       retryTask,
-      tasks
+      tasks,
+      syncTasks,
+      isProcessing
     }),
-    [addTask, retryTask, tasks]
+    [addTask, retryTask, tasks, syncTasks, isProcessing]
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

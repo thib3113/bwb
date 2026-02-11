@@ -38,6 +38,7 @@
   "edit_description": "Edit Description",
   "confirm_overwrite": "Index {{index}} is already used. Overwrite?",
   "pending_add": "Pending synchronization",
+  "sync_pending": "Sync ({{count}})",
   "config_key_missing": "Configuration Key missing. Code will be saved locally for info only.",
   "not_connected": "Not connected",
   "added": "Code added successfully",
