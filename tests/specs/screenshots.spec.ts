@@ -1,186 +1,96 @@
 import { expect, test } from '../fixtures';
 
 test.describe('Screenshots', () => {
-  test('Capture Codes Screen (Offline)', async ({ page }) => {
-    // 1. Initial Setup
+  test('Capture Codes Screen (Offline)', async ({ page, simulator }) => {
+    // 1. Initial Setup & Connect
     await page.goto('/');
 
-    // Wait for simulator controller (ensure app loaded)
-    await page.waitForFunction(() => (window as any).boksSimulator, null, {
-      timeout: 30000
-    });
+    // Wait for simulator to be ready
+    await page.waitForFunction(() => (window as any).boksSimulator, null, { timeout: 30000 });
 
-    // 2. Navigate to Codes FIRST
+    // Connect to Simulator (Online)
+    await simulator.connect();
+
+    // 2. Navigate to Codes
     const nav = page.getByTestId('main-nav');
-    await expect(nav).toBeVisible({ timeout: 10000 });
+    await expect(nav).toBeVisible({ timeout: 15000 });
 
     const codesTab = page.getByTestId('nav-codes');
     await expect(codesTab).toBeVisible();
     await codesTab.click();
 
-    // Ensure we are on the page
-    await expect(page.locator('.MuiList-root').first()).toBeVisible();
+    // 3. Create "Synced" Codes (Online)
 
-    // 3. Inject Mock Data (Offline Device + Codes) - Injecting while on page triggers reactivity
-    await page.evaluate(async () => {
-      const boksDebug = (window as any).boksDebug;
-      const StorageService = boksDebug.StorageService;
-      const db = boksDebug.db;
+    // Helper to create a code
+    const createCode = async (type: 'master' | 'single', code: string, name: string) => {
+        // Open Add Dialog
+        const addBtn = page.getByTestId('add-code-button');
+        await addBtn.click();
 
-      // Dynamic Device Fetching
-      const devices = await db.devices.toArray();
-      const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
+        // Select type (Dropdown trigger is usually a div with role button or combobox)
+        const typeSelect = page.getByTestId('code-type-select');
+        await typeSelect.click();
 
-      let deviceId = device ? device.id : 'OFFLINE-DEVICE-001';
-
-      if (!device) {
-          await db.devices.put({
-            id: deviceId,
-            ble_name: 'Boks Offline',
-            friendly_name: 'Ma Boks (Hors Ligne)',
-            role: 'owner',
-            sync_status: 'synced',
-            updated_at: Date.now() - 86400000 // 1 day ago
-          });
-      } else {
-          console.log('Using existing device:', deviceId);
-      }
-
-      // Force active device selection just in case
-      localStorage.setItem('lastActiveDeviceId', deviceId);
-
-      // Clear existing codes for this device
-      await db.codes.where('device_id').equals(deviceId).delete();
-
-      // Create Codes with diverse statuses
-      const codes = [
-        // Master Codes
-        {
-          id: 'master-active',
-          device_id: deviceId,
-          code: '123456',
-          type: 'master',
-          index: 0,
-          status: 'on_device',
-          name: 'Code Maître (Actif)',
-          created_at: new Date().toISOString(),
-          sync_status: 'synced'
-        },
-        {
-          id: 'master-pending-add',
-          device_id: deviceId,
-          code: '112233',
-          type: 'master',
-          index: 1,
-          status: 'pending_add',
-          name: 'Code Maître (Ajout en attente)',
-          created_at: new Date().toISOString(),
-          sync_status: 'created'
-        },
-        {
-          id: 'master-pending-delete',
-          device_id: deviceId,
-          code: '445566',
-          type: 'master',
-          index: 2,
-          status: 'pending_delete',
-          name: 'Code Maître (Suppression en attente)',
-          created_at: new Date().toISOString(),
-          sync_status: 'updated'
-        },
-
-        // Single Codes
-        {
-          id: 'single-active',
-          device_id: deviceId,
-          code: '998877',
-          type: 'single',
-          status: 'on_device',
-          name: 'Livreur (Actif)',
-          created_at: new Date().toISOString(),
-          sync_status: 'synced'
-        },
-        {
-          id: 'single-pending-add',
-          device_id: deviceId,
-          code: '987654',
-          type: 'single',
-          status: 'pending_add',
-          name: 'Livreur (Ajout en attente)',
-          created_at: new Date().toISOString(),
-          sync_status: 'created'
-        },
-        {
-          id: 'single-pending-delete',
-          device_id: deviceId,
-          code: '111222',
-          type: 'single',
-          status: 'pending_delete',
-          name: 'Livreur (Suppression en attente)',
-          created_at: new Date().toISOString(),
-          sync_status: 'updated'
-        },
-        {
-          id: 'single-used',
-          device_id: deviceId,
-          code: '333444',
-          type: 'single',
-          status: 'on_device',
-          usedAt: new Date(Date.now() - 3600000).toISOString(),
-          name: 'Livreur (Utilisé)',
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          sync_status: 'synced'
-        },
-
-        // Multi Codes
-        {
-          id: 'multi-active',
-          device_id: deviceId,
-          code: '555111',
-          type: 'multi',
-          status: 'on_device',
-          name: 'Femme de ménage (Actif)',
-          uses: 2,
-          maxUses: 10,
-          created_at: new Date().toISOString(),
-          sync_status: 'synced'
-        },
-        {
-          id: 'multi-pending-add',
-          device_id: deviceId,
-          code: '555222',
-          type: 'multi',
-          status: 'pending_add',
-          name: 'Jardinier (Ajout en attente)',
-          maxUses: 5,
-          created_at: new Date().toISOString(),
-          sync_status: 'created'
-        },
-        {
-          id: 'multi-pending-delete',
-          device_id: deviceId,
-          code: '555333',
-          type: 'multi',
-          status: 'pending_delete',
-          name: 'Nounou (Suppression en attente)',
-          uses: 9,
-          maxUses: 10,
-          created_at: new Date().toISOString(),
-          sync_status: 'updated'
+        // Select Option using new testIDs
+        if (type === 'master') {
+            await page.getByTestId('option-master').click();
+        } else {
+            await page.getByTestId('option-single').click();
         }
-      ];
 
-      await StorageService.saveCodes(deviceId, codes);
-      console.log('Mock codes injected for device ' + deviceId);
-    });
+        // Fill form
+        await page.getByTestId('code-name-input').fill(name);
+        await page.getByTestId('code-pin-input').fill(code);
 
-    // 4. Verify Content using Data Test IDs
-    // Since we injected data while the component was mounted, useLiveQuery should update immediately.
-    await expect(page.getByTestId('code-item-123456')).toBeVisible({ timeout: 20000 });
-    await expect(page.getByTestId('code-item-987654')).toBeVisible();
-    await expect(page.getByTestId('code-item-555333')).toBeVisible();
+        // Save
+        await page.getByTestId('save-code-button').click();
 
-    // 5. Screenshot
+        // Wait for it to appear using CodeItem testID (uses PIN code)
+        await expect(page.getByTestId(`code-item-${code}`)).toBeVisible();
+        await page.waitForTimeout(500);
+    };
+
+    // Create Master Code (will be deleted later)
+    await createCode('master', '123456', 'Code Maître (À supprimer)');
+
+    // Create Single Code (will stay synced)
+    await createCode('single', '998877', 'Livreur (Synchronisé)');
+
+    // 4. Go Offline
+    // Click header connection button to disconnect
+    await page.getByTestId('connection-button').click();
+
+    // Handle Disconnect Dialog if it appears (Checking for 'Confirm' or similar button)
+    // Assuming standard MUI dialog, usually primary button is confirm.
+    // Since we can't use text, we try to find the dialog action button.
+    // Or we assume the connection button toggles directly if not locked.
+    // If a dialog appears, it usually has role 'dialog'.
+    const dialog = page.getByRole('dialog');
+    if (await dialog.isVisible()) {
+        // Click the primary button in the dialog (usually the last button or confirm)
+        // This is a guess, but standard MUI confirms are usually "primary" buttons.
+        await dialog.getByRole('button').last().click();
+    }
+
+    // Wait for "Disconnected" state
+    await expect(page.getByTestId('BluetoothDisabledIcon')).toBeVisible({ timeout: 5000 });
+
+    // 5. Create "Pending" Codes (Offline)
+
+    // Create Single Code (Pending Add)
+    await createCode('single', '112233', 'Invité (En attente)');
+
+    // Delete Master Code (Pending Delete)
+    const deleteBtn = page.getByTestId('delete-code-123456');
+    await deleteBtn.click();
+
+    // Confirm delete dialog - same strategy, click primary button
+    const deleteDialog = page.getByRole('dialog');
+    if (await deleteDialog.isVisible()) {
+        await deleteDialog.getByRole('button').last().click();
+    }
+
+    // 6. Screenshot
     await page.screenshot({ path: 'test-results/screenshots/codes-offline.png', fullPage: true });
   });
 
@@ -188,16 +98,14 @@ test.describe('Screenshots', () => {
     // 1. Initial Setup
     await page.goto('/');
 
-    // Wait for simulator controller
-    await page.waitForFunction(() => (window as any).boksSimulator, null, {
-      timeout: 30000
-    });
+    // Wait for simulator
+    await page.waitForFunction(() => (window as any).boksSimulator, null, { timeout: 30000 });
 
-    // 2. Connect (Online)
+    // 2. Connect
     await simulator.connect();
 
-    // Wait for DB persistence
-    await page.waitForTimeout(2000);
+    // Wait for nav
+    await expect(page.getByTestId('main-nav')).toBeVisible({ timeout: 15000 });
 
     // 3. Inject Mock Data (Online Device + Logs)
     await page.evaluate(async () => {
@@ -206,7 +114,6 @@ test.describe('Screenshots', () => {
 
       // Find the connected simulator device
       const devices = await db.devices.toArray();
-      // Sort by updated_at descending to find the active one
       const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
       const deviceId = device ? device.id : 'SIMULATOR-001';
 
@@ -216,7 +123,6 @@ test.describe('Screenshots', () => {
       await db.logs.where('device_id').equals(deviceId).delete();
 
       const now = Date.now();
-      // Ensure timestamps are numbers, not strings, to avoid "Invalid Date"
       const logs = [
         {
           id: 'log-1',
@@ -224,7 +130,7 @@ test.describe('Screenshots', () => {
           timestamp: now,
           event: 'logs:events.ble_valid',
           type: 'info',
-          opcode: 0x86, // LOG_CODE_BLE_VALID_HISTORY
+          opcode: 0x86,
           payload: new Uint8Array([0, 0, 0]),
           synced: false,
           details: { code: '123456', macAddress: 'AA:BB:CC:DD:EE:FF' }
@@ -276,7 +182,7 @@ test.describe('Screenshots', () => {
         {
            id: 'log-6',
            device_id: deviceId,
-           timestamp: now - 1200000, // 20 mins ago
+           timestamp: now - 1200000,
            event: 'logs:events.door_open',
            type: 'info',
            opcode: 0x91,
@@ -287,7 +193,7 @@ test.describe('Screenshots', () => {
         {
            id: 'log-7',
            device_id: deviceId,
-           timestamp: now - 86400000, // 1 day ago
+           timestamp: now - 86400000,
            event: 'logs:events.ble_valid',
            type: 'info',
            opcode: 0x86,
@@ -302,10 +208,7 @@ test.describe('Screenshots', () => {
       console.log('Mock logs injected.');
     });
 
-    // 4. Go to Logs Tab
-    const nav = page.getByTestId('main-nav');
-    await expect(nav).toBeVisible({ timeout: 10000 });
-
+    // 4. Navigate to Logs
     const logsTab = page.getByTestId('nav-logs');
     if (await logsTab.isVisible()) {
         await logsTab.click();
@@ -314,20 +217,15 @@ test.describe('Screenshots', () => {
         await page.getByTestId('nav-logs').click();
     }
 
-    // 5. Verify Content & Interact
-    // Wait for at least one log entry
+    // 5. Verify & Expand
     const rows = page.locator('table tbody tr');
     await expect(rows.first()).toBeVisible({ timeout: 10000 });
 
-    // Expand the first log (it has details)
     const firstRow = rows.first();
     const expandBtn = firstRow.locator('button').last();
 
     if (await expandBtn.isVisible()) {
         await expandBtn.click();
-
-        // Wait for details to expand
-        // Use animation wait instead of element check to be safe
         await page.waitForTimeout(500);
     }
 
