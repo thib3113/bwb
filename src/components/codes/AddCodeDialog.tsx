@@ -177,6 +177,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
               onChange={(e) => setName(e.currentTarget.value)}
               placeholder={t('description_placeholder')}
               fullWidth
+              required
             />
             <FormControl fullWidth>
               <InputLabel>{t('type_label')}</InputLabel>
@@ -231,10 +232,8 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
             data-testid="save-code-button"
             startIcon={<AddIcon />}
             // Disable conditions
-            disabled={
-              (type === CODE_TYPE.MASTER && (!code || code.length !== 6)) ||
-              (type !== CODE_TYPE.MASTER && name.trim() === '')
-            }
+            // Name is mandatory for ALL code types now.
+            disabled={!code || code.length !== 6 || name.trim() === ''}
           >
             {editingCode ? t('save') : t('generate')}
           </Button>

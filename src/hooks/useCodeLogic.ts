@@ -225,7 +225,7 @@ export const useCodeLogic = (
           code: newCodeData.code,
           type: newCodeData.type,
           index: newCodeData.index,
-          name: newCodeData.name || newCodeData.description || 'Code', // Adapt legacy fields
+          name: newCodeData.name || newCodeData.description || '', // Adapt legacy fields
           created_at: new Date().toISOString(),
           status: CODE_STATUS.PENDING_ADD,
           device_id: activeDevice.id,
