@@ -49,16 +49,17 @@ test.describe('Screenshots', () => {
         await page.waitForTimeout(500);
     };
 
-    // Create Master Code (will be deleted later)
+    // Create Master Code (Pending Delete later)
     await createCode('master', '123456', 'Code Maître (À supprimer)');
+
+    // Create Master Code (Synced) - Requested Addition
+    await createCode('master', '789012', 'Code Maître (Synchronisé)');
 
     // Create Single Code (will stay synced)
     await createCode('single', '998877', 'Livreur (Synchronisé)');
 
     // 4. Go Offline
-    // Click header connection button to disconnect.
-    // Logic in Header.tsx: if (isConnected) disconnect();
-    // It's a direct toggle, no dialog.
+    // Click header connection button to disconnect
     await page.getByTestId('connection-button').click();
 
     // Wait for "Disconnected" state
@@ -69,11 +70,14 @@ test.describe('Screenshots', () => {
     // Create Single Code (Pending Add)
     await createCode('single', '112233', 'Invité (En attente)');
 
+    // Create Master Code (Pending Add) - Requested Addition
+    await createCode('master', '654321', 'Maître (En attente)');
+
     // Delete Master Code (Pending Delete)
     const deleteBtn = page.getByTestId('delete-code-123456');
     await deleteBtn.click();
 
-    // Confirm delete dialog - uses generic dialog structure
+    // Confirm delete dialog
     const deleteDialog = page.getByRole('dialog');
     if (await deleteDialog.isVisible()) {
         await deleteDialog.getByRole('button').last().click();
@@ -101,20 +105,23 @@ test.describe('Screenshots', () => {
       const boksDebug = (window as any).boksDebug;
       const db = boksDebug.db;
 
+      // Find the connected simulator device
       const devices = await db.devices.toArray();
       const device = devices.sort((a: any, b: any) => b.updated_at - a.updated_at)[0];
       const deviceId = device ? device.id : 'SIMULATOR-001';
 
       console.log('Injecting logs for online device:', deviceId);
 
+      // Clear existing logs
       await db.logs.where('device_id').equals(deviceId).delete();
 
-      const now = Date.now();
+      const now = new Date();
+      // Use ISO strings for timestamps to avoid "Invalid Date"
       const logs = [
         {
           id: 'log-1',
           device_id: deviceId,
-          timestamp: now,
+          timestamp: now.toISOString(),
           event: 'logs:events.ble_valid',
           type: 'info',
           opcode: 0x86,
@@ -125,7 +132,7 @@ test.describe('Screenshots', () => {
         {
           id: 'log-2',
           device_id: deviceId,
-          timestamp: now - 60000,
+          timestamp: new Date(now.getTime() - 60000).toISOString(),
           event: 'logs:events.key_valid',
           type: 'info',
           opcode: 0x87,
@@ -136,7 +143,7 @@ test.describe('Screenshots', () => {
         {
           id: 'log-3',
           device_id: deviceId,
-          timestamp: now - 120000,
+          timestamp: new Date(now.getTime() - 120000).toISOString(),
           event: 'logs:events.door_open',
           type: 'info',
           opcode: 0x91,
@@ -147,7 +154,7 @@ test.describe('Screenshots', () => {
         {
           id: 'log-4',
           device_id: deviceId,
-          timestamp: now - 300000,
+          timestamp: new Date(now.getTime() - 300000).toISOString(),
           event: 'logs:events.ble_invalid',
           type: 'warning',
           opcode: 0x88,
@@ -158,7 +165,7 @@ test.describe('Screenshots', () => {
         {
            id: 'log-5',
            device_id: deviceId,
-           timestamp: now - 600000,
+           timestamp: new Date(now.getTime() - 600000).toISOString(),
            event: 'logs:events.nfc_opening',
            type: 'info',
            opcode: 0xA1,
@@ -169,7 +176,7 @@ test.describe('Screenshots', () => {
         {
            id: 'log-6',
            device_id: deviceId,
-           timestamp: now - 1200000,
+           timestamp: new Date(now.getTime() - 1200000).toISOString(),
            event: 'logs:events.door_open',
            type: 'info',
            opcode: 0x91,
@@ -180,7 +187,7 @@ test.describe('Screenshots', () => {
         {
            id: 'log-7',
            device_id: deviceId,
-           timestamp: now - 86400000,
+           timestamp: new Date(now.getTime() - 86400000).toISOString(),
            event: 'logs:events.ble_valid',
            type: 'info',
            opcode: 0x86,
@@ -212,7 +219,8 @@ test.describe('Screenshots', () => {
 
     if (await expandBtn.isVisible()) {
         await expandBtn.click();
-        await page.waitForTimeout(500);
+        // Increased wait time for animation
+        await page.waitForTimeout(1000);
     }
 
     // 6. Screenshot
