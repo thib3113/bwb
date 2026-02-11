@@ -410,17 +410,11 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         )}
 
         {/* Connection Status & Battery */}
-        <Box
-          data-testid="connection-status-indicator"
-          sx={{ display: 'flex', alignItems: 'center', mr: 1 }}
-        >
-          {isConnected ? (
-            <Bluetooth data-testid="status-icon-connected" />
-          ) : (
-            <BluetoothDisabled data-testid="status-icon-disconnected" />
-          )}
-
-          {displayBatteryLevel !== undefined && (
+        {displayBatteryLevel !== undefined && (
+          <Box
+            data-testid="connection-status-indicator"
+            sx={{ display: 'flex', alignItems: 'center', mr: 1 }}
+          >
             <Tooltip title={t('battery_level', { level: displayBatteryLevel })}>
               <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.5 }}>
                 <Typography
@@ -439,8 +433,8 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
                 )}
               </Box>
             </Tooltip>
-          )}
-        </Box>
+          </Box>
+        )}
 
         {/* Open Door Button - always show, disabled when disconnected */}
         <Tooltip title={isConnected ? t('open_door') : t('connect_to_open_door')}>
@@ -493,9 +487,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
               invisible={pendingCodesCount === 0}
             >
               {isConnected ? (
-                <Bluetooth data-testid="bluetooth-connected-icon" />
+                <Bluetooth data-testid="status-icon-connected" />
               ) : (
-                <BluetoothDisabled data-testid="bluetooth-disabled-icon" />
+                <BluetoothDisabled data-testid="status-icon-disconnected" />
               )}
             </Badge>
           )}
