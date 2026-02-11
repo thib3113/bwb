@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { CodeList } from './CodeList';
 import { useTaskContext } from '../../hooks/useTaskContext';
+import { useBLEConnection } from '../../hooks/useBLEConnection';
 
 interface CodeManagerProps {
   showAddForm?: boolean;
@@ -26,6 +27,18 @@ interface CodeManagerProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
   hideNotification: () => void;
 }
+
+const spinAnimation = {
+  animation: 'spin 1s linear infinite',
+  '@keyframes spin': {
+    '0%': {
+      transform: 'rotate(0deg)',
+    },
+    '100%': {
+      transform: 'rotate(360deg)',
+    },
+  },
+};
 
 export const CodeManager = ({
   showAddForm,
@@ -36,6 +49,7 @@ export const CodeManager = ({
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
   const { tasks, syncTasks } = useTaskContext();
+  const { isConnected } = useBLEConnection();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['permanent', 'temporary'])
@@ -72,11 +86,6 @@ export const CodeManager = ({
       if (shouldShowSyncButton) {
         // Trigger sync first
         await syncTasks();
-        // Give it a moment to process or just refresh count immediately?
-        // Task processing is async in background.
-        // We can wait a bit or just refresh count.
-        // If we refresh count immediately, it might not reflect changes yet if tasks are slow.
-        // But user sees something happening.
       }
       await refreshCodeCount();
     } catch (error) {
@@ -84,6 +93,15 @@ export const CodeManager = ({
     } finally {
       setIsRefreshing(false);
     }
+  };
+
+  const getButtonIcon = () => {
+    if (isRefreshing) {
+      // Spinning icon
+      return shouldShowSyncButton ? <SyncIcon sx={spinAnimation} /> : <RefreshIcon sx={spinAnimation} />;
+    }
+    // Static icon
+    return shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />;
   };
 
   return (
@@ -96,9 +114,9 @@ export const CodeManager = ({
           <Button
             variant={shouldShowSyncButton ? "contained" : "outlined"}
             color={shouldShowSyncButton ? "warning" : "primary"}
-            startIcon={shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />}
+            startIcon={getButtonIcon()}
             onClick={handleRefreshOrSync}
-            disabled={isRefreshing}
+            disabled={!isConnected || isRefreshing}
             size="small"
           >
             {shouldShowSyncButton
