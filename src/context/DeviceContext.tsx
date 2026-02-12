@@ -19,12 +19,8 @@ import {
 import { BLEPacket } from '../utils/packetParser';
 import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { SetConfigurationPacket } from '../ble/packets/SetConfigurationPacket';
+import { PCB_VERSIONS } from '../utils/version';
 
-// Hardware Revisions Map (Internal Firmware Revision -> Hardware Version)
-const PCB_VERSIONS: Record<string, string> = {
-  '10/125': '4.0',
-  '10/cd': '3.0'
-};
 
 // Ensure StorageService is exposed for debugging
 if (typeof window !== 'undefined') {

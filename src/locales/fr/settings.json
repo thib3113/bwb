@@ -1,5 +1,15 @@
 {
   "title": "Paramètres",
+  "device_info": {
+    "title": "Informations Appareil",
+    "hardware_version": "Version Matériel",
+    "firmware_revision": "Révision Firmware",
+    "software_revision": "Révision Logiciel",
+    "warnings": {
+      "update_required_laposte": "Pour activer l'ouverture La Poste, la version 4.2.0 ou supérieure est requise.",
+      "update_required_nfc": "Pour utiliser les tags NFC, la version 4.3.3 ou supérieure est requise."
+    }
+  },
   "theme": {
     "label": "Thème",
     "system": "Par défaut du système",
@@ -7,7 +17,7 @@
     "dark": "Sombre"
   },
   "auto_import": "Synchronisation automatique (Logs et Codes)",
-    "device_auto_sync": "Synchronisation automatique (Logs et Codes)",
+  "device_auto_sync": "Synchronisation automatique (Logs et Codes)",
   "configuration_key": {
     "label": "Clé de configuration",
     "helper": "Utilisée pour les opérations sensibles"

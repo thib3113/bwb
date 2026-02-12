@@ -127,6 +127,34 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
+      <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+        <Typography variant="subtitle2" gutterBottom color="primary">
+          {t('settings:device_info.title')}
+        </Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 2, rowGap: 0.5 }}>
+          <Typography variant="body2" color="textSecondary">
+            {t('settings:device_info.hardware_version')}:
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+            {activeDevice.hardware_version || 'N/A'}
+          </Typography>
+
+          <Typography variant="body2" color="textSecondary">
+            {t('settings:device_info.firmware_revision')}:
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+            {activeDevice.firmware_revision || 'N/A'}
+          </Typography>
+
+          <Typography variant="body2" color="textSecondary">
+            {t('settings:device_info.software_revision')}:
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+            {activeDevice.software_revision || 'N/A'}
+          </Typography>
+        </Box>
+      </Box>
+
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

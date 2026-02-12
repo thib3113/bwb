@@ -15,3 +15,8 @@ export const compareVersions = (v1: string, v2: string): number => {
   }
   return 0;
 };
+
+export const PCB_VERSIONS: Record<string, string> = {
+  '10/125': '4.0',
+  '10/cd': '3.0'
+};
