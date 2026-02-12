@@ -43,6 +43,10 @@
   "warning": "Attention",
   "info": "Information",
   "battery_level": "Niveau de batterie",
+  "feature_disabled": "Fonctionnalité désactivée",
+  "actions": {
+    "update": "Mettre à jour"
+  },
   "door": {
     "title": "Contrôle de la porte",
     "open": "Ouvrir la porte",
@@ -87,7 +91,8 @@
       "update_required_title": "Mise à jour nécessaire",
       "update_required_message": "Le logiciel de votre Boks est obsolète (< 4.1.14). Veuillez effectuer une mise à jour pour continuer à utiliser l'application.",
       "unknown_hardware_title": "Matériel incompatible",
-      "unknown_hardware_message": "La version matérielle de votre Boks n'est pas reconnue ou n'est pas compatible avec cette application."
+      "unknown_hardware_message": "La version matérielle de votre Boks n'est pas reconnue ou n'est pas compatible avec cette application.",
+      "feature_restricted_message": "Cette fonctionnalité est désactivée car le matériel ou le logiciel de votre Boks n'est pas compatible ou à jour. Veuillez mettre à jour votre appareil."
     }
   },
   "wizard": {

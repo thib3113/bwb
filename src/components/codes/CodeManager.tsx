@@ -16,11 +16,13 @@ import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SyncIcon from '@mui/icons-material/Sync';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LockIcon from '@mui/icons-material/Lock';
 import { useCodeLogic } from '../../hooks/useCodeLogic';
 import { CodeList } from './CodeList';
 import { useTaskContext } from '../../hooks/useTaskContext';
 import { useBLEConnection } from '../../hooks/useBLEConnection';
 import { useDeviceLogContext } from '../../hooks/useDeviceLogContext';
+import { useVersionCheck } from '../../hooks/useVersionCheck';
 
 interface CodeManagerProps {
   showAddForm?: boolean;
@@ -49,23 +51,15 @@ export const CodeManager = ({
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
   const { activeDevice } = useDevice();
+  const { isRestricted } = useVersionCheck();
   const { tasks, syncTasks, isProcessing } = useTaskContext();
   const { isSyncingLogs } = useDeviceLogContext();
   const { isConnected } = useBLEConnection();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['permanent', 'temporary'])
-  ); // 'permanent', 'temporary'
+  );
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
-
-  const autoSync = activeDevice?.auto_sync ?? false;
-  const pendingCount = tasks.filter(
-    (t) => t.status === 'pending' && t.deviceId === activeDevice?.id
-  ).length;
-  const shouldShowSyncButton = !autoSync && pendingCount > 0;
-
-  // Combine process states
-  const isBusy = isProcessing || isSyncingLogs;
 
   const {
     masterCodes,
@@ -79,6 +73,15 @@ export const CodeManager = ({
     getFilteredCodes,
     handleCopyCode
   } = useCodeLogic(showNotification, hideNotification);
+
+  const autoSync = activeDevice?.auto_sync ?? false;
+  const pendingCount = tasks.filter(
+    (t) => t.status === 'pending' && t.deviceId === activeDevice?.id
+  ).length;
+  const shouldShowSyncButton = !autoSync && pendingCount > 0;
+
+  // Combine process states
+  const isBusy = isProcessing || isSyncingLogs;
 
   // Handle editing a code
   const handleEditCode = useCallback((code: BoksCode) => {
@@ -110,6 +113,24 @@ export const CodeManager = ({
     // Static icon
     return shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />;
   };
+
+  // Early return if restricted - Must be after all hooks
+  if (isRestricted) {
+    return (
+      <Box
+        data-testid="feature-blocked-screen"
+        sx={{ width: '100%', p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      >
+        <LockIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+        <Typography variant="h5" gutterBottom color="text.secondary">
+          {t('common:feature_disabled')}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 400 }}>
+          {t('common:errors.version.feature_restricted_message', { feature: t('codes:title') })}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%' }}>

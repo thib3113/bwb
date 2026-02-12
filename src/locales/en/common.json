@@ -43,6 +43,10 @@
   "warning": "Warning",
   "info": "Information",
   "battery_level": "Battery Level",
+  "feature_disabled": "Feature disabled",
+  "actions": {
+    "update": "Update"
+  },
   "door": {
     "title": "Door Control",
     "open": "Open Door",
@@ -87,7 +91,8 @@
       "update_required_title": "Update Required",
       "update_required_message": "Your Boks software is outdated (< 4.1.14). Please update to continue using the app.",
       "unknown_hardware_title": "Incompatible Hardware",
-      "unknown_hardware_message": "Your Boks hardware version is not recognized or is incompatible with this application."
+      "unknown_hardware_message": "Your Boks hardware version is not recognized or is incompatible with this application.",
+      "feature_restricted_message": "This feature is disabled because your Boks hardware or software is not compatible or up to date. Please update your device."
     }
   },
   "wizard": {
