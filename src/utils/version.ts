@@ -1,3 +1,6 @@
+import { BoksDevice } from '../types';
+import { MIN_FIRMWARE_VERSION } from './constants';
+
 export const compareVersions = (v1: string, v2: string): number => {
   if (!v1 || !v2) return 0;
   // Remove non-numeric prefix/suffix if any (simple)
@@ -19,4 +22,40 @@ export const compareVersions = (v1: string, v2: string): number => {
 export const PCB_VERSIONS: Record<string, string> = {
   '10/125': '4.0',
   '10/cd': '3.0'
+};
+
+export interface DeviceVersionStatus {
+  isOldSoftware: boolean;
+  isUnknownHardware: boolean;
+  isRestricted: boolean;
+  isValid: boolean;
+}
+
+export const checkDeviceVersion = (device: BoksDevice | null): DeviceVersionStatus => {
+  if (!device) {
+    return {
+      isOldSoftware: false,
+      isUnknownHardware: false,
+      isRestricted: false,
+      isValid: true
+    };
+  }
+
+  // Check Software Version
+  const isOldSoftware = !!(
+    device.software_revision && compareVersions(device.software_revision, MIN_FIRMWARE_VERSION) < 0
+  );
+
+  // Check Hardware Version (Must be mapped if firmware is present)
+  // Logic: If we have a firmware revision (meaning we read it), we MUST have a mapped hardware version.
+  const isUnknownHardware = !!(device.firmware_revision && !device.hardware_version);
+
+  const isRestricted = isOldSoftware || isUnknownHardware;
+
+  return {
+    isOldSoftware,
+    isUnknownHardware,
+    isRestricted,
+    isValid: !isRestricted
+  };
 };

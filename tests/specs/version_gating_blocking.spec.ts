@@ -16,12 +16,7 @@ test.describe('Version Gating', () => {
     });
   });
 
-  // Keep existing non-blocking tests (optional, but good for regression)
-  // ... (omitting for brevity as requested focus is on blocking)
-
-  // NEW BLOCKING TESTS
-
-  test('should block access if software version is too old (< 4.1.14)', async ({
+  test('should show restricted banner and block features if software version is too old (< 4.1.14)', async ({
     page,
     simulator
   }) => {
@@ -52,22 +47,41 @@ test.describe('Version Gating', () => {
       { timeout: 15000 }
     );
 
-    // Wait for blocking modal using testid (Critical requirement: NO TEXT SELECTORS)
-    const blockingModal = page.getByTestId('version-guard-overlay');
-    await expect(blockingModal).toBeVisible({ timeout: 15000 });
+    // Explicitly go to codes page to ensure UI is mounted
+    await page.goto('/codes');
 
-    // Verify title and message exist via testId
+    // 1. Verify Banner is visible (NOT blocking overlay)
+    const banner = page.getByTestId('version-guard-banner');
+    await expect(banner).toBeVisible({ timeout: 15000 });
+
+    // Verify title and message exist
     const title = page.getByTestId('version-guard-title');
     const message = page.getByTestId('version-guard-message');
-
     await expect(title).toBeVisible();
     await expect(message).toBeVisible();
 
-    // Take screenshot as required
-    await page.screenshot({ path: 'compatibility-old-sw.png', fullPage: true });
+    // 2. Verify Navigation is still possible (Header accessible)
+    // Check main nav exists first
+    const mainNav = page.getByTestId('main-nav');
+    await expect(mainNav).toBeVisible();
+
+    const settingsButton = page.getByTestId('nav-logs'); // Logs tab
+    await expect(settingsButton).toBeVisible();
+    await settingsButton.click();
+
+    // 3. Verify Logs Page is blocked
+    await expect(page).toHaveURL(/\/logs/);
+    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
+
+    // 4. Go to Codes Page
+    await page.getByTestId('nav-codes').click();
+
+    // 5. Verify Codes Page is blocked (Add button should NOT be there or feature blocked message)
+    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
+    await expect(page.getByTestId('add-code-button')).not.toBeVisible();
   });
 
-  test('should block access if hardware version is unknown', async ({
+  test('should show restricted banner and block features if hardware version is unknown', async ({
     page,
     simulator
   }) => {
@@ -98,18 +112,22 @@ test.describe('Version Gating', () => {
       { timeout: 15000 }
     );
 
-    // Wait for blocking modal using testid (Critical requirement: NO TEXT SELECTORS)
-    const blockingModal = page.getByTestId('version-guard-overlay');
-    await expect(blockingModal).toBeVisible({ timeout: 15000 });
+    // Explicitly go to codes page
+    await page.goto('/codes');
 
-    // Verify title and message exist via testId
-    const title = page.getByTestId('version-guard-title');
-    const message = page.getByTestId('version-guard-message');
+    // 1. Verify Banner is visible
+    const banner = page.getByTestId('version-guard-banner');
+    await expect(banner).toBeVisible({ timeout: 15000 });
 
-    await expect(title).toBeVisible();
-    await expect(message).toBeVisible();
+    // 2. Verify Navigation is possible
+    const mainNav = page.getByTestId('main-nav');
+    await expect(mainNav).toBeVisible();
 
-    // Take screenshot as required
-    await page.screenshot({ path: 'compatibility-unknown-hw.png', fullPage: true });
+    const settingsNav = page.getByTestId('nav-logs');
+    await expect(settingsNav).toBeVisible();
+
+    // 3. Check Features blocked
+    await settingsNav.click();
+    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
   });
 });

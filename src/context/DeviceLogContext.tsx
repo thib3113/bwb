@@ -10,6 +10,7 @@ import { BoksLog } from '../types';
 import { DeviceLogContext } from './Contexts';
 import { GetLogsCountPacket } from '../ble/packets/GetLogsCountPacket';
 import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
+import { checkDeviceVersion } from '../utils/version';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
@@ -43,6 +44,12 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   }, [addListener, removeListener]);
 
   const requestLogs = useCallback(async () => {
+    // Check version restriction
+    if (activeDevice && checkDeviceVersion(activeDevice).isRestricted) {
+      log('Log synchronization aborted due to unknown firmware/hardware version.', 'warning');
+      return;
+    }
+
     if (isSyncingRef.current) {
       log('Log synchronization already in progress, skipping...', 'info');
       return;
@@ -186,14 +193,24 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [activeDevice, addListener, removeListener, sendRequest, log, isSimulator]);
+
   // Auto-import logs on connection if enabled
   useEffect(() => {
+    // Check version restriction for auto-sync
+    if (activeDevice && checkDeviceVersion(activeDevice).isRestricted) {
+       console.log('[DeviceLogContext] Auto-sync skipped due to restricted version.');
+       return;
+    }
+
     if (isConnected && activeDevice && autoSyncEnabled && !hasAutoSyncedRef.current) {
       // Optimized sequence: Codes first (triggers 0x14 -> 0x79 implicit), then Logs
       const timer = setTimeout(async () => {
         try {
           // Double check conditions inside timeout
           if (!isConnected || !activeDevice || hasAutoSyncedRef.current) return;
+
+          // Re-check restriction inside timeout just in case
+          if (checkDeviceVersion(activeDevice).isRestricted) return;
 
           hasAutoSyncedRef.current = true;
 

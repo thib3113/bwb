@@ -14,6 +14,7 @@ import {
   Typography
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import LockIcon from '@mui/icons-material/Lock';
 import { db } from '../../db/db';
 import { useDevice } from '../../hooks/useDevice';
 import { useLogCount } from '../../hooks/useLogCount';
@@ -23,6 +24,7 @@ import { LogItem, ParsedLogDisplay } from './LogItem';
 import { useBLEConnection } from '../../hooks/useBLEConnection';
 import { useBLELogs } from '../../hooks/useBLELogs';
 import { EMPTY_ARRAY } from '../../utils/bleConstants';
+import { useVersionCheck } from '../../hooks/useVersionCheck';
 
 import { runTask } from '../../utils/uiUtils';
 
@@ -37,6 +39,7 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
   const { isConnected } = useBLEConnection();
   const { isSyncingLogs, requestLogs } = useBLELogs();
   const { logCount } = useLogCount();
+  const { isRestricted } = useVersionCheck();
 
   /**
    * Note on performance: High-volume optimization (like virtualization) is not implemented here
@@ -136,6 +139,21 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
       errorMsg: t('refresh_failed')
     });
   }, [isConnected, requestLogs, showNotification, hideNotification, t]);
+
+  // Early return if restricted
+  if (isRestricted) {
+    return (
+      <Box sx={{ width: '100%', p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <LockIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+        <Typography variant="h5" gutterBottom color="text.secondary">
+          {t('common:feature_disabled')}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 400 }}>
+          {t('common:errors.version.feature_restricted_message', { feature: t('logs:title') })}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 2, mb: 2, width: '100%' }}>

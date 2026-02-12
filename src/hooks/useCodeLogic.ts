@@ -13,6 +13,7 @@ import { useBLE } from './useBLE';
 import { useTranslation } from 'react-i18next';
 import { useCodeCount } from './useCodeCount';
 import { useDevice } from './useDevice';
+import { checkDeviceVersion } from '../utils/version';
 
 export const useCodeLogic = (
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void,
@@ -192,6 +193,12 @@ export const useCodeLogic = (
     async (newCodeData: Partial<BoksCode>, overwriteCodeId: string | null = null) => {
       if (!activeDevice?.id) return;
 
+      // Check restriction
+      if (checkDeviceVersion(activeDevice).isRestricted) {
+         showNotification(t('common:errors.version.feature_restricted_message'), 'error');
+         return;
+      }
+
       try {
         // If there's a code to overwrite, mark it for deletion
         if (overwriteCodeId) {
@@ -274,12 +281,18 @@ export const useCodeLogic = (
         showNotification(t('add_failed'), 'error');
       }
     },
-    [activeDevice?.id, showNotification, t, addTask]
+    [activeDevice, showNotification, t, addTask]
   );
 
   const handleDeleteCode = useCallback(
     async (id: string) => {
       if (!activeDevice?.id) return;
+
+      // Check restriction
+      if (checkDeviceVersion(activeDevice).isRestricted) {
+         showNotification(t('common:errors.version.feature_restricted_message'), 'error');
+         return;
+      }
 
       try {
         const codeToDelete = await db.codes.get(id);
@@ -305,7 +318,7 @@ export const useCodeLogic = (
         showNotification(t('delete_failed'), 'error');
       }
     },
-    [activeDevice?.id, showNotification, t, addTask]
+    [activeDevice, showNotification, t, addTask]
   );
 
   // Get codes filtered by type with unified sorting
