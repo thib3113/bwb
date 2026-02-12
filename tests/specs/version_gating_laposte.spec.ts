@@ -41,6 +41,9 @@ test.describe('Version Gating - La Poste', () => {
       { timeout: 15000 }
     );
 
+    // Go to NFC Tab
+    await page.getByTestId('tab-nfc').click();
+
     const laPosteSwitch = page.getByTestId('la-poste-switch');
     await expect(laPosteSwitch).toBeVisible({ timeout: 10000 });
 
