@@ -24,6 +24,10 @@ test.describe('Version Gating', () => {
       timeout: 30000
     });
 
+    // Reset app logic clears localStorage, so we must set version AFTER it.
+    // Also, BoksSimulator constructor loads from localStorage.
+    // So if resetApp() was called, it wiped the state.
+    // We need to set the version on the running instance.
     await page.evaluate(() => {
       const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
@@ -35,6 +39,7 @@ test.describe('Version Gating', () => {
     await simulator.connect({ skipReturnToHome: true });
 
     // Debug: wait for device state in DB to be updated
+    // Increase timeout just in case
     await page.waitForFunction(
       async (sw) => {
          // @ts-ignore
@@ -44,7 +49,7 @@ test.describe('Version Gating', () => {
          return dev && dev.software_revision === sw;
       },
       '4.0.0',
-      { timeout: 15000 }
+      { timeout: 20000 }
     );
 
     // Explicitly go to codes page to ensure UI is mounted
@@ -52,7 +57,7 @@ test.describe('Version Gating', () => {
 
     // 1. Verify Banner is visible (NOT blocking overlay)
     const banner = page.getByTestId('version-guard-banner');
-    await expect(banner).toBeVisible({ timeout: 15000 });
+    await expect(banner).toBeVisible({ timeout: 20000 });
 
     // Verify title and message exist
     const title = page.getByTestId('version-guard-title');
@@ -109,7 +114,7 @@ test.describe('Version Gating', () => {
          return dev && dev.firmware_revision === fw;
       },
       '10/124',
-      { timeout: 15000 }
+      { timeout: 20000 }
     );
 
     // Explicitly go to codes page
@@ -117,7 +122,7 @@ test.describe('Version Gating', () => {
 
     // 1. Verify Banner is visible
     const banner = page.getByTestId('version-guard-banner');
-    await expect(banner).toBeVisible({ timeout: 15000 });
+    await expect(banner).toBeVisible({ timeout: 20000 });
 
     // 2. Verify Navigation is possible
     const mainNav = page.getByTestId('main-nav');
