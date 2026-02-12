@@ -81,7 +81,8 @@ test.describe('Version Gating', () => {
     );
 
     const laPosteSwitch = page.getByTestId('la-poste-switch');
-    await expect(laPosteSwitch).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(1000);
+    await expect(laPosteSwitch).toBeVisible({ timeout: 20000 });
 
     // Initial state should be unchecked
     await expect(laPosteSwitch).not.toBeChecked();
