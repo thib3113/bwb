@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardContent,
-  CircularProgress,
   Divider,
   FormControlLabel,
   IconButton,
@@ -17,7 +16,6 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useDevice } from '../../hooks/useDevice';
 import { UserRole } from '../../types';
-import { compareVersions } from '../../utils/version';
 
 interface DeviceSettingsProps {
   deviceId: string;
@@ -25,8 +23,7 @@ interface DeviceSettingsProps {
 
 export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
   const { t } = useTranslation(['common', 'settings']);
-  const { activeDevice, updateDeviceDetails, removeDevice, toggleLaPoste } = useDevice();
-  const [isTogglingLaPoste, setIsTogglingLaPoste] = useState(false);
+  const { activeDevice, updateDeviceDetails, removeDevice } = useDevice();
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({
     key: !activeDevice?.configuration_key,
     pin: !activeDevice?.door_pin_code
@@ -64,17 +61,6 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
       } catch (error) {
         console.error('Failed to update device details:', error);
       }
-    }
-  };
-
-  const handleLaPosteChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsTogglingLaPoste(true);
-    try {
-      await toggleLaPoste((event.target as HTMLInputElement).checked);
-    } catch (error) {
-      console.error('Failed to toggle La Poste:', error);
-    } finally {
-      setIsTogglingLaPoste(false);
     }
   };
 
@@ -221,26 +207,6 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
               control={<Switch checked={autoSync} onChange={handleAutoSyncChange} />}
               label={t('settings:device_auto_sync')}
             />
-            {/* La Poste Activation - Only for HW 4.0 and SW >= 4.2.0 */}
-            {activeDevice.hardware_version === '4.0' &&
-              activeDevice.software_revision &&
-              compareVersions(activeDevice.software_revision, '4.2.0') >= 0 && (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        data-testid="la-poste-switch"
-                        checked={activeDevice.la_poste_activated || false}
-                        onChange={handleLaPosteChange}
-                        disabled={isTogglingLaPoste}
-                      />
-                    }
-                    label={t('settings:activate_la_poste')}
-                  />
-                  {isTogglingLaPoste && <CircularProgress size={20} sx={{ ml: 1 }} />}
-                </Box>
-              )}
-
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
               <Button size="small" color="error" variant="outlined" onClick={handleRemoveDevice}>
                 {t('devices.forget')}

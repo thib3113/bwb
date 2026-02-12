@@ -111,6 +111,7 @@ export const NfcTagsTab = () => {
         <FormControlLabel
           control={
             <Switch
+              data-testid="la-poste-switch"
               checked={activeDevice?.la_poste_activated || false}
               onChange={handleLaPosteToggle}
               disabled={!isLaPosteCompatible}
