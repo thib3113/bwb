@@ -61,6 +61,14 @@ jobs:
           name: dist
           path: dist
 
+      - name: Download Screenshots Artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: screenshots-shard-*
+          path: dist/screenshots
+          merge-multiple: true
+
       - name: Create .nojekyll
         run: touch dist/.nojekyll
 
@@ -82,7 +90,13 @@ jobs:
             const owner = context.repo.owner;
             const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
 
-            const body = `🚀 **Deploy Preview Ready!**\n\nApp available at: [${previewUrl}](${previewUrl})`;
+            let body = `🚀 **Deploy Preview Ready!**\n\nApp available at: [${previewUrl}](${previewUrl})\n\n`;
+
+            // Add Screenshots section
+            body += `### 📸 Automated Screenshots\n\n`;
+            body += `| Codes (Offline) | Logs (Online) |\n`;
+            body += `| :---: | :---: |\n`;
+            body += `| ![Codes](${previewUrl}screenshots/codes-offline.png) | ![Logs](${previewUrl}screenshots/logs-online.png) |\n`;
 
             // Check if comment already exists
             const { data: comments } = await github.rest.issues.listComments({

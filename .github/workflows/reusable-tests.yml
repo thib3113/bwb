@@ -74,3 +74,11 @@ jobs:
 
       - name: Run Playwright Tests
         run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-shard-${{ matrix.shardIndex }}
+          path: test-results/screenshots/
+          retention-days: 5

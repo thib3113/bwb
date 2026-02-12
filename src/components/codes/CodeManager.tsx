@@ -33,12 +33,12 @@ const spinAnimation = {
   animation: 'spin 1s linear infinite',
   '@keyframes spin': {
     '0%': {
-      transform: 'rotate(0deg)',
+      transform: 'rotate(0deg)'
     },
     '100%': {
-      transform: 'rotate(360deg)',
-    },
-  },
+      transform: 'rotate(360deg)'
+    }
+  }
 };
 
 export const CodeManager = ({
@@ -59,7 +59,9 @@ export const CodeManager = ({
   const [editingCode, setEditingCode] = useState<BoksCode | null>(null);
 
   const autoSync = activeDevice?.auto_sync ?? false;
-  const pendingCount = tasks.filter((t) => t.status === 'pending' && t.deviceId === activeDevice?.id).length;
+  const pendingCount = tasks.filter(
+    (t) => t.status === 'pending' && t.deviceId === activeDevice?.id
+  ).length;
   const shouldShowSyncButton = !autoSync && pendingCount > 0;
 
   // Combine process states
@@ -99,7 +101,11 @@ export const CodeManager = ({
   const getButtonIcon = () => {
     if (isBusy) {
       // Spinning icon
-      return shouldShowSyncButton ? <SyncIcon sx={spinAnimation} /> : <RefreshIcon sx={spinAnimation} />;
+      return shouldShowSyncButton ? (
+        <SyncIcon sx={spinAnimation} />
+      ) : (
+        <RefreshIcon sx={spinAnimation} />
+      );
     }
     // Static icon
     return shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />;
@@ -113,16 +119,14 @@ export const CodeManager = ({
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
-            variant={shouldShowSyncButton ? "contained" : "outlined"}
-            color={shouldShowSyncButton ? "warning" : "primary"}
+            variant={shouldShowSyncButton ? 'contained' : 'outlined'}
+            color={shouldShowSyncButton ? 'warning' : 'primary'}
             startIcon={getButtonIcon()}
             onClick={handleRefreshOrSync}
             disabled={!isConnected || isBusy}
             size="small"
           >
-            {shouldShowSyncButton
-              ? t('sync_pending', { count: pendingCount })
-              : t('refresh')}
+            {shouldShowSyncButton ? t('sync_pending', { count: pendingCount }) : t('refresh')}
           </Button>
           <IconButton
             color="primary"
