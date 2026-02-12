@@ -143,7 +143,10 @@ export const LogViewer = ({ showNotification, hideNotification }: LogViewerProps
   // Early return if restricted
   if (isRestricted) {
     return (
-      <Box sx={{ width: '100%', p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box
+        data-testid="feature-blocked-screen"
+        sx={{ width: '100%', p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      >
         <LockIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
         <Typography variant="h5" gutterBottom color="text.secondary">
           {t('common:feature_disabled')}

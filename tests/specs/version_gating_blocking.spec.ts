@@ -25,9 +25,6 @@ test.describe('Version Gating', () => {
     });
 
     // Reset app logic clears localStorage, so we must set version AFTER it.
-    // Also, BoksSimulator constructor loads from localStorage.
-    // So if resetApp() was called, it wiped the state.
-    // We need to set the version on the running instance.
     await page.evaluate(() => {
       const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
@@ -36,10 +33,12 @@ test.describe('Version Gating', () => {
       }
     });
 
+    // Reload to ensure state is picked up by BoksSimulator constructor if it was already initialized
+    await page.reload();
+
     await simulator.connect({ skipReturnToHome: true });
 
     // Debug: wait for device state in DB to be updated
-    // Increase timeout just in case
     await page.waitForFunction(
       async (sw) => {
          // @ts-ignore
@@ -76,13 +75,13 @@ test.describe('Version Gating', () => {
 
     // 3. Verify Logs Page is blocked
     await expect(page).toHaveURL(/\/logs/);
-    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
+    await expect(page.getByTestId('feature-blocked-screen')).toBeVisible();
 
     // 4. Go to Codes Page
     await page.getByTestId('nav-codes').click();
 
     // 5. Verify Codes Page is blocked (Add button should NOT be there or feature blocked message)
-    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
+    await expect(page.getByTestId('feature-blocked-screen')).toBeVisible();
     await expect(page.getByTestId('add-code-button')).not.toBeVisible();
   });
 
@@ -101,6 +100,9 @@ test.describe('Version Gating', () => {
         controller.setVersion('4.1.14', '10/124');
       }
     });
+
+    // Reload to ensure state is picked up
+    await page.reload();
 
     await simulator.connect({ skipReturnToHome: true });
 
@@ -133,6 +135,6 @@ test.describe('Version Gating', () => {
 
     // 3. Check Features blocked
     await settingsNav.click();
-    await expect(page.getByText(/Fonctionnalité désactivée|Feature disabled/)).toBeVisible();
+    await expect(page.getByTestId('feature-blocked-screen')).toBeVisible();
   });
 });
