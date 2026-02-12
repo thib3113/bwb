@@ -41,7 +41,7 @@ export class BoksSimulator extends EventEmitter {
 
   constructor() {
     super();
-    this.state = this.getInitialState();
+    this.state = this.loadState() || this.getInitialState();
 
     // Expose instance for tests/debug
     if (typeof window !== 'undefined') {
@@ -57,10 +57,12 @@ export class BoksSimulator extends EventEmitter {
   public setVersion(software: string, firmware: string) {
     this.state.softwareRevision = software;
     this.state.firmwareRevision = firmware;
+    this.saveState();
   }
 
   public setBatteryLevel(level: number) {
     this.state.batteryLevel = level;
+    this.saveState();
   }
 
   private getInitialState(): BoksState {
@@ -76,14 +78,49 @@ export class BoksSimulator extends EventEmitter {
     };
   }
 
+  private saveState() {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const serializableState = {
+          ...this.state,
+          pinCodes: Array.from(this.state.pinCodes.entries())
+        };
+        localStorage.setItem('boks_simulator_state', JSON.stringify(serializableState));
+      } catch (e) {
+        console.error('[BoksSimulator] Failed to save state:', e);
+      }
+    }
+  }
+
+  private loadState(): BoksState | null {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('boks_simulator_state');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.pinCodes) {
+            parsed.pinCodes = new Map(parsed.pinCodes);
+          }
+          console.log('[BoksSimulator] State loaded from localStorage');
+          return parsed as BoksState;
+        }
+      } catch (e) {
+        console.error('[BoksSimulator] Failed to load state:', e);
+      }
+    }
+    return null;
+  }
+
   public reset() {
     this.state = this.getInitialState();
+    this.saveState();
     if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
     if (this.chaosTimer) clearInterval(this.chaosTimer);
   }
 
   public setChaosMode(enabled: boolean) {
     this.state.chaosMode = enabled;
+    this.saveState();
     if (enabled) {
       this.startChaosLoop();
     } else {
@@ -103,6 +140,7 @@ export class BoksSimulator extends EventEmitter {
       } else if (rand > 0.9) {
         // 10% chance to drop battery
         this.state.batteryLevel = Math.max(0, this.state.batteryLevel - 5);
+        this.saveState();
       }
     }, 10000); // Check every 10s
   }
@@ -143,6 +181,7 @@ export class BoksSimulator extends EventEmitter {
 
     // 3. Auto Close Schedule
     this.scheduleAutoClose();
+    this.saveState();
   }
 
   public triggerDoorClose() {
@@ -158,6 +197,7 @@ export class BoksSimulator extends EventEmitter {
     this.addLog(BLEOpcode.LOG_DOOR_CLOSE_HISTORY, []);
 
     if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
+    this.saveState();
   }
 
   private scheduleAutoClose() {
@@ -174,6 +214,7 @@ export class BoksSimulator extends EventEmitter {
       payload,
       timestamp: Date.now()
     });
+    this.saveState();
   }
 
   // --- BLE Protocol Handling ---
@@ -266,6 +307,7 @@ export class BoksSimulator extends EventEmitter {
     if (pin) {
       this.state.pinCodes.set(pin, type);
       this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+      this.saveState();
     } else {
       this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
     }
@@ -364,6 +406,7 @@ export class BoksSimulator extends EventEmitter {
     if (packet.index === 0 && this.state.pinCodes.has(SIMULATOR_DEFAULT_PIN)) {
       this.state.pinCodes.delete(SIMULATOR_DEFAULT_PIN);
       this.sendNotification(BLEOpcode.CODE_OPERATION_SUCCESS, []);
+      this.saveState();
     } else {
       this.sendNotification(BLEOpcode.CODE_OPERATION_ERROR, []);
     }

@@ -4,7 +4,11 @@
     "title": "Device Info",
     "hardware_version": "Hardware Version",
     "firmware_revision": "Firmware Revision",
-    "software_revision": "Software Revision"
+    "software_revision": "Software Revision",
+    "warnings": {
+      "update_required_laposte": "To enable La Poste opening, version 4.2.0 or higher is required.",
+      "update_required_nfc": "To use NFC tags, version 4.3.3 or higher is required."
+    }
   },
   "theme": {
     "label": "Theme",
@@ -13,7 +17,7 @@
     "dark": "Dark"
   },
   "auto_import": "Auto-Sync (Logs & Codes)",
-    "device_auto_sync": "Auto-sync logs & codes",
+  "device_auto_sync": "Auto-sync logs & codes",
   "configuration_key": {
     "label": "Configuration Key",
     "helper": "Used for sensitive operations"
