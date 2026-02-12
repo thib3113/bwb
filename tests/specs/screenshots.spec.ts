@@ -46,7 +46,6 @@ test.describe('Screenshots', () => {
 
         // Wait for it to appear
         await expect(page.getByTestId(`code-item-${code}`)).toBeVisible();
-        await page.waitForTimeout(500);
     };
 
     // Create Master Code (Pending Delete later)
@@ -57,6 +56,25 @@ test.describe('Screenshots', () => {
 
     // Create Single Code (will stay synced)
     await createCode('single', '998877', 'Livreur (Synchronisé)');
+
+    // Force Sync Status in DB to ensure screenshot is correct (Bypass Simulator/App sync race conditions)
+    await page.evaluate(async () => {
+        const db = (window as any).boksDebug.db;
+        const codesToSync = ['789012', '998877']; // 123456 is for delete, we leave it or sync it? Let's sync it too for the delete test.
+        // Actually 123456 is meant to be deleted later.
+
+        // Let's sync all currently visible codes
+        const codes = await db.codes.toArray();
+        for (const c of codes) {
+            if (['123456', '789012', '998877'].includes(c.code)) {
+                await db.codes.update(c.id, { status: 'on_device', synced: true });
+            }
+        }
+    });
+
+    // Verify they appear as synced
+    await expect(page.locator('[data-testid="code-item-789012"]')).toHaveAttribute('data-status', 'on_device', { timeout: 5000 });
+    await expect(page.locator('[data-testid="code-item-998877"]')).toHaveAttribute('data-status', 'on_device', { timeout: 5000 });
 
     // 4. Go Offline
     // Click header connection button to disconnect
@@ -115,8 +133,37 @@ test.describe('Screenshots', () => {
       // Clear existing logs
       await db.logs.where('device_id').equals(deviceId).delete();
 
+      // Helpers for constructing payloads
+      const createCodePayload = (code: string) => {
+          // Age(3) + Code(6)
+          const payload = new Uint8Array(9);
+          // Set Age to 0 (bytes 0-2 are 0)
+          // Set Code
+          const codeBytes = new TextEncoder().encode(code.padEnd(6, '\0').substring(0, 6));
+          payload.set(codeBytes, 3);
+          return payload;
+      };
+
+      const createNfcPayload = (uidHex: string) => {
+          // Age(3) + TagType(1) + UidLen(1) + Uid(N)
+          // uidHex format: "AA:BB:CC..."
+          const uidBytes = uidHex.split(':').map(b => parseInt(b, 16));
+          const len = 3 + 1 + 1 + uidBytes.length;
+          const payload = new Uint8Array(len);
+          // Age = 0
+          payload[3] = 0x04; // Tag Type (e.g. 4=Mifare)
+          payload[4] = uidBytes.length;
+          payload.set(uidBytes, 5);
+          return payload;
+      };
+
+      const createSimplePayload = () => {
+          // Age(3)
+          return new Uint8Array([0, 0, 0]);
+      };
+
       const now = new Date();
-      // Use ISO strings for timestamps to avoid "Invalid Date"
+
       const logs = [
         {
           id: 'log-1',
@@ -124,10 +171,10 @@ test.describe('Screenshots', () => {
           timestamp: now.toISOString(),
           event: 'logs:events.ble_valid',
           type: 'info',
-          opcode: 0x86,
-          payload: new Uint8Array([0, 0, 0]),
+          opcode: 0x86, // LOG_CODE_BLE_VALID_HISTORY
+          payload: createCodePayload('123456'),
           synced: false,
-          details: { code: '123456', macAddress: 'AA:BB:CC:DD:EE:FF' }
+          details: { code: '123456' } // Explicit details in case parsing fails, but payload should work
         },
         {
           id: 'log-2',
@@ -135,8 +182,8 @@ test.describe('Screenshots', () => {
           timestamp: new Date(now.getTime() - 60000).toISOString(),
           event: 'logs:events.key_valid',
           type: 'info',
-          opcode: 0x87,
-          payload: new Uint8Array([0, 0, 60]),
+          opcode: 0x87, // LOG_CODE_KEY_VALID_HISTORY
+          payload: createCodePayload('987654'),
           synced: true,
           details: { code: '987654' }
         },
@@ -146,8 +193,8 @@ test.describe('Screenshots', () => {
           timestamp: new Date(now.getTime() - 120000).toISOString(),
           event: 'logs:events.door_open',
           type: 'info',
-          opcode: 0x91,
-          payload: new Uint8Array([0, 0, 120]),
+          opcode: 0x91, // LOG_DOOR_OPEN_HISTORY
+          payload: createSimplePayload(),
           synced: true,
           details: {}
         },
@@ -157,8 +204,8 @@ test.describe('Screenshots', () => {
           timestamp: new Date(now.getTime() - 300000).toISOString(),
           event: 'logs:events.ble_invalid',
           type: 'warning',
-          opcode: 0x88,
-          payload: new Uint8Array([0, 1, 44]),
+          opcode: 0x88, // LOG_CODE_BLE_INVALID_HISTORY
+          payload: createCodePayload('000000'),
           synced: false,
           details: { code: '000000' }
         },
@@ -168,10 +215,10 @@ test.describe('Screenshots', () => {
            timestamp: new Date(now.getTime() - 600000).toISOString(),
            event: 'logs:events.nfc_opening',
            type: 'info',
-           opcode: 0xA1,
-           payload: new Uint8Array([0, 2, 88]),
+           opcode: 0xA1, // LOG_EVENT_NFC_OPENING
+           payload: createNfcPayload('AB:CD:EF:12:34:56'),
            synced: true,
-           details: { tag_uid: 'ABCDEF123456' }
+           details: { tag_uid: 'AB:CD:EF:12:34:56' }
         },
         {
            id: 'log-6',
@@ -180,7 +227,7 @@ test.describe('Screenshots', () => {
            event: 'logs:events.door_open',
            type: 'info',
            opcode: 0x91,
-           payload: new Uint8Array([0, 0, 120]),
+           payload: createSimplePayload(),
            synced: true,
            details: {}
         },
@@ -191,9 +238,9 @@ test.describe('Screenshots', () => {
            event: 'logs:events.ble_valid',
            type: 'info',
            opcode: 0x86,
-           payload: new Uint8Array([0, 0, 0]),
+           payload: createCodePayload('112233'),
            synced: true,
-           details: { code: '112233', macAddress: '11:22:33:44:55:66' }
+           details: { code: '112233' }
         }
       ];
 
