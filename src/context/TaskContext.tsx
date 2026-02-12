@@ -209,6 +209,12 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                   }
                 }
               }
+              // Request code count after successful creation
+              try {
+                await sendRequest(new CountCodesPacket());
+              } catch (countError) {
+                console.warn('Failed to request code count after creation:', countError);
+              }
             }
             break;
 
