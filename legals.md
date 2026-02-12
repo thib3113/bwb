@@ -17,6 +17,11 @@ The code provided in this repository is the result of independent reverse engine
 **Technical Context**
 This application operates exclusively via **Bluetooth Low Energy (Web BLE)** directly from the user's browser to the device. It does not rely on any proprietary cloud service or backend API from the device manufacturer.
 
+**Privacy Policy**
+- **Local Storage Only:** All data (PIN codes, logs, device identifiers) are stored locally in your browser's IndexedDB. No data is sent to any external server or the author.
+- **Direct Communication:** Communication happens directly between your browser and the Boks device via Bluetooth.
+- **No Analytics:** No tracking or analytics are used in this application.
+
 **Liability**
 This software is provided "AS IS", without warranty of any kind. The author cannot be held responsible for any damage to your device, voiding of official warranties, or security risks resulting from the use of this software. Use it at your own risk.
 
@@ -38,6 +43,11 @@ Le code fourni dans ce dépôt est le résultat d'une ingénierie inverse et d'u
 
 **Contexte Technique**
 Cette application fonctionne exclusivement via **Bluetooth Low Energy (Web BLE)**, directement depuis le navigateur de l'utilisateur vers l'appareil. Elle ne dépend d'aucun service cloud propriétaire ou API backend du fabricant de l'appareil.
+
+**Politique de Confidentialité**
+- **Stockage Local Uniquement :** Toutes les données (codes PIN, journaux, identifiants d'appareil) sont stockées localement dans l'IndexedDB de votre navigateur. Aucune donnée n'est envoyée à un serveur externe ou à l'auteur.
+- **Communication Directe :** La communication s'effectue directement entre votre navigateur et l'appareil Boks via Bluetooth.
+- **Pas d'Analyses :** Aucun outil de suivi ou d'analyse n'est utilisé dans cette application.
 
 **Responsabilité**
 Ce logiciel est fourni "TEL QUEL", sans aucune garantie. L'auteur ne peut être tenu responsable des dommages causés à votre appareil, de l'annulation des garanties officielles ou des risques de sécurité résultant de l'utilisation de ce logiciel. Vous l'utilisez à vos propres risques.

@@ -1,4 +1,4 @@
-import { test, expect, BLEOpcode } from './fixtures';
+import { test, expect, BLEOpcode } from '../fixtures';
 
 test.describe('Bluetooth PIN Management', () => {
   test.beforeEach(async ({ page }) => {

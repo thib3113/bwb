@@ -111,6 +111,7 @@ export const NfcTagsTab = () => {
         <FormControlLabel
           control={
             <Switch
+              data-testid="la-poste-switch"
               checked={activeDevice?.la_poste_activated || false}
               onChange={handleLaPosteToggle}
               disabled={!isLaPosteCompatible}
@@ -125,7 +126,7 @@ export const NfcTagsTab = () => {
           }
         />
         {!isLaPosteCompatible && (
-          <Alert severity="warning" sx={{ mt: 1 }}>
+          <Alert data-testid="laposte-update-required-alert" severity="warning" sx={{ mt: 1 }}>
             {t('settings:device_info.warnings.update_required_laposte')}
           </Alert>
         )}
@@ -157,7 +158,7 @@ export const NfcTagsTab = () => {
         </Box>
 
         {!isNfcTagsCompatible && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
+          <Alert data-testid="nfc-update-required-alert" severity="warning" sx={{ mb: 2 }}>
             {t('settings:device_info.warnings.update_required_nfc')}
           </Alert>
         )}

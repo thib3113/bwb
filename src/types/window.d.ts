@@ -6,6 +6,7 @@ declare global {
   interface Window {
     // Simulator & Debug Flags
     BOKS_SIMULATOR_ENABLED?: boolean;
+    BOKS_SIMULATOR_DISABLED?: boolean;
     enableBoksSimulator?: () => void;
     toggleSimulator?: (enabled: boolean) => void;
     resetApp?: () => Promise<void>;

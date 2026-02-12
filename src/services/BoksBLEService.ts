@@ -51,6 +51,7 @@ export type BLEServiceState =
 // Type safe access to global test flags
 interface BoksWindow extends Window {
   BOKS_SIMULATOR_ENABLED?: boolean;
+  BOKS_SIMULATOR_DISABLED?: boolean;
 }
 
 export class BoksBLEService extends EventEmitter {
@@ -76,9 +77,15 @@ export class BoksBLEService extends EventEmitter {
     // 2. Fallback to runtime flags
     else if (typeof window !== 'undefined') {
       const win = window as unknown as BoksWindow;
-      useSimulator =
-        win.BOKS_SIMULATOR_ENABLED === true ||
-        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
+
+      // DISABLED flag has priority (for E2E resilience tests)
+      if (win.BOKS_SIMULATOR_DISABLED === true) {
+        useSimulator = false;
+      } else {
+        useSimulator =
+          win.BOKS_SIMULATOR_ENABLED === true ||
+          localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
+      }
     }
 
     if (useSimulator) {

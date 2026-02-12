@@ -31,7 +31,22 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
 
   async connect(): Promise<BluetoothDevice> {
     console.log('[SimulatedAdapter] Connecting...');
+
+    // Simulate Discovery Failure
+    const discErr = this.simulator._consumeDiscoveryError();
+    if (discErr) {
+      console.warn('[SimulatedAdapter] Faking Discovery Failure:', discErr.message);
+      throw discErr;
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800)); // Fake delay
+
+    // Simulate Connection Failure
+    const connErr = this.simulator._consumeConnectionError();
+    if (connErr) {
+      console.warn('[SimulatedAdapter] Faking Connection Failure:', connErr.message);
+      throw connErr;
+    }
 
     this.isConnected = true;
 

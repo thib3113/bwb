@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Maintenance Page', () => {
   test.beforeEach(async ({ page }) => {

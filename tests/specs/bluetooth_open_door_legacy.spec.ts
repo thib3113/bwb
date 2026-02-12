@@ -1,4 +1,4 @@
-import { BLEOpcode, expect, test } from './fixtures';
+import { BLEOpcode, expect, test } from '../fixtures';
 
 test.describe('Bluetooth Open Door Feature', () => {
   test.beforeEach(async ({ page }) => {

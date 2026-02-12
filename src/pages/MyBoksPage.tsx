@@ -61,7 +61,7 @@ export const MyBoksPage = () => {
         case 'settings':
           setValue(0);
           break;
-        case 'users':
+        case 'nfc':
           setValue(1);
           break;
         default:
@@ -90,7 +90,7 @@ export const MyBoksPage = () => {
   const isNfcHwCompatible = isHwCompatible('4.0');
 
   const handleChange = (_event: unknown, newValue: number) => {
-    if (newValue === 2) {
+    if (newValue === 1) {
       // NFC Tab
       if (!isNfcHwCompatible) {
         showNotification('Version Hardware 4.0 required', 'warning');
@@ -193,8 +193,7 @@ export const MyBoksPage = () => {
           aria-label="my boks tabs"
         >
           <Tab data-testid="tab-settings" label={t('settings:title')} {...a11yProps(0)} />
-          <Tab data-testid="tab-users" label={t('common:users.title')} {...a11yProps(1)} />
-          {isNfcHwCompatible && <Tab data-testid="tab-nfc" label="Tags NFC" {...a11yProps(2)} />}
+          {isNfcHwCompatible && <Tab data-testid="tab-nfc" label="Tags NFC" {...a11yProps(1)} />}
         </Tabs>
       </Box>
 
@@ -203,14 +202,6 @@ export const MyBoksPage = () => {
         <DeviceSettings deviceId={activeDevice?.id || ''} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6">{t('common:users.title')}</Typography>
-          <Typography variant="body1" color="textSecondary">
-            {t('common:coming_soon')}
-          </Typography>
-        </Box>
-      </TabPanel>
-      <TabPanel value={value} index={2}>
         {isNfcHwCompatible ? <NfcTagsTab /> : null}
       </TabPanel>
     </Box>
