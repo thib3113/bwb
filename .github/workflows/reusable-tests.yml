@@ -4,6 +4,75 @@ on:
   workflow_call:
 
 jobs:
+  translation-check:
+    name: Translation Keys Sync Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check translations
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const getKeys = (obj, prefix = '') => {
+              let keys = new Set();
+              for (const key in obj) {
+                const fullKey = prefix ? `${prefix}.${key}` : key;
+                keys.add(fullKey);
+                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                  getKeys(obj[key], fullKey).forEach(k => keys.add(k));
+                }
+              }
+              return keys;
+            };
+
+            const localesDir = 'boks-web-ble-new/src/locales';
+            const enDir = path.join(localesDir, 'en');
+            const frDir = path.join(localesDir, 'fr');
+
+            if (!fs.existsSync(enDir) || !fs.existsSync(frDir)) {
+               core.setFailed("Locales directory not found at " + localesDir);
+               return;
+            }
+
+            const enFiles = fs.readdirSync(enDir).filter(f => f.endsWith('.json'));
+            const frFiles = fs.readdirSync(frDir).filter(f => f.endsWith('.json'));
+            const allFiles = new Set([...enFiles, ...frFiles]);
+            
+            let errors = [];
+
+            for (const file of [...allFiles].sort()) {
+              const enPath = path.join(enDir, file);
+              const frPath = path.join(frDir, file);
+              
+              if (!fs.existsSync(enPath)) {
+                errors.push(`${file} missing in EN`);
+                continue;
+              }
+              if (!fs.existsSync(frPath)) {
+                errors.push(`${file} missing in FR`);
+                continue;
+              }
+              
+              const enKeys = getKeys(JSON.parse(fs.readFileSync(enPath, 'utf8')));
+              const frKeys = getKeys(JSON.parse(fs.readFileSync(frPath, 'utf8')));
+              
+              const missingInFr = [...enKeys].filter(k => !frKeys.has(k));
+              const missingInEn = [...frKeys].filter(k => !enKeys.has(k));
+              
+              if (missingInFr.length > 0) errors.push(`${file}: Missing keys in FR: ${missingInFr.join(', ')}`);
+              if (missingInEn.length > 0) errors.push(`${file}: Missing keys in EN: ${missingInEn.join(', ')}`);
+            }
+
+            if (errors.length > 0) {
+              core.setFailed("Translation keys mismatch:\n" + errors.join('\n'));
+            } else {
+              console.log("All translation keys are synchronized.");
+            }
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest

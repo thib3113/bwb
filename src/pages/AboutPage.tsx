@@ -51,9 +51,32 @@ export const AboutPage = () => {
           <Typography variant="h6" gutterBottom>
             {t('settings:about.links')}
           </Typography>
-          <Link href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" underline="hover">
-            {t('settings:about.github')}
-          </Link>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Link
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              {t('settings:about.github')}
+            </Link>
+            <Link
+              href={`${GITHUB_REPO_URL}/blob/main/legals.md`}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              {t('settings:about.legal_notice')}
+            </Link>
+            <Link
+              href={`${GITHUB_REPO_URL}/blob/main/legals.md#privacy-policy`}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              {t('settings:about.privacy_policy')}
+            </Link>
+          </Box>
         </Box>
 
         <Box>

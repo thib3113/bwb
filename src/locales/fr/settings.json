@@ -71,6 +71,8 @@
     "credits": "Crédits",
     "credits_description": "Ce projet est le résultat d'un effort de rétro-ingénierie visant à comprendre et interagir avec le système Boks.",
     "disclaimer": "Avertissement : Il s'agit d'un client non officiel qui n'est pas affilié à Boks.",
+    "legal_notice": "Mentions Légales",
+    "privacy_policy": "Politique de Confidentialité",
     "support_title": "Soutenez le projet",
     "support_description": "Si vous trouvez cet outil utile, envisagez de faire un don pour soutenir son développement.",
     "donate_link": "Faire un don",

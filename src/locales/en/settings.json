@@ -71,6 +71,11 @@
     "credits": "Credits",
     "credits_description": "This project is the result of a reverse engineering effort to understand and interoperate with the Boks system.",
     "disclaimer": "Disclaimer: This is an unofficial client and is not affiliated with Boks.",
+    "legal_notice": "Legal Notice",
+    "privacy_policy": "Privacy Policy",
+    "support_title": "Support the Project",
+    "support_description": "If you find this tool useful, consider making a donation to support its development.",
+    "donate_link": "Donate",
     "github_issues": "Report an Issue"
   },
   "developer": {
