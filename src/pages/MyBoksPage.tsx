@@ -196,7 +196,13 @@ export const MyBoksPage = () => {
 
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="my boks tabs">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="my boks tabs"
+        >
           <Tab data-testid="tab-settings" label={t('settings:title')} {...a11yProps(0)} />
           <Tab data-testid="tab-users" label={t('common:users.title')} {...a11yProps(1)} />
           <Tab

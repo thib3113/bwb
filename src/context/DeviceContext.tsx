@@ -21,7 +21,6 @@ import { CountCodesPacket } from '../ble/packets/StatusPackets';
 import { SetConfigurationPacket } from '../ble/packets/SetConfigurationPacket';
 import { PCB_VERSIONS } from '../utils/version';
 
-
 // Ensure StorageService is exposed for debugging
 if (typeof window !== 'undefined') {
   window.boksDebug = window.boksDebug || {};
