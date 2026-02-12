@@ -195,8 +195,8 @@ export const useCodeLogic = (
 
       // Check restriction
       if (checkDeviceVersion(activeDevice).isRestricted) {
-         showNotification(t('common:errors.version.feature_restricted_message'), 'error');
-         return;
+        showNotification(t('common:errors.version.feature_restricted_message'), 'error');
+        return;
       }
 
       try {
@@ -290,8 +290,8 @@ export const useCodeLogic = (
 
       // Check restriction
       if (checkDeviceVersion(activeDevice).isRestricted) {
-         showNotification(t('common:errors.version.feature_restricted_message'), 'error');
-         return;
+        showNotification(t('common:errors.version.feature_restricted_message'), 'error');
+        return;
       }
 
       try {

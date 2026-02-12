@@ -31,11 +31,7 @@ export const VersionBanner = () => {
         data-testid="version-guard-banner"
         action={
           isOldSoftware && (
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => navigate('/update')}
-            >
+            <Button color="inherit" size="small" onClick={() => navigate('/update')}>
               {t('common:actions.update')}
             </Button>
           )

@@ -36,6 +36,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
   const activeDeviceIdRef = useRef(activeDeviceId);
 
+  // New state for syncing codes
+  const [isSyncingCodes, setIsSyncingCodes] = useState(false);
+
   // Fusionner les appareils et les secrets pour la compatibilité avec le reste de l'app
   const knownDevices = useMemo(() => {
     if (!devicesQuery) return [];
@@ -60,6 +63,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       if (!currentId) return;
 
       if (packet.opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
+        // Reset syncing state when we receive the count
+        setIsSyncingCodes(false);
+
         if (packet.payload.length >= 4) {
           const master = (packet.payload[0] << 8) | packet.payload[1];
           const single = (packet.payload[2] << 8) | packet.payload[3];
@@ -411,61 +417,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     return activeDevice.log_count ?? 0;
   }, [activeDevice]);
 
-  const refreshCodeCount = useCallback(async () => {
-    // Check version restriction inside refreshCodeCount as well
-    // But activeDevice is available via scope.
-    // However, refreshCodeCount is often called where activeDevice is already known.
-    // But activeDevice state might update.
-    // We need to access the current 'activeDevice' from state.
-
-    // Using a ref to access latest state inside callback without dependency loop?
-    // Actually activeDevice is in dependency array of the Provider value, but not this callback?
-    // Ah, this callback has empty dependency array [], so it captures initial state?
-    // NO, it uses bleService.
-
-    // Wait, refreshCodeCount is defined as:
-    // const refreshCodeCount = useCallback(async () => { ... }, []);
-    // It has NO access to activeDevice unless I add it to deps.
-    // If I add activeDevice to deps, the function reference changes often.
-
-    // Instead of checking activeDevice here (which might be stale if not in deps),
-    // let's rely on the caller to check restriction OR add activeDevice to deps.
-
-    // But wait, I can use activeDeviceIdRef.current to get ID, then find device.
-    // But I need the full device object to check version.
-
-    const bleService = BoksBLEService.getInstance();
-    if (bleService.getState() !== 'connected') return;
-
-    // Let's check restriction using the ref if possible, or just skip it here
-    // and rely on UI blocking. But background sync needs blocking too.
-
-    // I will add activeDevice to dependencies. It's safer.
-
-    // But wait, the previous code didn't use activeDevice in refreshCodeCount. It just sent the packet.
-    // And the global listener updated the DB.
-
-    // I need to check restriction.
-    // I can get the device from 'knownDevices' using 'activeDeviceIdRef'.
-
-    const currentId = activeDeviceIdRef.current;
-    if (currentId) {
-        // Find device
-        // knownDevices is in scope. But it changes.
-        // Let's use db to be sure? No, that's async.
-
-        // I will update the callback to depend on activeDevice.
-    }
-
-    try {
-      // Opcode 0x14 - count codes
-      await bleService.sendRequest(new CountCodesPacket());
-      // The update itself happens in the global listener above which updates db.devices
-    } catch (error) {
-      console.error('Failed to refresh code count:', error);
-    }
-  }, []); // Dependencies will be updated below
-
   // Function to toggle La Poste
   const toggleLaPoste = useCallback(async (enable: boolean) => {
     if (!activeDeviceIdRef.current) return;
@@ -495,7 +446,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Re-define refreshCodeCount properly with check
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   const refreshCodeCountWithCheck = useCallback(async () => {
     const bleService = BoksBLEService.getInstance();
     if (bleService.getState() !== 'connected') return;
@@ -503,17 +454,30 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     // Check version
     const currentId = activeDeviceIdRef.current;
     if (currentId) {
-        const device = knownDevices.find(d => d.id === currentId);
-        if (device && checkDeviceVersion(device).isRestricted) {
-            console.log('[DeviceContext] Code count refresh aborted due to restricted version.');
-            return;
-        }
+      const device = knownDevices.find((d) => d.id === currentId);
+      if (device && checkDeviceVersion(device).isRestricted) {
+        console.log('[DeviceContext] Code count refresh aborted due to restricted version.');
+        return;
+      }
     }
 
     try {
+      setIsSyncingCodes(true);
       await bleService.sendRequest(new CountCodesPacket());
+
+      // Safety timeout: Reset syncing state if no response after 5s
+      setTimeout(() => {
+        setIsSyncingCodes((prev) => {
+          if (prev) {
+            console.warn('[DeviceContext] Code sync timed out (no 0xC3 received).');
+            return false;
+          }
+          return prev;
+        });
+      }, 5000);
     } catch (error) {
       console.error('Failed to refresh code count:', error);
+      setIsSyncingCodes(false);
     }
   }, [knownDevices]);
   // knownDevices changes when device updates, so this is fine.
@@ -532,7 +496,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCount: refreshCodeCountWithCheck, // Use the new one
       updateDeviceBatteryLevel,
-      toggleLaPoste
+      toggleLaPoste,
+      isSyncingCodes // Export new state
     }),
     [
       knownDevices,
@@ -547,7 +512,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setActiveDevice,
       refreshCodeCountWithCheck,
       updateDeviceBatteryLevel,
-      toggleLaPoste
+      toggleLaPoste,
+      isSyncingCodes
     ]
   );
 
