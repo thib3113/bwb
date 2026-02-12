@@ -198,10 +198,16 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                  * If User (Non-Admin): Can ALWAYS create Master Code (regardless of key)
                  */}
                 {(!isAdmin || (isAdmin && hasConfigurationKey)) && (
-                  <MenuItem value={CODE_TYPE.MASTER} data-testid="option-master">{t('master_code')}</MenuItem>
+                  <MenuItem value={CODE_TYPE.MASTER} data-testid="option-master">
+                    {t('master_code')}
+                  </MenuItem>
                 )}
-                <MenuItem value={CODE_TYPE.SINGLE} data-testid="option-single">{t('single_use_code')}</MenuItem>
-                <MenuItem value={CODE_TYPE.MULTI} data-testid="option-multi">{t('multi_use_code')}</MenuItem>
+                <MenuItem value={CODE_TYPE.SINGLE} data-testid="option-single">
+                  {t('single_use_code')}
+                </MenuItem>
+                <MenuItem value={CODE_TYPE.MULTI} data-testid="option-multi">
+                  {t('multi_use_code')}
+                </MenuItem>
               </Select>
             </FormControl>
             {type === CODE_TYPE.MASTER && (

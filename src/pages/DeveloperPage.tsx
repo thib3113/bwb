@@ -75,7 +75,13 @@ export const DeveloperPage = () => {
       </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="developer tabs">
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="developer tabs"
+        >
           <Tab label={t('settings:developer.tabs.general')} />
           <Tab label={t('settings:developer.tabs.database')} />
           <Tab label={t('settings:developer.tabs.bluetooth')} />

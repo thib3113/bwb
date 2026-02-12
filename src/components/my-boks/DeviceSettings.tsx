@@ -135,21 +135,21 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
           <Typography variant="body2" color="textSecondary">
             {t('settings:device_info.hardware_version')}:
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
             {activeDevice.hardware_version || 'N/A'}
           </Typography>
 
           <Typography variant="body2" color="textSecondary">
             {t('settings:device_info.firmware_revision')}:
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
             {activeDevice.firmware_revision || 'N/A'}
           </Typography>
 
           <Typography variant="body2" color="textSecondary">
             {t('settings:device_info.software_revision')}:
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
             {activeDevice.software_revision || 'N/A'}
           </Typography>
         </Box>
