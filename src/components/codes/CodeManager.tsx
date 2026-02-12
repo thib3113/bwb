@@ -127,7 +127,7 @@ export const CodeManager = ({
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5">
+        <Typography variant="h5" data-testid="code-stats">
           {t('title')} {codeCount && `(Total: ${codeCount.total})`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>

@@ -32,6 +32,10 @@ export class BoksSimulator extends EventEmitter {
   private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private chaosTimer: ReturnType<typeof setTimeout> | null = null;
 
+  private nextConnectionError: Error | null = null;
+  private nextDiscoveryError: Error | null = null;
+  private responseDelay: number = 50;
+
   public static getInstance(): BoksSimulator {
     if (!BoksSimulator.instance) {
       BoksSimulator.instance = new BoksSimulator();
@@ -128,6 +132,50 @@ export class BoksSimulator extends EventEmitter {
     }
   }
 
+  public stop() {
+    console.log('[BoksSimulator] Stopping simulator...');
+    if (this.autoCloseTimer) {
+      clearTimeout(this.autoCloseTimer);
+      this.autoCloseTimer = null;
+    }
+    if (this.chaosTimer) {
+      clearInterval(this.chaosTimer);
+      this.chaosTimer = null;
+    }
+    // Note: This stops the simulator logic, but the actual adapter disconnection 
+    // should be handled by SimulatedAdapter.ts if it listens to this or via mocks.
+  }
+
+  public setResponseDelay(ms: number) {
+    this.responseDelay = ms;
+  }
+
+  public failNextConnection(name: string = 'NetworkError', message: string = 'Connection failed') {
+    const err = new Error(message);
+    err.name = name;
+    this.nextConnectionError = err;
+  }
+
+  public failNextDiscovery(name: string = 'NotFoundError', message: string = 'Device not found') {
+    const err = new Error(message);
+    err.name = name;
+    this.nextDiscoveryError = err;
+  }
+
+  /** @internal Used by SimulatedAdapter */
+  public _consumeConnectionError(): Error | null {
+    const err = this.nextConnectionError;
+    this.nextConnectionError = null;
+    return err;
+  }
+
+  /** @internal Used by SimulatedAdapter */
+  public _consumeDiscoveryError(): Error | null {
+    const err = this.nextDiscoveryError;
+    this.nextDiscoveryError = null;
+    return err;
+  }
+
   private startChaosLoop() {
     if (this.chaosTimer) clearInterval(this.chaosTimer);
     this.chaosTimer = setInterval(() => {
@@ -222,7 +270,7 @@ export class BoksSimulator extends EventEmitter {
   public handlePacket(opcode: number, payload: Uint8Array): void {
     setTimeout(() => {
       this.processCommand(opcode, payload);
-    }, 50);
+    }, this.responseDelay);
   }
 
   private processCommand(opcode: number, payload: Uint8Array) {

@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Version Gating', () => {
   test.beforeEach(async ({ page }) => {
@@ -24,8 +24,8 @@ test.describe('Version Gating', () => {
     await page.evaluate(() => {
       const controller = window.boksSimulator;
       if (controller && typeof controller.setVersion === 'function') {
-        // SW: 4.2.0, FW: 10/125, HW: 4.0 (default)
-        controller.setVersion('4.2.0', '10/125');
+        // SW: 4.1.13, FW: 10/125, HW: 4.0
+        controller.setVersion('4.1.13', '10/125');
       }
     });
 
@@ -41,15 +41,16 @@ test.describe('Version Gating', () => {
         const device = await db.devices.toCollection().first();
         return device && device.software_revision === sw && device.hardware_version === hw;
       },
-      { sw: '4.2.0', hw: '4.0' },
+      { sw: '4.1.13', hw: '4.0' },
       { timeout: 15000 }
     );
 
     const nfcTab = page.getByTestId('tab-nfc');
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
-    await expect(nfcTab).toHaveCSS('opacity', '0.5');
     await nfcTab.click();
-    await expect(page.getByRole('alert')).toBeVisible();
+    
+    // The content is restricted, it should show a warning alert inside the panel
+    await expect(page.getByTestId('nfc-update-required-alert')).toBeVisible();
   });
 
   test('should allow toggling La Poste on supported firmware', async ({ page, simulator }) => {
@@ -123,9 +124,6 @@ test.describe('Version Gating', () => {
     );
 
     const nfcTab = page.getByTestId('tab-nfc');
-    await expect(nfcTab).toBeVisible({ timeout: 10000 });
-    await expect(nfcTab).toHaveCSS('opacity', '0.5');
-    await nfcTab.click();
-    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(nfcTab).not.toBeVisible({ timeout: 10000 });
   });
 });

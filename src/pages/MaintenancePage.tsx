@@ -46,6 +46,7 @@ interface ScriptDefinition {
 const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
   const { t } = useTranslation('maintenance');
   const [running, setRunning] = useState(false);
+  const [scriptStatus, setScriptStatus] = useState<'idle' | 'running' | 'finished' | 'stopped' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +68,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
     }
 
     setRunning(true);
+    setScriptStatus('running');
     setProgress(0);
     setLogs([]);
     setError(null);
@@ -89,13 +91,16 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
         { bleService, configKey }
       );
       log(t('status.finished'));
+      setScriptStatus('finished');
       setProgress(100);
     } catch (err: unknown) {
       console.error(err);
       const msg = err instanceof Error ? err.message : String(err);
       if (msg === 'STOPPED_BY_USER') {
+        setScriptStatus('stopped');
         log(t('status.stopped_user'));
       } else {
+        setScriptStatus('error');
         setError(t('status.error', { message: msg }));
         log(t('status.error', { message: msg }));
       }
@@ -105,7 +110,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
   };
 
   return (
-    <Card sx={{ mb: 2 }}>
+    <Card sx={{ mb: 2 }} data-testid={`script-card-${script.id}`} data-status={scriptStatus}>
       <CardContent>
         <Typography variant="h6" component="div">
           {t(script.titleKey)}
@@ -136,7 +141,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           >
             <List dense disablePadding>
               {logs.map((l, i) => (
-                <ListItem key={i} disablePadding>
+                <ListItem key={i} disablePadding data-testid="maintenance-log-item">
                   <ListItemText
                     primary={l}
                     primaryTypographyProps={{ variant: 'caption', fontFamily: 'monospace' }}

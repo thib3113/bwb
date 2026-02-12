@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test('Generate screenshot of codes view with mixed statuses', async ({ page, simulator }) => {
   // 1. Initial Setup

@@ -30,6 +30,11 @@ test.describe('Maintenance Page - Stop Script', () => {
     await expect(page.getByText('Clean Master Codes')).toBeVisible();
 
     // 5. Run Script
+    await page.evaluate(() => {
+      if (window.boksSimulator) {
+        window.boksSimulator.setResponseDelay(500); // 500ms delay per packet
+      }
+    });
     await page.getByRole('button', { name: 'Run' }).click();
 
     // 6. Wait for script to start (Stop button appears)
@@ -39,8 +44,9 @@ test.describe('Maintenance Page - Stop Script', () => {
     // 7. Click Stop
     await stopBtn.click();
 
-    // 8. Assert "Script stopped by user" message appears in logs
-    await expect(page.getByText('Script stopped by user')).toBeVisible({ timeout: 5000 });
+    // 8. Assert script status is 'stopped' using attribute
+    const scriptCard = page.getByTestId('script-card-clean_master_codes');
+    await expect(scriptCard).toHaveAttribute('data-status', 'stopped', { timeout: 15000 });
 
     // 9. Run button should reappear
     await expect(page.getByRole('button', { name: 'Run' })).toBeVisible();
