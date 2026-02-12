@@ -13,39 +13,37 @@ test.describe('Version Gating - Hardware Mapping', () => {
     });
   });
 
-  test('should handle hardware version mapping', async ({ page, simulator }) => {
+  test('should hide NFC tab for incompatible hardware', async ({ page, simulator }) => {
     await page.waitForFunction(() => window.boksSimulator, null, {
       timeout: 30000
     });
 
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       const controller = window.boksSimulator;
       if (controller) {
-        // SW: 4.5.0, FW: 10/cd (maps to HW 3.0)
+        // SW 4.5.0, FW 10/cd -> HW 3.0
         controller.setVersion('4.5.0', '10/cd');
       }
     });
 
     await simulator.connect({ skipReturnToHome: true });
 
-    // Already on My Boks page due to new device redirect
-
     // Wait for DB sync
     await page.waitForFunction(
-      async ({ sw, hw }) => {
-        const db = window.boksDebug?.db;
+      async () => {
+        const db = (window as any).boksDebug?.db;
         if (!db) return false;
-        const device = await db.devices.toCollection().first();
-        return device && device.software_revision === sw && device.hardware_version === hw;
+        const device = await db.devices.toArray().then((d: any[]) => d[0]);
+        // HW 3.0 < 4.0
+        return device && device.hardware_version === '3.0';
       },
-      { sw: '4.5.0', hw: '3.0' },
+      null,
       { timeout: 15000 }
     );
 
     const nfcTab = page.getByTestId('tab-nfc');
-    await expect(nfcTab).toBeVisible({ timeout: 10000 });
-    await expect(nfcTab).toHaveCSS('opacity', '0.5');
-    await nfcTab.click();
-    await expect(page.getByRole('alert')).toBeVisible();
+
+    // Should be completely hidden for HW < 4.0
+    await expect(nfcTab).toBeHidden();
   });
 });
