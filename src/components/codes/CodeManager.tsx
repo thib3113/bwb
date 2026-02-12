@@ -10,7 +10,8 @@ import {
   Box,
   Button,
   IconButton,
-  Typography
+  Typography,
+  CircularProgress
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -31,18 +32,6 @@ interface CodeManagerProps {
   hideNotification: () => void;
 }
 
-const spinAnimation = {
-  animation: 'spin 1s linear infinite',
-  '@keyframes spin': {
-    '0%': {
-      transform: 'rotate(0deg)'
-    },
-    '100%': {
-      transform: 'rotate(360deg)'
-    }
-  }
-};
-
 export const CodeManager = ({
   showAddForm,
   setShowAddForm,
@@ -50,7 +39,7 @@ export const CodeManager = ({
   hideNotification
 }: CodeManagerProps) => {
   const { t } = useTranslation(['codes', 'common']);
-  const { activeDevice } = useDevice();
+  const { activeDevice, isSyncingCodes } = useDevice();
   const { isRestricted } = useVersionCheck();
   const { tasks, syncTasks, isProcessing } = useTaskContext();
   const { isSyncingLogs } = useDeviceLogContext();
@@ -81,7 +70,7 @@ export const CodeManager = ({
   const shouldShowSyncButton = !autoSync && pendingCount > 0;
 
   // Combine process states
-  const isBusy = isProcessing || isSyncingLogs;
+  const isBusy = isProcessing || isSyncingLogs || isSyncingCodes;
 
   // Handle editing a code
   const handleEditCode = useCallback((code: BoksCode) => {
@@ -103,12 +92,8 @@ export const CodeManager = ({
 
   const getButtonIcon = () => {
     if (isBusy) {
-      // Spinning icon
-      return shouldShowSyncButton ? (
-        <SyncIcon sx={spinAnimation} />
-      ) : (
-        <RefreshIcon sx={spinAnimation} />
-      );
+      // Loader instead of spinning icon
+      return <CircularProgress size={20} color="inherit" />;
     }
     // Static icon
     return shouldShowSyncButton ? <SyncIcon /> : <RefreshIcon />;
@@ -119,7 +104,14 @@ export const CodeManager = ({
     return (
       <Box
         data-testid="feature-blocked-screen"
-        sx={{ width: '100%', p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        sx={{
+          width: '100%',
+          p: 4,
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
       >
         <LockIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
         <Typography variant="h5" gutterBottom color="text.secondary">

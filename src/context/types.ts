@@ -63,6 +63,7 @@ export interface DeviceContextType {
   refreshCodeCount: () => Promise<void>;
   updateDeviceBatteryLevel: (deviceId: string, batteryLevel: number) => Promise<void>;
   toggleLaPoste: (enable: boolean) => Promise<void>;
+  isSyncingCodes: boolean;
 }
 
 export interface DeviceLogContextType {
