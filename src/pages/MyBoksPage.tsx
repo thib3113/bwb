@@ -81,30 +81,19 @@ export const MyBoksPage = () => {
     }
   }, [activeDevice, knownDevices, selectedDeviceId]);
 
-  const isFwCompatible = (minVersion: string) => {
-    return activeDevice?.software_revision
-      ? compareVersions(activeDevice.software_revision, minVersion) >= 0
-      : false;
-  };
   const isHwCompatible = (minVersion: string) => {
     return activeDevice?.hardware_version
       ? compareVersions(activeDevice.hardware_version, minVersion) >= 0
       : false;
   };
 
-  const isNfcFwCompatible = isFwCompatible('4.3.3');
   const isNfcHwCompatible = isHwCompatible('4.0');
-  const isNfcCompatible = isNfcFwCompatible && isNfcHwCompatible;
 
   const handleChange = (_event: unknown, newValue: number) => {
     if (newValue === 2) {
       // NFC Tab
       if (!isNfcHwCompatible) {
         showNotification('Version Hardware 4.0 required', 'warning');
-        return;
-      }
-      if (!isNfcFwCompatible) {
-        showNotification('Version Firmware 4.3.3 required', 'warning');
         return;
       }
     }
@@ -205,12 +194,7 @@ export const MyBoksPage = () => {
         >
           <Tab data-testid="tab-settings" label={t('settings:title')} {...a11yProps(0)} />
           <Tab data-testid="tab-users" label={t('common:users.title')} {...a11yProps(1)} />
-          <Tab
-            data-testid="tab-nfc"
-            label="Tags NFC"
-            {...a11yProps(2)}
-            sx={{ opacity: isNfcCompatible ? 1 : 0.5 }}
-          />
+          {isNfcHwCompatible && <Tab data-testid="tab-nfc" label="Tags NFC" {...a11yProps(2)} />}
         </Tabs>
       </Box>
 
@@ -227,7 +211,7 @@ export const MyBoksPage = () => {
         </Box>
       </TabPanel>
       <TabPanel value={value} index={2}>
-        {isNfcCompatible ? <NfcTagsTab /> : <Box sx={{ p: 3 }}>Feature Unavailable</Box>}
+        {isNfcHwCompatible ? <NfcTagsTab /> : null}
       </TabPanel>
     </Box>
   );

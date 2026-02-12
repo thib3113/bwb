@@ -13,7 +13,7 @@ test.describe('Version Gating - NFC', () => {
     });
   });
 
-  test('should soft-disable NFC tab and show toast for older firmware', async ({
+  test('should show NFC tab but disable features for older firmware', async ({
     page,
     simulator
   }) => {
@@ -21,33 +21,44 @@ test.describe('Version Gating - NFC', () => {
       timeout: 30000
     });
 
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       const controller = window.boksSimulator;
       if (controller) {
-        controller.setVersion('4.2.0', '10/125');
+        controller.setVersion('4.2.0', '10/125'); // HW 4.0, SW 4.2.0
       }
     });
 
     await simulator.connect({ skipReturnToHome: true });
 
-    // Already on My Boks page due to new device redirect
-
-    // Wait for DB stabilization
+    // Wait for DB sync
     await page.waitForFunction(
-      async ({ sw, hw }) => {
-        const db = window.boksDebug?.db;
+      async () => {
+        const db = (window as any).boksDebug?.db;
         if (!db) return false;
-        const device = await db.devices.toCollection().first();
-        return device && device.software_revision === sw && device.hardware_version === hw;
+        const device = await db.devices.toArray().then((d: any[]) => d[0]);
+        // HW 4.0 (10/125), SW 4.2.0
+        return device && device.software_revision === '4.2.0' && device.hardware_version === '4.0';
       },
-      { sw: '4.2.0', hw: '4.0' },
+      null,
       { timeout: 15000 }
     );
 
     const nfcTab = page.getByTestId('tab-nfc');
+
+    // Tab visible and opaque (HW 4.0 OK)
     await expect(nfcTab).toBeVisible({ timeout: 10000 });
-    await expect(nfcTab).toHaveCSS('opacity', '0.5');
+    // Opacity is 1 by default, MUI handles selected state opacity
+    // We check it's NOT 0.5 (disabled look)
+    const opacity = await nfcTab.evaluate((el) => getComputedStyle(el).opacity);
+    expect(parseFloat(opacity)).toBeGreaterThan(0.5);
+
     await nfcTab.click();
-    await expect(page.getByRole('alert')).toBeVisible();
+
+    // Check for warning about FW version inside
+    await expect(page.getByText('4.3.3')).toBeVisible();
+
+    // Check Add Button is disabled
+    const addBtn = page.getByRole('button', { name: /Tag/i });
+    await expect(addBtn).toBeDisabled();
   });
 });

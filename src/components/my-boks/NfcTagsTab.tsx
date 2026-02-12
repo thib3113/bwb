@@ -9,32 +9,44 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Switch,
   TextField,
+  Tooltip,
   Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import NfcIcon from '@mui/icons-material/Nfc';
 import AddIcon from '@mui/icons-material/Add';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useNfcTags } from '../../hooks/useNfcTags';
 import { BoksNfcTag } from '../../types/db';
 import { NfcScanStatus } from '../../types/nfc';
+import { useDevice } from '../../hooks/useDevice';
+import { compareVersions } from '../../utils/version';
 
 export const NfcTagsTab = () => {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t, i18n } = useTranslation(['common', 'settings']);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as any;
+  const { activeDevice, toggleLaPoste } = useDevice();
 
   const { tags, scanStatus, scannedUid, startScan, registerTag, unregisterTag, resetScan } =
     useNfcTags();
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [tagName, setTagName] = useState('');
+
+  // Compatibility Checks
+  const fwVersion = activeDevice?.software_revision || '0.0.0';
+  const isLaPosteCompatible = compareVersions(fwVersion, '4.2.0') >= 0;
+  const isNfcTagsCompatible = compareVersions(fwVersion, '4.3.3') >= 0;
 
   const handleOpenAdd = () => {
     resetScan();
@@ -73,57 +85,129 @@ export const NfcTagsTab = () => {
     }
   };
 
+  const handleLaPosteToggle = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (toggleLaPoste) {
+        await toggleLaPoste(event.target.checked);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update La Poste setting');
+    }
+  };
+
+  const helpUrl =
+    i18n.language === 'fr'
+      ? 'https://github.com/thib3113/ha-boks/blob/main/documentation/FR/create_user_tag.md'
+      : 'https://github.com/thib3113/ha-boks/blob/main/documentation/EN/create_user_tag.md';
+
   return (
     <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" data-testid="nfc-tags-title">
-          {t('settings:nfc.title')}
+      {/* La Poste Section */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {t('settings:activate_la_poste')}
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-          {t('settings:nfc.add_tag')}
-        </Button>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={activeDevice?.la_poste_activated || false}
+              onChange={handleLaPosteToggle}
+              disabled={!isLaPosteCompatible}
+            />
+          }
+          label={
+            isLaPosteCompatible
+              ? activeDevice?.la_poste_activated
+                ? 'Activé'
+                : 'Désactivé'
+              : 'Non disponible'
+          }
+        />
+        {!isLaPosteCompatible && (
+          <Alert severity="warning" sx={{ mt: 1 }}>
+            {t('settings:device_info.warnings.update_required_laposte')}
+          </Alert>
+        )}
       </Box>
 
-      {tags && tags.length > 0 ? (
-        <List>
-          {tags.map((tag) => (
-            <ListItem
-              key={tag.id}
-              secondaryAction={
-                <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(tag)}>
-                  <DeleteIcon />
+      {/* NFC Tags Section */}
+      <Box sx={{ opacity: isNfcTagsCompatible ? 1 : 0.6 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" data-testid="nfc-tags-title">
+              {t('settings:nfc.title')}
+            </Typography>
+            {!isNfcTagsCompatible && (
+              <Tooltip title="Help">
+                <IconButton size="small" href={helpUrl} target="_blank" rel="noopener noreferrer">
+                  <HelpOutlineIcon />
                 </IconButton>
-              }
-            >
-              <ListItemAvatar>
-                <Avatar>
-                  <NfcIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={tag.name}
-                secondary={
-                  <>
-                    <Typography component="span" variant="body2" color="textPrimary">
-                      {tag.uid}
-                    </Typography>
-                    <br />
-                    {tag.last_seen_at
-                      ? t('settings:nfc.last_seen', {
-                          date: new Date(tag.last_seen_at).toLocaleString()
-                        })
-                      : t('settings:nfc.never_seen')}
-                  </>
+              </Tooltip>
+            )}
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenAdd}
+            disabled={!isNfcTagsCompatible}
+          >
+            {t('settings:nfc.add_tag')}
+          </Button>
+        </Box>
+
+        {!isNfcTagsCompatible && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {t('settings:device_info.warnings.update_required_nfc')}
+          </Alert>
+        )}
+
+        {tags && tags.length > 0 ? (
+          <List>
+            {tags.map((tag) => (
+              <ListItem
+                key={tag.id}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDelete(tag)}
+                    disabled={!isNfcTagsCompatible}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 }
-              />
-            </ListItem>
-          ))}
-        </List>
-      ) : (
-        <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 4 }}>
-          {t('settings:nfc.no_tags')}
-        </Typography>
-      )}
+              >
+                <ListItemAvatar>
+                  <Avatar>
+                    <NfcIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={tag.name}
+                  secondary={
+                    <>
+                      <Typography component="span" variant="body2" color="textPrimary">
+                        {tag.uid}
+                      </Typography>
+                      <br />
+                      {tag.last_seen_at
+                        ? t('settings:nfc.last_seen', {
+                            date: new Date(tag.last_seen_at).toLocaleString()
+                          })
+                        : t('settings:nfc.never_seen')}
+                    </>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 4 }}>
+            {t('settings:nfc.no_tags')}
+          </Typography>
+        )}
+      </Box>
 
       {/* Add Tag Dialog */}
       <Dialog open={openAddDialog} onClose={handleCloseAdd} fullWidth maxWidth="sm">
