@@ -77,7 +77,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       updateDeviceDetails: vi.fn(),
       toggleLaPoste: vi.fn(),
       logCount: 0,
-      activeDeviceId: activeDevice.id
+      activeDeviceId: activeDevice.id,
+      isSyncingCodes: false
     }}
   >
     <LogContext.Provider

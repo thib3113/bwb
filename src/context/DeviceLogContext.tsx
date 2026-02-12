@@ -198,8 +198,8 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Check version restriction for auto-sync
     if (activeDevice && checkDeviceVersion(activeDevice).isRestricted) {
-       console.log('[DeviceLogContext] Auto-sync skipped due to restricted version.');
-       return;
+      console.log('[DeviceLogContext] Auto-sync skipped due to restricted version.');
+      return;
     }
 
     if (isConnected && activeDevice && autoSyncEnabled && !hasAutoSyncedRef.current) {
