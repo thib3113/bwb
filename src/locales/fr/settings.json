@@ -1,5 +1,11 @@
 {
   "title": "Paramètres",
+  "device_info": {
+    "title": "Informations Appareil",
+    "hardware_version": "Version Matériel",
+    "firmware_revision": "Révision Firmware",
+    "software_revision": "Révision Logiciel"
+  },
   "theme": {
     "label": "Thème",
     "system": "Par défaut du système",

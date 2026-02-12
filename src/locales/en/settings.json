@@ -1,5 +1,11 @@
 {
   "title": "Settings",
+  "device_info": {
+    "title": "Device Info",
+    "hardware_version": "Hardware Version",
+    "firmware_revision": "Firmware Revision",
+    "software_revision": "Software Revision"
+  },
   "theme": {
     "label": "Theme",
     "system": "System Default",

@@ -8,8 +8,10 @@ import {
   CardContent,
   Divider,
   FormControlLabel,
+  MenuItem,
   Slider,
   Switch,
+  TextField,
   Typography
 } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -20,10 +22,11 @@ import LogIcon from '@mui/icons-material/BugReport';
 import { useTranslation } from 'react-i18next';
 import { BoksSimulator, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
+import { PCB_VERSIONS } from '../../utils/version';
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
-  const { toggleSimulator } = useBLE();
+  const { toggleSimulator, disconnect } = useBLE();
   const [simulator, setSimulator] = useState<BoksSimulator | null>(
     () => (window.boksSimulator as BoksSimulator) || null
   );
@@ -32,6 +35,10 @@ export const SimulatorDebugger = () => {
     () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
   const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!window.boksSimulator);
+
+  const [fwRev, setFwRev] = useState('10/125');
+  const [swRev, setSwRev] = useState('4.1.14');
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const controller = window.boksSimulator as BoksSimulator;
@@ -42,6 +49,14 @@ export const SimulatorDebugger = () => {
       return () => clearInterval(interval);
     }
   }, []);
+
+  useEffect(() => {
+    if (state && !loaded) {
+      setFwRev(state.firmwareRevision);
+      setSwRev(state.softwareRevision);
+      setLoaded(true);
+    }
+  }, [state, loaded]);
 
   const handleSimulatorToggle = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     setIsEnabled(checked);
@@ -170,6 +185,48 @@ export const SimulatorDebugger = () => {
                 startIcon={<LockIcon />}
               >
                 {t('settings:developer.simulator.force_close')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="subtitle2" gutterBottom>
+                Device Versions
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <TextField
+                  select
+                  label="Hardware / Firmware"
+                  value={fwRev}
+                  onChange={(e) => setFwRev(e.target.value)}
+                  size="small"
+                  fullWidth
+                >
+                  {Object.entries(PCB_VERSIONS).map(([fw, hw]) => (
+                    <MenuItem key={fw} value={fw}>
+                      HW {hw} (FW {fw})
+                    </MenuItem>
+                  ))}
+                  <MenuItem value="custom">Custom...</MenuItem>
+                </TextField>
+                <TextField
+                  label="Software Revision"
+                  value={swRev}
+                  onChange={(e) => setSwRev(e.target.value)}
+                  size="small"
+                  fullWidth
+                />
+              </Box>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  simulator?.setVersion(swRev, fwRev);
+                  disconnect();
+                }}
+              >
+                Update & Reconnect
               </Button>
             </CardContent>
           </Card>
