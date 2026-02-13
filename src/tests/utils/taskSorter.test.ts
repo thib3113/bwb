@@ -58,19 +58,19 @@ describe('taskSorter', () => {
         id: 'del-multi',
         type: TaskType.DELETE_CODE,
         priority: 5,
-        payload: { codeType: CODE_TYPE.MULTI }
+        payload: { codeType: CODE_TYPE.MULTI, codeId: 'del-multi' }
       }),
       mockTask({
         id: 'del-master',
         type: TaskType.DELETE_CODE,
         priority: 5,
-        payload: { codeType: CODE_TYPE.MASTER }
+        payload: { codeType: CODE_TYPE.MASTER, codeId: 'del-master' }
       }),
       mockTask({
         id: 'del-single',
         type: TaskType.DELETE_CODE,
         priority: 5,
-        payload: { codeType: CODE_TYPE.SINGLE }
+        payload: { codeType: CODE_TYPE.SINGLE, codeId: 'del-single' }
       })
     ];
 
@@ -84,7 +84,7 @@ describe('taskSorter', () => {
     const tasks = [
       mockTask({ id: 'p10', priority: 10 }),
       mockTask({ id: 'p1-add', type: TaskType.ADD_MASTER_CODE, priority: 1 }),
-      mockTask({ id: 'p1-del', type: TaskType.DELETE_CODE, priority: 1, payload: { codeType: CODE_TYPE.SINGLE } })
+      mockTask({ id: 'p1-del', type: TaskType.DELETE_CODE, priority: 1, payload: { codeType: CODE_TYPE.SINGLE, codeId: 'p1-del' } })
     ];
 
     const sorted = sortTasks(tasks);

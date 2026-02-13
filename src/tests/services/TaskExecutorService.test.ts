@@ -54,7 +54,7 @@ describe('TaskExecutorService', () => {
     const task: BoksTask = {
       ...baseTask,
       type: TaskType.ADD_MASTER_CODE,
-      payload: { code: '654321', index: 1 }
+      payload: { code: '654321', index: 1, codeId: 'master-1' }
     };
 
     await TaskExecutorService.execute(task, mockDevice, mockSendRequest);
@@ -120,7 +120,7 @@ describe('TaskExecutorService', () => {
     const task: BoksTask = {
       ...baseTask,
       type: TaskType.ADD_MASTER_CODE,
-      payload: { code: '123456', index: 1 }
+      payload: { code: '123456', index: 1, codeId: 'master-1' }
     };
 
     await expect(TaskExecutorService.execute(task, deviceNoKey, mockSendRequest))
@@ -132,7 +132,7 @@ describe('TaskExecutorService', () => {
     const task: BoksTask = {
       ...baseTask,
       type: TaskType.ADD_MASTER_CODE,
-      payload: { code: '123456', index: 1 }
+      payload: { code: '123456', index: 1, codeId: 'master-1' }
     };
 
     await expect(TaskExecutorService.execute(task, mockDevice, mockSendRequest))
