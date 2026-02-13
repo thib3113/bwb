@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
-test('verify scrollable tabs', async ({ page }) => {
+test('verify scrollable tabs', async () => {
   // Navigate to developer page (requires login or dev mode, might need mocking)
   // For now, let's just check if the tabs have the scrollable class or attribute
   // This is tricky without a running dev server and auth.

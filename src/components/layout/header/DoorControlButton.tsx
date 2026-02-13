@@ -99,9 +99,7 @@ export const DoorControlButton = ({ showNotification }: DoorControlButtonProps) 
           {isOpening ? (
             <CircularProgress size={20} sx={{ color: 'white' }} />
           ) : (
-            <MeetingRoomIcon
-              sx={doorStatus === 'open' ? { color: 'success.main' } : undefined}
-            />
+            <MeetingRoomIcon sx={doorStatus === 'open' ? { color: 'success.main' } : undefined} />
           )}
         </IconButton>
       </span>

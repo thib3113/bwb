@@ -46,7 +46,9 @@ interface ScriptDefinition {
 const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
   const { t } = useTranslation('maintenance');
   const [running, setRunning] = useState(false);
-  const [scriptStatus, setScriptStatus] = useState<'idle' | 'running' | 'finished' | 'stopped' | 'error'>('idle');
+  const [scriptStatus, setScriptStatus] = useState<
+    'idle' | 'running' | 'finished' | 'stopped' | 'error'
+  >('idle');
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
