@@ -4,8 +4,9 @@ import '@testing-library/jest-dom';
 import { DeveloperVersion } from '../DeveloperVersion';
 import * as developerContextHook from '../../../../context/DeveloperContextTypes';
 
-// Mock global commit hash
-global.__COMMIT_HASH__ = 'abcdef1';
+// Mock global commit hash for tests
+// Using 'any' to bypass TS error: Property '__COMMIT_HASH__' does not exist on type 'typeof globalThis'.
+(global as any).__COMMIT_HASH__ = 'abcdef1';
 
 // Mock hooks
 vi.mock('../../../../context/DeveloperContextTypes', () => ({
