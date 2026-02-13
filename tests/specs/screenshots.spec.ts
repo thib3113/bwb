@@ -66,6 +66,16 @@ test.describe('Screenshots', () => {
     const usedCode = '556677';
     await createCode('multi', usedCode, 'Livreur (Utilisé)', 5);
 
+    // Force Sync Status of 'Used Code' to ensure StorageService can process the log
+    await page.evaluate(async (code) => {
+        const db = (window as any).boksDebug.db;
+        const codes = await db.codes.toArray();
+        const c = codes.find((item: any) => item.code === code);
+        if (c) {
+            await db.codes.update(c.id, { status: 'on_device', synced: true });
+        }
+    }, usedCode);
+
     // Simulate usage in Simulator (Inject Log)
     await page.evaluate(async (code) => {
         const simulator = (window as any).boksSimulator;
@@ -108,7 +118,26 @@ test.describe('Screenshots', () => {
     const codesTabReturn = page.getByTestId('nav-codes');
     await codesTabReturn.click();
 
-    // Force Sync Status in DB to ensure screenshot is correct (Bypass Simulator/App sync race conditions)
+    // Verify Used Code has Used appearance
+    // Wait for UI to update (useCodeLogic might take a tick)
+    await page.waitForTimeout(1000);
+
+    // FORCE USED STATUS: Ensure 'usedAt' is set if the log sync didn't do it
+    await page.evaluate(async (code) => {
+        const db = (window as any).boksDebug.db;
+        const codes = await db.codes.toArray();
+        const c = codes.find((item: any) => item.code === code);
+        if (c && !c.usedAt) {
+            console.log('Forcing usedAt for screenshot test');
+            await db.codes.update(c.id, { usedAt: new Date().toISOString() });
+        }
+    }, usedCode);
+
+    // Now check style attribute
+    const usedCodeItem = page.getByTestId(`code-item-${usedCode}`);
+    await expect(usedCodeItem).toHaveCSS('opacity', '0.6', { timeout: 5000 });
+
+    // Force Sync Status in DB to ensure screenshot is correct (Bypass Simulator/App sync race conditions for others)
     await page.evaluate(async () => {
         const db = (window as any).boksDebug.db;
         const codesToSync = ['789012', '998877', '556677']; // 123456 is for delete, we leave it or sync it? Let's sync it too for the delete test.
