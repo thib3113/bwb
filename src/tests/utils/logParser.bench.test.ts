@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { parseLogs } from './logParser';
-import { BoksLog } from '../types';
-import { BLEOpcode } from './bleConstants';
+import { parseLogs } from '../../utils/logParser';
+import { BoksLog } from '../../types';
+import { BLEOpcode } from '../../utils/bleConstants';
 
 describe('logParser Performance', () => {
   it('should parse 300 logs quickly', () => {

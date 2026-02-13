@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { runTask } from './uiUtils';
-import { UI_MINIMUM_DURATION_MS } from './bleConstants';
+import { runTask } from '../../utils/uiUtils';
+import { UI_MINIMUM_DURATION_MS } from '../../utils/bleConstants';
 
 describe('runTask', () => {
   const showNotification = vi.fn();

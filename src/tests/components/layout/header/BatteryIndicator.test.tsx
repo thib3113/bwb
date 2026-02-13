@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { BatteryIndicator } from '../BatteryIndicator';
+import { BatteryIndicator } from '../../../../components/layout/header/BatteryIndicator';
 import * as useDeviceHook from '../../../../hooks/useDevice';
 import * as useBLEConnectionHook from '../../../../hooks/useBLEConnection';
 

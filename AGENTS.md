@@ -131,6 +131,14 @@ The project includes specific utilities to improve UX during BLE operations:
 
 ## Development Guidelines
 
+- **Test Organization (CRITICAL)**:
+  - **Unit & Integration Tests (Vitest)**: 
+    - All tests MUST be located in **`src/tests/`**.
+    - **DO NOT** create `__tests__` folders or colocate `.test.tsx` files next to source code.
+    - Mirror the `src/` structure (e.g., `src/components/Button.tsx` -> `src/tests/components/Button.test.tsx`).
+  - **End-to-End Tests (Playwright)**: 
+    - Located in the root **`tests/specs/`** directory.
+    - Use the `simulator` fixture from `tests/fixtures.ts` for any BLE interaction testing.
 - **Consult `.jules/` first:** Before implementing any new BLE feature, check the `02_ble_workflows.md` file.
 - **Robust Parsing:** Never trust the length byte in Boks BLE packets. Use the actual buffer size and checksum verification.
 - **Sequential BLE:** Avoid sending multiple commands simultaneously. Use the `BLEQueue` and implement delays between requests (standard is 250-500ms).

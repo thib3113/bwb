@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BoksSimulator } from '../BoksSimulator';
+import { BoksSimulator } from '../../../ble/simulator/BoksSimulator';
 import { BLEOpcode, SIMULATOR_DEFAULT_PIN } from '../../../utils/bleConstants';
 
 describe('BoksSimulator', () => {

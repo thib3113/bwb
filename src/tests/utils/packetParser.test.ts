@@ -5,7 +5,7 @@ import {
   encodeStringPayload,
   parsePacket,
   verifyChecksum
-} from './packetParser';
+} from '../../utils/packetParser';
 
 describe('packetParser', () => {
   describe('verifyChecksum', () => {

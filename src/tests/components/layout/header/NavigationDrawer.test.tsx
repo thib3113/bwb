@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { NavigationDrawer } from '../NavigationDrawer';
+import { NavigationDrawer } from '../../../../components/layout/header/NavigationDrawer';
 import * as useDeviceHook from '../../../../hooks/useDevice';
 import * as developerContextHook from '../../../../context/DeveloperContextTypes';
 
@@ -30,6 +30,9 @@ vi.mock('react-i18next', () => ({
     t: (key: string, opts?: any) => key + (opts ? JSON.stringify(opts) : ''),
   }),
 }));
+
+// Mock global commit hash for tests
+(global as any).__COMMIT_HASH__ = 'abcdef1';
 
 describe('NavigationDrawer', () => {
   const mockShowNotification = vi.fn();

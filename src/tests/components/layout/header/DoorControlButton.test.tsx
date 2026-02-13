@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { DoorControlButton } from '../DoorControlButton';
+import { DoorControlButton } from '../../../../components/layout/header/DoorControlButton';
 import * as useDoorHook from '../../../../hooks/useDoor';
 import * as useBLEConnectionHook from '../../../../hooks/useBLEConnection';
 import * as useDeviceHook from '../../../../hooks/useDevice';

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { DeveloperVersion } from '../DeveloperVersion';
+import { DeveloperVersion } from '../../../../components/layout/header/DeveloperVersion';
 import * as developerContextHook from '../../../../context/DeveloperContextTypes';
 
 // Mock global commit hash for tests

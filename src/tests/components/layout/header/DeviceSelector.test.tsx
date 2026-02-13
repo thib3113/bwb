@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom'; // Import matchers
-import { DeviceSelector } from '../DeviceSelector';
+import { DeviceSelector } from '../../../../components/layout/header/DeviceSelector';
 import * as useDeviceHook from '../../../../hooks/useDevice';
 
 // Mock the hook

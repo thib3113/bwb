@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { LogRefreshButton } from '../LogRefreshButton';
+import { LogRefreshButton } from '../../../../components/layout/header/LogRefreshButton';
 import * as useBLEConnectionHook from '../../../../hooks/useBLEConnection';
 import * as useBLELogsHook from '../../../../hooks/useBLELogs';
 import * as uiUtils from '../../../../utils/uiUtils';

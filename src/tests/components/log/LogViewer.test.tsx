@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { LogViewer } from './LogViewer';
-import { BLEOpcode } from '../../utils/bleConstants';
+import { LogViewer } from '../../../components/log/LogViewer';
+import { BLEOpcode } from '../../../utils/bleConstants';
 // Import mocks to configure them
-import { useDevice } from '../../hooks/useDevice';
-import { useBLEConnection } from '../../hooks/useBLEConnection';
-import { useBLELogs } from '../../hooks/useBLELogs';
-import { useLogCount } from '../../hooks/useLogCount';
+import { useDevice } from '../../../hooks/useDevice';
+import { useBLEConnection } from '../../../hooks/useBLEConnection';
+import { useBLELogs } from '../../../hooks/useBLELogs';
+import { useLogCount } from '../../../hooks/useLogCount';
 import { useLiveQuery } from 'dexie-react-hooks';
 // Mock necessary hooks
 vi.mock('react-i18next', () => ({
@@ -16,19 +16,19 @@ vi.mock('react-i18next', () => ({
   })
 }));
 
-vi.mock('../../hooks/useDevice', () => ({
+vi.mock('../../../hooks/useDevice', () => ({
   useDevice: vi.fn()
 }));
 
-vi.mock('../../hooks/useBLEConnection', () => ({
+vi.mock('../../../hooks/useBLEConnection', () => ({
   useBLEConnection: vi.fn()
 }));
 
-vi.mock('../../hooks/useBLELogs', () => ({
+vi.mock('../../../hooks/useBLELogs', () => ({
   useBLELogs: vi.fn()
 }));
 
-vi.mock('../../hooks/useLogCount', () => ({
+vi.mock('../../../hooks/useLogCount', () => ({
   useLogCount: vi.fn()
 }));
 

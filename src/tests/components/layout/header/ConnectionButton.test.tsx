@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import { ConnectionButton } from '../ConnectionButton';
+import { ConnectionButton } from '../../../../components/layout/header/ConnectionButton';
 import * as useBLEConnectionHook from '../../../../hooks/useBLEConnection';
 import * as useCodeLogicHook from '../../../../hooks/useCodeLogic';
 import * as bleUtils from '../../../../utils/bleUtils';
