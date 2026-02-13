@@ -77,7 +77,7 @@ export class BoksBLEService extends EventEmitter {
     // 2. Fallback to runtime flags
     else if (typeof window !== 'undefined') {
       const win = window as unknown as BoksWindow;
-      
+
       // DISABLED flag has priority (for E2E resilience tests)
       if (win.BOKS_SIMULATOR_DISABLED === true) {
         useSimulator = false;

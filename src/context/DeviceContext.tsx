@@ -305,6 +305,32 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     [updateDeviceBatteryLevel]
   );
 
+  // Auto-register device on connection
+  useEffect(() => {
+    const bleService = BoksBLEService.getInstance();
+
+    const handleConnected = () => {
+      const device = bleService.getDevice();
+      if (device && device.id) {
+        console.log(
+          '[DeviceContext] Connected event received. Auto-registering device:',
+          device.id
+        );
+        registerDevice(device).catch((err) => {
+          console.error('[DeviceContext] Failed to auto-register device:', err);
+        });
+      }
+    };
+
+    // Check initial state
+    if (bleService.getState() === 'connected') {
+      handleConnected();
+    }
+
+    const unsub = bleService.on(BLEServiceEvent.CONNECTED, handleConnected);
+    return () => unsub();
+  }, [registerDevice]);
+
   // Function to update device name/alias
   const updateDeviceName = useCallback(async (deviceId: string, newName: string) => {
     try {

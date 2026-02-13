@@ -8,7 +8,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
+  Divider
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -19,7 +19,7 @@ import {
   Handyman as MaintenanceIcon,
   Settings as SettingsIcon,
   Info as InfoIcon,
-  DeveloperMode as DeveloperIcon,
+  DeveloperMode as DeveloperIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

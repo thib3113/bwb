@@ -32,11 +32,26 @@ export const BatteryIndicator = () => {
             {displayBatteryLevel}%
           </Typography>
           {displayBatteryLevel < 20 ? (
-            <BatteryAlert color="error" fontSize="small" sx={{ ml: 0.25 }} data-testid="battery-icon-alert" />
+            <BatteryAlert
+              color="error"
+              fontSize="small"
+              sx={{ ml: 0.25 }}
+              data-testid="battery-icon-alert"
+            />
           ) : displayBatteryLevel > 90 ? (
-            <BatteryFull color="inherit" fontSize="small" sx={{ ml: 0.25 }} data-testid="battery-icon-full" />
+            <BatteryFull
+              color="inherit"
+              fontSize="small"
+              sx={{ ml: 0.25 }}
+              data-testid="battery-icon-full"
+            />
           ) : (
-            <BatteryStd color="inherit" fontSize="small" sx={{ ml: 0.25 }} data-testid="battery-icon-std" />
+            <BatteryStd
+              color="inherit"
+              fontSize="small"
+              sx={{ ml: 0.25 }}
+              data-testid="battery-icon-std"
+            />
           )}
         </Box>
       </Tooltip>

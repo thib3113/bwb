@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  AppBar,
-  Box,
-  IconButton,
-  Toolbar,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { AppBar, Box, IconButton, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import { Settings as SettingsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -68,16 +61,10 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
         <DoorControlButton showNotification={showNotification} />
 
         {/* Connection Button */}
-        <ConnectionButton
-          showNotification={showNotification}
-          hideNotification={hideNotification}
-        />
+        <ConnectionButton showNotification={showNotification} hideNotification={hideNotification} />
 
         {/* Log Refresh Button */}
-        <LogRefreshButton
-          showNotification={showNotification}
-          hideNotification={hideNotification}
-        />
+        <LogRefreshButton showNotification={showNotification} hideNotification={hideNotification} />
 
         {/* Settings Button - only show on desktop */}
         {!isMobile && (
