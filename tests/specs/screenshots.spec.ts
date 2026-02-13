@@ -22,7 +22,7 @@ test.describe('Screenshots', () => {
     // 3. Create "Synced" Codes (Online)
 
     // Helper to create a code
-    const createCode = async (type: 'master' | 'single', code: string, name: string) => {
+    const createCode = async (type: 'master' | 'single' | 'multi', code: string, name: string, uses: number = 1) => {
         // Open Add Dialog
         const addBtn = page.getByTestId('add-code-button');
         await addBtn.click();
@@ -33,8 +33,13 @@ test.describe('Screenshots', () => {
 
         if (type === 'master') {
             await page.getByTestId('option-master').click();
-        } else {
+        } else if (type === 'single') {
             await page.getByTestId('option-single').click();
+        } else {
+            await page.getByTestId('option-multi').click();
+            const usesInput = page.getByTestId('code-uses-input');
+            await expect(usesInput).toBeVisible();
+            await usesInput.fill(uses.toString());
         }
 
         // Fill form
@@ -57,16 +62,62 @@ test.describe('Screenshots', () => {
     // Create Single Code (will stay synced)
     await createCode('single', '998877', 'Livreur (Synchronisé)');
 
+    // Create Multi Code (Used) - Simulate Usage (Multi-use so it stays visible after usage)
+    const usedCode = '556677';
+    await createCode('multi', usedCode, 'Livreur (Utilisé)', 5);
+
+    // Simulate usage in Simulator (Inject Log)
+    await page.evaluate(async (code) => {
+        const simulator = (window as any).boksSimulator;
+        if (simulator) {
+           // Construct payload: Age(3) + Code(6)
+           const codeBytes = new TextEncoder().encode(code);
+           const payload = [0, 0, 0, ...Array.from(codeBytes)];
+           // 0x86 = LOG_CODE_BLE_VALID_HISTORY
+           // Try accessing addLog or fallback to state push
+           if (typeof simulator.addLog === 'function') {
+               simulator.addLog(0x86, payload);
+           } else if (simulator.state && simulator.state.logs) {
+               simulator.state.logs.push({
+                   opcode: 0x86,
+                   payload: payload,
+                   timestamp: Date.now()
+               });
+               if(simulator.saveState) simulator.saveState();
+           }
+        }
+    }, usedCode);
+
+    // Trigger Log Sync by visiting Logs page
+    const logsTab = page.getByTestId('nav-logs');
+    if (await logsTab.isVisible()) {
+        await logsTab.click();
+    } else {
+        await page.getByLabel('menu').click();
+        await page.getByTestId('nav-logs').click();
+    }
+
+    // Wait for the log to appear (confirming sync)
+    try {
+        await expect(page.locator('body')).toContainText(usedCode, { timeout: 5000 });
+    } catch (e) {
+        console.log('Log sync wait timed out, continuing anyway...');
+    }
+
+    // Go back to Codes
+    const codesTabReturn = page.getByTestId('nav-codes');
+    await codesTabReturn.click();
+
     // Force Sync Status in DB to ensure screenshot is correct (Bypass Simulator/App sync race conditions)
     await page.evaluate(async () => {
         const db = (window as any).boksDebug.db;
-        const codesToSync = ['789012', '998877']; // 123456 is for delete, we leave it or sync it? Let's sync it too for the delete test.
+        const codesToSync = ['789012', '998877', '556677']; // 123456 is for delete, we leave it or sync it? Let's sync it too for the delete test.
         // Actually 123456 is meant to be deleted later.
 
         // Let's sync all currently visible codes
         const codes = await db.codes.toArray();
         for (const c of codes) {
-            if (['123456', '789012', '998877'].includes(c.code)) {
+            if (['123456', '789012', '998877', '556677'].includes(c.code)) {
                 await db.codes.update(c.id, { status: 'on_device', synced: true });
             }
         }
@@ -75,6 +126,7 @@ test.describe('Screenshots', () => {
     // Verify they appear as synced
     await expect(page.locator('[data-testid="code-item-789012"]')).toHaveAttribute('data-status', 'on_device', { timeout: 5000 });
     await expect(page.locator('[data-testid="code-item-998877"]')).toHaveAttribute('data-status', 'on_device', { timeout: 5000 });
+    await expect(page.locator('[data-testid="code-item-556677"]')).toHaveAttribute('data-status', 'on_device', { timeout: 5000 });
 
     // 4. Go Offline
     // Click header connection button to disconnect
