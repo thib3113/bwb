@@ -81,6 +81,10 @@ test.describe('Version Gating', () => {
       { timeout: 15000 }
     );
 
+    const nfcTab = page.getByTestId('tab-nfc');
+    await expect(nfcTab).toBeVisible({ timeout: 10000 });
+    await nfcTab.click();
+
     const laPosteSwitch = page.getByTestId('la-poste-switch');
     await expect(laPosteSwitch).toBeVisible({ timeout: 10000 });
 
