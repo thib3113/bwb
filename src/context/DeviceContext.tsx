@@ -151,6 +151,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   }, [activeDeviceId]);
 
   // Function to set active device
+  const isRegisteringRef = useRef(false);
   const setActiveDevice = useCallback((deviceId: string | null) => {
     setActiveDeviceId(deviceId);
   }, []);
@@ -173,133 +174,138 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   // Function to register a device (called upon successful BLE connection)
   const registerDevice = useCallback(
     async (bleDevice: BluetoothDevice) => {
-      const bleName = bleDevice.name;
-
-      if (!bleName) {
-        throw new Error('Device name is required for registration');
+      if (isRegisteringRef.current) {
+        console.warn('[DeviceContext] Registration already in progress, skipping duplicate call.');
+        return false;
       }
-
-      const friendlyName = bleDevice.name || `Boks ${bleName.substring(0, 8)}`;
+      isRegisteringRef.current = true;
 
       try {
-        // Find existing device by unique BLE Identifier (ble_name)
-        const existingDevice = await db.devices.where('ble_name').equals(bleName).first();
-        // No manual updated_at, handled by hook
+        const bleName = bleDevice.name;
 
-        let targetId: string;
-        let isNewDevice = false;
-
-        if (existingDevice) {
-          targetId = existingDevice.id;
-          // Update last seen timestamp
-          await db.devices.update(existingDevice.id, {
-            last_connected_at: Date.now()
-          });
-        } else {
-          isNewDevice = true;
-          // Add new device
-          targetId = crypto.randomUUID();
-
-          // Special handling for Simulator
-          const isSimulator = bleName === SIMULATOR_BLE_ID;
-          const initialFriendlyName = isSimulator ? 'Boks Simulator' : friendlyName;
-          const initialPin = isSimulator ? SIMULATOR_DEFAULT_PIN : undefined;
-
-          await db.devices.add({
-            id: targetId,
-            ble_name: bleName,
-            friendly_name: initialFriendlyName,
-            door_pin_code: initialPin,
-            role: UserRole.Admin, // Default role for locally discovered devices
-            sync_status: 'created',
-            last_connected_at: Date.now(),
-            la_poste_activated: false,
-            auto_sync: true
-          });
-
-          // Initialize secrets (auto-fill for simulator)
-          await db.device_secrets.add({
-            device_id: targetId,
-            configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined
-          });
+        if (!bleName) {
+          throw new Error('Device name is required for registration');
         }
 
-        // Set as active device
-        setActiveDeviceId(targetId);
+        const friendlyName = bleDevice.name || `Boks ${bleName.substring(0, 8)}`;
 
-        // Helper for info reading
-        const readInfo = async () => {
-          try {
-            const bleService = BoksBLEService.getInstance();
-            if (bleService.getState() === 'connected') {
-              // 1. Battery
-              try {
-                const val = await bleService.readCharacteristic(
-                  BATTERY_SERVICE_UUID,
-                  BATTERY_LEVEL_CHAR_UUID
-                );
-                const level = val.getUint8(0);
-                console.log(`[DeviceContext] Standard Battery Level read: ${level}%`);
-                await updateDeviceBatteryLevel(targetId, level);
-              } catch (e) {
-                console.warn('[DeviceContext] Failed to read battery:', e);
-              }
+        await db.transaction('rw', db.devices, db.device_secrets, async () => {
+          const existingDevice = await db.devices.where('ble_name').equals(bleName).first();
+          // No manual updated_at, handled by hook
 
-              // 2. Firmware & Software Revision
-              const updates: Partial<BoksDevice> = {};
-              const decoder = new TextDecoder();
+          let targetId: string;
 
-              try {
-                const fwData = await bleService.readCharacteristic(
-                  DEVICE_INFO_SERVICE_UUID,
-                  DEVICE_INFO_CHARS['Firmware Revision']
-                );
-                const fwRev = decoder.decode(fwData).replace(/\0/g, '').trim();
-                console.log(`[DeviceContext] Firmware Revision: ${fwRev}`);
-                updates.firmware_revision = fwRev;
+          if (existingDevice) {
+            targetId = existingDevice.id;
+            // Update last seen timestamp
+            await db.devices.update(existingDevice.id, {
+              last_connected_at: Date.now()
+            });
+          } else {
+            // Add new device
+            targetId = crypto.randomUUID();
 
-                // Map to Hardware Version
-                if (PCB_VERSIONS[fwRev]) {
-                  updates.hardware_version = PCB_VERSIONS[fwRev];
-                  console.log(
-                    `[DeviceContext] Mapped HW Version: ${updates.hardware_version} from FW ${fwRev}`
-                  );
-                }
-              } catch (e) {
-                console.warn('[DeviceContext] Failed to read FW Revision:', e);
-              }
+            // Special handling for Simulator
+            const isSimulator = bleName === SIMULATOR_BLE_ID;
+            const initialFriendlyName = isSimulator ? 'Boks Simulator' : friendlyName;
+            const initialPin = isSimulator ? SIMULATOR_DEFAULT_PIN : undefined;
 
-              try {
-                const swData = await bleService.readCharacteristic(
-                  DEVICE_INFO_SERVICE_UUID,
-                  DEVICE_INFO_CHARS['Software Revision']
-                );
-                const swRev = decoder.decode(swData).replace(/\0/g, '').trim();
-                console.log(`[DeviceContext] Software Revision: ${swRev}`);
-                updates.software_revision = swRev;
-              } catch (e) {
-                console.warn('[DeviceContext] Failed to read SW Revision:', e);
-              }
+            await db.devices.add({
+              id: targetId,
+              ble_name: bleName,
+              friendly_name: initialFriendlyName,
+              door_pin_code: initialPin,
+              role: UserRole.Admin, // Default role for locally discovered devices
+              sync_status: 'created',
+              last_connected_at: Date.now(),
+              la_poste_activated: false,
+              auto_sync: true
+            });
 
-              if (Object.keys(updates).length > 0) {
-                await db.devices.update(targetId, updates);
-              }
-            }
-          } catch (error) {
-            console.warn('Failed to read device info:', error);
+            // Initialize secrets (auto-fill for simulator)
+            await db.device_secrets.add({
+              device_id: targetId,
+              configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined
+            });
           }
-        };
 
-        // Read once immediately
-        readInfo();
+          // Set as active device
+          setActiveDeviceId(targetId);
 
-        // And again after 2s for stability
-        setTimeout(readInfo, 2000);
+          // Helper for info reading
+          const readInfo = async () => {
+            try {
+              const bleService = BoksBLEService.getInstance();
+              if (bleService.getState() === 'connected') {
+                // 1. Battery
+                try {
+                  const val = await bleService.readCharacteristic(
+                    BATTERY_SERVICE_UUID,
+                    BATTERY_LEVEL_CHAR_UUID
+                  );
+                  const level = val.getUint8(0);
+                  console.log(`[DeviceContext] Standard Battery Level read: ${level}%`);
+                  await updateDeviceBatteryLevel(targetId, level);
+                } catch (e) {
+                  console.warn('[DeviceContext] Failed to read battery:', e);
+                }
 
-        return isNewDevice;
+                // 2. Firmware & Software Revision
+                const updates: Partial<BoksDevice> = {};
+                const decoder = new TextDecoder();
+
+                try {
+                  const fwData = await bleService.readCharacteristic(
+                    DEVICE_INFO_SERVICE_UUID,
+                    DEVICE_INFO_CHARS['Firmware Revision']
+                  );
+                  const fwRev = decoder.decode(fwData).replace(/\0/g, '').trim();
+                  console.log(`[DeviceContext] Firmware Revision: ${fwRev}`);
+                  updates.firmware_revision = fwRev;
+
+                  // Map to Hardware Version
+                  if (PCB_VERSIONS[fwRev]) {
+                    updates.hardware_version = PCB_VERSIONS[fwRev];
+                    console.log(
+                      `[DeviceContext] Mapped HW Version: ${updates.hardware_version} from FW ${fwRev}`
+                    );
+                  }
+                } catch (e) {
+                  console.warn('[DeviceContext] Failed to read FW Revision:', e);
+                }
+
+                try {
+                  const swData = await bleService.readCharacteristic(
+                    DEVICE_INFO_SERVICE_UUID,
+                    DEVICE_INFO_CHARS['Software Revision']
+                  );
+                  const swRev = decoder.decode(swData).replace(/\0/g, '').trim();
+                  console.log(`[DeviceContext] Software Revision: ${swRev}`);
+                  updates.software_revision = swRev;
+                } catch (e) {
+                  console.warn('[DeviceContext] Failed to read SW Revision:', e);
+                }
+
+                if (Object.keys(updates).length > 0) {
+                  await db.devices.update(targetId, updates);
+                }
+              }
+            } catch (error) {
+              console.warn('Failed to read device info:', error);
+            }
+          };
+
+          // Read once immediately
+          readInfo();
+
+          // And again after 2s for stability
+          setTimeout(readInfo, 2000);
+        });
       } catch (error) {
         console.error('Failed to register device:', error);
         throw error;
+      } finally {
+        isRegisteringRef.current = false;
       }
     },
     [updateDeviceBatteryLevel]
@@ -308,7 +314,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   // Auto-register device on connection
   useEffect(() => {
     const bleService = BoksBLEService.getInstance();
-
     const handleConnected = () => {
       const device = bleService.getDevice();
       if (device && device.id) {
