@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { StorageService } from './StorageService';
-import { db } from '../db/db';
-import { CODE_STATUS } from '../constants/codeStatus';
-import { BoksCode, CODE_TYPE } from '../types';
+import { StorageService } from '../../services/StorageService';
+import { db } from '../../db/db';
+import { CODE_STATUS } from '../../constants/codeStatus';
+import { BoksCode, CODE_TYPE } from '../../types';
 import { IDBKeyRange, indexedDB } from 'fake-indexeddb';
 
 // Configure global indexedDB for Dexie

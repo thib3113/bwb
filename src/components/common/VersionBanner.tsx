@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 export const VersionBanner = () => {
   const { t } = useTranslation();
   const { activeDevice } = useDevice();
-  const { isOldSoftware, isUnknownHardware, isRestricted } = useVersionCheck();
+  const { isOldSoftware, isRestricted } = useVersionCheck();
   const navigate = useNavigate();
 
   if (!activeDevice || !isRestricted) return null;

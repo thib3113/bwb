@@ -124,10 +124,10 @@ export function App() {
           window.BOKS_SIMULATOR_ENABLED === true ||
           localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
         ) {
-          // If we are in a test context that mocks bluetooth to undefined but wants simulator, 
+          // If we are in a test context that mocks bluetooth to undefined but wants simulator,
           // we might want to still show the error to test the compatibility UI.
           // The compatibility test mocks userAgent AND sets bluetooth to undefined.
-          return false; 
+          return false;
         }
       }
       return false;
