@@ -208,6 +208,13 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
                     }
                   }
                 }
+
+                // Request code count after successful addition
+                try {
+                  await sendRequest(new CountCodesPacket());
+                } catch (countError) {
+                  console.warn('Failed to request code count after addition:', countError);
+                }
               }
             }
             break;
