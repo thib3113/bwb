@@ -29,7 +29,7 @@ jobs:
               return keys;
             };
 
-            const localesDir = 'boks-web-ble-new/src/locales';
+            const localesDir = 'src/locales';
             const enDir = path.join(localesDir, 'en');
             const frDir = path.join(localesDir, 'fr');
 
