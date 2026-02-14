@@ -6,6 +6,7 @@ import { useError } from '../../hooks/useError';
 import { Outlet } from 'react-router-dom';
 import { SettingsConfig } from '../settings/types';
 import { VersionBanner } from '../common/VersionBanner';
+import { EasterEggListener } from '../common/EasterEggListener';
 
 interface MainLayoutProps {
   showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
@@ -50,6 +51,9 @@ export const MainLayout = ({ showNotification, hideNotification }: MainLayoutPro
         onClose={() => setShowSettings(false)}
         onSave={handleSettingsSave}
       />
+
+      {/* Easter Egg Listener */}
+      <EasterEggListener />
     </Box>
   );
 };

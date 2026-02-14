@@ -14,7 +14,8 @@ export const LANGUAGES = {
 export const THEME_MODES = {
   SYSTEM: 'system',
   LIGHT: 'light',
-  DARK: 'dark'
+  DARK: 'dark',
+  MATRIX: 'matrix'
 } as const;
 
 export const IMPORT_EXPORT_MODES = {

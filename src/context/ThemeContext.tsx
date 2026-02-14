@@ -17,10 +17,22 @@ export const AppThemeProvider = ({ children }: AppThemeProviderProps) => {
   );
 
   const isDarkMode = mode === THEME_MODES.DARK || (mode === THEME_MODES.SYSTEM && prefersDarkMode);
-  const theme = useMemo(() => createAppTheme(isDarkMode ? 'dark' : 'light'), [isDarkMode]);
+
+  const themeModeParam = useMemo(() => {
+    if (mode === THEME_MODES.MATRIX) return 'matrix';
+    return isDarkMode ? 'dark' : 'light';
+  }, [mode, isDarkMode]);
+
+  const theme = useMemo(
+    () => createAppTheme(themeModeParam as 'light' | 'dark' | 'system' | 'matrix'),
+    [themeModeParam]
+  );
 
   const toggleTheme = () => {
     setMode((prevMode) => {
+      // If we are in Matrix mode, return to system or light
+      if (prevMode === THEME_MODES.MATRIX) return THEME_MODES.SYSTEM;
+
       if (prevMode === THEME_MODES.LIGHT) return THEME_MODES.DARK;
       if (prevMode === THEME_MODES.DARK) return THEME_MODES.SYSTEM;
       return THEME_MODES.LIGHT;

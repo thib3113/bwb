@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Button, Card, CardContent, Container, Tab, Tabs, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDeveloperContext } from '../context/DeveloperContextTypes';
+import { ThemeContext } from '../context/Contexts';
+import { THEME_MODES } from '../utils/constants';
 import { DBEditor } from '../components/developer/DBEditor';
 import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
 import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
@@ -35,6 +37,7 @@ export const DeveloperPage = () => {
   const { t } = useTranslation(['settings']);
   const navigate = useNavigate();
   const { isDeveloperMode, disableDeveloperMode } = useDeveloperContext();
+  const themeContext = useContext(ThemeContext);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -86,6 +89,7 @@ export const DeveloperPage = () => {
           <Tab label={t('settings:developer.tabs.database')} />
           <Tab label={t('settings:developer.tabs.bluetooth')} />
           <Tab label={t('settings:developer.tabs.simulator')} />
+          <Tab label="Fun" />
         </Tabs>
       </Box>
 
@@ -142,6 +146,35 @@ export const DeveloperPage = () => {
 
       <CustomTabPanel value={tabValue} index={3}>
         <SimulatorDebugger />
+      </CustomTabPanel>
+
+      <CustomTabPanel value={tabValue} index={4}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Matrix Mode
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              Enter the Matrix. Or execute the Konami Code: ↑ ↑ ↓ ↓ ← → ← →
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                // If in Matrix mode, button is primary (green), otherwise default
+                color={themeContext?.mode === THEME_MODES.MATRIX ? 'primary' : 'secondary'}
+                onClick={() => themeContext?.setThemeMode(THEME_MODES.MATRIX)}
+              >
+                Activate Matrix Mode
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => themeContext?.setThemeMode(THEME_MODES.SYSTEM)}
+              >
+                Reset Theme
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
       </CustomTabPanel>
     </Container>
   );
