@@ -33,7 +33,14 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system' | 'matrix') => 
           primary: '#00FF00',
           secondary: '#00CC00'
         },
-        divider: '#003300'
+        divider: '#003300',
+        action: {
+          active: '#00FF00', // Default icon color
+          hover: 'rgba(0, 255, 0, 0.08)',
+          selected: 'rgba(0, 255, 0, 0.16)',
+          disabled: 'rgba(0, 255, 0, 0.3)',
+          disabledBackground: 'rgba(0, 255, 0, 0.12)'
+        }
       },
       typography: {
         fontFamily: '"Courier New", "Courier", monospace',
@@ -86,6 +93,31 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system' | 'matrix') => 
             root: {
               backgroundColor: '#000000',
               borderBottom: '1px solid #00FF00'
+            }
+          }
+        },
+        // Override Icon colors explicitly to ensure they are green
+        MuiSvgIcon: {
+          styleOverrides: {
+            root: {
+              color: '#00FF00'
+            }
+          }
+        },
+        MuiListItemIcon: {
+          styleOverrides: {
+            root: {
+              color: '#00FF00'
+            }
+          }
+        },
+        MuiIconButton: {
+          styleOverrides: {
+            root: {
+              color: '#00FF00',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 255, 0, 0.1)'
+              }
             }
           }
         }
