@@ -67,6 +67,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
   };
 
   const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
     setDraftConfig((prev) => ({
       ...prev,
       language: value
