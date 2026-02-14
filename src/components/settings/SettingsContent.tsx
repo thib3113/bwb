@@ -62,6 +62,8 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       ...prev,
       theme: value
     }));
+    // Apply theme changes immediately
+    setThemeMode(value);
   };
 
   const handleLanguageChange = (value: string) => {
@@ -77,8 +79,7 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
       i18n.changeLanguage(draftConfig.language);
     }
 
-    // Apply theme changes
-    // We explicitly call setThemeMode with the draft value
+    // Apply theme changes (redundant if already applied, but safe)
     console.log('Saving theme:', draftConfig.theme);
     setThemeMode(draftConfig.theme);
 
