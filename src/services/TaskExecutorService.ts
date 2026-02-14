@@ -1,6 +1,7 @@
 import { BoksTask, TaskType } from '../types/task';
 import { BoksDevice, CODE_TYPE } from '../types';
 import { BLEOpcode } from '../utils/bleConstants';
+import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from './StorageService';
 import { db } from '../db/db';
 import {
@@ -51,6 +52,19 @@ export class TaskExecutorService {
           const response = await sendRequest(packet);
 
           if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
+            // Update code status in DB if codeId is present
+            if (task.payload.codeId) {
+              try {
+                await db.codes.update(task.payload.codeId as string, {
+                  status: CODE_STATUS.ON_DEVICE,
+                  sync_status: 'synced',
+                  updated_at: Date.now()
+                });
+              } catch (dbError) {
+                console.warn('Failed to update code status in DB after creation:', dbError);
+              }
+            }
+
             // Request code count after successful creation
             try {
               await sendRequest(new CountCodesPacket());
@@ -75,6 +89,19 @@ export class TaskExecutorService {
           const response = await sendRequest(packet);
 
           if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
+            // Update code status in DB if codeId is present
+            if (task.payload.codeId) {
+              try {
+                await db.codes.update(task.payload.codeId as string, {
+                  status: CODE_STATUS.ON_DEVICE,
+                  sync_status: 'synced',
+                  updated_at: Date.now()
+                });
+              } catch (dbError) {
+                console.warn('Failed to update code status in DB after creation:', dbError);
+              }
+            }
+
             try {
               await sendRequest(new CountCodesPacket());
             } catch (countError) {
@@ -98,6 +125,19 @@ export class TaskExecutorService {
           const response = await sendRequest(packet);
 
           if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
+            // Update code status in DB if codeId is present
+            if (task.payload.codeId) {
+              try {
+                await db.codes.update(task.payload.codeId as string, {
+                  status: CODE_STATUS.ON_DEVICE,
+                  sync_status: 'synced',
+                  updated_at: Date.now()
+                });
+              } catch (dbError) {
+                console.warn('Failed to update code status in DB after creation:', dbError);
+              }
+            }
+
             try {
               await sendRequest(new CountCodesPacket());
             } catch (countError) {

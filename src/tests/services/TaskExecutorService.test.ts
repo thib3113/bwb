@@ -22,6 +22,7 @@ vi.mock('../../db/db', () => ({
   db: {
     codes: {
       get: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -69,6 +70,12 @@ describe('TaskExecutorService', () => {
 
     const packet2 = mockSendRequest.mock.calls[1][0];
     expect(packet2).toBeInstanceOf(CountCodesPacket);
+
+    // Verify DB update
+    expect(db.codes.update).toHaveBeenCalledWith('master-1', expect.objectContaining({
+      status: 'on_device',
+      sync_status: 'synced'
+    }));
   });
 
   it('should execute DELETE_CODE (Master) successfully (delete + count)', async () => {
