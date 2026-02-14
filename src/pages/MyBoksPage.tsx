@@ -199,7 +199,7 @@ export const MyBoksPage = () => {
 
       {/* Tab Panels */}
       <TabPanel value={value} index={0}>
-        <DeviceSettings deviceId={activeDevice?.id || ''} />
+        <DeviceSettings deviceId={activeDevice?.id || ''} showNotification={showNotification} />
       </TabPanel>
       <TabPanel value={value} index={1}>
         {isNfcHwCompatible ? <NfcTagsTab /> : null}

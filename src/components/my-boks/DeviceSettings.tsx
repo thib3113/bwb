@@ -19,9 +19,10 @@ import { UserRole } from '../../types';
 
 interface DeviceSettingsProps {
   deviceId: string;
+  showNotification: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
+export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId, showNotification }) => {
   const { t } = useTranslation(['common', 'settings']);
   const { activeDevice, updateDeviceDetails, removeDevice } = useDevice();
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({
@@ -58,6 +59,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
           configuration_key: configurationKey,
           door_pin_code: doorPinCode
         });
+        showNotification(t('settings:saved'), 'success');
       } catch (error) {
         console.error('Failed to update device details:', error);
       }
@@ -92,6 +94,7 @@ export const DeviceSettings: React.FC<DeviceSettingsProps> = ({ deviceId }) => {
         await updateDeviceDetails(deviceId, {
           auto_sync: checked
         });
+        showNotification(t('settings:saved'), 'success');
       } catch (error) {
         console.error('Failed to update auto sync:', error);
       }
