@@ -1,5 +1,18 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Button, Card, CardContent, Container, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Tab,
+  Tabs,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Chip
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDeveloperContext } from '../context/DeveloperContextTypes';
@@ -10,6 +23,7 @@ import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
 import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
 import { SimulatorDebugger } from '../components/developer/SimulatorDebugger';
 import { StorageService } from '../services/StorageService';
+import { KONAMI_EVENT, KonamiUpdateDetail } from '../hooks/useKonamiCode';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -39,6 +53,7 @@ export const DeveloperPage = () => {
   const { isDeveloperMode, disableDeveloperMode } = useDeveloperContext();
   const themeContext = useContext(ThemeContext);
   const [tabValue, setTabValue] = useState(0);
+  const [konamiState, setKonamiState] = useState<KonamiUpdateDetail | null>(null);
 
   useEffect(() => {
     // Redirect if not developer
@@ -46,6 +61,18 @@ export const DeveloperPage = () => {
       navigate('/');
     }
   }, [isDeveloperMode, navigate]);
+
+  useEffect(() => {
+    const handleKonamiUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<KonamiUpdateDetail>).detail;
+      setKonamiState(detail);
+    };
+
+    window.addEventListener(KONAMI_EVENT, handleKonamiUpdate);
+    return () => {
+      window.removeEventListener(KONAMI_EVENT, handleKonamiUpdate);
+    };
+  }, []);
 
   const handleDisable = () => {
     disableDeveloperMode();
@@ -149,7 +176,7 @@ export const DeveloperPage = () => {
       </CustomTabPanel>
 
       <CustomTabPanel value={tabValue} index={4}>
-        <Card>
+        <Card sx={{ mb: 2 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Matrix Mode
@@ -160,7 +187,6 @@ export const DeveloperPage = () => {
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
                 variant="contained"
-                // If in Matrix mode, button is primary (green), otherwise default
                 color={themeContext?.mode === THEME_MODES.MATRIX ? 'primary' : 'secondary'}
                 onClick={() => themeContext?.setThemeMode(THEME_MODES.MATRIX)}
               >
@@ -173,6 +199,40 @@ export const DeveloperPage = () => {
                 Reset Theme
               </Button>
             </Box>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Konami Code Debugger
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+              {['UP', 'UP', 'DOWN', 'DOWN', 'LEFT', 'RIGHT', 'LEFT', 'RIGHT'].map((dir, idx) => (
+                <Chip
+                  key={idx}
+                  label={dir}
+                  color={konamiState && idx < konamiState.sequenceIndex ? 'success' : 'default'}
+                  variant={konamiState && idx === konamiState.sequenceIndex ? 'filled' : 'outlined'}
+                />
+              ))}
+            </Box>
+            {konamiState && (
+              <List dense>
+                <ListItem>
+                  <ListItemText primary="Last Input" secondary={konamiState.direction || 'None'} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Status" secondary={konamiState.status} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Expected Next" secondary={konamiState.expected} />
+                </ListItem>
+              </List>
+            )}
+            <Typography variant="caption" color="text.secondary">
+              Note: Ensure you are swiping clearly. On desktop, click and drag. On mobile, swipe.
+            </Typography>
           </CardContent>
         </Card>
       </CustomTabPanel>

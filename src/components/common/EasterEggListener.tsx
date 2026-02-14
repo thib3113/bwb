@@ -25,6 +25,7 @@ export const EasterEggListener = () => {
     }, 5000); // 5 seconds of confetti
   }, [themeContext]);
 
+  // Hook handles global listeners and event dispatching
   useKonamiCode(handleSuccess);
 
   if (!showConfetti) return null;

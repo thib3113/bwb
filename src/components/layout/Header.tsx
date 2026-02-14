@@ -12,6 +12,7 @@ import { BatteryIndicator } from './header/BatteryIndicator';
 import { ConnectionButton } from './header/ConnectionButton';
 import { DoorControlButton } from './header/DoorControlButton';
 import { LogRefreshButton } from './header/LogRefreshButton';
+import { KonamiIndicator } from './header/KonamiIndicator';
 
 interface HeaderProps {
   onSettingsClick?: () => void;
@@ -32,7 +33,7 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ position: 'relative' }}>
         {/* Navigation Drawer (includes Menu Button) */}
         <NavigationDrawer showNotification={showNotification} />
 
@@ -72,6 +73,9 @@ export const Header = ({ showNotification, hideNotification }: HeaderProps) => {
             <SettingsIcon />
           </IconButton>
         )}
+
+        {/* Enigmatic Arrow Indicator */}
+        <KonamiIndicator />
       </Toolbar>
     </AppBar>
   );
