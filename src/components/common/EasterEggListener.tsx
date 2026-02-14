@@ -1,5 +1,4 @@
 import { useState, useContext, useCallback } from 'react';
-// @ts-expect-error React Confetti types are missing
 import ReactConfetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { useKonamiCode } from '../../hooks/useKonamiCode';
