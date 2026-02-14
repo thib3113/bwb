@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StorageService } from '../../services/StorageService';
 import { db } from '../../db/db';
 import { CODE_STATUS } from '../../constants/codeStatus';
@@ -90,5 +90,37 @@ describe('StorageService', () => {
     const loadedCodes = await StorageService.loadCodes(testBoksId);
     expect(loadedCodes).toHaveLength(1);
     expect(loadedCodes[0].id).toBe('code-2');
+  });
+
+  it('should clear all data using clearAllData', async () => {
+    // Mock window.location.reload
+    const reloadMock = vi.fn();
+    // Use Object.defineProperty to mock location since it's read-only
+    Object.defineProperty(window, 'location', {
+      value: { reload: reloadMock },
+      writable: true,
+      configurable: true // Allow re-definition
+    });
+
+    // Add some data
+    await db.codes.add({
+      id: 'test-code-clear',
+      device_id: 'test-device-clear',
+      code: '123',
+      author_id: 'unknown',
+      type: CODE_TYPE.SINGLE,
+      status: 'pending_add',
+      sync_status: 'created',
+      updated_at: Date.now()
+    } as any);
+
+    const countBefore = await db.codes.count();
+    expect(countBefore).toBeGreaterThan(0);
+
+    await StorageService.clearAllData();
+
+    const countAfter = await db.codes.count();
+    expect(countAfter).toBe(0);
+    expect(reloadMock).toHaveBeenCalled();
   });
 });
