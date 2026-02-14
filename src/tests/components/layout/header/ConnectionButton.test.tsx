@@ -53,7 +53,7 @@ describe('ConnectionButton', () => {
     );
 
     expect(screen.getByTestId('connection-button')).toBeInTheDocument();
-    expect(screen.getByTestId('status-icon-disconnected')).toBeInTheDocument();
+    expect(screen.getByTestId('action-icon-connect')).toBeInTheDocument();
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe('ConnectionButton', () => {
       />
     );
 
-    expect(screen.getByTestId('status-icon-connected')).toBeInTheDocument();
+    expect(screen.getByTestId('action-icon-disconnect')).toBeInTheDocument();
   });
 
   it('renders loading state correctly', () => {
