@@ -42,7 +42,9 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
           <MenuItem value={THEME_MODES.SYSTEM}>{t('settings:theme.system')}</MenuItem>
           <MenuItem value={THEME_MODES.LIGHT}>{t('settings:theme.light')}</MenuItem>
           <MenuItem value={THEME_MODES.DARK}>{t('settings:theme.dark')}</MenuItem>
-          {isMatrixUnlocked && <MenuItem value={THEME_MODES.MATRIX}>Matrix</MenuItem>}
+          {(isMatrixUnlocked || theme === THEME_MODES.MATRIX) && (
+            <MenuItem value={THEME_MODES.MATRIX}>Matrix</MenuItem>
+          )}
         </Select>
       </FormControl>
     </>
