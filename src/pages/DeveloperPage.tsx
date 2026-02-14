@@ -95,6 +95,35 @@ export const DeveloperPage = () => {
     setTabValue(newValue);
   };
 
+  const simulateKonamiCode = async () => {
+    const sequence = ['UP', 'UP', 'DOWN', 'DOWN', 'LEFT', 'RIGHT', 'LEFT', 'RIGHT'];
+    let index = 0;
+
+    // Reset first
+    window.dispatchEvent(
+      new CustomEvent(KONAMI_EVENT, {
+        detail: { direction: null, sequenceIndex: 0, expected: 'UP', status: 'reset' }
+      })
+    );
+
+    // Helper for delay
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    await wait(500);
+
+    for (const direction of sequence) {
+      index++;
+      const detail: KonamiUpdateDetail = {
+        direction,
+        sequenceIndex: index,
+        expected: sequence[index] || 'NONE',
+        status: index === sequence.length ? 'success' : 'progress'
+      };
+      window.dispatchEvent(new CustomEvent(KONAMI_EVENT, { detail }));
+      await wait(300);
+    }
+  };
+
   return (
     <Container maxWidth="md" sx={{ py: 2 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -116,7 +145,7 @@ export const DeveloperPage = () => {
           <Tab label={t('settings:developer.tabs.database')} />
           <Tab label={t('settings:developer.tabs.bluetooth')} />
           <Tab label={t('settings:developer.tabs.simulator')} />
-          <Tab label="Fun" />
+          <Tab label="Easter Eggs" />
         </Tabs>
       </Box>
 
@@ -184,7 +213,7 @@ export const DeveloperPage = () => {
             <Typography variant="body2" color="text.secondary" paragraph>
               Enter the Matrix. Or execute the Konami Code: ↑ ↑ ↓ ↓ ← → ← →
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
                 color={themeContext?.mode === THEME_MODES.MATRIX ? 'primary' : 'secondary'}
@@ -207,6 +236,17 @@ export const DeveloperPage = () => {
             <Typography variant="h6" gutterBottom>
               Konami Code Debugger
             </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              Visualize the Konami Code state. Note: The 'Simulate' button only updates the UI below
+              (and the arrow indicator), it does not trigger the actual Easter Egg success
+              (confetti) because that logic is tied to the gesture hook.
+            </Typography>
+            <Box sx={{ mb: 2 }}>
+              <Button variant="outlined" onClick={simulateKonamiCode}>
+                Simulate Sequence (Visual Only)
+              </Button>
+            </Box>
+
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
               {['UP', 'UP', 'DOWN', 'DOWN', 'LEFT', 'RIGHT', 'LEFT', 'RIGHT'].map((dir, idx) => (
                 <Chip
