@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBLEConnection } from '../hooks/useBLEConnection';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -30,11 +30,21 @@ export const ConnectionManager = () => {
   );
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const registeredDeviceIdRef = useRef<string | null>(null);
 
   // Register device when connected
   useEffect(() => {
     if (isConnected && device) {
+      // Prevent repeated registration for the same device ID
+      if (registeredDeviceIdRef.current === device.id) {
+        return;
+      }
+
+      registeredDeviceIdRef.current = device.id;
       registerDevice(device);
+    } else if (!isConnected) {
+      // Reset ref when disconnected to allow re-registration on new connection
+      registeredDeviceIdRef.current = null;
     }
   }, [isConnected, device, registerDevice]);
 
