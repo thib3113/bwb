@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IconButton, Tooltip, CircularProgress } from '@mui/material';
-import { MeetingRoom as MeetingRoomIcon } from '@mui/icons-material';
+import { MeetingRoom as MeetingRoomIcon, DoorFront as DoorFrontIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useDoor } from '../../../hooks/useDoor';
 import { useBLEConnection } from '../../../hooks/useBLEConnection';
@@ -80,8 +80,12 @@ export const DoorControlButton = ({ showNotification }: DoorControlButtonProps) 
     }
   };
 
+  if (!isConnected) {
+    return null;
+  }
+
   return (
-    <Tooltip title={isConnected ? t('open_door') : t('connect_to_open_door')}>
+    <Tooltip title={t('open_door')}>
       <span>
         <IconButton
           aria-label="open door"
@@ -89,17 +93,16 @@ export const DoorControlButton = ({ showNotification }: DoorControlButtonProps) 
           data-door-status={doorStatus}
           color="inherit"
           onClick={handleOpenDoor}
-          disabled={isOpening || !isConnected}
+          disabled={isOpening}
           size="small"
-          sx={{
-            mr: 0.5,
-            opacity: isConnected ? 1 : 0.5
-          }}
+          sx={{ mr: 0.5 }}
         >
           {isOpening ? (
             <CircularProgress size={20} sx={{ color: 'white' }} />
+          ) : doorStatus === 'open' ? (
+            <MeetingRoomIcon />
           ) : (
-            <MeetingRoomIcon sx={doorStatus === 'open' ? { color: 'success.main' } : undefined} />
+            <DoorFrontIcon />
           )}
         </IconButton>
       </span>
