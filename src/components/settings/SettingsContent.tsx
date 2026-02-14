@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   APP_EVENTS,
-  CODE_TYPE,
   IMPORT_EXPORT_MODES,
   LANGUAGES,
   SNACKBAR_SEVERITY,
@@ -12,7 +11,7 @@ import { SettingsConfig } from './types';
 import { useTheme } from '../../hooks/useTheme';
 import { db } from '../../db/db';
 import { StorageService } from '../../services/StorageService';
-import { BoksCode, ExportData, UserRole } from '../../types';
+import { BoksCode, ExportData, UserRole, CODE_TYPE } from '../../types';
 import { Alert, Box, Button, Snackbar } from '@mui/material';
 
 import { SettingsGeneral } from './sections/SettingsGeneral';
