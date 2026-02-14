@@ -84,6 +84,7 @@ test.describe('Simulator Workflow', () => {
     let deviceCount = await page.evaluate(async () => {
       // @ts-ignore
       const db = window.boksDebug?.db;
+      if (!db) throw new Error('DB not found');
       return await db.devices.count();
     });
     expect(deviceCount).toBe(1);
@@ -125,6 +126,7 @@ test.describe('Simulator Workflow', () => {
     deviceCount = await page.evaluate(async () => {
       // @ts-ignore
       const db = window.boksDebug?.db;
+      if (!db) throw new Error('DB not found');
       return await db.devices.count();
     });
     expect(deviceCount).toBe(1);
