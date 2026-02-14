@@ -37,7 +37,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
   const { activeDevice } = useDevice();
   const hasConfigurationKey = !!activeDevice?.configuration_key;
   const isAdmin = activeDevice?.role === UserRole.Owner || activeDevice?.role === UserRole.Admin;
-  const [type, setType] = useState<CODE_TYPE>(CODE_TYPE.MASTER);
+  const [type, setType] = useState<CODE_TYPE>(CODE_TYPE.SINGLE);
   const [code, setCode] = useState('');
   const [name, setName] = useState(''); // Was description
   const [index, setIndex] = useState(0);
@@ -55,7 +55,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
           setIndex(editingCode.index || 0);
           setUses(editingCode.uses || 1);
         } else {
-          setType(CODE_TYPE.MASTER);
+          setType(CODE_TYPE.SINGLE);
           setCode(generateCode());
           setName('');
           setIndex(0);
@@ -84,7 +84,7 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
 
   const handleClose = () => {
     // Reset form
-    setType(CODE_TYPE.MASTER);
+    setType(CODE_TYPE.SINGLE);
     setCode('');
     setName('');
     setIndex(0);
@@ -205,9 +205,6 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                 <MenuItem value={CODE_TYPE.SINGLE} data-testid="option-single">
                   {t('single_use_code')}
                 </MenuItem>
-                <MenuItem value={CODE_TYPE.MULTI} data-testid="option-multi">
-                  {t('multi_use_code')}
-                </MenuItem>
               </Select>
             </FormControl>
             {type === CODE_TYPE.MASTER && (
@@ -222,20 +219,6 @@ export const AddCodeDialog = ({ open, onClose, onSave, editingCode }: AddCodeDia
                   min: 0,
                   max: 255,
                   'data-testid': 'code-index-input'
-                }}
-              />
-            )}
-            {type === CODE_TYPE.MULTI && (
-              <TextField
-                label={t('uses_label')}
-                type="number"
-                value={uses}
-                onChange={(e) => setUses(parseInt(e.currentTarget.value) || 1)}
-                fullWidth
-                inputProps={{
-                  min: 1,
-                  max: 3,
-                  'data-testid': 'code-uses-input'
                 }}
               />
             )}
