@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDeveloperContext } from '../context/DeveloperContextTypes';
 import { ThemeContext } from '../context/Contexts';
-import { THEME_MODES } from '../utils/constants';
+import { THEME_MODES, STORAGE_KEYS } from '../utils/constants';
 import { DBEditor } from '../components/developer/DBEditor';
 import { BluetoothDebugger } from '../components/developer/BluetoothDebugger';
 import { ServiceWorkerDebugger } from '../components/developer/ServiceWorkerDebugger';
@@ -93,6 +93,13 @@ export const DeveloperPage = () => {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleResetTheme = () => {
+    // Remove the unlocked status from storage
+    localStorage.removeItem(STORAGE_KEYS.MATRIX_UNLOCKED);
+    // Reset theme to system
+    themeContext?.setThemeMode(THEME_MODES.SYSTEM);
   };
 
   const simulateKonamiCode = async () => {
@@ -221,11 +228,8 @@ export const DeveloperPage = () => {
               >
                 Activate Matrix Mode
               </Button>
-              <Button
-                variant="outlined"
-                onClick={() => themeContext?.setThemeMode(THEME_MODES.SYSTEM)}
-              >
-                Reset Theme
+              <Button variant="outlined" onClick={handleResetTheme}>
+                Reset Theme (Lock Matrix)
               </Button>
             </Box>
           </CardContent>
