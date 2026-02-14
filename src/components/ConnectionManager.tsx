@@ -92,9 +92,9 @@ export const ConnectionManager = () => {
           {isConnecting ? (
             <BluetoothSearchingIcon />
           ) : isConnected ? (
-            <BluetoothConnectedIcon />
-          ) : (
             <BluetoothDisabledIcon />
+          ) : (
+            <BluetoothConnectedIcon />
           )}
         </IconButton>
       ) : (
