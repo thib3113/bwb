@@ -1,7 +1,6 @@
 /* Custom CSS for Boks Web BLE Application */
 
 /* Import component styles */
-@import './ConnectionManager.css';
 @import './CodeManager.css';
 @import './DoorControls.css';
 @import './LanguageSelector.css';

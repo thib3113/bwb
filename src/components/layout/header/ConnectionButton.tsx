@@ -61,9 +61,9 @@ export const ConnectionButton = ({ showNotification, hideNotification }: Connect
           invisible={pendingCodesCount === 0}
         >
           {isConnected ? (
-            <Bluetooth data-testid="status-icon-connected" />
+            <BluetoothDisabled data-testid="status-icon-connected" />
           ) : (
-            <BluetoothDisabled data-testid="status-icon-disconnected" />
+            <Bluetooth data-testid="status-icon-disconnected" />
           )}
         </Badge>
       )}
