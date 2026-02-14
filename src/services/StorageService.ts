@@ -255,11 +255,12 @@ export class StorageService {
    */
   static async clearAllData(): Promise<void> {
     try {
-      await db.delete();
-      console.log('Database deleted successfully.');
+      // Instead of deleting the DB (which blocks with multiple tabs), clear all tables
+      await Promise.all(db.tables.map((table) => table.clear()));
+      console.log('All tables cleared successfully.');
       window.location.reload();
     } catch (error) {
-      console.error('Failed to clear database:', error);
+      console.error('Failed to clear database tables:', error);
       throw error;
     }
   }
