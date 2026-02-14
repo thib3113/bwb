@@ -3,7 +3,7 @@ import ReactConfetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { useKonamiCode } from '../../hooks/useKonamiCode';
 import { ThemeContext } from '../../context/Contexts';
-import { THEME_MODES } from '../../utils/constants';
+import { STORAGE_KEYS, THEME_MODES } from '../../utils/constants';
 
 export const EasterEggListener = () => {
   const [showConfetti, setShowConfetti] = useState(false);
@@ -13,6 +13,9 @@ export const EasterEggListener = () => {
   const handleSuccess = useCallback(() => {
     console.log('Konami Code success!');
     setShowConfetti(true);
+
+    // Unlock Matrix mode
+    localStorage.setItem(STORAGE_KEYS.MATRIX_UNLOCKED, 'true');
 
     // Switch to Matrix mode if not already active
     if (themeContext?.mode !== THEME_MODES.MATRIX) {

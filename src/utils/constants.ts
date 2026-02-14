@@ -3,7 +3,8 @@ export const STORAGE_KEYS = {
   I18NEXT_LNG: 'i18nextLng',
   LANGUAGE: 'boks-language',
   BATTERY_LEVEL: 'boks-battery-level',
-  THEME_MODE: 'themeMode'
+  THEME_MODE: 'themeMode',
+  MATRIX_UNLOCKED: 'matrixUnlocked'
 } as const;
 
 export const LANGUAGES = {
