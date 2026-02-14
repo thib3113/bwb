@@ -33,13 +33,8 @@ test.describe('Screenshots', () => {
 
         if (type === 'master') {
             await page.getByTestId('option-master').click();
-        } else if (type === 'single') {
-            await page.getByTestId('option-single').click();
         } else {
-            await page.getByTestId('option-multi').click();
-            const usesInput = page.getByTestId('code-uses-input');
-            await expect(usesInput).toBeVisible();
-            await usesInput.fill(uses.toString());
+            await page.getByTestId('option-single').click();
         }
 
         // Fill form
@@ -64,7 +59,7 @@ test.describe('Screenshots', () => {
 
     // Create Multi Code (Used) - Simulate Usage (Multi-use so it stays visible after usage)
     const usedCode = '556677';
-    await createCode('multi', usedCode, 'Livreur (Utilisé)', 5);
+    await createCode('single', usedCode, 'Livreur (Utilisé)');
 
     // Force Sync Status of 'Used Code' to ensure StorageService can process the log
     await page.evaluate(async (code) => {

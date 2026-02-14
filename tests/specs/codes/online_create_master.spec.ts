@@ -25,6 +25,9 @@ test.describe('Codes - Online Create Master', () => {
     await simulator.connect();
 
     await page.getByTestId('add-code-button').click();
+    await page.getByTestId('code-type-select').click();
+    await page.getByTestId('option-master').click();
+
     await page.getByTestId('code-pin-input').fill('111111');
     await page.getByTestId('code-name-input').fill('Master Online');
     const indexInput = page.getByTestId('code-index-input');

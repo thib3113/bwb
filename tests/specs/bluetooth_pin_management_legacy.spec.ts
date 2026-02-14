@@ -12,6 +12,8 @@ test.describe('Bluetooth PIN Management', () => {
 
     // 2. Add Code
     await page.getByTestId('add-code-button').click();
+    await page.getByTestId('code-type-select').click();
+    await page.getByTestId('option-master').click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
 

@@ -23,6 +23,9 @@ test.describe('Codes - Offline Delete Sync', () => {
     await simulator.connect();
 
     await page.getByTestId('add-code-button').click();
+    await page.getByTestId('code-type-select').click();
+    await page.getByTestId('option-master').click();
+
     await page.getByTestId('code-pin-input').fill('666666');
     await page.getByTestId('code-name-input').fill('Delete Offline');
     const indexInput = page.getByTestId('code-index-input');
