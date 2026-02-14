@@ -11,6 +11,8 @@ test.describe('Code Synchronization', () => {
 
     // 2. Open Add Code Modal
     await page.getByTestId('add-code-button').click();
+    await page.getByTestId('code-type-select').click();
+    await page.getByTestId('option-master').click();
 
     // 3. Fill Form
     // Using direct input locator as getByLabel was ambiguous
@@ -49,6 +51,8 @@ test.describe('Code Synchronization', () => {
 
     // 3. Create Code Offline
     await page.getByTestId('add-code-button').click();
+    await page.getByTestId('code-type-select').click();
+    await page.getByTestId('option-master').click();
 
     const descInput = page.getByRole('textbox', { name: /Description/i });
     await descInput.fill('Async Master');
