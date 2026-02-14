@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES, THEME_MODES } from '../../../utils/constants';
+import { LANGUAGES, THEME_MODES, STORAGE_KEYS } from '../../../utils/constants';
 
 interface SettingsGeneralProps {
   language: string;
@@ -17,6 +17,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
   onThemeChange
 }) => {
   const { t } = useTranslation(['common', 'settings']);
+  const isMatrixUnlocked = localStorage.getItem(STORAGE_KEYS.MATRIX_UNLOCKED) === 'true';
 
   return (
     <>
@@ -24,7 +25,7 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
         <InputLabel>{t('language.select')}</InputLabel>
         <Select
           value={language}
-          onChange={(e) => onLanguageChange((e.target as HTMLInputElement).value)}
+          onChange={(e) => onLanguageChange(e.target.value as string)}
           label={t('language.select')}
         >
           <MenuItem value={LANGUAGES.EN}>{t('language.english')}</MenuItem>
@@ -35,12 +36,15 @@ export const SettingsGeneral: React.FC<SettingsGeneralProps> = ({
         <InputLabel>{t('settings:theme.label')}</InputLabel>
         <Select
           value={theme}
-          onChange={(e) => onThemeChange((e.target as HTMLInputElement).value)}
+          onChange={(e) => onThemeChange(e.target.value as string)}
           label={t('settings:theme.label')}
         >
           <MenuItem value={THEME_MODES.SYSTEM}>{t('settings:theme.system')}</MenuItem>
           <MenuItem value={THEME_MODES.LIGHT}>{t('settings:theme.light')}</MenuItem>
           <MenuItem value={THEME_MODES.DARK}>{t('settings:theme.dark')}</MenuItem>
+          {(isMatrixUnlocked || theme === THEME_MODES.MATRIX) && (
+            <MenuItem value={THEME_MODES.MATRIX}>Matrix</MenuItem>
+          )}
         </Select>
       </FormControl>
     </>

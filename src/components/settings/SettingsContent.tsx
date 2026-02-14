@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Box, Button, Snackbar } from '@mui/material';
-import { useSettings } from '../../hooks/useSettings';
-import { useTheme } from '../../hooks/useTheme';
-import i18n from '../../i18n';
 import { useTranslation } from 'react-i18next';
-import { StorageService } from '../../services/StorageService';
-import { db } from '../../db/db';
-import { BoksCode, CODE_TYPE, ExportData, UserRole } from '../../types';
-import { SettingsConfig } from './types';
 import {
   APP_EVENTS,
   IMPORT_EXPORT_MODES,
@@ -15,6 +7,12 @@ import {
   SNACKBAR_SEVERITY,
   THEME_MODES
 } from '../../utils/constants';
+import { SettingsConfig } from './types';
+import { useTheme } from '../../hooks/useTheme';
+import { db } from '../../db/db';
+import { StorageService } from '../../services/StorageService';
+import { BoksCode, ExportData, UserRole, CODE_TYPE } from '../../types';
+import { Alert, Box, Button, Snackbar } from '@mui/material';
 
 import { SettingsGeneral } from './sections/SettingsGeneral';
 import { SettingsAdvanced } from './sections/SettingsAdvanced';
@@ -28,15 +26,26 @@ interface SettingsContentProps {
 }
 
 export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsContentProps) => {
-  const { settings } = useSettings();
   const { mode: themeMode, setThemeMode } = useTheme();
-  const { t } = useTranslation(['common', 'settings']);
+  const { t, i18n } = useTranslation(['common', 'settings']);
 
   // Draft state for settings
   const [draftConfig, setDraftConfig] = useState<SettingsConfig>({
     language: LANGUAGES.EN,
     theme: THEME_MODES.SYSTEM
   });
+
+  // Initialize draft config only once on mount, or when modal opens
+  useEffect(() => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
+      theme: themeMode || THEME_MODES.SYSTEM
+    }));
+    // We only run this on mount to get initial values.
+    // If we include dependencies, any external change resets the form, which is annoying while editing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // State for import/export functionality
   const [importExportDialogOpen, setImportExportDialogOpen] = useState(false);
@@ -48,19 +57,13 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
     'success' | 'error' | 'info' | 'warning'
   >('info');
 
-  // Initialize draft config
-  useEffect(() => {
-    setDraftConfig({
-      language: i18n.resolvedLanguage || i18n.language || LANGUAGES.EN,
-      theme: themeMode || THEME_MODES.SYSTEM
-    });
-  }, [settings, themeMode]);
-
   const handleThemeChange = (value: string) => {
     setDraftConfig((prev) => ({
       ...prev,
       theme: value
     }));
+    // Apply theme changes immediately
+    setThemeMode(value);
   };
 
   const handleLanguageChange = (value: string) => {
@@ -72,17 +75,19 @@ export const SettingsContent = ({ onSave, onCancel, isModal = false }: SettingsC
 
   const handleSave = useCallback(() => {
     // Apply language changes
-    i18n.changeLanguage(draftConfig.language);
+    if (draftConfig.language !== i18n.language) {
+      i18n.changeLanguage(draftConfig.language);
+    }
 
-    // Apply theme changes
+    // Apply theme changes (redundant if already applied, but safe)
+    console.log('Saving theme:', draftConfig.theme);
     setThemeMode(draftConfig.theme);
 
-    // Update settings
-
+    // Update settings callback
     if (onSave) {
       onSave(draftConfig);
     }
-  }, [draftConfig, setThemeMode, onSave]);
+  }, [draftConfig, setThemeMode, onSave, i18n]);
 
   // Listen for mobile save event
   useEffect(() => {
