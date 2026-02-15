@@ -132,6 +132,47 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system' | 'matrix') => 
               }
             }
           }
+        },
+        MuiAlert: {
+          styleOverrides: {
+            root: {
+              backgroundColor: '#000000',
+              color: '#00FF00',
+              border: '1px solid #00FF00',
+              borderRadius: 0,
+              '& .MuiAlert-icon': {
+                color: '#00FF00'
+              }
+            },
+            standardSuccess: {
+              backgroundColor: '#000000',
+              color: '#00FF00',
+              '& .MuiAlert-icon': {
+                color: '#00FF00'
+              }
+            },
+            standardError: {
+              backgroundColor: '#000000',
+              color: '#00FF00',
+              '& .MuiAlert-icon': {
+                color: '#00FF00'
+              }
+            },
+            standardWarning: {
+              backgroundColor: '#000000',
+              color: '#00FF00',
+              '& .MuiAlert-icon': {
+                color: '#00FF00'
+              }
+            },
+            standardInfo: {
+              backgroundColor: '#000000',
+              color: '#00FF00',
+              '& .MuiAlert-icon': {
+                color: '#00FF00'
+              }
+            }
+          }
         }
       }
     });

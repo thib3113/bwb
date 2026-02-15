@@ -53,14 +53,14 @@ export const DeveloperVersion = ({ showNotification }: DeveloperVersionProps) =>
         onClick={handleVersionClick}
         data-testid="version-text"
         sx={{
-          cursor: 'pointer',
+          cursor: 'default',
           userSelect: 'none',
           WebkitTapHighlightColor: 'transparent',
           outline: 'none',
           display: 'inline-block',
           background:
             devClickCount > 0
-              ? `linear-gradient(90deg, ${theme.palette.primary.main} ${devProgress}%, ${theme.palette.text.secondary} ${devProgress}%)`
+              ? `linear-gradient(90deg, #E0FFE0 ${devProgress}%, ${theme.palette.primary.main} ${devProgress}%)`
               : 'inherit',
           backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
           WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
