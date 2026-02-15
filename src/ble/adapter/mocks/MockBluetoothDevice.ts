@@ -56,12 +56,12 @@ export class MockBluetoothDevice implements BluetoothDevice {
   dispatchEvent(event: Event): boolean {
     const set = this.listeners.get(event.type);
     if (set) {
-      set.forEach(l => {
-         if (typeof l === 'function') {
-           l(event);
-         } else if (l && typeof l.handleEvent === 'function') {
-           l.handleEvent(event);
-         }
+      set.forEach((l) => {
+        if (typeof l === 'function') {
+          l(event);
+        } else if (l && typeof l.handleEvent === 'function') {
+          l.handleEvent(event);
+        }
       });
     }
     return true; // Event not canceled

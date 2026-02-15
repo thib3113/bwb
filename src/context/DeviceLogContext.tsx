@@ -34,8 +34,11 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
     const handleLogCountPacket = (packet: BLEPacket) => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT && packet.payload.length >= 2) {
         const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
-        lastReceivedLogCountRef.current = count;
-        console.log(`[DeviceLogContext] Updated lastReceivedLogCountRef: ${count}`);
+        // Quirk #3: Log Count Instability - Always use the highest value
+        if (lastReceivedLogCountRef.current === null || count > lastReceivedLogCountRef.current) {
+          lastReceivedLogCountRef.current = count;
+          console.log(`[DeviceLogContext] Updated lastReceivedLogCountRef (Quirk #3): ${count}`);
+        }
       }
     };
 

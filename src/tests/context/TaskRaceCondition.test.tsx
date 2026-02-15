@@ -19,6 +19,7 @@ vi.mock('../../db/db', () => ({
   db: {
     codes: {
       get: vi.fn(),
+      update: vi.fn(),
       where: vi.fn(() => ({
         equals: vi.fn(() => ({
           filter: vi.fn(() => ({

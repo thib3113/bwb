@@ -1,4 +1,13 @@
-export const isInAppBrowser = (userAgent: string = navigator.userAgent || navigator.vendor || (window as any).opera || ''): boolean => {
+interface WindowWithOpera extends Window {
+  opera?: string;
+}
+
+export const isInAppBrowser = (
+  userAgent: string = navigator.userAgent ||
+    navigator.vendor ||
+    (window as WindowWithOpera).opera ||
+    ''
+): boolean => {
   const rules = [
     'WebView',
     'Android.*(wv)',

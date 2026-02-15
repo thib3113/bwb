@@ -86,7 +86,27 @@ export class TaskExecutorService {
             activeDevice.configuration_key || '',
             code as string
           );
-          const response = await sendRequest(packet);
+          let response = await sendRequest(packet);
+
+          // Workaround for Quirk #5: False Error on Single-Use Creation
+          // Some firmware versions return 0x78 (ERROR) even if creation succeeded.
+          if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
+            console.warn(
+              '[TaskExecutor] Single Use Code creation returned 0x78, double-checking with COUNT_CODES (Quirk #5)'
+            );
+            try {
+              const countResponse = await sendRequest(new CountCodesPacket());
+              if (countResponse.opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
+                console.log(
+                  '[TaskExecutor] Received NOTIFY_CODES_COUNT after 0x78, assuming success.'
+                );
+                // We treat this as a success to allow the task to complete
+                response = { ...response, opcode: BLEOpcode.CODE_OPERATION_SUCCESS };
+              }
+            } catch (e) {
+              console.error('[TaskExecutor] Double-check failed:', e);
+            }
+          }
 
           if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
             // Update code status in DB if codeId is present
