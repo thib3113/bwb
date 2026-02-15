@@ -42,7 +42,7 @@ test.describe('Codes - Offline Delete Sync', () => {
     const item = page.getByTestId('code-item-666666');
     await expect(item).toBeVisible();
 
-    await page.getByTestId('delete-code-666666').click();
+    await item.click(); await page.getByTestId('delete-code-666666').click();
 
     await page.getByTestId('connection-button').click();
 
