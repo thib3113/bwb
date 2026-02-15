@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
@@ -5,7 +6,6 @@ import { DeveloperVersion } from '../../../../components/layout/header/Developer
 import * as developerContextHook from '../../../../context/DeveloperContextTypes';
 
 // Mock global commit hash for tests
-// Using 'any' to bypass TS error: Property '__COMMIT_HASH__' does not exist on type 'typeof globalThis'.
 (global as any).__COMMIT_HASH__ = 'abcdef1';
 
 // Mock hooks
@@ -40,6 +40,11 @@ describe('DeveloperVersion', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    // Default mock implementation
+    (developerContextHook.useDeveloperContext as any).mockReturnValue({
+      isDeveloperMode: false,
+      enableDeveloperMode: mockEnableDeveloperMode,
+    });
   });
 
   afterEach(() => {
@@ -47,24 +52,13 @@ describe('DeveloperVersion', () => {
   });
 
   it('renders version string correctly', () => {
-    (developerContextHook.useDeveloperContext as any).mockReturnValue({
-      isDeveloperMode: false,
-      enableDeveloperMode: mockEnableDeveloperMode,
-    });
-
-    // The mock for package.json might fail to override if Vite/Vitest handles JSON imports specially.
-    // We'll check for either the mocked version OR the real version (1.0.0) to be robust.
     render(<DeveloperVersion showNotification={mockShowNotification} />);
     const text = screen.getByTestId('version-text').textContent;
+    // Allow either mocked version or real one to be robust
     expect(text).toMatch(/v(1\.2\.3|1\.0\.0)-abcdef1/);
   });
 
   it('enables developer mode after 7 clicks', () => {
-    (developerContextHook.useDeveloperContext as any).mockReturnValue({
-      isDeveloperMode: false,
-      enableDeveloperMode: mockEnableDeveloperMode,
-    });
-
     render(<DeveloperVersion showNotification={mockShowNotification} />);
     const text = screen.getByTestId('version-text');
 
@@ -78,11 +72,6 @@ describe('DeveloperVersion', () => {
   });
 
   it('does not enable developer mode with fewer than 7 clicks', () => {
-    (developerContextHook.useDeveloperContext as any).mockReturnValue({
-      isDeveloperMode: false,
-      enableDeveloperMode: mockEnableDeveloperMode,
-    });
-
     render(<DeveloperVersion showNotification={mockShowNotification} />);
     const text = screen.getByTestId('version-text');
 
@@ -95,11 +84,6 @@ describe('DeveloperVersion', () => {
   });
 
   it('resets click count after timeout', () => {
-    (developerContextHook.useDeveloperContext as any).mockReturnValue({
-      isDeveloperMode: false,
-      enableDeveloperMode: mockEnableDeveloperMode,
-    });
-
     render(<DeveloperVersion showNotification={mockShowNotification} />);
     const text = screen.getByTestId('version-text');
 
@@ -119,5 +103,24 @@ describe('DeveloperVersion', () => {
     }
 
     expect(mockEnableDeveloperMode).not.toHaveBeenCalled();
+  });
+
+  it('shows info notification if already developer', () => {
+    // Override mock for this specific test
+    (developerContextHook.useDeveloperContext as any).mockReturnValue({
+      isDeveloperMode: true,
+      enableDeveloperMode: mockEnableDeveloperMode,
+    });
+
+    render(<DeveloperVersion showNotification={mockShowNotification} />);
+    const text = screen.getByTestId('version-text');
+
+    // Click 7 times
+    for (let i = 0; i < 7; i++) {
+      fireEvent.click(text);
+    }
+
+    expect(mockEnableDeveloperMode).not.toHaveBeenCalled();
+    expect(mockShowNotification).toHaveBeenCalledWith('developer.developer_already_active', 'info');
   });
 });

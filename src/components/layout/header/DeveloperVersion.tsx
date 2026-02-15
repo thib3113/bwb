@@ -18,7 +18,6 @@ export const DeveloperVersion = ({ showNotification }: DeveloperVersionProps) =>
 
   const handleVersionClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
-    if (isDeveloperMode) return;
 
     const newCount = devClickCount + 1;
     setDevClickCount(newCount);
@@ -28,8 +27,12 @@ export const DeveloperVersion = ({ showNotification }: DeveloperVersionProps) =>
     }
 
     if (newCount >= 7) {
-      enableDeveloperMode();
-      showNotification(t('developer.enabled_success'), 'success');
+      if (isDeveloperMode) {
+        showNotification(t('developer.developer_already_active'), 'info');
+      } else {
+        enableDeveloperMode();
+        showNotification(t('developer.enabled_success'), 'success');
+      }
       setDevClickCount(0);
     } else {
       devClickTimerRef.current = setTimeout(() => {
@@ -50,7 +53,7 @@ export const DeveloperVersion = ({ showNotification }: DeveloperVersionProps) =>
         onClick={handleVersionClick}
         data-testid="version-text"
         sx={{
-          cursor: isDeveloperMode ? 'default' : 'pointer',
+          cursor: 'pointer',
           userSelect: 'none',
           WebkitTapHighlightColor: 'transparent',
           outline: 'none',
