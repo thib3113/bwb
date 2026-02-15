@@ -36,14 +36,14 @@ describe('DoorControlButton', () => {
     // Use real timers
   });
 
-  it('renders disabled button when disconnected', () => {
+  it('does not render button when disconnected', () => {
     (useDoorHook.useDoor as any).mockReturnValue({ doorStatus: 'closed', isOpening: false, openDoor: mockOpenDoor });
     (useBLEConnectionHook.useBLEConnection as any).mockReturnValue({ isConnected: false, getBatteryInfo: mockGetBatteryInfo });
     (useDeviceHook.useDevice as any).mockReturnValue({ activeDevice: { door_pin_code: '123456' }, updateDeviceBatteryLevel: mockUpdateDeviceBatteryLevel });
 
     render(<DoorControlButton showNotification={mockShowNotification} />);
-    const button = screen.getByTestId('open-door-button');
-    expect(button).toBeDisabled();
+    const button = screen.queryByTestId('open-door-button');
+    expect(button).not.toBeInTheDocument();
   });
 
   it('renders enabled button when connected', () => {
@@ -62,7 +62,8 @@ describe('DoorControlButton', () => {
     (useDeviceHook.useDevice as any).mockReturnValue({ activeDevice: { door_pin_code: '' }, updateDeviceBatteryLevel: mockUpdateDeviceBatteryLevel });
 
     render(<DoorControlButton showNotification={mockShowNotification} />);
-    fireEvent.click(screen.getByTestId('open-door-button'));
+    const button = screen.getByTestId('open-door-button');
+    fireEvent.click(button);
 
     expect(mockOpenDoor).not.toHaveBeenCalled();
     expect(mockShowNotification).toHaveBeenCalledWith('master_code_required', 'error');
