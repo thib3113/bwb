@@ -149,4 +149,66 @@ describe('BoksSimulator', () => {
 
     expect(emitSpy).toHaveBeenCalled();
   });
+
+  // --- New Tests ---
+
+  it('should emit disconnect event on simulation', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+    simulator.simulateDisconnect();
+    expect(emitSpy).toHaveBeenCalledWith('disconnect-event');
+  });
+
+  it('should set and respect packet loss probability', () => {
+    simulator.setPacketLoss(1); // 100% loss
+    expect(simulator.getPacketLossProbability()).toBe(1);
+
+    const emitSpy = vi.spyOn(simulator, 'emit');
+    // Using a valid opcode like OPEN_DOOR with dummy payload
+    // Normally handleOpenDoor would process this (even if payload is empty it runs)
+    simulator.handlePacket(BLEOpcode.OPEN_DOOR, new Uint8Array([]));
+
+    vi.advanceTimersByTime(100);
+    // Should NOT emit notification because packet was dropped
+    expect(emitSpy).not.toHaveBeenCalledWith('notification', expect.any(Uint8Array));
+
+    // Reset loss
+    simulator.setPacketLoss(0);
+
+    // Valid packet
+    const pin = SIMULATOR_DEFAULT_PIN;
+    const payload = new TextEncoder().encode(pin);
+    simulator.handlePacket(BLEOpcode.OPEN_DOOR, payload);
+
+    vi.advanceTimersByTime(2000); // Wait enough
+    // Should emit notification (VALID_OPEN_CODE)
+    expect(emitSpy).toHaveBeenCalledWith('notification', expect.any(Uint8Array));
+  });
+
+  it('should allow custom packet handlers', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+    const customHandler = vi.fn().mockReturnValue(false); // Stop standard processing
+    simulator.registerCustomHandler(BLEOpcode.OPEN_DOOR, customHandler);
+
+    simulator.handlePacket(BLEOpcode.OPEN_DOOR, new Uint8Array([1, 2, 3]));
+    vi.advanceTimersByTime(100);
+
+    expect(customHandler).toHaveBeenCalledWith(new Uint8Array([1, 2, 3]));
+    // Standard logic suppressed -> no notification emitted by simulator
+    expect(emitSpy).not.toHaveBeenCalledWith('notification', expect.any(Uint8Array));
+  });
+
+  it('should inject logs', () => {
+    simulator.injectLog(0x99, [1, 2, 3, 4]);
+    const state = simulator.getPublicState();
+    expect(state.logs).toHaveLength(1);
+    expect(state.logs[0].opcode).toBe(0x99);
+    expect(state.logs[0].payload).toEqual([1, 2, 3, 4]);
+  });
+
+  it('should update and emit RSSI', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+    simulator.setRssi(-80);
+    expect(simulator.getPublicState().rssi).toBe(-80);
+    expect(emitSpy).toHaveBeenCalledWith('rssi-update', -80);
+  });
 });

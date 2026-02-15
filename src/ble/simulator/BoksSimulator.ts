@@ -24,7 +24,11 @@ export interface BoksState {
   batteryLevel: number;
   firmwareRevision: string; // Maps to Hardware Version
   softwareRevision: string; // Maps to Software Version
+  packetLossProbability: number;
+  rssi: number;
 }
+
+export type CustomPacketHandler = (payload: Uint8Array) => boolean | Uint8Array;
 
 export class BoksSimulator extends EventEmitter {
   private static instance: BoksSimulator | null = null;
@@ -35,6 +39,8 @@ export class BoksSimulator extends EventEmitter {
   private nextConnectionError: Error | null = null;
   private nextDiscoveryError: Error | null = null;
   private responseDelay: number = 50;
+
+  private customHandlers: Map<number, CustomPacketHandler> = new Map();
 
   public static getInstance(): BoksSimulator {
     if (!BoksSimulator.instance) {
@@ -78,7 +84,9 @@ export class BoksSimulator extends EventEmitter {
       chaosMode: false,
       batteryLevel: 100,
       firmwareRevision: '10/125', // Default Hardware Version (maps to 4.0)
-      softwareRevision: '4.1.14' // Default Software Version
+      softwareRevision: '4.1.14', // Default Software Version
+      packetLossProbability: 0,
+      rssi: -60
     };
   }
 
@@ -105,6 +113,10 @@ export class BoksSimulator extends EventEmitter {
           if (parsed.pinCodes) {
             parsed.pinCodes = new Map(parsed.pinCodes);
           }
+          // Ensure new fields exist if loading old state
+          if (typeof parsed.packetLossProbability === 'undefined') parsed.packetLossProbability = 0;
+          if (typeof parsed.rssi === 'undefined') parsed.rssi = -60;
+
           console.log('[BoksSimulator] State loaded from localStorage');
           return parsed as BoksState;
         }
@@ -120,6 +132,7 @@ export class BoksSimulator extends EventEmitter {
     this.saveState();
     if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
     if (this.chaosTimer) clearInterval(this.chaosTimer);
+    this.customHandlers.clear();
   }
 
   public setChaosMode(enabled: boolean) {
@@ -265,10 +278,72 @@ export class BoksSimulator extends EventEmitter {
     this.saveState();
   }
 
+  // --- New Simulation Capabilities ---
+
+  public simulateDisconnect() {
+    console.log('[Simulator] Simulating unexpected disconnection');
+    this.emit('disconnect-event');
+  }
+
+  public setPacketLoss(probability: number) {
+    if (probability < 0 || probability > 1) {
+      console.warn('[Simulator] Packet loss probability must be between 0 and 1');
+      return;
+    }
+    this.state.packetLossProbability = probability;
+    this.saveState();
+  }
+
+  public setRssi(value: number) {
+    this.state.rssi = value;
+    this.emit('rssi-update', value);
+    this.saveState();
+  }
+
+  public registerCustomHandler(opcode: number, handler: CustomPacketHandler) {
+    this.customHandlers.set(opcode, handler);
+  }
+
+  public injectLog(opcode: number, payload: number[]) {
+    this.addLog(opcode, payload);
+    console.log(`[Simulator] Log injected: Opcode 0x${opcode.toString(16)}`);
+  }
+
+  public getPacketLossProbability(): number {
+    return this.state.packetLossProbability;
+  }
+
   // --- BLE Protocol Handling ---
 
   public handlePacket(opcode: number, payload: Uint8Array): void {
+    // 1. Packet Loss Simulation
+    if (this.state.packetLossProbability > 0 && Math.random() < this.state.packetLossProbability) {
+      console.log(`[Simulator] Packet dropped (Loss Prob: ${this.state.packetLossProbability})`);
+      return; // Drop packet
+    }
+
     setTimeout(() => {
+      // 2. Custom Handler Interception
+      if (this.customHandlers.has(opcode)) {
+        const handler = this.customHandlers.get(opcode)!;
+        const result = handler(payload);
+
+        if (result === false) {
+           // Skip standard processing
+           return;
+        } else if (result instanceof Uint8Array || Array.isArray(result)) {
+           // Send custom response (if array returned)
+           // But how to know opcode of response?
+           // Usually handlers respond with specific opcode.
+           // For simplicity, let's say if it returns data, we assume it's NOTIFY payload
+           // BUT notify needs an opcode.
+           // So maybe handler should just call sendNotification itself and return false.
+           // Let's stick to: if handler returns false, we stop. If it does work inside, fine.
+           // If it returns a value, we can log it but standard processing continues if true?
+           // No, let's redefine: handler returns boolean. True = continue standard, False = stop.
+        }
+      }
+
       this.processCommand(opcode, payload);
     }, this.responseDelay);
   }

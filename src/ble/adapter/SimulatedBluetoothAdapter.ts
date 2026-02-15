@@ -10,17 +10,102 @@ import {
   SIMULATOR_BLE_ID
 } from '../../utils/bleConstants';
 
+class MockBluetoothDevice implements BluetoothDevice {
+  public id = SIMULATOR_BLE_ID;
+  public name = SIMULATOR_BLE_ID;
+  public gatt = {
+    connected: true,
+    connect: async () => this.gatt,
+    disconnect: () => {
+      // Handled by adapter
+    },
+    device: this
+  } as unknown as BluetoothRemoteGATTServer;
+
+  public watchingAdvertisements = false;
+  private listeners: Map<string, Set<EventListenerOrEventListenerObject>> = new Map();
+
+  async watchAdvertisements() {
+    this.watchingAdvertisements = true;
+  }
+  async unwatchAdvertisements() {
+    this.watchingAdvertisements = false;
+  }
+
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set());
+    }
+    this.listeners.get(type)!.add(listener);
+  }
+
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+    const set = this.listeners.get(type);
+    if (set) {
+      set.delete(listener);
+    }
+  }
+
+  dispatchEvent(event: Event) {
+    const set = this.listeners.get(event.type);
+    if (set) {
+      set.forEach(l => {
+         if (typeof l === 'function') {
+           l(event);
+         } else if (l && typeof l.handleEvent === 'function') {
+           l.handleEvent(event);
+         }
+      });
+    }
+    return true;
+  }
+}
+
 export class SimulatedBluetoothAdapter implements BLEAdapter {
   private simulator: BoksSimulator;
   private isConnected: boolean = false;
   private notificationCallback: ((value: DataView) => void) | null = null;
+  private currentDevice: MockBluetoothDevice | null = null;
 
   constructor() {
     this.simulator = BoksSimulator.getInstance();
+
     // Pipe simulator notifications to the callback
     this.simulator.on('notification', (rawPacket: unknown) => {
       if (this.notificationCallback && this.isConnected && rawPacket instanceof Uint8Array) {
         this.notificationCallback(new DataView(rawPacket.buffer));
+      }
+    });
+
+    // Handle Forced Disconnection from Simulator
+    this.simulator.on('disconnect-event', () => {
+      // We only simulate disconnect if we are actually connected
+      if (this.isConnected && this.currentDevice) {
+        console.warn('[SimulatedAdapter] Simulator forced disconnection');
+        this.isConnected = false;
+
+        // Create the event properly
+        const event = new Event('gattserverdisconnected');
+        // Dispatch to the device object so listeners (like BoksBLEService) catch it
+        this.currentDevice.dispatchEvent(event);
+
+        this.currentDevice = null;
+      }
+    });
+
+    // Handle RSSI updates
+    this.simulator.on('rssi-update', (rssi: number) => {
+      if (this.currentDevice && this.currentDevice.watchingAdvertisements) {
+         // Dispatch advertisementreceived event
+         // Note: We use a custom event structure that mimics BluetoothAdvertisingEvent
+         // but since we can't easily import that class in all envs, we mock it.
+         // Listeners usually access event.rssi
+
+         const event = new Event('advertisementreceived');
+         Object.defineProperty(event, 'rssi', { value: rssi, writable: false });
+         Object.defineProperty(event, 'device', { value: this.currentDevice, writable: false });
+
+         this.currentDevice.dispatchEvent(event);
       }
     });
   }
@@ -49,6 +134,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     }
 
     this.isConnected = true;
+    this.currentDevice = new MockBluetoothDevice();
 
     // Simulate spontaneous notifications after connection
     setTimeout(() => {
@@ -70,26 +156,19 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
       ]);
     }, 500);
 
-    return {
-      id: SIMULATOR_BLE_ID,
-      name: SIMULATOR_BLE_ID,
-      gatt: { connected: true }
-    } as unknown as BluetoothDevice;
+    return this.currentDevice;
   }
 
   disconnect(): void {
     console.log('[SimulatedAdapter] Disconnecting...');
     this.isConnected = false;
     this.notificationCallback = null;
+    this.currentDevice = null;
   }
 
   getDevice(): BluetoothDevice | null {
     if (!this.isConnected) return null;
-    return {
-      id: SIMULATOR_BLE_ID,
-      name: SIMULATOR_BLE_ID,
-      gatt: { connected: true }
-    } as unknown as BluetoothDevice;
+    return this.currentDevice;
   }
 
   async write(_serviceUuid: string, _charUuid: string, data: Uint8Array): Promise<void> {
@@ -126,7 +205,7 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
       }
     }
 
-    // Pass to simulator
+    // Pass to simulator (which handles packet loss and custom handlers)
     this.simulator.handlePacket(opcode, payload);
   }
 
