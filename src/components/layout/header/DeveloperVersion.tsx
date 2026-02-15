@@ -65,7 +65,8 @@ export const DeveloperVersion = ({ showNotification }: DeveloperVersionProps) =>
           backgroundClip: devClickCount > 0 ? 'text' : 'border-box',
           WebkitBackgroundClip: devClickCount > 0 ? 'text' : 'border-box',
           color: devClickCount > 0 ? 'transparent' : 'inherit',
-          transition: 'background 0.2s ease'
+          transition: 'background 0.2s ease',
+          fontWeight: devClickCount > 0 ? 700 : 'inherit'
         }}
       >
         v{pkg.version}-{__COMMIT_HASH__}
