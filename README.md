@@ -5,6 +5,17 @@
   <em>A modern web interface to control your Boks parcel boxes.</em>
 </p>
 
+<p align="center">
+  <a href="https://thib3113.github.io/bwb/">
+    <img src="https://img.shields.io/badge/Lancer_l'application-3DDC84?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Lancer l'application">
+  </a>
+  &nbsp;
+  <a href="https://thib3113.github.io/bwb/">
+    <img src="https://img.shields.io/badge/Launch_App-3DDC84?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Launch App">
+  </a>
+</p>
+
+
 ---
 
 ## 🇫🇷 Français
