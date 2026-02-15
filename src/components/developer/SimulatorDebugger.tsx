@@ -46,12 +46,12 @@ export const SimulatorDebugger = () => {
   useEffect(() => {
     if (simulator) {
       const interval = setInterval(() => {
-        setTimeout(() => setState(simulator.getPublicState()), 0);
+        setState(simulator.getPublicState());
       }, 500);
-      setTimeout(() => setState(simulator.getPublicState()), 0);
+      setState(simulator.getPublicState());
       return () => clearInterval(interval);
     } else {
-      setTimeout(() => setState(null), 0);
+      setState(null);
     }
   }, [simulator]);
 
