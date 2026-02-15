@@ -268,13 +268,22 @@ export const DeveloperPage = () => {
             {konamiState && (
               <List dense>
                 <ListItem>
-                  <ListItemText primary={t('settings:developer.easter_eggs.last_input')} secondary={konamiState.direction || 'None'} />
+                  <ListItemText
+                    primary={t('settings:developer.easter_eggs.last_input')}
+                    secondary={konamiState.direction || 'None'}
+                  />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary={t('settings:developer.easter_eggs.status')} secondary={konamiState.status} />
+                  <ListItemText
+                    primary={t('settings:developer.easter_eggs.status')}
+                    secondary={konamiState.status}
+                  />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary={t('settings:developer.easter_eggs.expected_next')} secondary={konamiState.expected} />
+                  <ListItemText
+                    primary={t('settings:developer.easter_eggs.expected_next')}
+                    secondary={konamiState.expected}
+                  />
                 </ListItem>
               </List>
             )}

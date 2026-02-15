@@ -83,7 +83,7 @@
     "page_title": "Developer Options",
     "disable_mode": "Disable Dev Mode",
     "simulators_tools": "Simulators & Tools",
-    "enable_simulator": "Enable Bluetooth Simulator (Reloads Page)",
+    "enable_simulator": "Enable Bluetooth Simulator",
     "load_mock_data": "Load Mock Data",
     "clear_db": "Clear Database",
     "clear_db_confirm": "Are you sure you want to delete the entire database? This cannot be undone.",
@@ -131,7 +131,12 @@
       "reset": "Reset Sim",
       "no_logs": "No logs",
       "not_active": "Simulator is not active.",
-      "enable_simulator": "Enable Bluetooth Simulator (Reloads Page)"
+      "enable_simulator": "Enable Bluetooth Simulator",
+      "device_versions": "Device Versions",
+      "hw_fw_label": "Hardware / Firmware",
+      "sw_revision": "Software Revision",
+      "custom_version": "Custom...",
+      "update_reconnect": "Update & Reconnect"
     },
     "sw_title": "Service Worker",
     "sw_status": "Status: {{status}}",

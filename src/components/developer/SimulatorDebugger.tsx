@@ -204,12 +204,12 @@ export const SimulatorDebugger = () => {
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle2" gutterBottom>
-                Device Versions
+                {t('settings:developer.simulator.device_versions')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                 <TextField
                   select
-                  label="Hardware / Firmware"
+                  label={t('settings:developer.simulator.hw_fw_label')}
                   value={fwRev}
                   onChange={(e) => setFwRev(e.target.value)}
                   size="small"
@@ -220,10 +220,12 @@ export const SimulatorDebugger = () => {
                       HW {hw} (FW {fw})
                     </MenuItem>
                   ))}
-                  <MenuItem value="custom">Custom...</MenuItem>
+                  <MenuItem value="custom">
+                    {t('settings:developer.simulator.custom_version')}
+                  </MenuItem>
                 </TextField>
                 <TextField
-                  label="Software Revision"
+                  label={t('settings:developer.simulator.sw_revision')}
                   value={swRev}
                   onChange={(e) => setSwRev(e.target.value)}
                   size="small"
@@ -238,7 +240,7 @@ export const SimulatorDebugger = () => {
                   disconnect();
                 }}
               >
-                Update & Reconnect
+                {t('settings:developer.simulator.update_reconnect')}
               </Button>
             </CardContent>
           </Card>
