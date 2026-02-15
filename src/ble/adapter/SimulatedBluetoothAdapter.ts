@@ -1,5 +1,5 @@
 import { BLEAdapter } from './BLEAdapter';
-import { BluetoothDevice } from '../../types';
+import { BluetoothDevice, BluetoothRemoteGATTServer } from '../../types';
 import { BoksSimulator } from '../simulator/BoksSimulator';
 import {
   BATTERY_LEVEL_CHAR_UUID,
@@ -13,14 +13,16 @@ import {
 class MockBluetoothDevice implements BluetoothDevice {
   public id = SIMULATOR_BLE_ID;
   public name = SIMULATOR_BLE_ID;
-  public gatt = {
+  public gatt: BluetoothRemoteGATTServer = {
     connected: true,
     connect: async () => this.gatt,
     disconnect: () => {
       // Handled by adapter
     },
-    device: this
-  } as unknown as BluetoothRemoteGATTServer;
+    device: this,
+    getPrimaryService: async () => { throw new Error('Not implemented'); },
+    getPrimaryServices: async () => { throw new Error('Not implemented'); }
+  };
 
   public watchingAdvertisements = false;
   private listeners: Map<string, Set<EventListenerOrEventListenerObject>> = new Map();
@@ -94,8 +96,8 @@ export class SimulatedBluetoothAdapter implements BLEAdapter {
     });
 
     // Handle RSSI updates
-    this.simulator.on('rssi-update', (rssi: number) => {
-      if (this.currentDevice && this.currentDevice.watchingAdvertisements) {
+    this.simulator.on('rssi-update', (rssi: unknown) => {
+      if (this.currentDevice && this.currentDevice.watchingAdvertisements && typeof rssi === 'number') {
          // Dispatch advertisementreceived event
          // Note: We use a custom event structure that mimics BluetoothAdvertisingEvent
          // but since we can't easily import that class in all envs, we mock it.
