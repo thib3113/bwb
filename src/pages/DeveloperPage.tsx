@@ -95,11 +95,18 @@ export const DeveloperPage = () => {
     setTabValue(newValue);
   };
 
-  const handleResetTheme = () => {
-    // Remove the unlocked status from storage
-    localStorage.removeItem(STORAGE_KEYS.MATRIX_UNLOCKED);
-    // Reset theme to system
-    themeContext?.setThemeMode(THEME_MODES.SYSTEM);
+  const toggleMatrixMode = () => {
+    const isMatrixActive = themeContext?.mode === THEME_MODES.MATRIX;
+
+    if (isMatrixActive) {
+      // Deactivate Matrix Mode
+      localStorage.removeItem(STORAGE_KEYS.MATRIX_UNLOCKED);
+      themeContext?.setThemeMode(THEME_MODES.SYSTEM);
+    } else {
+      // Activate Matrix Mode
+      localStorage.setItem(STORAGE_KEYS.MATRIX_UNLOCKED, 'true');
+      themeContext?.setThemeMode(THEME_MODES.MATRIX);
+    }
   };
 
   const simulateKonamiCode = async () => {
@@ -223,13 +230,12 @@ export const DeveloperPage = () => {
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
-                color={themeContext?.mode === THEME_MODES.MATRIX ? 'primary' : 'secondary'}
-                onClick={() => themeContext?.setThemeMode(THEME_MODES.MATRIX)}
+                color={themeContext?.mode === THEME_MODES.MATRIX ? 'error' : 'primary'}
+                onClick={toggleMatrixMode}
               >
-                {t('settings:developer.easter_eggs.activate_matrix')}
-              </Button>
-              <Button variant="outlined" onClick={handleResetTheme}>
-                {t('settings:developer.easter_eggs.reset_theme')}
+                {themeContext?.mode === THEME_MODES.MATRIX
+                  ? t('settings:developer.easter_eggs.disable_matrix')
+                  : t('settings:developer.easter_eggs.activate_matrix')}
               </Button>
             </Box>
           </CardContent>

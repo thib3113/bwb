@@ -154,7 +154,7 @@
       "matrix_mode": "Mode Matrix",
       "matrix_desc": "Entrez dans la Matrice. Ou exécutez le Konami Code : ↑ ↑ ↓ ↓ ← → ← →",
       "activate_matrix": "Activer le Mode Matrix",
-      "reset_theme": "Réinitialiser le thème (Verrouiller Matrix)",
+      "disable_matrix": "Désactiver le Mode Matrix",
       "konami_debugger": "Débogueur Konami Code",
       "konami_desc": "Visualisez l'état du Konami Code. Note : Le bouton 'Simuler' met uniquement à jour l'interface ci-dessous (et l'indicateur fléché), il ne déclenche pas le succès de l'Easter Egg (confettis).",
       "simulate_sequence": "Simuler la séquence (Visuel uniquement)",
