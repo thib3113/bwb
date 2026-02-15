@@ -168,7 +168,7 @@ test.describe('Screenshots', () => {
     await createCode('master', '654321', 'Maître (En attente)');
 
     // Delete Master Code (Pending Delete)
-    const deleteBtn = page.getByTestId('delete-code-123456');
+    await page.getByTestId('code-item-123456').click(); const deleteBtn = page.getByTestId('delete-code-123456');
     await deleteBtn.click();
 
     // Confirm delete dialog

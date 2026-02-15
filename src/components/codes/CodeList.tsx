@@ -20,7 +20,7 @@ export const CodeList = ({
   onDelete
 }: CodeListProps) => {
   return (
-    <List>
+    <List component="div">
       {codes.map((code) => (
         <CodeItem
           key={code.id}
