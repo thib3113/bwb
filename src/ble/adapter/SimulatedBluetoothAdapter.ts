@@ -1,67 +1,14 @@
 import { BLEAdapter } from './BLEAdapter';
-import { BluetoothDevice, BluetoothRemoteGATTServer } from '../../types';
+import { BluetoothDevice } from '../../types';
 import { BoksSimulator } from '../simulator/BoksSimulator';
+import { MockBluetoothDevice } from './mocks/MockBluetoothDevice';
 import {
   BATTERY_LEVEL_CHAR_UUID,
   BATTERY_SERVICE_UUID,
   BLEOpcode,
   DEVICE_INFO_CHARS,
-  DEVICE_INFO_SERVICE_UUID,
-  SIMULATOR_BLE_ID
+  DEVICE_INFO_SERVICE_UUID
 } from '../../utils/bleConstants';
-
-class MockBluetoothDevice implements BluetoothDevice {
-  public id = SIMULATOR_BLE_ID;
-  public name = SIMULATOR_BLE_ID;
-  public gatt: BluetoothRemoteGATTServer = {
-    connected: true,
-    connect: async () => this.gatt,
-    disconnect: () => {
-      // Handled by adapter
-    },
-    device: this,
-    getPrimaryService: async () => { throw new Error('Not implemented'); },
-    getPrimaryServices: async () => { throw new Error('Not implemented'); }
-  };
-
-  public watchingAdvertisements = false;
-  private listeners: Map<string, Set<EventListenerOrEventListenerObject>> = new Map();
-
-  async watchAdvertisements() {
-    this.watchingAdvertisements = true;
-  }
-  async unwatchAdvertisements() {
-    this.watchingAdvertisements = false;
-  }
-
-  addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
-    if (!this.listeners.has(type)) {
-      this.listeners.set(type, new Set());
-    }
-    this.listeners.get(type)!.add(listener);
-  }
-
-  removeEventListener(type: string, listener: EventListenerOrEventListenerObject) {
-    const set = this.listeners.get(type);
-    if (set) {
-      set.delete(listener);
-    }
-  }
-
-  dispatchEvent(event: Event) {
-    const set = this.listeners.get(event.type);
-    if (set) {
-      set.forEach(l => {
-         if (typeof l === 'function') {
-           l(event);
-         } else if (l && typeof l.handleEvent === 'function') {
-           l.handleEvent(event);
-         }
-      });
-    }
-    return true;
-  }
-}
 
 export class SimulatedBluetoothAdapter implements BLEAdapter {
   private simulator: BoksSimulator;
