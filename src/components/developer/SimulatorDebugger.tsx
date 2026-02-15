@@ -48,6 +48,7 @@ export const SimulatorDebugger = () => {
       const interval = setInterval(() => {
         setState(simulator.getPublicState());
       }, 500);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState(simulator.getPublicState());
       return () => clearInterval(interval);
     } else {
