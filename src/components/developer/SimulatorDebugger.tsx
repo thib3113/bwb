@@ -48,11 +48,17 @@ export const SimulatorDebugger = () => {
       const interval = setInterval(() => {
         setState(simulator.getPublicState());
       }, 500);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setState(simulator.getPublicState());
+
+      // Fix: avoid sync setState in effect by making it async
+      setTimeout(() => {
+        setState(simulator.getPublicState());
+      }, 0);
+
       return () => clearInterval(interval);
     } else {
-      setState(null);
+      setTimeout(() => {
+        setState(null);
+      }, 0);
     }
   }, [simulator]);
 
