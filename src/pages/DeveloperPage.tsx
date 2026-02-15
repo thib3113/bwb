@@ -95,11 +95,18 @@ export const DeveloperPage = () => {
     setTabValue(newValue);
   };
 
-  const handleResetTheme = () => {
-    // Remove the unlocked status from storage
-    localStorage.removeItem(STORAGE_KEYS.MATRIX_UNLOCKED);
-    // Reset theme to system
-    themeContext?.setThemeMode(THEME_MODES.SYSTEM);
+  const toggleMatrixMode = () => {
+    const isMatrixActive = themeContext?.mode === THEME_MODES.MATRIX;
+
+    if (isMatrixActive) {
+      // Deactivate Matrix Mode
+      localStorage.removeItem(STORAGE_KEYS.MATRIX_UNLOCKED);
+      themeContext?.setThemeMode(THEME_MODES.SYSTEM);
+    } else {
+      // Activate Matrix Mode
+      localStorage.setItem(STORAGE_KEYS.MATRIX_UNLOCKED, 'true');
+      themeContext?.setThemeMode(THEME_MODES.MATRIX);
+    }
   };
 
   const simulateKonamiCode = async () => {
@@ -152,7 +159,7 @@ export const DeveloperPage = () => {
           <Tab label={t('settings:developer.tabs.database')} />
           <Tab label={t('settings:developer.tabs.bluetooth')} />
           <Tab label={t('settings:developer.tabs.simulator')} />
-          <Tab label="Easter Eggs" />
+          <Tab label={t('settings:developer.tabs.easter_eggs')} />
         </Tabs>
       </Box>
 
@@ -215,21 +222,20 @@ export const DeveloperPage = () => {
         <Card sx={{ mb: 2 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Matrix Mode
+              {t('settings:developer.easter_eggs.matrix_mode')}
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
-              Enter the Matrix. Or execute the Konami Code: ↑ ↑ ↓ ↓ ← → ← →
+              {t('settings:developer.easter_eggs.matrix_desc')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
-                color={themeContext?.mode === THEME_MODES.MATRIX ? 'primary' : 'secondary'}
-                onClick={() => themeContext?.setThemeMode(THEME_MODES.MATRIX)}
+                color={themeContext?.mode === THEME_MODES.MATRIX ? 'error' : 'primary'}
+                onClick={toggleMatrixMode}
               >
-                Activate Matrix Mode
-              </Button>
-              <Button variant="outlined" onClick={handleResetTheme}>
-                Reset Theme (Lock Matrix)
+                {themeContext?.mode === THEME_MODES.MATRIX
+                  ? t('settings:developer.easter_eggs.disable_matrix')
+                  : t('settings:developer.easter_eggs.activate_matrix')}
               </Button>
             </Box>
           </CardContent>
@@ -238,16 +244,14 @@ export const DeveloperPage = () => {
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Konami Code Debugger
+              {t('settings:developer.easter_eggs.konami_debugger')}
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
-              Visualize the Konami Code state. Note: The 'Simulate' button only updates the UI below
-              (and the arrow indicator), it does not trigger the actual Easter Egg success
-              (confetti) because that logic is tied to the gesture hook.
+              {t('settings:developer.easter_eggs.konami_desc')}
             </Typography>
             <Box sx={{ mb: 2 }}>
               <Button variant="outlined" onClick={simulateKonamiCode}>
-                Simulate Sequence (Visual Only)
+                {t('settings:developer.easter_eggs.simulate_sequence')}
               </Button>
             </Box>
 
@@ -264,18 +268,18 @@ export const DeveloperPage = () => {
             {konamiState && (
               <List dense>
                 <ListItem>
-                  <ListItemText primary="Last Input" secondary={konamiState.direction || 'None'} />
+                  <ListItemText primary={t('settings:developer.easter_eggs.last_input')} secondary={konamiState.direction || 'None'} />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Status" secondary={konamiState.status} />
+                  <ListItemText primary={t('settings:developer.easter_eggs.status')} secondary={konamiState.status} />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Expected Next" secondary={konamiState.expected} />
+                  <ListItemText primary={t('settings:developer.easter_eggs.expected_next')} secondary={konamiState.expected} />
                 </ListItem>
               </List>
             )}
             <Typography variant="caption" color="text.secondary">
-              Note: Ensure you are swiping clearly. On desktop, click and drag. On mobile, swipe.
+              {t('settings:developer.easter_eggs.swipe_note')}
             </Typography>
           </CardContent>
         </Card>

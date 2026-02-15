@@ -112,7 +112,8 @@
       "general": "Général",
       "database": "Base de données",
       "bluetooth": "Bluetooth",
-      "simulator": "Simulateur"
+      "simulator": "Simulateur",
+      "easter_eggs": "Easter Eggs"
     },
     "simulator": {
       "title": "Simulateur Matériel Boks",
@@ -148,6 +149,19 @@
     "sw_active": "Actif",
     "sw_unknown": "Inconnu",
     "sw_not_supported": "API Service Worker non supportée",
-    "sw_no_active": "Aucune inscription active"
+    "sw_no_active": "Aucune inscription active",
+    "easter_eggs": {
+      "matrix_mode": "Mode Matrix",
+      "matrix_desc": "Entrez dans la Matrice. Ou exécutez le Konami Code : ↑ ↑ ↓ ↓ ← → ← →",
+      "activate_matrix": "Activer le Mode Matrix",
+      "disable_matrix": "Désactiver le Mode Matrix",
+      "konami_debugger": "Débogueur Konami Code",
+      "konami_desc": "Visualisez l'état du Konami Code. Note : Le bouton 'Simuler' met uniquement à jour l'interface ci-dessous (et l'indicateur fléché), il ne déclenche pas le succès de l'Easter Egg (confettis).",
+      "simulate_sequence": "Simuler la séquence (Visuel uniquement)",
+      "last_input": "Dernière entrée",
+      "status": "Statut",
+      "expected_next": "Attendu ensuite",
+      "swipe_note": "Note : Cette fonctionnalité marche sur mobile en swippant."
+    }
   }
 }

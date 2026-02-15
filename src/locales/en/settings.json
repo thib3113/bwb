@@ -112,7 +112,8 @@
       "general": "General",
       "database": "Database",
       "bluetooth": "Bluetooth",
-      "simulator": "Simulator"
+      "simulator": "Simulator",
+      "easter_eggs": "Easter Eggs"
     },
     "simulator": {
       "title": "Boks Hardware Simulator",
@@ -148,6 +149,19 @@
     "sw_active": "Active",
     "sw_unknown": "Unknown",
     "sw_not_supported": "Service Worker API not supported",
-    "sw_no_active": "No active registrations"
+    "sw_no_active": "No active registrations",
+    "easter_eggs": {
+      "matrix_mode": "Matrix Mode",
+      "matrix_desc": "Enter the Matrix. Or execute the Konami Code: ↑ ↑ ↓ ↓ ← → ← →",
+      "activate_matrix": "Activate Matrix Mode",
+      "disable_matrix": "Disable Matrix Mode",
+      "konami_debugger": "Konami Code Debugger",
+      "konami_desc": "Visualize the Konami Code state. Note: The 'Simulate' button only updates the UI below (and the arrow indicator), it does not trigger the actual Easter Egg success (confetti).",
+      "simulate_sequence": "Simulate Sequence (Visual Only)",
+      "last_input": "Last Input",
+      "status": "Status",
+      "expected_next": "Expected Next",
+      "swipe_note": "Note: This feature works on mobile by swiping."
+    }
   }
 }
