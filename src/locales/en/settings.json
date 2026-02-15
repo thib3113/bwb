@@ -81,7 +81,8 @@
   "developer": {
     "menu_title": "Developer",
     "page_title": "Developer Options",
-    "disable_mode": "Disable Dev Mode",
+    "disable_mode": "Disable",
+    "developer_already_active": "You are already a developer",
     "simulators_tools": "Simulators & Tools",
     "enable_simulator": "Enable Bluetooth Simulator",
     "load_mock_data": "Load Mock Data",

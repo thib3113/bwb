@@ -38,7 +38,7 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system' | 'matrix') => 
           active: '#00FF00', // Default icon color
           hover: 'rgba(0, 255, 0, 0.08)',
           selected: 'rgba(0, 255, 0, 0.16)',
-          disabled: 'rgba(0, 255, 0, 0.3)',
+          disabled: 'rgba(0, 255, 0, 0.5)',
           disabledBackground: 'rgba(0, 255, 0, 0.12)'
         }
       },
@@ -73,6 +73,18 @@ export const createAppTheme = (mode: 'light' | 'dark' | 'system' | 'matrix') => 
               color: '#00FF00',
               '&:hover': {
                 backgroundColor: '#006600'
+              }
+            },
+            outlined: {
+              color: '#00FF00',
+              borderColor: '#00FF00',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                borderColor: '#00FF00'
+              },
+              '&.Mui-disabled': {
+                borderColor: 'rgba(0, 255, 0, 0.3)',
+                color: 'rgba(0, 255, 0, 0.3)'
               }
             }
           }

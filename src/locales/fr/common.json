@@ -18,7 +18,9 @@
     "message": "Votre navigateur ne supporte pas Web Bluetooth. Veuillez utiliser Google Chrome.",
     "ios_message": "Sur iOS, les navigateurs standards (Safari, Chrome) ne supportent pas le Bluetooth Web.",
     "ios_action": "Veuillez utiliser l'application Bluefy pour accéder à ce service.",
-    "chrome_update": "Si vous utilisez Chrome, assurez-vous qu'il est à jour ou vérifiez vos paramètres Bluetooth."
+    "chrome_update": "Si vous utilisez Chrome, assurez-vous qu'il est à jour ou vérifiez vos paramètres Bluetooth.",
+    "in_app_browser_message": "Il semble que vous utilisiez un navigateur intégré (Facebook, Instagram, etc.) qui ne supporte pas le Bluetooth.",
+    "in_app_browser_action": "Veuillez ouvrir ce lien dans un navigateur externe (Chrome) via le menu de l'application."
   },
   "web_ble_not_supported_title": "Web Bluetooth non supporté",
   "web_ble_not_supported_message": "Votre navigateur ne supporte pas Web Bluetooth. Veuillez utiliser Google Chrome.",
