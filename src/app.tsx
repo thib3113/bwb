@@ -7,6 +7,7 @@ import { Alert, Box, Button, CircularProgress, Paper, Snackbar, Typography } fro
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTaskConsistency } from './hooks/useTaskConsistency';
 import { useDevice } from './hooks/useDevice';
+import { isInAppBrowser } from './utils/browser';
 
 // Lazy loading pages
 const HomePage = lazy(() =>
@@ -172,6 +173,19 @@ export function App() {
           >
             Télécharger Bluefy
           </Button>
+        </Box>
+      );
+    }
+
+    if (isInAppBrowser()) {
+      return (
+        <Box data-testid="in-app-browser-compatibility-message">
+          <Typography variant="body1" component="p" gutterBottom>
+            {t('common:web_ble_not_supported.in_app_browser_message')}
+          </Typography>
+          <Typography variant="body1" component="p" sx={{ fontWeight: 'bold' }}>
+            {t('common:web_ble_not_supported.in_app_browser_action')}
+          </Typography>
         </Box>
       );
     }
