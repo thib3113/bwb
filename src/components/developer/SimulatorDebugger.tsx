@@ -36,39 +36,24 @@ export const SimulatorDebugger = () => {
   );
   const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!window.boksSimulator);
 
-  const [fwRev, setFwRev] = useState('10/125');
-  const [swRev, setSwRev] = useState('4.1.14');
-  const [loaded, setLoaded] = useState(false);
+  const [fwRev, setFwRev] = useState(
+    () => (window.boksSimulator as BoksSimulator)?.getPublicState().firmwareRevision || '10/125'
+  );
+  const [swRev, setSwRev] = useState(
+    () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.1.14'
+  );
 
   useEffect(() => {
-    const controller = window.boksSimulator as BoksSimulator;
-    if (controller) {
+    if (simulator) {
       const interval = setInterval(() => {
-        setState(controller.getPublicState());
+        setState(simulator.getPublicState());
       }, 500);
+      setState(simulator.getPublicState());
       return () => clearInterval(interval);
+    } else {
+      setState(null);
     }
-  }, []);
-
-  // Fix: Move state updates to a separate effect that depends on 'state' but doesn't cause loops
-  // or verify if 'loaded' prevents the loop correctly.
-  // The lint error was "Calling setState synchronously within an effect".
-  // The fix is to ensure we only update if values differ, or use a better pattern.
-  // However, since 'loaded' acts as a guard, the lint might be overly aggressive or we need to wrap in setTimeout.
-  // Let's wrap in a requestAnimationFrame or similar to break sync cycle, OR just ignore if we are sure it runs once.
-  // Better yet, initialize these states lazily if possible, or use a proper effect dependency.
-
-  useEffect(() => {
-    if (state && !loaded) {
-      // Using a timeout to break the synchronous update cycle during render phase
-      const timer = setTimeout(() => {
-        setFwRev(state.firmwareRevision);
-        setSwRev(state.softwareRevision);
-        setLoaded(true);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [state, loaded]);
+  }, [simulator]);
 
   const handleSimulatorToggle = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     setIsEnabled(checked);
@@ -81,7 +66,8 @@ export const SimulatorDebugger = () => {
           if (controller) {
             setSimulator(controller);
             setIsSimulatorRunning(true);
-            // Trigger state update loop if needed
+            setFwRev(controller.getPublicState().firmwareRevision);
+            setSwRev(controller.getPublicState().softwareRevision);
           }
         }, 500);
       } else {
