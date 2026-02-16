@@ -616,4 +616,17 @@ export class BoksSimulator extends EventEmitter {
 
     this.scheduleAutoClose();
   }
+
+  // Used by SimulatedBluetoothAdapter to consume injected errors
+  public _consumeConnectionError(): Error | null {
+    const err = this.nextConnectionError;
+    this.nextConnectionError = null;
+    return err;
+  }
+
+  public _consumeDiscoveryError(): Error | null {
+    const err = this.nextDiscoveryError;
+    this.nextDiscoveryError = null;
+    return err;
+  }
 }
