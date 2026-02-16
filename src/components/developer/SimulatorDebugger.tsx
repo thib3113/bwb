@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   Alert,
   Box,
@@ -30,7 +30,9 @@ export const SimulatorDebugger = () => {
   const [simulator, setSimulator] = useState<BoksSimulator | null>(
     () => (window.boksSimulator as BoksSimulator) || null
   );
-  const [state, setState] = useState<BoksState | null>(null);
+  const [state, setState] = useState<BoksState | null>(
+    () => simulator?.getPublicState() || null
+  );
   const [isEnabled, setIsEnabled] = useState(
     () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
@@ -43,22 +45,26 @@ export const SimulatorDebugger = () => {
     () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.1.14'
   );
 
+  const isFirstRun = useRef(true);
+
   useEffect(() => {
+    // If it's the first run, we skip the immediate update because we used lazy initialization.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+    } else {
+      if (simulator) {
+        setState(simulator.getPublicState());
+      } else {
+        setState(null);
+      }
+    }
+
     if (simulator) {
       const interval = setInterval(() => {
         setState(simulator.getPublicState());
       }, 500);
 
-      // Fix: avoid sync setState in effect by making it async
-      setTimeout(() => {
-        setState(simulator.getPublicState());
-      }, 0);
-
       return () => clearInterval(interval);
-    } else {
-      setTimeout(() => {
-        setState(null);
-      }, 0);
     }
   }, [simulator]);
 
