@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -6,6 +6,7 @@ import {
   ButtonGroup,
   Card,
   CardContent,
+  Chip,
   Divider,
   FormControlLabel,
   MenuItem,
@@ -19,6 +20,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import BatteryStdIcon from '@mui/icons-material/BatteryStd';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
+import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import { useTranslation } from 'react-i18next';
 import { BoksSimulator, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
 import { useBLE } from '../../hooks/useBLE';
@@ -30,9 +32,7 @@ export const SimulatorDebugger = () => {
   const [simulator, setSimulator] = useState<BoksSimulator | null>(
     () => (window.boksSimulator as BoksSimulator) || null
   );
-  const [state, setState] = useState<BoksState | null>(
-    () => simulator?.getPublicState() || null
-  );
+  const [state, setState] = useState<BoksState | null>(() => simulator?.getPublicState() || null);
   const [isEnabled, setIsEnabled] = useState(
     () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
@@ -42,29 +42,36 @@ export const SimulatorDebugger = () => {
     () => (window.boksSimulator as BoksSimulator)?.getPublicState().firmwareRevision || '10/125'
   );
   const [swRev, setSwRev] = useState(
-    () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.1.14'
+    () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.3.3'
   );
 
-  const isFirstRun = useRef(true);
-
   useEffect(() => {
-    // If it's the first run, we skip the immediate update because we used lazy initialization.
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-    } else {
-      if (simulator) {
-        setState(simulator.getPublicState());
-      } else {
-        setState(null);
-      }
-    }
-
+    // Sync state if simulator instance changes
     if (simulator) {
+      // Avoid calling setState synchronously in effect unless guarded, but here we want to establish subscription
+      // A small timeout allows the render to complete before the state update, mitigating the warning
+      // Or better: use a functional update in a way that respects React lifecycle,
+      // but simulator state is external.
+
+      // Let's use a timeout to break the synchronous cycle for the initial fetch in this effect
+      const timer = setTimeout(() => {
+        setState(simulator.getPublicState());
+      }, 0);
+
       const interval = setInterval(() => {
         setState(simulator.getPublicState());
       }, 500);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(timer);
+        clearInterval(interval);
+      };
+    } else {
+      // Wrap in timeout for consistency and to avoid synchronous update warning in effect
+      const timer = setTimeout(() => {
+        setState(null);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [simulator]);
 
@@ -159,6 +166,18 @@ export const SimulatorDebugger = () => {
 
               <Divider sx={{ my: 1 }} />
 
+              <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                {state.laPosteActivated && (
+                  <Chip
+                    icon={<LocalPostOfficeIcon />}
+                    label="La Poste Active"
+                    color="primary"
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+              </Box>
+
               <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mt: 1 }}>
                 {t('settings:developer.simulator.manual_triggers')}
               </Typography>
@@ -171,7 +190,7 @@ export const SimulatorDebugger = () => {
                   {t('settings:developer.simulator.ble_open')}
                 </Button>
                 <Button
-                  onClick={() => simulator?.triggerDoorOpen('nfc')}
+                  onClick={() => simulator?.triggerNfcDoorOpen('04:55:66:77:88:99:AA', 3)}
                   disabled={state.isOpen}
                   color="info"
                 >
