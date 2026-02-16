@@ -29,6 +29,7 @@
   "tag_uid": "Tag UID",
   "tag_type": "Tag Type",
   "nfc_tag_types": {
+    "0": "Unknown",
     "1": "La Poste",
     "2": "La Poste (Tertiary)",
     "3": "User Tag"
