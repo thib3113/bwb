@@ -1,5 +1,5 @@
 import { BoksBLEService, BLEServiceEvent } from './BoksBLEService';
-import { db } from '../db/db';
+import { logDb } from '../db/PacketLogDB';
 import { PacketLog } from '../types/db';
 import { BLEPacket } from '../utils/packetParser';
 
@@ -82,7 +82,7 @@ class PacketLoggerService {
     this.buffer = []; // Clear buffer immediately
 
     try {
-      await db.packet_logs.bulkAdd(batch);
+      await logDb.packet_logs.bulkAdd(batch);
 
       // Check retention policy occasionally (optimization: simple probability or just do it)
       // Since flush is throttled, doing it every time is probably okay if the query is fast.
@@ -97,13 +97,13 @@ class PacketLoggerService {
 
   private async pruneLogs() {
     try {
-      const count = await db.packet_logs.count();
+      const count = await logDb.packet_logs.count();
       if (count > MAX_LOGS_RETENTION) {
         const deleteCount = count - MAX_LOGS_RETENTION;
         // Prune oldest
-        const keysToDelete = await db.packet_logs.orderBy('id').limit(deleteCount).primaryKeys();
+        const keysToDelete = await logDb.packet_logs.orderBy('id').limit(deleteCount).primaryKeys();
         if (keysToDelete.length > 0) {
-          await db.packet_logs.bulkDelete(keysToDelete);
+          await logDb.packet_logs.bulkDelete(keysToDelete);
         }
       }
     } catch (e) {
@@ -115,16 +115,16 @@ class PacketLoggerService {
     await this.flush();
     let logs;
     if (deviceId) {
-      logs = await db.packet_logs.where('device_id').equals(deviceId).toArray();
+      logs = await logDb.packet_logs.where('device_id').equals(deviceId).toArray();
     } else {
-      logs = await db.packet_logs.toArray();
+      logs = await logDb.packet_logs.toArray();
     }
     return JSON.stringify(logs, null, 2);
   }
 
   async clearLogs(): Promise<void> {
     this.buffer = [];
-    await db.packet_logs.clear();
+    await logDb.packet_logs.clear();
     console.log('[PacketLogger] Logs cleared');
   }
 }
