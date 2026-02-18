@@ -109,6 +109,8 @@
     "packet_send_error": "Échec de l'envoi du paquet",
     "packet_logger_title": "Journal",
     "clear_logs": "Vider",
+    "export_logs": "Exporter JSON",
+    "confirm_clear_logs": "Êtes-vous sûr de vouloir effacer tous les logs de paquets ?",
     "tabs": {
       "general": "Général",
       "database": "Base de données",
