@@ -64,3 +64,14 @@ export interface BoksNfcTag {
   updated_at?: number;
   sync_status: SyncStatus;
 }
+
+export interface PacketLog {
+  id?: number;
+  device_id: string;
+  timestamp: number;
+  direction: 'TX' | 'RX';
+  opcode: number;
+  payload_hex: string;
+  raw_hex: string;
+  description?: string;
+}
