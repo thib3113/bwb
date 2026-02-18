@@ -109,6 +109,8 @@
     "packet_send_error": "Failed to send packet",
     "packet_logger_title": "Logs",
     "clear_logs": "Clear",
+    "export_logs": "Export JSON",
+    "confirm_clear_logs": "Are you sure you want to clear all packet logs?",
     "tabs": {
       "general": "General",
       "database": "Database",

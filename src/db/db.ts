@@ -34,7 +34,7 @@ export class BoksDatabase extends Dexie {
     // Automatic updated_at hooks (Conditional to allow manual override during sync)
     this.tables.forEach((table) => {
       table.hook('creating', (_primKey, obj, transaction) => {
-        console.log(`[DB Hook] Creating in ${table.name}`, obj);
+        // console.log(`[DB Hook] Creating in ${table.name}`, obj);
         const entity = obj as { updated_at?: number; device_id?: string };
         if (!entity.updated_at) {
           entity.updated_at = Date.now();
@@ -43,7 +43,7 @@ export class BoksDatabase extends Dexie {
         // Cascading update for device: Check if object has a device_id property
         // Prevent infinite loop: Don't update devices table if we are already in devices table
         if (entity.device_id && table.name !== 'devices') {
-          console.log(`[DB Hook] Cascading update to device ${entity.device_id}`);
+          // console.log(`[DB Hook] Cascading update to device ${entity.device_id}`);
           // Use transaction.on('complete') to schedule the update after the current transaction commits
           // This avoids "objectStore not found" errors without using setTimeout
           if (transaction) {
@@ -62,7 +62,7 @@ export class BoksDatabase extends Dexie {
       });
 
       table.hook('updating', (modifications, _primKey, obj, transaction) => {
-        console.log(`[DB Hook] Updating in ${table.name}`, modifications);
+        // console.log(`[DB Hook] Updating in ${table.name}`, modifications);
         const mods = modifications as Record<string, unknown>;
         const entity = obj as { device_id?: string };
 
@@ -76,7 +76,7 @@ export class BoksDatabase extends Dexie {
         // Prevent infinite loop: Don't update devices table if we are already in devices table
         const deviceId = (mods.device_id as string) || entity.device_id;
         if (deviceId && table.name !== 'devices') {
-          console.log(`[DB Hook] Cascading update to device ${deviceId}`);
+          // console.log(`[DB Hook] Cascading update to device ${deviceId}`);
 
           if (transaction) {
             transaction.on('complete', () => {
