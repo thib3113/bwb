@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import { db } from '../db/db';
-import { BoksLog } from '../types';
+import { BoksLog, UserRole } from '../types';
 
 describe('DB Hook Performance', () => {
   const DEVICE_ID = 'test-device-id';
@@ -12,7 +12,9 @@ describe('DB Hook Performance', () => {
     await db.devices.add({
       id: DEVICE_ID,
       ble_name: 'Test Device',
-      role: 'owner',
+      friendly_name: 'Test Device',
+      role: UserRole.Owner,
+      sync_status: 'synced',
       updated_at: 0
     });
   });

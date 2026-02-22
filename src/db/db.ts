@@ -1,11 +1,11 @@
-import Dexie, { Table } from 'dexie';
+import Dexie, { Table, Transaction } from 'dexie';
 import { BoksCode, BoksLog, BoksSettings } from '../types';
 import { BoksDevice, BoksNfcTag, BoksUser, DeviceSecrets } from '../types/db';
 import { STORAGE_KEYS } from '../utils/constants';
 
 // Track pending device updates per transaction to avoid N+1 writes
 // Use WeakMap to automatically clean up when transaction object is garbage collected
-const pendingDeviceUpdates = new WeakMap<Dexie.Transaction, Set<string>>();
+const pendingDeviceUpdates = new WeakMap<Transaction, Set<string>>();
 
 export class BoksDatabase extends Dexie {
   devices!: Table<BoksDevice, string>;
@@ -106,7 +106,7 @@ export class BoksDatabase extends Dexie {
    * Schedules a device update to be performed after the current transaction completes.
    * This batches multiple updates into a single transaction per device, avoiding N+1 writes.
    */
-  private scheduleDeviceUpdate(deviceId: string, transaction: Dexie.Transaction | null) {
+  private scheduleDeviceUpdate(deviceId: string, transaction: Transaction | null) {
     if (!transaction) {
       // Fallback if no transaction context (unlikely in hook)
       console.log(`[DB Hook] Cascading update to device ${deviceId} (no tx)`);
