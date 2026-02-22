@@ -3,6 +3,10 @@ import { BoksCode, BoksLog, BoksSettings } from '../types';
 import { BoksDevice, BoksNfcTag, BoksUser, DeviceSecrets } from '../types/db';
 import { STORAGE_KEYS } from '../utils/constants';
 
+// Track pending device updates per transaction to avoid N+1 writes
+// Use WeakMap to automatically clean up when transaction object is garbage collected
+const pendingDeviceUpdates = new WeakMap<Dexie.Transaction, Set<string>>();
+
 export class BoksDatabase extends Dexie {
   devices!: Table<BoksDevice, string>;
   device_secrets!: Table<DeviceSecrets, string>;
@@ -43,21 +47,7 @@ export class BoksDatabase extends Dexie {
         // Cascading update for device: Check if object has a device_id property
         // Prevent infinite loop: Don't update devices table if we are already in devices table
         if (entity.device_id && table.name !== 'devices') {
-          console.log(`[DB Hook] Cascading update to device ${entity.device_id}`);
-          // Use transaction.on('complete') to schedule the update after the current transaction commits
-          // This avoids "objectStore not found" errors without using setTimeout
-          if (transaction) {
-            transaction.on('complete', () => {
-              this.devices.update(entity.device_id!, { updated_at: Date.now() }).catch((err) => {
-                console.error('[DB Hook] Failed to update device:', err);
-              });
-            });
-          } else {
-            // Fallback if no transaction context (unlikely in hook)
-            this.devices.update(entity.device_id, { updated_at: Date.now() }).catch((err) => {
-              console.error('[DB Hook] Failed to update device (no tx):', err);
-            });
-          }
+          this.scheduleDeviceUpdate(entity.device_id, transaction);
         }
       });
 
@@ -76,19 +66,7 @@ export class BoksDatabase extends Dexie {
         // Prevent infinite loop: Don't update devices table if we are already in devices table
         const deviceId = (mods.device_id as string) || entity.device_id;
         if (deviceId && table.name !== 'devices') {
-          console.log(`[DB Hook] Cascading update to device ${deviceId}`);
-
-          if (transaction) {
-            transaction.on('complete', () => {
-              this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
-                console.error('[DB Hook] Failed to update device:', err);
-              });
-            });
-          } else {
-            this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
-              console.error('[DB Hook] Failed to update device (no tx):', err);
-            });
-          }
+          this.scheduleDeviceUpdate(deviceId, transaction);
         }
 
         return newMods;
@@ -122,6 +100,43 @@ export class BoksDatabase extends Dexie {
         }
       }
     });
+  }
+
+  /**
+   * Schedules a device update to be performed after the current transaction completes.
+   * This batches multiple updates into a single transaction per device, avoiding N+1 writes.
+   */
+  private scheduleDeviceUpdate(deviceId: string, transaction: Dexie.Transaction | null) {
+    if (!transaction) {
+      // Fallback if no transaction context (unlikely in hook)
+      console.log(`[DB Hook] Cascading update to device ${deviceId} (no tx)`);
+      this.devices.update(deviceId, { updated_at: Date.now() }).catch((err) => {
+        console.error('[DB Hook] Failed to update device (no tx):', err);
+      });
+      return;
+    }
+
+    let pending = pendingDeviceUpdates.get(transaction);
+    if (!pending) {
+      pending = new Set<string>();
+      pendingDeviceUpdates.set(transaction, pending);
+
+      // Schedule the actual updates when the transaction completes successfully
+      transaction.on('complete', () => {
+        const devicesToUpdate = pendingDeviceUpdates.get(transaction);
+        if (devicesToUpdate) {
+          console.log(`[DB Hook] Executing batched updates for ${devicesToUpdate.size} devices`);
+          pendingDeviceUpdates.delete(transaction);
+          devicesToUpdate.forEach((id) => {
+            this.devices.update(id, { updated_at: Date.now() }).catch((err) => {
+              console.error('[DB Hook] Failed to update device:', err);
+            });
+          });
+        }
+      });
+    }
+
+    pending.add(deviceId);
   }
 }
 
