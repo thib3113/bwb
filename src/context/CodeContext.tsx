@@ -141,23 +141,14 @@ export const CodeProvider = ({ children }: { children: ReactNode }) => {
     [activeDevice, addTask]
   );
 
-  // DEPRECATED: This logic is now handled by TaskContext
-  // const syncPendingActions = useCallback(async (deviceId: string) => { ... }, []);
-
   const onCodeUsed = useCallback((callback: (code: string) => void) => {
     onCodeUsedRef.current = callback;
   }, []);
-
-  // DEPRECATED: Auto-sync is now handled by TaskContext
-  // useEffect(() => { ... }, []);
-
-  // Exposing syncPendingActions allows BoksContext or UI to trigger it with the correct ID.
 
   const value = useMemo(
     () => ({
       createCode,
       deleteCode,
-      // syncPendingActions, // Deprecated
       onCodeUsed
     }),
     [createCode, deleteCode, onCodeUsed]
