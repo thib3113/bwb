@@ -37,7 +37,7 @@ vi.mock('../../services/StorageService', () => ({
   }
 }));
 
-// Helper component to trigger tasks
+// Helper component
 const TaskTrigger = ({ onReady }: { onReady: (addTask: TaskContextType['addTask']) => void }) => {
   const context = useContext(TaskContext);
 
@@ -51,28 +51,34 @@ const TaskTrigger = ({ onReady }: { onReady: (addTask: TaskContextType['addTask'
 };
 
 describe('TaskContext Race Condition', () => {
-  let sendRequestMock: Mock;
+  let mockController: any;
   let calls: { start: number; end: number; id: number }[] = [];
 
   beforeEach(() => {
     vi.clearAllMocks();
     calls = [];
 
-    // Mock Send Request with delay
+    // Mock controller with delay
     let callCounter = 0;
-    sendRequestMock = vi.fn(async () => {
+    const delayedMethod = vi.fn(async () => {
       console.log('Mock implementation executing');
       const id = ++callCounter;
       const start = Date.now();
       await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms delay
       const end = Date.now();
       calls.push({ start, end, id });
-      return { opcode: 0x77 }; // Success
+      return true; // Success
     });
+
+    mockController = {
+        setCredentials: vi.fn(),
+        createSingleUseCode: delayedMethod,
+        countCodes: vi.fn().mockResolvedValue({ masterCount: 0, otherCount: 0 })
+    };
 
     (BLEConnectionHook.useBLEConnection as unknown as Mock).mockReturnValue({
       isConnected: true,
-      sendRequest: sendRequestMock
+      controller: mockController
     });
 
     (DeviceHook.useDevice as unknown as Mock).mockReturnValue({
@@ -126,10 +132,8 @@ describe('TaskContext Race Condition', () => {
     );
 
     console.log('Calls:', calls);
-    console.log('Mock calls:', sendRequestMock.mock.calls);
 
     if (calls.length < 2) {
-      // Fallback for debugging if calls is empty but mock calls exist
       console.log('Implementation seemingly not called, but spy recorded calls.');
     }
 

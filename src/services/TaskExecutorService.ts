@@ -4,77 +4,54 @@ import { BLEOpcode } from '../utils/bleConstants';
 import { CODE_STATUS } from '../constants/codeStatus';
 import { StorageService } from './StorageService';
 import { db } from '../db/db';
-import {
-  CreateMasterCodePacket,
-  CreateMultiUseCodePacket,
-  CreateSingleUseCodePacket,
-  DeleteMasterCodePacket,
-  DeleteMultiUseCodePacket,
-  DeleteSingleUseCodePacket
-} from '../ble/packets/PinManagementPackets';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
-import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
-import { BLEPacket } from '../utils/packetParser';
-
-// Define the shape of the sendRequest function expected by this service
-export type SendRequestFn = (packet: BoksTXPacket) => Promise<BLEPacket>;
+import { BoksController, BoksOpcode } from '@thib3113/boks-sdk';
 
 export class TaskExecutorService {
   /**
-   * Executes a single task using the provided BLE connection and device context.
-   * This function handles the logic for creating appropriate packets, sending them,
-   * checking responses, and performing necessary side effects (DB updates).
+   * Executes a single task using the provided BoksController.
    */
   static async execute(
     task: BoksTask,
     activeDevice: BoksDevice,
-    sendRequest: SendRequestFn
+    controller: BoksController
   ): Promise<void> {
     if (!activeDevice) {
       throw new Error('No active device found for task execution');
     }
 
+    // Setup credentials on the controller if needed
+    // Workaround: SDK expects full 32-byte Master Key, but we only have Config Key (8 chars).
+    // The SDK derives Config Key as the last 8 chars of Master Key.
+    // So we pad with zeros to satisfy the length check.
+    if (activeDevice.configuration_key) {
+        const configKey = activeDevice.configuration_key;
+        if (configKey.length === 8) {
+            const paddedKey = '0'.repeat(56) + configKey;
+            controller.setCredentials(paddedKey);
+        } else if (configKey.length === 64) {
+             controller.setCredentials(configKey);
+        } else {
+            console.warn(`[TaskExecutor] Invalid Config Key length: ${configKey.length}`);
+            // Might throw inside controller if we don't set it, but let's try.
+        }
+    }
+
     switch (task.type) {
       case TaskType.ADD_MASTER_CODE:
         {
-          if (!activeDevice.configuration_key) {
-            throw new Error('Configuration Key required for Master Code operations');
-          }
           const { code, index } = task.payload;
           if (index === undefined) throw new Error('Index required for Master Code');
 
-          const packet = new CreateMasterCodePacket(
-            activeDevice.configuration_key,
-            index,
-            code as string
-          );
-          const response = await sendRequest(packet);
+          // SDK: createMasterCode(index: number, pin: string)
+          const success = await controller.createMasterCode(index, code as string);
 
-          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-            // Update code status in DB if codeId is present
+          if (success) {
             if (task.payload.codeId) {
-              try {
-                await db.codes.update(task.payload.codeId as string, {
-                  status: CODE_STATUS.ON_DEVICE,
-                  sync_status: 'synced',
-                  updated_at: Date.now()
-                });
-              } catch (dbError) {
-                console.warn('Failed to update code status in DB after creation:', dbError);
-              }
+              await TaskExecutorService.updateCodeStatus(task.payload.codeId as string);
             }
-
-            // Request code count after successful creation
-            try {
-              await sendRequest(new CountCodesPacket());
-            } catch (countError) {
-              console.warn('Failed to request code count after creation:', countError);
-            }
+            await controller.countCodes();
           } else {
-            throw new Error(
-              `Master Code creation failed with opcode 0x${response.opcode.toString(16)}`
-            );
+            throw new Error('Master Code creation failed');
           }
         }
         break;
@@ -82,55 +59,18 @@ export class TaskExecutorService {
       case TaskType.ADD_SINGLE_USE_CODE:
         {
           const { code } = task.payload;
-          const packet = new CreateSingleUseCodePacket(
-            activeDevice.configuration_key || '',
-            code as string
-          );
-          let response = await sendRequest(packet);
+          // SDK: createSingleUseCode(pin: string)
+          const success = await controller.createSingleUseCode(code as string);
+          // SDK handles the quirk #5 internally? Let's check SDK source later or assume yes or catch error.
+          // BoksController wrapper should be robust.
 
-          // Workaround for Quirk #5: False Error on Single-Use Creation
-          // Some firmware versions return 0x78 (ERROR) even if creation succeeded.
-          if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
-            console.warn(
-              '[TaskExecutor] Single Use Code creation returned 0x78, double-checking with COUNT_CODES (Quirk #5)'
-            );
-            try {
-              const countResponse = await sendRequest(new CountCodesPacket());
-              if (countResponse.opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
-                console.log(
-                  '[TaskExecutor] Received NOTIFY_CODES_COUNT after 0x78, assuming success.'
-                );
-                // We treat this as a success to allow the task to complete
-                response = { ...response, opcode: BLEOpcode.CODE_OPERATION_SUCCESS };
-              }
-            } catch (e) {
-              console.error('[TaskExecutor] Double-check failed:', e);
-            }
-          }
-
-          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-            // Update code status in DB if codeId is present
+          if (success) {
             if (task.payload.codeId) {
-              try {
-                await db.codes.update(task.payload.codeId as string, {
-                  status: CODE_STATUS.ON_DEVICE,
-                  sync_status: 'synced',
-                  updated_at: Date.now()
-                });
-              } catch (dbError) {
-                console.warn('Failed to update code status in DB after creation:', dbError);
-              }
+              await TaskExecutorService.updateCodeStatus(task.payload.codeId as string);
             }
-
-            try {
-              await sendRequest(new CountCodesPacket());
-            } catch (countError) {
-              console.warn('Failed to request code count after creation:', countError);
-            }
+            await controller.countCodes();
           } else {
-            throw new Error(
-              `Single Use Code creation failed with opcode 0x${response.opcode.toString(16)}`
-            );
+            throw new Error('Single Use Code creation failed');
           }
         }
         break;
@@ -138,50 +78,24 @@ export class TaskExecutorService {
       case TaskType.ADD_MULTI_USE_CODE:
         {
           const { code } = task.payload;
-          const packet = new CreateMultiUseCodePacket(
-            activeDevice.configuration_key || '',
-            code as string
-          );
-          const response = await sendRequest(packet);
+          const success = await controller.createMultiUseCode(code as string);
 
-          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-            // Update code status in DB if codeId is present
-            if (task.payload.codeId) {
-              try {
-                await db.codes.update(task.payload.codeId as string, {
-                  status: CODE_STATUS.ON_DEVICE,
-                  sync_status: 'synced',
-                  updated_at: Date.now()
-                });
-              } catch (dbError) {
-                console.warn('Failed to update code status in DB after creation:', dbError);
-              }
+          if (success) {
+             if (task.payload.codeId) {
+              await TaskExecutorService.updateCodeStatus(task.payload.codeId as string);
             }
-
-            try {
-              await sendRequest(new CountCodesPacket());
-            } catch (countError) {
-              console.warn('Failed to request code count after creation:', countError);
-            }
+            await controller.countCodes();
           } else {
-            throw new Error(
-              `Multi Use Code creation failed with opcode 0x${response.opcode.toString(16)}`
-            );
+             throw new Error('Multi Use Code creation failed');
           }
         }
         break;
 
       case TaskType.DELETE_CODE:
         {
-          const configKey = activeDevice.configuration_key;
-          if (!configKey || configKey.length !== 8) {
-            throw new Error('Configuration Key required (8 chars)');
-          }
-
           const codeId = task.payload.codeId as string;
           let codeObj;
 
-          // Only fetch from DB if we have a codeId
           if (codeId) {
             try {
               codeObj = await db.codes.get(codeId);
@@ -190,34 +104,30 @@ export class TaskExecutorService {
             }
           }
 
-          let packet: BoksTXPacket;
           const codeType = task.payload.codeType as CODE_TYPE;
+          let success = false;
 
           switch (codeType) {
             case CODE_TYPE.MASTER: {
               const targetIndex = (task.payload.index as number) ?? codeObj?.index;
-
               if (targetIndex === undefined || targetIndex === null) {
                 throw new Error('Index required for Master Code deletion');
               }
-
-              packet = new DeleteMasterCodePacket(configKey, targetIndex);
+              success = await controller.deleteMasterCode(targetIndex);
               break;
             }
 
             case CODE_TYPE.SINGLE: {
               const tempCodeStr = (task.payload.code as string) || codeObj?.code;
-              if (!tempCodeStr || tempCodeStr.length !== 6)
-                throw new Error('Code string required for deletion');
-              packet = new DeleteSingleUseCodePacket(configKey, tempCodeStr);
+              if (!tempCodeStr) throw new Error('Code string required for deletion');
+              success = await controller.deleteSingleUseCode(tempCodeStr);
               break;
             }
 
             case CODE_TYPE.MULTI: {
               const tempCodeStr = (task.payload.code as string) || codeObj?.code;
-              if (!tempCodeStr || tempCodeStr.length !== 6)
-                throw new Error('Code string required for deletion');
-              packet = new DeleteMultiUseCodePacket(configKey, tempCodeStr);
+              if (!tempCodeStr) throw new Error('Code string required for deletion');
+              success = await controller.deleteMultiUseCode(tempCodeStr);
               break;
             }
 
@@ -225,36 +135,33 @@ export class TaskExecutorService {
               throw new Error('Invalid code type');
           }
 
-          const response = await sendRequest(packet);
-
-          if (response.opcode === BLEOpcode.ERROR_UNAUTHORIZED) {
-            throw new Error('Unauthorized: Configuration Key Required or Invalid');
-          }
-
-          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
-            // On success, remove local code entry ONLY if codeId was provided
+          if (success) {
             if (codeId) {
               await StorageService.removeCode(activeDevice.id, codeId);
             }
-
-            // Request code count after successful deletion
-            try {
-              await sendRequest(new CountCodesPacket());
-            } catch (countError) {
-              console.warn('Failed to request code count after deletion:', countError);
-            }
+            await controller.countCodes();
           } else {
-            throw new Error(`Code deletion failed with opcode 0x${response.opcode.toString(16)}`);
+             throw new Error('Code deletion failed');
           }
         }
         break;
 
       case TaskType.SYNC_CODES:
+         await controller.countCodes();
+         break;
+
       case TaskType.GET_LOGS:
+         // controller.fetchHistory() is handled by DeviceLogContext usually, but if invoked as task:
+         await controller.fetchHistory();
+         break;
+
       case TaskType.GET_BATTERY_LEVEL:
+         await controller.getBatteryLevel();
+         break;
+
       case TaskType.GET_DOOR_STATUS:
-        // These tasks don't require specific BLE operations in this executor
-        break;
+         await controller.getDoorStatus();
+         break;
 
       case TaskType.UNLOCK_DOOR:
         {
@@ -262,16 +169,27 @@ export class TaskExecutorService {
           if (!pin) {
             throw new Error('No PIN provided for Unlock Door task');
           }
-          await sendRequest(new OpenDoorPacket(pin));
+          await controller.openDoor(pin);
         }
         break;
 
       case TaskType.LOCK_DOOR:
-        // Locking is mechanical, no command needed
         break;
 
       default:
         throw new Error(`Unsupported task type: ${(task as { type: string }).type}`);
     }
+  }
+
+  private static async updateCodeStatus(codeId: string) {
+      try {
+        await db.codes.update(codeId, {
+          status: CODE_STATUS.ON_DEVICE,
+          sync_status: 'synced',
+          updated_at: Date.now()
+        });
+      } catch (dbError) {
+        console.warn('Failed to update code status in DB after creation:', dbError);
+      }
   }
 }

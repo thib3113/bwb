@@ -1,22 +1,16 @@
 import { EventEmitter } from '../utils/EventEmitter';
-import { BLEPacket, createPacket, parsePacket } from '../utils/packetParser';
-import {
-  BATTERY_SERVICE_UUID,
-  BLEOpcode,
-  DEVICE_INFO_SERVICE_UUID,
-  NOTIFY_CHAR_UUID,
-  SERVICE_UUID,
-  WRITE_CHAR_UUID
-} from '../utils/bleConstants';
-import { BLECommandOptions, BLEQueue } from '../utils/BLEQueue';
-import { ParsedPayload, parsePayload } from '../utils/payloadParser';
+import { BLEPacket, parsePacket } from '../utils/packetParser';
+import { BLEOpcode, BATTERY_SERVICE_UUID, DEVICE_INFO_SERVICE_UUID } from '../utils/bleConstants';
+import { BLECommandOptions } from '../utils/BLEQueue';
+import { parsePayload, ParsedPayload } from '../utils/payloadParser';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
-import { BLEAdapter } from '../ble/adapter/BLEAdapter';
-import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
-import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
-import { GattOperationPacket } from '../ble/packets/GattOperationPacket';
 import { getCharacteristicName, parseCharacteristicValue } from '../utils/bleUtils';
 
+// SDK Imports
+import { BoksController, BoksClient, WebBluetoothTransport, BoksPacket } from '@thib3113/boks-sdk';
+import { SimulatorTransport, BoksHardwareSimulator } from '@thib3113/boks-sdk/simulator';
+
+// Inline helpers for compatibility
 class DescriptionPayload implements ParsedPayload {
   constructor(
     public opcode: number,
@@ -29,6 +23,40 @@ class DescriptionPayload implements ParsedPayload {
   }
   toDetails() {
     return { description: this.description };
+  }
+}
+
+// Inline GattOperationPacket for logging
+class GattOperationPacket extends BoksTXPacket implements ParsedPayload {
+  public payload: Uint8Array = new Uint8Array(0);
+  public raw: Uint8Array = new Uint8Array(0);
+
+  constructor(
+    public uuid: string = '',
+    public description: string = ''
+  ) {
+    super();
+  }
+
+  static get opcode() {
+    return BLEOpcode.INTERNAL_GATT_OPERATION;
+  }
+
+  toString(): string {
+    return this.description || `GATT Op: ${this.uuid}`;
+  }
+
+  toDetails(): Record<string, unknown> {
+    return { uuid: this.uuid, description: this.description };
+  }
+
+  toPayload(): Uint8Array {
+      return new Uint8Array(0); // Not used for actual sending
+  }
+
+  parse(payload: Uint8Array): void {
+      this.payload = payload;
+      // No-op for logging packet
   }
 }
 
@@ -48,26 +76,28 @@ export type BLEServiceState =
   | 'connected'
   | 'disconnecting';
 
-// Type safe access to global test flags
 interface BoksWindow extends Window {
   BOKS_SIMULATOR_ENABLED?: boolean;
   BOKS_SIMULATOR_DISABLED?: boolean;
+  toggleSimulator?: (enable: boolean) => void;
 }
 
 export class BoksBLEService extends EventEmitter {
   private static instance: BoksBLEService;
 
-  private adapter: BLEAdapter; // The pluggable transport layer
+  public controller!: BoksController;
+  public client!: BoksClient; // Exposed for direct transport access if needed
 
   private state: BLEServiceState = 'disconnected';
-  private queue: BLEQueue;
   private lastSentOpcode: number | null = null;
-  private lastSentTimestamp: number = 0;
+  private unsubscribePacketListener: (() => void) | null = null;
 
   private constructor() {
     super();
+    this.initializeController();
+  }
 
-    // Check for simulator flag early to avoid real Bluetooth prompts in tests
+  private initializeController() {
     let useSimulator = false;
 
     // 1. Check build-time constant (CI mode)
@@ -77,8 +107,6 @@ export class BoksBLEService extends EventEmitter {
     // 2. Fallback to runtime flags
     else if (typeof window !== 'undefined') {
       const win = window as unknown as BoksWindow;
-
-      // DISABLED flag has priority (for E2E resilience tests)
       if (win.BOKS_SIMULATOR_DISABLED === true) {
         useSimulator = false;
       } else {
@@ -89,58 +117,99 @@ export class BoksBLEService extends EventEmitter {
     }
 
     if (useSimulator) {
-      console.warn('⚠️ BoksBLEService: Initializing with SimulatedAdapter ⚠️');
-      this.adapter = new SimulatedBluetoothAdapter();
+      console.warn('⚠️ BoksBLEService: Initializing with SimulatorTransport ⚠️');
+      const simulator = new BoksHardwareSimulator();
+      // Expose for debugging/tests
+      (window as any).boksSimulator = simulator;
+
+      const transport = new SimulatorTransport(simulator);
+      this.client = new BoksClient({ transport });
     } else {
-      this.adapter = new WebBluetoothAdapter();
+      this.client = new BoksClient({ transport: new WebBluetoothTransport() });
     }
 
-    this.queue = new BLEQueue(async (request) => {
-      this.lastSentOpcode = request.opcode;
-      this.lastSentTimestamp = Date.now();
+    this.controller = new BoksController(this.client);
+    this.setupListeners();
+  }
 
-      // Prevent sending invalid opcodes (Safety Guard)
-      if ((request.opcode as number) === 0) {
-        throw new Error('[BLEService] Attempted to send packet with Opcode 0x00 (UNPARSABLE).');
-      }
+  private setupListeners() {
+    // Clean up previous listener if any
+    if (this.unsubscribePacketListener) {
+      this.unsubscribePacketListener();
+    }
 
-      // Packet creation
-      let packet: Uint8Array;
+    // Subscribe to all packets via controller
+    this.unsubscribePacketListener = this.controller.onPacket((packet: BoksPacket) => {
+        // SDK BoksPacket has .opcode
+        // It should have .toPayload() or similar based on abstraction
+        // If we want raw bytes, we can try .encode() if it's available on RX packets too?
+        // Usually encode is for TX. But let's assume we can get payload.
+        // If not, we fall back to empty or inspect if it's exposed as property.
 
-      // Use pre-calculated packet if available (from BoksTXPacket.toPacket())
-      if (request.packet) {
-        packet = request.packet;
-      } else {
-        // Fallback for raw requests
-        packet = createPacket(request.opcode, request.payload);
-      }
-      const buffer = packet;
+        let payload = new Uint8Array(0) as Uint8Array;
+        let raw = new Uint8Array(0) as Uint8Array;
 
-      // Notify about sending (UI logs)
-      const parsed = parsePacket(new DataView(packet.buffer));
-      if (parsed) {
-        parsed.direction = 'TX';
-        this.emit(BLEServiceEvent.PACKET_SENT, parsed);
-      }
+        try {
+            // Attempt to get payload
+            if ('toPayload' in packet && typeof packet.toPayload === 'function') {
+                payload = packet.toPayload();
+            } else if ('payload' in packet) {
+                payload = (packet as any).payload;
+            }
 
-      // Delegate the actual write to the adapter
-      await this.adapter.write(SERVICE_UUID, WRITE_CHAR_UUID, buffer, true);
+            // Attempt to get raw (full packet)
+             if ('encode' in packet && typeof packet.encode === 'function') {
+                raw = packet.encode();
+            } else if ('raw' in packet) {
+                raw = (packet as any).raw;
+            }
+        } catch (e) {
+            console.warn('Failed to extract payload from SDK packet', e);
+        }
+
+        const blePacket: BLEPacket = {
+            opcode: packet.opcode,
+            payload: payload,
+            raw: raw,
+            direction: 'RX',
+            isValidChecksum: true,
+            parsedPayload: parsePayload(packet.opcode, payload, raw)
+        };
+
+        this.emit(BLEServiceEvent.PACKET_RECEIVED, blePacket, this.lastSentOpcode);
+        this.emit(`opcode_${packet.opcode}`, blePacket, this.lastSentOpcode);
     });
   }
 
   /**
-   * Inject a specific adapter (e.g., Simulator)
+   * Re-initializes the controller with the specified transport mode.
    */
-  setAdapter(adapter: BLEAdapter) {
-    if (this.state !== 'disconnected') {
+  setSimulatorMode(enabled: boolean) {
+     if (this.state !== 'disconnected') {
       console.warn('Changing adapter while connected is risky. Disconnecting first.');
       this.disconnect();
     }
-    this.adapter = adapter;
-  }
 
-  getLastSentOpcode(): number | null {
-    return this.lastSentOpcode;
+    if (typeof window !== 'undefined') {
+        const win = window as unknown as BoksWindow;
+        win.BOKS_SIMULATOR_ENABLED = enabled;
+        localStorage.setItem('BOKS_SIMULATOR_ENABLED', String(enabled));
+    }
+
+    if (enabled) {
+      console.warn('⚠️ Switching to SimulatorTransport ⚠️');
+      const simulator = new BoksHardwareSimulator();
+      // Expose for debugging/tests
+      (window as any).boksSimulator = simulator;
+
+      const transport = new SimulatorTransport(simulator);
+      this.client = new BoksClient({ transport });
+    } else {
+      console.log('✅ Switching to WebBluetoothTransport');
+      this.client = new BoksClient({ transport: new WebBluetoothTransport() });
+    }
+    this.controller = new BoksController(this.client);
+    this.setupListeners();
   }
 
   static getInstance(): BoksBLEService {
@@ -164,25 +233,15 @@ export class BoksBLEService extends EventEmitter {
 
     try {
       this.setState('scanning');
-
-      const optionalServices = [BATTERY_SERVICE_UUID, DEVICE_INFO_SERVICE_UUID, ...customServices];
-
-      const device = await this.adapter.connect(SERVICE_UUID, optionalServices);
-
-      this.setState('connecting');
-
-      // Setup disconnect listener (requires device reference from adapter)
-      if (device && device.addEventListener) {
-        device.addEventListener('gattserverdisconnected', () => this.handleDisconnect());
-      }
-
-      // Subscribe to notifications via adapter
-      await this.adapter.startNotifications(SERVICE_UUID, NOTIFY_CHAR_UUID, (data) => {
-        this.handleNotification(data);
-      });
-
+      // SDK's connect handles scanning/connecting
+      await this.controller.connect();
       this.setState('connected');
+
+      const transport = (this.client as any).transport;
+      const device = transport?.device || { id: 'unknown', name: 'Boks Device' };
+
       this.emit(BLEServiceEvent.CONNECTED, device);
+
     } catch (error) {
       this.setState('disconnected');
       this.emit(BLEServiceEvent.ERROR, error);
@@ -192,59 +251,15 @@ export class BoksBLEService extends EventEmitter {
 
   disconnect() {
     this.setState('disconnecting');
-    this.adapter.disconnect();
-    this.handleDisconnect();
-  }
-
-  private handleDisconnect() {
-    this.queue.clear();
-    this.setState('disconnected');
-    this.emit(BLEServiceEvent.DISCONNECTED);
-  }
-
-  private handleNotification(data: DataView) {
-    const rawBytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-    const hexRaw = Array.from(rawBytes)
-      .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
-      .join(' ');
-
-    const parsed = parsePacket(data);
-    const lastOp = this.lastSentOpcode;
-
-    if (parsed) {
-      parsed.direction = 'RX';
-      // Use our new payload parser for rich objects
-      parsed.parsedPayload = parsePayload(parsed.opcode, parsed.payload, parsed.raw);
-
-      // 1. Process the queue FIRST to resolve promises
-      this.queue.handleResponse(parsed);
-
-      // 2. Fire the global event
-      this.emit(BLEServiceEvent.PACKET_RECEIVED, parsed, lastOp);
-
-      // 3. Fire opcode-specific event
-      this.emit(`opcode_${parsed.opcode}`, parsed, lastOp);
-    } else {
-      console.warn(`[BLEService] RX UNPARSABLE: ${hexRaw}`);
-      this.emit(
-        BLEServiceEvent.PACKET_RECEIVED,
-        {
-          opcode: 0,
-          payload: new Uint8Array(0),
-          raw: rawBytes,
-          direction: 'RX',
-          isValidChecksum: false
-        } as BLEPacket,
-        lastOp
-      );
-    }
+    this.controller.disconnect().finally(() => {
+        this.setState('disconnected');
+        this.emit(BLEServiceEvent.DISCONNECTED);
+    });
   }
 
   /**
    * Sends a request to the device.
-   * @param request The packet object (recommended) or raw opcode/payload.
-   * @param options Command options.
-   * @param configKey Configuration key for authenticated commands. Only used if request is a BoksTXPacket.
+   * COMPATIBILITY LAYER: Uses raw transport write.
    */
   async sendRequest(
     request: BoksTXPacket,
@@ -255,14 +270,47 @@ export class BoksBLEService extends EventEmitter {
       throw new Error(`[BLEService] Cannot send request: Service state is ${this.state}`);
     }
 
-    // Strict enforcing of BoksTXPacket
-    // We check for toPacket method existence to support different instances/prototypes in HMR
     if ('toPacket' in request && typeof request.toPacket === 'function') {
-      // Calculate packet bytes using the class method (includes opcode check and checksum)
       const packetBytes = request.toPacket();
+      this.lastSentOpcode = request.opcode;
 
-      // Pass the opcode and payload (legacy support for logging/queue) AND the full binary
-      return this.queue.add(request.opcode, request.toPayload(configKey), options, packetBytes);
+      // Emit TX event for logging
+      const parsed = parsePacket(new DataView(packetBytes.buffer));
+      if (parsed) {
+        parsed.direction = 'TX';
+        this.emit(BLEServiceEvent.PACKET_SENT, parsed);
+      }
+
+      const transport = (this.client as any).transport;
+      if (transport && typeof transport.write === 'function') {
+          await transport.write(packetBytes);
+      } else {
+          throw new Error('Transport does not support write or is unavailable');
+      }
+
+      if (options?.expectResponse !== false) {
+         return new Promise<BLEPacket>((resolve, reject) => {
+             const timeout = setTimeout(() => {
+                 cleanup();
+                 reject(new Error(`Timeout waiting for opcode response`));
+             }, options?.timeout || 5000);
+
+             const listener = (arg: unknown) => {
+                 const packet = arg as BLEPacket;
+                 cleanup();
+                 resolve(packet);
+             };
+
+             const cleanup = () => {
+                 clearTimeout(timeout);
+                 this.off(BLEServiceEvent.PACKET_RECEIVED, listener);
+             };
+
+             this.on(BLEServiceEvent.PACKET_RECEIVED, listener);
+         });
+      }
+
+      return {} as BLEPacket;
     } else {
       throw new Error('[BLEService] sendRequest requires a valid BoksTXPacket instance.');
     }
@@ -270,13 +318,8 @@ export class BoksBLEService extends EventEmitter {
 
   async readCharacteristic(serviceUuid: string, charUuid: string): Promise<DataView> {
     const charName = getCharacteristicName(charUuid);
-
-    // Use GattOperationPacket for structured logging
-    // TX: "Read: Firmware Revision"
     const logPacket = new GattOperationPacket(charUuid, `Read: ${charName}`);
-
-    // We construct the "fake" TX packet to emit
-    const uuidBytes = new TextEncoder().encode(charUuid); // Full UUID for consistency
+    const uuidBytes = new TextEncoder().encode(charUuid);
     const rawTx = new Uint8Array([BLEOpcode.INTERNAL_GATT_OPERATION, ...uuidBytes]);
 
     this.emit(BLEServiceEvent.PACKET_SENT, {
@@ -286,16 +329,18 @@ export class BoksBLEService extends EventEmitter {
       direction: 'TX',
       isValidChecksum: true,
       uuid: charUuid,
-      parsedPayload: logPacket // Attach the packet object as payload info
+      parsedPayload: logPacket
     } as BLEPacket);
 
     try {
-      const value = await this.adapter.read(serviceUuid, charUuid);
+      const transport = (this.client as any).transport;
+      // Note: WebBluetoothTransport.read(uuid) uses that uuid to find the characteristic.
+      // It assumes the characteristic is available in the connected service(s).
+      const value = await transport.read(charUuid);
 
-      const parsedValue = parseCharacteristicValue(charUuid, value);
+      const valueDataView = new DataView(value.buffer, value.byteOffset, value.byteLength);
+      const parsedValue = parseCharacteristicValue(charUuid, valueDataView);
 
-      // Fake RX packet for logs
-      // RX: "Value: 4.0"
       const rawBytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
       this.emit(
         BLEServiceEvent.PACKET_RECEIVED,
@@ -310,12 +355,13 @@ export class BoksBLEService extends EventEmitter {
             BLEOpcode.INTERNAL_GATT_OPERATION,
             rawBytes,
             new Uint8Array(0),
-            parsedValue // Display the parsed value directly
+            parsedValue
           )
         } as BLEPacket,
         BLEOpcode.INTERNAL_GATT_OPERATION
       );
-      return value;
+
+      return valueDataView;
     } catch (error) {
       console.error(`[BLEService] Error reading characteristic ${charUuid}:`, error);
       throw error;
@@ -323,6 +369,6 @@ export class BoksBLEService extends EventEmitter {
   }
 
   getDevice() {
-    return this.adapter.getDevice();
+     return (this.client as any).transport?.device || null;
   }
 }

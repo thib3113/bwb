@@ -8,18 +8,16 @@ import { useBLE } from '../hooks/useBLE';
 import { BLEOpcode } from '../utils/bleConstants';
 import { BoksLog } from '../types';
 import { DeviceLogContext } from './Contexts';
-import { GetLogsCountPacket } from '../ble/packets/GetLogsCountPacket';
-import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 import { checkDeviceVersion } from '../utils/version';
+import { BoksHistoryEvent } from '@thib3113/boks-sdk';
 
 export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   const [isSyncingLogs, setIsSyncingLogs] = useState(false);
   const { activeDevice, refreshCodeCount } = useDevice();
   const { addListener, removeListener } = useBLEEvents();
 
-  const { sendRequest, log, isConnected } = useBLE();
+  const { controller, log, isConnected } = useBLE();
 
-  const logsBufferRef = useRef<BoksLog[]>([]);
   const lastReceivedLogCountRef = useRef<number | null>(null);
 
   const isSyncingRef = useRef(false);
@@ -27,14 +25,13 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
 
   // Check if we are in Simulator Mode
   const autoSyncEnabled = activeDevice?.auto_sync ?? false;
-  const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
+  // const isSimulator = typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED;
 
   // Global listener for log counts (can be spontaneous or requested)
   useEffect(() => {
     const handleLogCountPacket = (packet: BLEPacket) => {
       if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT && packet.payload.length >= 2) {
         const count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
-        // Quirk #3: Log Count Instability - Always use the highest value
         if (lastReceivedLogCountRef.current === null || count > lastReceivedLogCountRef.current) {
           lastReceivedLogCountRef.current = count;
           console.log(`[DeviceLogContext] Updated lastReceivedLogCountRef (Quirk #3): ${count}`);
@@ -47,9 +44,8 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
   }, [addListener, removeListener]);
 
   const requestLogs = useCallback(async () => {
-    // Check version restriction
     if (activeDevice && checkDeviceVersion(activeDevice).isRestricted) {
-      log('Log synchronization aborted due to unknown firmware/hardware version.', 'warning');
+      log('Log synchronization aborted due to restricted version.', 'warning');
       return;
     }
 
@@ -65,154 +61,61 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
       setIsSyncingLogs(true);
       log('Requesting logs from device...', 'info');
 
-      // Optimistic check: check our local ref updated by the last 0x79 packet
-      let count = 0;
+      // Use SDK fetchHistory
+      const historyEvents = await controller.fetchHistory();
 
-      if (lastReceivedLogCountRef.current !== null) {
-        count = lastReceivedLogCountRef.current;
-        log(`Using opportunistic logs count from last packet: ${count}`, 'info');
-        // Clear it so next time we don't use a stale value if things change
-        lastReceivedLogCountRef.current = null;
-      } else {
-        // Fallback: Explicitly request logs count
-        const response = await sendRequest(new GetLogsCountPacket());
-        const packet = Array.isArray(response) ? response[0] : response;
+      log(`Received ${historyEvents.length} log packets. Saving...`, 'success');
 
-        if (packet.payload.length >= 2) {
-          count = (packet.payload[1] << 8) | packet.payload[0]; // Little Endian
-        } else {
-          console.warn(
-            `[DeviceLogContext] Invalid logs count response (len=${packet.payload.length}). Assuming 0 logs.`
-          );
-          count = 0;
-        }
-        log(`Logs count (fetched): ${count}`, 'info');
-      }
+      // Convert and save
+      const logsToSave: BoksLog[] = historyEvents.map((event: BoksHistoryEvent) => {
+          let payload = new Uint8Array(0);
+          if ('toPayload' in event && typeof event.toPayload === 'function') {
+              payload = event.toPayload();
+          } else if ('payload' in event) {
+              payload = (event as any).payload;
+          }
 
-      if (count > 0) {
-        log(`Requesting ${count} logs from device...`, 'info');
-        logsBufferRef.current = []; // Clear buffer
-
-        return new Promise<void>((resolve, reject) => {
-          // Safety timeout for simulator environments
-          const safetyTimeout = setTimeout(() => {
-            if (isSimulator && isSyncingRef.current) {
-              console.warn('[DeviceLogContext] Simulator: Log sync timed out, forcing completion.');
-              handleEndHistory();
-            }
-          }, 3000);
-
-          const handleEndHistory = () => {
-            clearTimeout(safetyTimeout);
-            log('End of logs received', 'info');
-            console.log(
-              `[DeviceLogContext] End of history. Buffer contains ${logsBufferRef.current.length} logs.`
-            );
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
-            removeListener('*', handleLogPacket);
-
-            // Save logs
-            if (activeDevice?.id && logsBufferRef.current.length > 0) {
-              console.log(
-                `[DeviceLogContext] Saving ${logsBufferRef.current.length} logs for device ${activeDevice.id}...`,
-                logsBufferRef.current
-              );
-              StorageService.saveLogs(activeDevice.id, logsBufferRef.current)
-                .then(() => {
-                  log(`Saved ${logsBufferRef.current.length} logs`, 'success');
-                  console.log(`[DeviceLogContext] bulkPut successful.`);
-                })
-                .catch((e) => log(`Error saving logs: ${e.message}`, 'error'));
-            }
-
-            isSyncingRef.current = false;
-            setIsSyncingLogs(false);
-            resolve();
+          // We parse it using existing logic to extract event details
+          const rawEntry: Partial<BoksLog> = {
+            timestamp: event.date ? event.date.toISOString() : new Date().toISOString(),
+            opcode: (event as any).opcode,
+            payload: payload,
+            device_id: activeDevice.id
           };
 
-          const handleLogPacket = (packet: BLEPacket) => {
-            // Ignore TX and control packets
-            if (
-              packet.direction === 'TX' ||
-              packet.opcode === BLEOpcode.LOG_END_HISTORY ||
-              packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT
-            )
-              return;
-
-            // Parse and store
-            if (activeDevice?.id) {
-              const rawEntry: Partial<BoksLog> = {
-                timestamp: new Date().toISOString(),
-                opcode: packet.opcode,
-                payload: packet.payload,
-                device_id: activeDevice.id
-              };
-              const fullBoksLog: BoksLog = {
-                ...(rawEntry as unknown as BoksLog),
-                event: 'BLE_PACKET',
-                type: 'info'
-              };
-
-              const parsed = parseLog(fullBoksLog);
-              if (parsed.eventType !== 'unknown') {
-                console.log(
-                  `[DeviceLogContext] Valid log received: Opcode=0x${packet.opcode.toString(16)}, type=${parsed.eventType}`
-                );
-                logsBufferRef.current.push(parsed);
-              } else {
-                console.warn(
-                  `[DeviceLogContext] Ignored unknown log opcode: 0x${packet.opcode.toString(16)}`
-                );
-              }
-            }
+          const fullBoksLog: BoksLog = {
+            ...(rawEntry as unknown as BoksLog),
+            event: 'BLE_PACKET', // Default, parseLog will refine
+            type: 'info'
           };
 
-          // Subscribe to end of history and log packets BEFORE sending request
-          addListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
-          addListener('*', handleLogPacket);
+          return parseLog(fullBoksLog);
+      });
 
-          // Use sendRequest with expectResponse: false to ensure it goes through queue
-          sendRequest(new RequestLogsPacket(), { expectResponse: false }).catch((err) => {
-            removeListener(BLEOpcode.LOG_END_HISTORY, handleEndHistory);
-            removeListener('*', handleLogPacket);
-            isSyncingRef.current = false;
-            setIsSyncingLogs(false);
-            reject(err);
-          });
-        });
-      } else {
-        log('No logs to retrieve', 'info');
-        isSyncingRef.current = false;
-        setIsSyncingLogs(false);
+      if (logsToSave.length > 0) {
+          await StorageService.saveLogs(activeDevice.id, logsToSave);
+          log(`Saved ${logsToSave.length} logs`, 'success');
       }
+
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       log(`Failed to request logs: ${errorMessage}`, 'error');
-      isSyncingRef.current = false;
-      setIsSyncingLogs(false);
-      // Suppress error in Simulator mode to avoid Cypress failure
-      if (!isSimulator) {
-        throw new Error(`Failed to request logs: ${errorMessage}`);
-      }
+    } finally {
+        isSyncingRef.current = false;
+        setIsSyncingLogs(false);
     }
-  }, [activeDevice, addListener, removeListener, sendRequest, log, isSimulator]);
+  }, [activeDevice, controller, log]);
 
   // Auto-import logs on connection if enabled
   useEffect(() => {
-    // Check version restriction for auto-sync
     if (activeDevice && checkDeviceVersion(activeDevice).isRestricted) {
-      console.log('[DeviceLogContext] Auto-sync skipped due to restricted version.');
       return;
     }
 
     if (isConnected && activeDevice && autoSyncEnabled && !hasAutoSyncedRef.current) {
-      // Optimized sequence: Codes first (triggers 0x14 -> 0x79 implicit), then Logs
       const timer = setTimeout(async () => {
         try {
-          // Double check conditions inside timeout
           if (!isConnected || !activeDevice || hasAutoSyncedRef.current) return;
-
-          // Re-check restriction inside timeout just in case
           if (checkDeviceVersion(activeDevice).isRestricted) return;
 
           hasAutoSyncedRef.current = true;
@@ -220,15 +123,11 @@ export const DeviceLogProvider = ({ children }: { children: ReactNode }) => {
           if (refreshCodeCount) {
             console.log(`[DeviceLogContext] Auto-sync: executing refreshCodeCount() first`);
             await refreshCodeCount();
-          } else {
-            console.warn(`[DeviceLogContext] Auto-sync: refreshCodeCount is missing`);
           }
 
-          // Small delay to allow 0x79 response to arrive and update DB
           setTimeout(async () => {
             console.log(`[DeviceLogContext] Auto-sync: calling requestLogs()`);
             await requestLogs();
-            console.log(`[DeviceLogContext] Auto-sync: requestLogs() finished`);
           }, 500);
         } catch (err: unknown) {
           console.error(`[DeviceLogContext] Auto-sync error:`, err);

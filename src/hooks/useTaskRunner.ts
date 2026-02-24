@@ -2,9 +2,8 @@ import { useEffect, useRef } from 'react';
 import { BoksTask, TaskType } from '../types/task';
 import { BoksDevice } from '../types';
 import { sortTasks } from '../utils/taskSorter';
-import { TaskExecutorService, SendRequestFn } from '../services/TaskExecutorService';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
-import { BLEPacket } from '../utils/packetParser';
+import { TaskExecutorService } from '../services/TaskExecutorService';
+import { BoksController } from '@thib3113/boks-sdk';
 
 interface UseTaskRunnerProps {
   tasks: BoksTask[];
@@ -12,7 +11,7 @@ interface UseTaskRunnerProps {
   isConnected: boolean;
   setIsProcessing: (isProcessing: boolean) => void;
   activeDevice: BoksDevice | null;
-  sendRequest: (packet: BoksTXPacket) => Promise<BLEPacket | BLEPacket[]>;
+  controller: BoksController;
   autoSync: boolean;
   manualSyncRequestId: string | null;
   setManualSyncRequestId: (id: string | null) => void;
@@ -24,7 +23,7 @@ export const useTaskRunner = ({
   isConnected,
   setIsProcessing,
   activeDevice,
-  sendRequest,
+  controller,
   autoSync,
   manualSyncRequestId,
   setManualSyncRequestId
@@ -93,13 +92,6 @@ export const useTaskRunner = ({
       try {
         console.log(`[TaskRunner] Executing task: ${taskToRun.type}`, taskToRun.payload);
 
-        // Mark as processing if needed?
-        // TaskContext didn't explicitly set 'processing' status in state, only completed/failed.
-        // But logic suggests we might want to?
-        // TaskContext used 'isProcessing' boolean.
-        // But the prompt says: "Updates the task status (pending -> processing -> completed/failed)"
-        // So I should update to 'processing'.
-
         setTasks((prevTasks) =>
           prevTasks.map((t) => (t.id === taskToRun.id ? { ...t, status: 'processing' } : t))
         );
@@ -107,7 +99,7 @@ export const useTaskRunner = ({
         await TaskExecutorService.execute(
           taskToRun,
           activeDevice,
-          sendRequest as unknown as SendRequestFn
+          controller
         );
 
         console.log(`[TaskRunner] Task completed: ${taskToRun.type}`);
@@ -146,7 +138,7 @@ export const useTaskRunner = ({
     activeDevice,
     autoSync,
     manualSyncRequestId,
-    sendRequest,
+    controller,
     setTasks,
     setIsProcessing,
     setManualSyncRequestId

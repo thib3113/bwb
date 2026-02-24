@@ -16,29 +16,11 @@ import { translateBLEError } from '../utils/bleUtils';
 import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { RawTXPacket } from '../ble/packets/RawTXPacket';
 
-import { SimulatedBluetoothAdapter } from '../ble/adapter/SimulatedBluetoothAdapter';
-import { WebBluetoothAdapter } from '../ble/adapter/WebBluetoothAdapter';
-
 export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const { log, addDebugLog } = useLogContext();
 
   const bleService = useMemo(() => {
-    const service = BoksBLEService.getInstance();
-
-    // Check build-time constant (CI), window flag and localStorage for robustness
-    const useSimulator =
-      (typeof __BOKS_SIMULATOR_AUTO_ENABLE__ !== 'undefined' && __BOKS_SIMULATOR_AUTO_ENABLE__) ||
-      (typeof window !== 'undefined' && window.BOKS_SIMULATOR_ENABLED === true) ||
-      (typeof localStorage !== 'undefined' &&
-        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true');
-
-    if (useSimulator) {
-      console.warn('⚠️ USING BOKS SIMULATOR ADAPTER ⚠️');
-      service.setAdapter(new SimulatedBluetoothAdapter());
-    } else {
-      service.setAdapter(new WebBluetoothAdapter());
-    }
-    return service;
+    return BoksBLEService.getInstance();
   }, []);
 
   const [connectionState, setConnectionState] = useState<BLEServiceState>(bleService.getState());
@@ -223,18 +205,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const toggleSimulator = useCallback(
     (enable: boolean) => {
       console.log(`[BLEContext] Toggling Simulator to ${enable}`);
-      if (typeof window !== 'undefined') {
-        window.BOKS_SIMULATOR_ENABLED = enable;
-        localStorage.setItem('BOKS_SIMULATOR_ENABLED', String(enable));
-      }
-
-      if (enable) {
-        bleService.setAdapter(new SimulatedBluetoothAdapter());
-        console.log('✅ Switched to SimulatedAdapter');
-      } else {
-        bleService.setAdapter(new WebBluetoothAdapter());
-        console.log('✅ Switched to WebBluetoothAdapter');
-      }
+      bleService.setSimulatorMode(enable);
     },
     [bleService]
   );
@@ -272,6 +243,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
 
   const value = useMemo(
     () => ({
+      controller: bleService.controller,
       device,
       connectionState,
       isConnected,
@@ -315,6 +287,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       toggleSimulator
     }),
     [
+      bleService,
       device,
       connectionState,
       isConnected,
@@ -325,7 +298,6 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       sendRequest,
       addListener,
       removeListener,
-      bleService,
       getDeviceInfo,
       toggleSimulator
     ]

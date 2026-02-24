@@ -22,56 +22,60 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
 import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import { useTranslation } from 'react-i18next';
-import { BoksSimulator, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
+import { BoksHardwareSimulator, SimulatorLog } from '@thib3113/boks-sdk/simulator';
+import { BoksOpenSource } from '@thib3113/boks-sdk';
 import { useBLE } from '../../hooks/useBLE';
 import { PCB_VERSIONS } from '../../utils/version';
+
+interface BoksPublicState {
+    isOpen: boolean;
+    batteryLevel: number;
+    softwareVersion: string;
+    firmwareVersion: string;
+    packetLossProbability: number;
+    responseDelayMs: number;
+    chaosMode: boolean;
+    pinsCount: number;
+    logsCount: number;
+    configKey: string;
+    // laPosteActivated might be missing in getPublicState type or need check
+}
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { toggleSimulator, disconnect } = useBLE();
-  const [simulator, setSimulator] = useState<BoksSimulator | null>(
-    () => (window.boksSimulator as BoksSimulator) || null
+  const [simulator, setSimulator] = useState<BoksHardwareSimulator | null>(
+    () => (window as any).boksSimulator || null
   );
-  const [state, setState] = useState<BoksState | null>(() => simulator?.getPublicState() || null);
+
+  // Use a simplified state object that matches what we display
+  const [state, setState] = useState<BoksPublicState | null>(null);
+
   const [isEnabled, setIsEnabled] = useState(
     () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
   );
-  const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!window.boksSimulator);
+  const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!(window as any).boksSimulator);
 
-  const [fwRev, setFwRev] = useState(
-    () => (window.boksSimulator as BoksSimulator)?.getPublicState().firmwareRevision || '10/125'
-  );
-  const [swRev, setSwRev] = useState(
-    () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.3.3'
-  );
+  const [fwRev, setFwRev] = useState('10/125');
+  const [swRev, setSwRev] = useState('4.3.3');
 
+  // Fetch state loop
   useEffect(() => {
-    // Sync state if simulator instance changes
     if (simulator) {
-      // Avoid calling setState synchronously in effect unless guarded, but here we want to establish subscription
-      // A small timeout allows the render to complete before the state update, mitigating the warning
-      // Or better: use a functional update in a way that respects React lifecycle,
-      // but simulator state is external.
+      const updateState = () => {
+          const s = simulator.getPublicState();
+          setState(s as BoksPublicState);
 
-      // Let's use a timeout to break the synchronous cycle for the initial fetch in this effect
-      const timer = setTimeout(() => {
-        setState(simulator.getPublicState());
-      }, 0);
-
-      const interval = setInterval(() => {
-        setState(simulator.getPublicState());
-      }, 500);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(interval);
+          // Sync form
+          if (s.firmwareVersion) setFwRev(s.firmwareVersion);
+          if (s.softwareVersion) setSwRev(s.softwareVersion);
       };
+
+      updateState();
+      const interval = setInterval(updateState, 500);
+      return () => clearInterval(interval);
     } else {
-      // Wrap in timeout for consistency and to avoid synchronous update warning in effect
-      const timer = setTimeout(() => {
-        setState(null);
-      }, 0);
-      return () => clearTimeout(timer);
+      setState(null);
     }
   }, [simulator]);
 
@@ -79,15 +83,12 @@ export const SimulatorDebugger = () => {
     setIsEnabled(checked);
     if (toggleSimulator) {
       toggleSimulator(checked);
-      // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-          const controller = window.boksSimulator as BoksSimulator;
-          if (controller) {
-            setSimulator(controller);
+          const sim = (window as any).boksSimulator as BoksHardwareSimulator;
+          if (sim) {
+            setSimulator(sim);
             setIsSimulatorRunning(true);
-            setFwRev(controller.getPublicState().firmwareRevision);
-            setSwRev(controller.getPublicState().softwareRevision);
           }
         }, 500);
       } else {
@@ -95,7 +96,6 @@ export const SimulatorDebugger = () => {
         setSimulator(null);
       }
     } else {
-      // Fallback if toggleSimulator is not available (should not happen with new context)
       if (checked) {
         localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
       } else {
@@ -166,38 +166,26 @@ export const SimulatorDebugger = () => {
 
               <Divider sx={{ my: 1 }} />
 
-              <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                {state.laPosteActivated && (
-                  <Chip
-                    icon={<LocalPostOfficeIcon />}
-                    label="La Poste Active"
-                    color="primary"
-                    size="small"
-                    variant="outlined"
-                  />
-                )}
-              </Box>
-
               <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mt: 1 }}>
                 {t('settings:developer.simulator.manual_triggers')}
               </Typography>
               <ButtonGroup fullWidth variant="contained" size="small">
                 <Button
-                  onClick={() => simulator?.triggerDoorOpen('ble')}
+                  onClick={() => simulator?.triggerDoorOpen(BoksOpenSource.Ble)}
                   disabled={state.isOpen}
                   startIcon={<LockOpenIcon />}
                 >
                   {t('settings:developer.simulator.ble_open')}
                 </Button>
                 <Button
-                  onClick={() => simulator?.triggerNfcDoorOpen('04:55:66:77:88:99:AA', 3)}
+                  onClick={() => simulator?.triggerDoorOpen(BoksOpenSource.Nfc, '04:55:66:77:88:99:AA')}
                   disabled={state.isOpen}
                   color="info"
                 >
                   {t('settings:developer.simulator.nfc_open')}
                 </Button>
                 <Button
-                  onClick={() => simulator?.triggerDoorOpen('button')}
+                  onClick={() => simulator?.triggerDoorOpen(BoksOpenSource.Keypad)}
                   disabled={state.isOpen}
                   color="warning"
                 >
@@ -210,7 +198,7 @@ export const SimulatorDebugger = () => {
                 variant="outlined"
                 size="small"
                 sx={{ mt: 1 }}
-                onClick={() => simulator?.triggerDoorClose()}
+                onClick={() => simulator?.setDoorStatus(false)}
                 disabled={!state.isOpen}
                 startIcon={<LockIcon />}
               >
@@ -291,37 +279,8 @@ export const SimulatorDebugger = () => {
                   sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
                   <LogIcon />{' '}
-                  {t('settings:developer.simulator.logs_count', { count: state.logs.length })}
+                  Logs ({state.logsCount})
                 </Typography>
-                <Button
-                  size="small"
-                  variant="text"
-                  color="error"
-                  onClick={() => simulator?.reset()}
-                >
-                  {t('settings:developer.simulator.reset')}
-                </Button>
-              </Box>
-              <Box
-                sx={{
-                  mt: 1,
-                  maxHeight: 150,
-                  overflow: 'auto',
-                  fontSize: '0.75rem',
-                  fontFamily: 'monospace',
-                  bgcolor: 'rgba(0,0,0,0.03)',
-                  p: 1,
-                  borderRadius: 1
-                }}
-              >
-                {state.logs.length === 0
-                  ? t('settings:developer.simulator.no_logs')
-                  : [...state.logs].reverse().map((l: LogEntry, i: number) => (
-                      <div key={i}>
-                        [{new Date(l.timestamp).toLocaleTimeString()}] Op: 0x
-                        {l.opcode.toString(16).toUpperCase()}
-                      </div>
-                    ))}
               </Box>
             </CardContent>
           </Card>

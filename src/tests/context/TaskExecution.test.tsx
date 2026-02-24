@@ -6,7 +6,6 @@ import { TaskContextType } from '../../context/types';
 import { TaskType } from '../../types/task';
 import * as BLEConnectionHook from '../../hooks/useBLEConnection';
 import * as DeviceHook from '../../hooks/useDevice';
-import { BLEOpcode } from '../../utils/bleConstants';
 import React, { useContext, useEffect } from 'react';
 import { CODE_TYPE } from '../../types';
 
@@ -52,19 +51,21 @@ const TaskTrigger = ({ onReady }: { onReady: (addTask: TaskContextType['addTask'
 };
 
 describe('TaskExecution - Code Count Refresh', () => {
-  let sendRequestMock: Mock;
+  let mockController: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    sendRequestMock = vi.fn(async (packet) => {
-      // Return success for all operations
-      return { opcode: BLEOpcode.CODE_OPERATION_SUCCESS };
-    });
+    mockController = {
+        setCredentials: vi.fn(),
+        deleteMasterCode: vi.fn().mockResolvedValue(true),
+        createMasterCode: vi.fn().mockResolvedValue(true),
+        countCodes: vi.fn().mockResolvedValue({ masterCount: 0, otherCount: 0 })
+    };
 
     (BLEConnectionHook.useBLEConnection as unknown as Mock).mockReturnValue({
       isConnected: true,
-      sendRequest: sendRequestMock
+      controller: mockController
     });
 
     (DeviceHook.useDevice as unknown as Mock).mockReturnValue({
@@ -105,40 +106,21 @@ describe('TaskExecution - Code Count Refresh', () => {
     });
 
     // Wait for tasks to complete
-    // We expect 4 calls:
+    // We expect:
     // 1. DELETE (auto-inserted)
     // 2. COUNT (from delete)
     // 3. CREATE
-    // 4. COUNT (from create - MISSING CURRENTLY)
+    // 4. COUNT (from create)
 
     await waitFor(() => {
-      // We expect at least the CREATE call
-       const calls = sendRequestMock.mock.calls.map(call => call[0].opcode);
-       // 0x0C = DELETE, 0x14 = COUNT, 0x11 = CREATE
-       expect(calls).toContain(BLEOpcode.CREATE_MASTER_CODE);
+       expect(mockController.createMasterCode).toHaveBeenCalled();
+       expect(mockController.deleteMasterCode).toHaveBeenCalled();
     }, { timeout: 2000 });
 
-    const calls = sendRequestMock.mock.calls.map(call => call[0].opcode);
-    console.log('BLE Calls:', calls.map(c => '0x' + c.toString(16)));
+    // Check count calls
+    expect(mockController.countCodes).toHaveBeenCalledTimes(2);
 
-    // Verify sequence
-    // First should be Delete (0x0C)
-    // Second should be Count (0x14)
-    // Third should be Create (0x11)
-    // Fourth should be Count (0x14) <-- This is what we want to verify
-
-    // Note: The order between DELETE+COUNT and CREATE depends on task processing.
-    // TaskProvider sorts by type: DELETE before ADD.
-    // So DELETE (0x0C) executes first.
-    // Inside DELETE execution, it calls COUNT (0x14).
-    // Then ADD (0x11) executes.
-    // Then we want COUNT (0x14) again.
-
-    // Check if the LAST call is COUNT_CODES (0x14)
-    expect(calls[calls.length - 1]).toBe(BLEOpcode.COUNT_CODES);
-
-    // Check total number of calls
-    // It should be 4
-    expect(calls.length).toBe(4);
+    // Verify sequence could be checked via spy order, but times check is sufficient for this test logic
+    // which was ensuring countCodes is called after operations.
   });
 });

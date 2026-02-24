@@ -19,10 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { useDevice } from '../hooks/useDevice';
 import { BoksBLEService } from '../services/BoksBLEService';
-import { BLEOpcode } from '../utils/bleConstants';
-import { DeleteMasterCodePacket } from '../ble/packets/PinManagementPackets';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
-import { BLEPacket } from '../utils/packetParser';
+import { BoksController } from '@thib3113/boks-sdk';
 
 // --- Types ---
 
@@ -39,7 +36,7 @@ interface ScriptDefinition {
   descriptionKey: string;
   run: (
     ctx: ScriptContext,
-    services: { bleService: BoksBLEService; configKey: string }
+    services: { controller: BoksController; configKey: string }
   ) => Promise<void>;
 }
 
@@ -69,6 +66,13 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
       return;
     }
 
+    // Credentials Setup Workaround
+    if (configKey.length === 8) {
+        bleService.controller.setCredentials('0'.repeat(56) + configKey);
+    } else {
+        bleService.controller.setCredentials(configKey);
+    }
+
     setRunning(true);
     setScriptStatus('running');
     setProgress(0);
@@ -90,7 +94,7 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
           },
           t
         },
-        { bleService, configKey }
+        { controller: bleService.controller, configKey }
       );
       log(t('status.finished'));
       setScriptStatus('finished');
@@ -179,31 +183,14 @@ const ScriptCard = ({ script }: { script: ScriptDefinition }) => {
 
 // --- Scripts Implementation ---
 
-const getMasterCount = async (bleService: BoksBLEService): Promise<number> => {
-  const packet = new CountCodesPacket();
-  // We expect a response
-  const response = (await bleService.sendRequest(packet, { expectResponse: true })) as BLEPacket;
-
-  if (response.opcode !== BLEOpcode.NOTIFY_CODES_COUNT) {
-    throw new Error(`Unexpected response opcode: 0x${response.opcode.toString(16)}`);
-  }
-
-  // Parse payload [MasterMSB, MasterLSB, SingleMSB, SingleLSB]
-  if (response.payload.length < 2) {
-    throw new Error('Invalid payload length for CODES_COUNT');
-  }
-
-  const masterCount = (response.payload[0] << 8) | response.payload[1];
-  return masterCount;
-};
-
 const cleanMasterCodesScript: ScriptDefinition = {
   id: 'clean_master_codes',
   titleKey: 'scripts.clean_master_codes.title',
   descriptionKey: 'scripts.clean_master_codes.description',
-  run: async ({ setProgress, log, checkStop, t }, { bleService, configKey }) => {
+  run: async ({ setProgress, log, checkStop, t }, { controller }) => {
     log(t('status.fetching_count'));
-    let currentCount = await getMasterCount(bleService);
+
+    let { masterCount: currentCount } = await controller.countCodes();
     log(t('status.initial_count', { count: currentCount }));
 
     if (currentCount === 0) {
@@ -227,20 +214,15 @@ const cleanMasterCodesScript: ScriptDefinition = {
 
         log(t('status.deleting_index', { index: i, count: currentCount }));
 
-        const deletePacket = new DeleteMasterCodePacket(configKey, i);
         let shouldContinue = false;
 
         try {
-          const response = (await bleService.sendRequest(
-            deletePacket,
-            { expectResponse: true },
-            configKey
-          )) as BLEPacket;
+          const success = await controller.deleteMasterCode(i);
 
-          if (response.opcode === BLEOpcode.CODE_OPERATION_SUCCESS) {
+          if (success) {
             log(t('status.success_index', { index: i }));
             shouldContinue = true; // Success implies there was a code, so there might be another
-          } else if (response.opcode === BLEOpcode.CODE_OPERATION_ERROR) {
+          } else {
             // Error means likely empty or invalid index, so we stop retrying this index
             log(t('status.error_index', { index: i }));
             shouldContinue = false;
@@ -257,7 +239,8 @@ const cleanMasterCodesScript: ScriptDefinition = {
       }
 
       // After finishing an index (cleaning it out), check global count
-      currentCount = await getMasterCount(bleService);
+      const counts = await controller.countCodes();
+      currentCount = counts.masterCount;
       if (currentCount === 0) {
         log(t('status.stopping_early'));
         break; // Stop outer loop

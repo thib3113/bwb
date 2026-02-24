@@ -17,11 +17,8 @@ import {
   SIMULATOR_DEFAULT_PIN
 } from '../utils/bleConstants';
 import { BLEPacket } from '../utils/packetParser';
-import { CountCodesPacket } from '../ble/packets/StatusPackets';
-import { SetConfigurationPacket } from '../ble/packets/SetConfigurationPacket';
 import { PCB_VERSIONS, checkDeviceVersion } from '../utils/version';
 
-// Ensure StorageService is exposed for debugging
 if (typeof window !== 'undefined') {
   window.boksDebug = window.boksDebug || {};
   window.boksDebug.StorageService = StorageService;
@@ -36,10 +33,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
   const activeDeviceIdRef = useRef(activeDeviceId);
 
-  // New state for syncing codes
   const [isSyncingCodes, setIsSyncingCodes] = useState(false);
 
-  // Fusionner les appareils et les secrets pour la compatibilité avec le reste de l'app
   const knownDevices = useMemo(() => {
     if (!devicesQuery) return [];
     return devicesQuery.map((device) => ({
@@ -63,7 +58,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       if (!currentId) return;
 
       if (packet.opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
-        // Reset syncing state when we receive the count
         setIsSyncingCodes(false);
 
         if (packet.payload.length >= 4) {
@@ -79,17 +73,13 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             master_code_count: master,
             single_code_count: single
           });
-
-          const updated = await db.devices.get(currentId);
-          console.log(`[DeviceContext] Device state after C3 update:`, updated);
         }
       } else if (packet.opcode === BLEOpcode.NOTIFY_LOGS_COUNT) {
         if (packet.payload.length >= 2) {
           const val16 = (packet.payload[0] << 8) | packet.payload[1];
           console.log(
-            `[DeviceContext] 0x79 received (Req: 0x${requestOpcode?.toString(16)}). Logs: ${val16}`
+            `[DeviceContext] 0x79 received. Logs: ${val16}`
           );
-          // Removed: Don't store log_count in DB as per user request
         }
       }
     };
@@ -110,11 +100,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
       // Check if this is a battery level packet (proprietary format)
       if (requestOpcode === BLEOpcode.TEST_BATTERY && packet.payload.length >= 1) {
-        // Use the first byte as battery level (0-100%)
         const batteryLevel = packet.payload[0];
         console.log(`[DeviceContext] Battery level received: ${batteryLevel}%`);
 
-        // Update device with battery level
         await db.devices.update(currentId, {
           battery_level: batteryLevel
         });
@@ -125,7 +113,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     return () => unsub();
   }, []);
 
-  // Load active device from settings on init
   useEffect(() => {
     const loadActiveDevice = async () => {
       try {
@@ -141,7 +128,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     loadActiveDevice();
   }, []);
 
-  // Save active device ID to db whenever it changes
   useEffect(() => {
     if (activeDeviceId) {
       StorageService.saveSetting('lastActiveDeviceId', activeDeviceId).catch((error) => {
@@ -150,12 +136,10 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [activeDeviceId]);
 
-  // Function to set active device
   const setActiveDevice = useCallback((deviceId: string | null) => {
     setActiveDeviceId(deviceId);
   }, []);
 
-  // Function to update device battery level
   const updateDeviceBatteryLevel = useCallback(async (deviceId: string, batteryLevel: number) => {
     try {
       const deviceToUpdate = await db.devices.get(deviceId);
@@ -170,7 +154,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Function to register a device (called upon successful BLE connection)
   const registerDevice = useCallback(
     async (bleDevice: BluetoothDevice) => {
       const bleName = bleDevice.name;
@@ -182,25 +165,20 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       const friendlyName = bleDevice.name || `Boks ${bleName.substring(0, 8)}`;
 
       try {
-        // Find existing device by unique BLE Identifier (ble_name)
         const existingDevice = await db.devices.where('ble_name').equals(bleName).first();
-        // No manual updated_at, handled by hook
 
         let targetId: string;
         let isNewDevice = false;
 
         if (existingDevice) {
           targetId = existingDevice.id;
-          // Update last seen timestamp
           await db.devices.update(existingDevice.id, {
             last_connected_at: Date.now()
           });
         } else {
           isNewDevice = true;
-          // Add new device
           targetId = crypto.randomUUID();
 
-          // Special handling for Simulator
           const isSimulator = bleName === SIMULATOR_BLE_ID;
           const initialFriendlyName = isSimulator ? 'Boks Simulator' : friendlyName;
           const initialPin = isSimulator ? SIMULATOR_DEFAULT_PIN : undefined;
@@ -210,29 +188,25 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             ble_name: bleName,
             friendly_name: initialFriendlyName,
             door_pin_code: initialPin,
-            role: UserRole.Admin, // Default role for locally discovered devices
+            role: UserRole.Admin,
             sync_status: 'created',
             last_connected_at: Date.now(),
             la_poste_activated: false,
             auto_sync: true
           });
 
-          // Initialize secrets (auto-fill for simulator)
           await db.device_secrets.add({
             device_id: targetId,
             configuration_key: isSimulator ? SIMULATOR_DEFAULT_CONFIG_KEY : undefined
           });
         }
 
-        // Set as active device
         setActiveDeviceId(targetId);
 
-        // Helper for info reading
         const readInfo = async () => {
           try {
             const bleService = BoksBLEService.getInstance();
             if (bleService.getState() === 'connected') {
-              // 1. Battery
               try {
                 const val = await bleService.readCharacteristic(
                   BATTERY_SERVICE_UUID,
@@ -245,7 +219,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
                 console.warn('[DeviceContext] Failed to read battery:', e);
               }
 
-              // 2. Firmware & Software Revision
               const updates: Partial<BoksDevice> = {};
               const decoder = new TextDecoder();
 
@@ -258,7 +231,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
                 console.log(`[DeviceContext] Firmware Revision: ${fwRev}`);
                 updates.firmware_revision = fwRev;
 
-                // Map to Hardware Version
                 if (PCB_VERSIONS[fwRev]) {
                   updates.hardware_version = PCB_VERSIONS[fwRev];
                   console.log(
@@ -290,10 +262,7 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
           }
         };
 
-        // Read once immediately
         readInfo();
-
-        // And again after 2s for stability
         setTimeout(readInfo, 2000);
 
         return isNewDevice;
@@ -305,15 +274,13 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     [updateDeviceBatteryLevel]
   );
 
-  // Function to update device name/alias
   const updateDeviceName = useCallback(async (deviceId: string, newName: string) => {
     try {
-      // In V2, deviceId is the UUID primary key
       const deviceToUpdate = await db.devices.get(deviceId);
       if (deviceToUpdate) {
         await db.devices.update(deviceId, {
           friendly_name: newName,
-          sync_status: 'updated' // Mark for sync
+          sync_status: 'updated'
         });
       }
     } catch (error) {
@@ -322,13 +289,11 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Function to update device sensitive details
   const updateDeviceDetails = useCallback(
     async (deviceId: string, details: Partial<BoksDevice> & Partial<DeviceSecrets>) => {
       try {
         const deviceToUpdate = await db.devices.get(deviceId);
         if (deviceToUpdate) {
-          // Separate public details and secrets
           const { configuration_key, door_pin_code, ...publicDetails } = details;
 
           if (Object.keys(publicDetails).length > 0) {
@@ -338,7 +303,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             });
           }
 
-          // Update door_pin_code in devices table
           if (door_pin_code !== undefined) {
             await db.devices.update(deviceId, {
               door_pin_code: door_pin_code,
@@ -346,7 +310,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
             });
           }
 
-          // Update configuration_key in device_secrets table
           if (configuration_key !== undefined) {
             const secretUpdate: Partial<DeviceSecrets> = {
               configuration_key: configuration_key
@@ -371,21 +334,16 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // Function to remove a device
   const removeDevice = useCallback(
     async (deviceId: string) => {
       try {
-        // Delete device
         await db.devices.delete(deviceId);
-        // Delete secrets (cascade in logic)
         await db.device_secrets.delete(deviceId);
 
-        // If we're removing the active device, clear active device
         if (activeDeviceId === deviceId) {
           setActiveDeviceId(null);
         }
 
-        // Clear device data from storage (Codes, Logs)
         await StorageService.clearDeviceData(deviceId);
       } catch (error) {
         console.error('Failed to remove device:', error);
@@ -395,7 +353,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     [activeDeviceId]
   );
 
-  // Get active device object
   const activeDevice = useMemo(
     () => knownDevices.find((d) => d.id === activeDeviceId) || null,
     [knownDevices, activeDeviceId]
@@ -427,13 +384,19 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       if (!secrets?.configuration_key) throw new Error('Configuration Key required');
 
       const bleService = BoksBLEService.getInstance();
-      const packet = new SetConfigurationPacket(
-        secrets.configuration_key,
-        0x01, // Type: La Poste
-        enable ? 0x01 : 0x00
-      );
 
-      await bleService.sendRequest(packet);
+      // Workaround for credentials
+      const configKey = secrets.configuration_key;
+      if (configKey.length === 8) {
+          bleService.controller.setCredentials('0'.repeat(56) + configKey);
+      } else {
+          bleService.controller.setCredentials(configKey);
+      }
+
+      await bleService.controller.setConfiguration({
+          type: 0x01, // La Poste
+          value: enable
+      });
 
       // Update local DB state
       await db.devices.update(deviceId, {
@@ -445,13 +408,10 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Re-define refreshCodeCount properly with check
-
   const refreshCodeCountWithCheck = useCallback(async () => {
     const bleService = BoksBLEService.getInstance();
     if (bleService.getState() !== 'connected') return;
 
-    // Check version
     const currentId = activeDeviceIdRef.current;
     if (currentId) {
       const device = knownDevices.find((d) => d.id === currentId);
@@ -463,9 +423,9 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       setIsSyncingCodes(true);
-      await bleService.sendRequest(new CountCodesPacket());
+      // Use controller.countCodes(). This emits 0xC3 implicitly.
+      await bleService.controller.countCodes();
 
-      // Safety timeout: Reset syncing state if no response after 5s
       setTimeout(() => {
         setIsSyncingCodes((prev) => {
           if (prev) {
@@ -480,7 +440,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       setIsSyncingCodes(false);
     }
   }, [knownDevices]);
-  // knownDevices changes when device updates, so this is fine.
 
   const value = useMemo(
     () => ({
@@ -494,10 +453,10 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       updateDeviceDetails,
       removeDevice,
       setActiveDevice,
-      refreshCodeCount: refreshCodeCountWithCheck, // Use the new one
+      refreshCodeCount: refreshCodeCountWithCheck,
       updateDeviceBatteryLevel,
       toggleLaPoste,
-      isSyncingCodes // Export new state
+      isSyncingCodes
     }),
     [
       knownDevices,

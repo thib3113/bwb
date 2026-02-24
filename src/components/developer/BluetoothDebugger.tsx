@@ -1,138 +1,49 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Box,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  SelectChangeEvent,
   TextField,
   Typography
 } from '@mui/material';
-import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { PacketFactory } from '../../ble/packets/PacketFactory';
 import { useBLE } from '../../hooks/useBLE';
-
-import { BLEOpcode } from '../../utils/bleConstants';
 import { PacketLogger } from './PacketLogger';
-
-// Helper to get friendly names for opcodes
-const getOpcodeName = (opcode: number): string => {
-  return BLEOpcode[opcode] || `UNKNOWN_OPCODE_${opcode}`;
-};
-
-// Global in-memory storage for field values across component re-renders
-// Key: field name (e.g., 'pinCode', 'configKey'), Value: last entered value
-const fieldMemory: Record<string, string> = {};
-
-const updateFieldMemory = (field: string, value: string) => {
-  fieldMemory[field] = value;
-};
+import { RawTXPacket } from '../../ble/packets/RawTXPacket';
 
 export const BluetoothDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { sendPacket, isConnected } = useBLE();
-  const [selectedOpcode, setSelectedOpcode] = useState<number | ''>('');
-  // Store form values as a simple Record
-  const [formData, setFormData] = useState<Record<string, string>>({});
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Get list of registered TX packets
-  const registeredPackets = useMemo(() => {
-    return Array.from(PacketFactory.getRegisteredTXPackets().entries()).sort((a, b) => a[0] - b[0]);
-  }, []);
-
-  // Get current selected packet class
-  const SelectedPacketClass = useMemo(() => {
-    if (selectedOpcode === '') return null;
-    const Class = PacketFactory.getRegisteredTXPackets().get(selectedOpcode);
-    return Class as (typeof Class & { schema?: z.AnyZodObject }) | undefined;
-  }, [selectedOpcode]);
-
-  // Extract Zod Schema shape if available
-  const schemaShape = useMemo(() => {
-    if (!SelectedPacketClass || !SelectedPacketClass.schema) return null;
-    // We assume it's a z.object() schema
-    if (SelectedPacketClass.schema instanceof z.ZodObject) {
-      return SelectedPacketClass.schema.shape;
-    }
-    return null;
-  }, [SelectedPacketClass]);
-
-  // When schema changes (new packet selected), pre-fill from memory
-  useEffect(() => {
-    if (!schemaShape) {
-      setTimeout(() => setFormData({}), 0);
-      return;
-    }
-
-    const newFormData: Record<string, string> = {};
-    Object.keys(schemaShape).forEach((key) => {
-      // Use stored value if exists, otherwise empty string
-      newFormData[key] = fieldMemory[key] || '';
-    });
-    setTimeout(() => setFormData(newFormData), 0);
-  }, [schemaShape]);
-
-  const handleOpcodeChange = (event: SelectChangeEvent<number | ''>) => {
-    setSelectedOpcode(event.target.value as number | '');
-    // formData reset is handled by the useEffect above
-    setValidationError(null);
-    setSuccessMessage(null);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    // Update local state
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Update global memory
-    updateFieldMemory(field, value);
-
-    setValidationError(null);
-    setSuccessMessage(null);
-  };
+  const [opcodeStr, setOpcodeStr] = useState('');
+  const [payloadStr, setPayloadStr] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSend = async () => {
-    if (!SelectedPacketClass) return;
-    setValidationError(null);
-    setSuccessMessage(null);
+      setError(null);
+      setSuccess(null);
 
-    try {
-      let packetData: Record<string, unknown> = {};
+      try {
+          const opcode = parseInt(opcodeStr, 16);
+          if (isNaN(opcode)) throw new Error('Invalid Opcode');
 
-      // If we have a schema, validate and parse
-      if (SelectedPacketClass.schema) {
-        // Validate with Zod (using safeParse to handle errors gracefully)
-        const result = SelectedPacketClass.schema.safeParse(formData);
+          let payload = new Uint8Array(0);
+          if (payloadStr) {
+              const hex = payloadStr.replace(/[^0-9A-Fa-f]/g, '');
+              if (hex.length % 2 !== 0) throw new Error('Invalid payload hex length');
+              const bytes = new Uint8Array(hex.length / 2);
+              for (let i = 0; i < hex.length; i += 2) {
+                  bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+              }
+              payload = bytes;
+          }
 
-        if (!result.success) {
-          const errorMsg = result.error.errors
-            .map((e) => `${e.path.join('.')}: ${e.message}`)
-            .join(', ');
-          setValidationError(errorMsg);
-          return;
-        }
-        packetData = result.data;
+          await sendPacket(new RawTXPacket(opcode, payload));
+          setSuccess('Packet sent');
+      } catch (e: any) {
+          setError(e.message);
       }
-
-      // Instantiate the packet
-      const packet = new SelectedPacketClass();
-
-      // Populate properties.
-      Object.assign(packet, packetData);
-
-      await sendPacket(packet);
-      console.log('Packet sent successfully', packet);
-      setSuccessMessage(t('settings:developer.packet_sent_success'));
-    } catch (err: unknown) {
-      console.error('Failed to send packet', err);
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setValidationError(errorMessage || t('settings:developer.packet_send_error'));
-    }
   };
 
   return (
@@ -143,80 +54,32 @@ export const BluetoothDebugger = () => {
           : t('settings:developer.not_connected_warning')}
       </Alert>
 
-      <FormControl fullWidth>
-        <InputLabel>{t('settings:developer.packet_type_label')}</InputLabel>
-        <Select
-          value={selectedOpcode}
-          label={t('settings:developer.packet_type_label')}
-          onChange={handleOpcodeChange}
-        >
-          {registeredPackets.map(([opcode]) => (
-            <MenuItem key={opcode} value={opcode}>
-              {getOpcodeName(opcode)} ({opcode})
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Typography variant="h6">Raw Packet Sender</Typography>
 
-      {SelectedPacketClass && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            {t('settings:developer.packet_parameters_title')}
-          </Typography>
+      <TextField
+        label="Opcode (Hex)"
+        value={opcodeStr}
+        onChange={e => setOpcodeStr(e.target.value)}
+        placeholder="e.g. 11"
+      />
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {schemaShape ? (
-              Object.keys(schemaShape).length > 0 ? (
-                Object.keys(schemaShape).map((key) => {
-                  const fieldSchema = schemaShape[key];
+      <TextField
+        label="Payload (Hex)"
+        value={payloadStr}
+        onChange={e => setPayloadStr(e.target.value)}
+        placeholder="e.g. 00FF..."
+      />
 
-                  // This is a rough check for Zod types
-                  let isNumber = false;
-                  const typeName = fieldSchema._def.typeName;
-                  // Handle optional/nullable wrappers if needed, for now stick to basics
-                  if (
-                    typeName === 'ZodNumber' ||
-                    (typeName === 'ZodEffects' &&
-                      fieldSchema._def.schema?._def.typeName === 'ZodNumber')
-                  ) {
-                    isNumber = true;
-                  }
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
 
-                  return (
-                    <TextField
-                      key={key}
-                      label={key}
-                      variant="outlined"
-                      fullWidth
-                      type={isNumber ? 'number' : 'text'}
-                      value={formData[key] || ''}
-                      onChange={(e) => handleInputChange(key, (e.target as HTMLInputElement).value)}
-                      helperText={isNumber ? 'Number' : 'String'}
-                    />
-                  );
-                })
-              ) : (
-                <Typography color="text.secondary">
-                  {t('settings:developer.no_parameters')}
-                </Typography>
-              )
-            ) : (
-              <Typography color="text.secondary">{t('settings:developer.no_schema')}</Typography>
-            )}
-
-            {validationError && <Alert severity="error">{validationError}</Alert>}
-            {successMessage && <Alert severity="success">{successMessage}</Alert>}
-
-            <Button
-              variant="contained"
-              onClick={handleSend}
-              disabled={!isConnected && !window.BOKS_SIMULATOR_ENABLED}
-            >
-              {t('settings:developer.send_packet')}
-            </Button>
-          </Box>
-        </Paper>
-      )}
+      <Button
+        variant="contained"
+        onClick={handleSend}
+        disabled={!isConnected}
+      >
+        Send
+      </Button>
 
       {/* Packet Logger Integration */}
       <PacketLogger />

@@ -109,7 +109,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
           unregisterCallback: vi.fn(),
           addListener: vi.fn(),
           removeListener: vi.fn(),
-          toggleSimulator: vi.fn()
+          toggleSimulator: vi.fn(),
+          controller: {} as any
         }}
       >
         <TaskContext.Provider

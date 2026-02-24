@@ -1,22 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { useDevice } from './useDevice';
 import { useBLE } from './useBLE';
-import { useBLEEvents } from './useBLEEvents';
-import { BLEOpcode } from '../utils/bleConstants';
-import { NfcRegisterPacket } from '../ble/packets/NfcRegisterPacket';
-import { NfcScanStartPacket } from '../ble/packets/NfcScanStartPacket';
-import { NfcUnregisterPacket } from '../ble/packets/NfcUnregisterPacket';
-import { NfcScanResultPacket, NfcScanResultStatus } from '../ble/packets/rx/NfcScanResultPacket';
 import { BoksNfcTag, BoksNfcTagType } from '../types/db';
-import { BLEPacket } from '../utils/packetParser';
 import { NfcScanStatus } from '../types/nfc';
+import { BoksClientError } from '@thib3113/boks-sdk';
 
 export const useNfcTags = () => {
   const { activeDevice } = useDevice();
-  const { sendRequest } = useBLE();
-  const { addListener, removeListener } = useBLEEvents();
+  const { controller } = useBLE();
 
   const [scanStatus, setScanStatus] = useState<NfcScanStatus>(NfcScanStatus.IDLE);
   const [scannedUid, setScannedUid] = useState<string | null>(null);
@@ -28,79 +21,58 @@ export const useNfcTags = () => {
     [deviceId]
   );
 
-  // Helper to get config key
-  const getConfigKey = useCallback(async () => {
+  // Helper to set credentials
+  const ensureCredentials = useCallback(async () => {
     if (!deviceId) throw new Error('No active device');
     const secrets = await db.device_secrets.get(deviceId);
-    if (!secrets?.configuration_key) throw new Error('Configuration Key required');
-    return secrets.configuration_key;
-  }, [deviceId]);
+    const configKey = secrets?.configuration_key || activeDevice?.configuration_key;
+
+    if (!configKey) throw new Error('Configuration Key required');
+
+    // Workaround: SDK expects 32-byte Master Key, pad config key
+    if (configKey.length === 8) {
+        controller.setCredentials('0'.repeat(56) + configKey);
+    } else {
+        controller.setCredentials(configKey);
+    }
+  }, [deviceId, activeDevice, controller]);
 
   // Start Scan
   const startScan = useCallback(async () => {
     try {
-      const key = await getConfigKey();
+      await ensureCredentials();
       setScanStatus(NfcScanStatus.SCANNING);
       setScannedUid(null);
 
-      // Send 0x17
-      await sendRequest(new NfcScanStartPacket(key));
+      try {
+          const result = await controller.scanNFCTags(10000); // 10s timeout
+
+          setScannedUid(result.tagId);
+          setScanStatus(NfcScanStatus.FOUND);
+
+      } catch (err) {
+          if (err instanceof BoksClientError) {
+              if (err.id === 'TIMEOUT') {
+                  setScanStatus(NfcScanStatus.TIMEOUT);
+              } else if (err.id === 'ALREADY_EXISTS') {
+                  setScanStatus(NfcScanStatus.ERROR_EXISTS);
+                  // SDK doesn't expose UID in ALREADY_EXISTS error payload directly in error object context easily accessible here?
+                  // Actually BoksClientError context might have it?
+                  // For now, leave scannedUid null or update if possible.
+              } else {
+                  console.error('NFC Scan Error:', err);
+                  setScanStatus(NfcScanStatus.ERROR);
+              }
+          } else {
+              console.error('NFC Scan Error:', err);
+              setScanStatus(NfcScanStatus.ERROR);
+          }
+      }
     } catch (e) {
       console.error('Failed to start scan', e);
       setScanStatus(NfcScanStatus.ERROR);
     }
-  }, [getConfigKey, sendRequest]);
-
-  // Handle Scan Notifications
-  useEffect(() => {
-    const handleScanResult = (packet: BLEPacket) => {
-      // Guard: If we reached a terminal state, ignore subsequent packets
-      // This prevents a potential Timeout packet from overwriting a Found/Exists result
-      if (scanStatus !== NfcScanStatus.SCANNING && scanStatus !== NfcScanStatus.IDLE) {
-        return;
-      }
-
-      // Check if it's one of the NFC opcodes
-      if (
-        [
-          BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT,
-          BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS,
-          BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT
-        ].includes(packet.opcode)
-      ) {
-        // Use the Packet Class to parse cleanly
-        const nfcPacket = new NfcScanResultPacket(packet.opcode);
-        nfcPacket.parse(packet.payload);
-
-        switch (nfcPacket.status) {
-          case NfcScanResultStatus.TIMEOUT:
-            setScanStatus(NfcScanStatus.TIMEOUT);
-            break;
-          case NfcScanResultStatus.ALREADY_EXISTS:
-            setScanStatus(NfcScanStatus.ERROR_EXISTS);
-            if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
-            break;
-          case NfcScanResultStatus.FOUND:
-            setScanStatus(NfcScanStatus.FOUND);
-            if (nfcPacket.uid) setScannedUid(nfcPacket.uid);
-            break;
-          default:
-            setScanStatus(NfcScanStatus.ERROR);
-        }
-      }
-    };
-
-    // Listen to all relevant opcodes
-    addListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT, handleScanResult);
-    addListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS, handleScanResult);
-    addListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT, handleScanResult);
-
-    return () => {
-      removeListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_RESULT, handleScanResult);
-      removeListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_ERROR_EXISTS, handleScanResult);
-      removeListener(BLEOpcode.NOTIFY_NFC_TAG_REGISTER_SCAN_TIMEOUT, handleScanResult);
-    };
-  }, [addListener, removeListener, scanStatus]);
+  }, [ensureCredentials, controller]);
 
   // Register Tag
   const registerTag = useCallback(
@@ -108,20 +80,18 @@ export const useNfcTags = () => {
       if (!scannedUid || !deviceId) return;
 
       try {
-        const key = await getConfigKey();
+        await ensureCredentials();
 
-        // Convert UID string back to bytes
-        const uidBytes = new Uint8Array(scannedUid.split(':').map((s) => parseInt(s, 16)));
-
-        // Send 0x18
-        // Only send register command if the tag was FOUND (new), skip if it matches ALREADY_EXISTS
+        // Only register via BLE if it's a new tag (FOUND status)
+        // If it was ALREADY_EXISTS (ERROR_EXISTS), we just update DB name without BLE command
         if (scanStatus === NfcScanStatus.FOUND) {
-          const packet = new NfcRegisterPacket(key, uidBytes);
-          await sendRequest(packet);
+             const success = await controller.registerNfcTag(scannedUid);
+             if (!success) {
+                 throw new Error('Register failed');
+             }
         }
 
-        // Add to DB
-        // Check if exists
+        // Add/Update DB
         const existing = await db.nfc_tags.where({ device_id: deviceId, uid: scannedUid }).first();
         if (existing) {
           await db.nfc_tags.update(existing.id, {
@@ -134,7 +104,7 @@ export const useNfcTags = () => {
             device_id: deviceId,
             uid: scannedUid,
             name,
-            type: BoksNfcTagType.USER_BADGE, // Default to User Badge for manual add
+            type: BoksNfcTagType.USER_BADGE,
             created_at: Date.now(),
             sync_status: 'created'
           });
@@ -147,19 +117,16 @@ export const useNfcTags = () => {
         throw e;
       }
     },
-    [scannedUid, deviceId, getConfigKey, sendRequest, scanStatus]
+    [scannedUid, deviceId, ensureCredentials, controller, scanStatus]
   );
 
   const unregisterTag = useCallback(
     async (tag: BoksNfcTag) => {
       if (!deviceId) return;
       try {
-        const key = await getConfigKey();
-        const uidBytes = new Uint8Array(tag.uid.split(':').map((s) => parseInt(s, 16)));
+        await ensureCredentials();
 
-        // Send 0x19
-        const packet = new NfcUnregisterPacket(key, uidBytes);
-        await sendRequest(packet);
+        await controller.unregisterNfcTag(tag.uid);
 
         // Remove from DB
         await db.nfc_tags.delete(tag.id);
@@ -168,7 +135,7 @@ export const useNfcTags = () => {
         throw e;
       }
     },
-    [deviceId, getConfigKey, sendRequest]
+    [deviceId, ensureCredentials, controller]
   );
 
   const resetScan = useCallback(() => {

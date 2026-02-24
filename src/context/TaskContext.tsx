@@ -6,7 +6,7 @@ import { TaskContext } from './Contexts';
 import { useTaskRunner } from '../hooks/useTaskRunner';
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
-  const { isConnected, sendRequest } = useBLEConnection();
+  const { isConnected, controller } = useBLEConnection();
   const { activeDevice } = useDevice();
   const autoSync = activeDevice?.auto_sync ?? false;
 
@@ -93,7 +93,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     isConnected,
     setIsProcessing,
     activeDevice,
-    sendRequest,
+    controller,
     autoSync,
     manualSyncRequestId,
     setManualSyncRequestId

@@ -7,10 +7,12 @@ import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BatteryAnalysis, BatteryData } from '../hooks/useBatteryDiagnostics';
 import { HardwareInference } from '../utils/bleUtils';
 import { BoksTask } from '../types/task';
+import { BoksController } from '@thib3113/boks-sdk';
 
 export { BLEOpcode };
 
 export interface BLEContextType {
+  controller: BoksController;
   device: BluetoothDevice | null;
   connectionState: BLEConnectionState;
   isConnected: boolean;
