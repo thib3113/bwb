@@ -74,7 +74,7 @@ describe('DoorControlButton', () => {
     mockOpenDoor.mockResolvedValue(undefined);
     const batteryData = new Uint8Array([85]); // 85%
     const dataView = new DataView(batteryData.buffer);
-    mockGetBatteryInfo.mockResolvedValue(dataView);
+    mockGetBatteryInfo.mockResolvedValue(85);
 
     (useDoorHook.useDoor as any).mockReturnValue({ doorStatus: 'closed', isOpening: false, openDoor: mockOpenDoor });
     (useBLEConnectionHook.useBLEConnection as any).mockReturnValue({ isConnected: true, getBatteryInfo: mockGetBatteryInfo });

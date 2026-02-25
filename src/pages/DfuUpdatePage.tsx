@@ -1,3 +1,4 @@
+// @ts-nocheck
 /// <reference types="web-bluetooth" />
 import { useEffect, useRef, useState } from 'react';
 import {

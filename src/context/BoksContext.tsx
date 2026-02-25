@@ -7,8 +7,6 @@ import { StorageService } from '../services/StorageService';
 import { BoksLog } from '../types';
 import { BoksContext } from './Contexts';
 import { useNavigate } from 'react-router-dom';
-import { OpenDoorPacket } from '../ble/packets/OpenDoorPacket';
-import { RequestLogsPacket } from '../ble/packets/RequestLogsPacket';
 
 interface BoksProviderProps {
   children: ReactNode;
@@ -16,14 +14,7 @@ interface BoksProviderProps {
 
 export const BoksProvider = ({ children }: BoksProviderProps) => {
   const navigate = useNavigate();
-  const {
-    sendRequest,
-    log,
-    addListener,
-    removeListener,
-    isConnected,
-    device: bleDevice
-  } = useBLE();
+  const { log, addListener, removeListener, isConnected, device: bleDevice, controller } = useBLE();
   const { activeDevice, registerDevice } = useDevice();
 
   const [doorStatus, setDoorStatus] = useState<'open' | 'closed' | null>(null);
@@ -61,12 +52,9 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     }
   }, [isConnected]);
 
-  // Handle door status notifications
+  // Handle door status notifications (using low-level listener for real-time updates)
   useEffect(() => {
     const handleDoorStatus = (packet: BLEPacket) => {
-      // Expected format from Python: [Opcode, Len, Inverted, Live, Checksum]
-      // packet.payload contains [Inverted, Live] (Len=2)
-
       if (packet.isValidChecksum === false) {
         log(`Door status packet checksum error`, 'error');
         return;
@@ -81,8 +69,6 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         setDoorStatus(status);
         log(`Door status: ${status} (Inv: ${inverted}, Live: ${live})`, 'info');
 
-        // If we were in the process of opening and we get a status update,
-        // it means the operation is complete (either open or confirmed closed).
         if (isOpening) {
           setIsOpening(false);
           if (openTimeoutRef.current) {
@@ -114,14 +100,13 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         return;
       }
 
-      if (!isConnected) {
+      if (!isConnected || !controller) {
         log('Not connected to any Boks', 'error');
         return;
       }
 
       setIsOpening(true);
 
-      // Set timeout
       if (openTimeoutRef.current) {
         clearTimeout(openTimeoutRef.current);
       }
@@ -132,19 +117,15 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
       }, 120000); // 2 minutes
 
       try {
-        const response = await sendRequest(new OpenDoorPacket(code));
+        const success = await controller.openDoor(code);
 
-        if (!Array.isArray(response)) {
-          if (response.opcode === BLEOpcode.VALID_OPEN_CODE) {
-            log('Code accepted', 'success');
-          } else if (response.opcode === BLEOpcode.INVALID_OPEN_CODE) {
-            log('Code invalid', 'error');
-            setIsOpening(false);
-            if (openTimeoutRef.current) {
-              clearTimeout(openTimeoutRef.current);
-            }
-          } else {
-            log(`Unexpected response for OPEN_DOOR: ${response.opcode.toString(16)}`, 'warning');
+        if (success) {
+          log('Code accepted', 'success');
+        } else {
+          log('Code invalid', 'error');
+          setIsOpening(false);
+          if (openTimeoutRef.current) {
+            clearTimeout(openTimeoutRef.current);
           }
         }
       } catch (e: unknown) {
@@ -156,12 +137,12 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
         }
       }
     },
-    [isConnected, log, sendRequest]
+    [isConnected, controller, log]
   );
 
   // Synchronize logs from Boks
   const syncLogs = useCallback(async () => {
-    if (!isConnected || !activeDevice) {
+    if (!isConnected || !activeDevice || !controller) {
       log('Cannot sync logs: Not connected or no active device', 'error');
       return;
     }
@@ -170,57 +151,30 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     log('Starting log synchronization...', 'info');
 
     try {
-      // Define Log Opcodes to capture
-      const logOpcodes = [
-        BLEOpcode.LOG_CODE_BLE_VALID_HISTORY,
-        BLEOpcode.LOG_CODE_KEY_VALID_HISTORY,
-        BLEOpcode.LOG_CODE_BLE_INVALID_HISTORY,
-        BLEOpcode.LOG_CODE_KEY_INVALID_HISTORY,
-        BLEOpcode.LOG_DOOR_CLOSE_HISTORY,
-        BLEOpcode.LOG_DOOR_OPEN_HISTORY,
-        BLEOpcode.LOG_EVENT_SCALE_MEASURE,
-        BLEOpcode.LOG_EVENT_KEY_OPENING,
-        BLEOpcode.LOG_EVENT_ERROR,
-        BLEOpcode.LOG_EVENT_NFC_OPENING,
-        BLEOpcode.LOG_EVENT_NFC_REGISTERING
-      ];
+      // Use SDK's fetchHistory
+      const history = await controller.fetchHistory();
+      log(`Received ${history.length} log events. Saving...`, 'success');
 
-      // Request logs and wait for stream end
-      const packets = await sendRequest(new RequestLogsPacket(), {
-        timeout: 60000, // 60s max for full sync
-        strategy: (packet) => {
-          if (packet.opcode === BLEOpcode.LOG_END_HISTORY) return 'finish';
-          if (logOpcodes.includes(packet.opcode)) return 'continue';
-          return 'ignore';
-        }
-      });
+      const logsToSave: Partial<BoksLog>[] = history.map((event: any) => ({
+        deviceId: activeDevice.id,
+        opcode: event.opcode || 0, // Fallback if opcode missing
+        // Try to access raw payload if available on the event instance
+        payload: event.payload ? new Uint8Array(event.payload as Uint8Array) : new Uint8Array(0),
+        timestamp: event.date ? event.date.toISOString() : new Date().toISOString(),
+        event: event.constructor.name || 'LogEvent',
+        type: 'info',
+        synced: false
+      }));
 
-      if (Array.isArray(packets)) {
-        log(`Received ${packets.length} log packets. Saving...`, 'success');
-
-        // Convert BLEPackets to BoksLog objects
-        const logsToSave: Partial<BoksLog>[] = packets.map((p) => ({
-          deviceId: activeDevice.id, // Use UUID from activeDevice
-          opcode: p.opcode,
-          payload: p.payload,
-          timestamp: new Date().toISOString(), // Actual timestamp should be parsed from payload
-          event: 'LOG_ENTRY',
-          type: 'info',
-          synced: false
-        }));
-
-        await StorageService.saveLogs(activeDevice.id, logsToSave);
-        log('Logs saved successfully', 'success');
-      } else {
-        log('Log sync returned unexpected single packet', 'warning');
-      }
+      await StorageService.saveLogs(activeDevice.id, logsToSave as any);
+      log('Logs saved successfully', 'success');
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       log(`Log sync failed: ${errorMessage}`, 'error');
     } finally {
       setIsSynchronizing(false);
     }
-  }, [isConnected, activeDevice, log, sendRequest]);
+  }, [isConnected, activeDevice, controller, log]);
 
   const value = useMemo(
     () => ({

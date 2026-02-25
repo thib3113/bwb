@@ -1,154 +1,102 @@
 import { useEffect, useRef } from 'react';
-import { BoksTask, TaskType } from '../types/task';
+import { BoksTask } from '../types/task';
+import { TaskExecutorService } from '../services/TaskExecutorService';
 import { BoksDevice } from '../types';
-import { sortTasks } from '../utils/taskSorter';
-import { TaskExecutorService, SendRequestFn } from '../services/TaskExecutorService';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
-import { BLEPacket } from '../utils/packetParser';
+import { BoksController } from '@thib3113/boks-sdk';
 
 interface UseTaskRunnerProps {
   tasks: BoksTask[];
   setTasks: React.Dispatch<React.SetStateAction<BoksTask[]>>;
   isConnected: boolean;
-  setIsProcessing: (isProcessing: boolean) => void;
+  controller: BoksController | null;
+  setIsProcessing: (val: boolean) => void;
   activeDevice: BoksDevice | null;
-  sendRequest: (packet: BoksTXPacket) => Promise<BLEPacket | BLEPacket[]>;
   autoSync: boolean;
   manualSyncRequestId: string | null;
-  setManualSyncRequestId: (id: string | null) => void;
+  setManualSyncRequestId: (val: string | null) => void;
 }
 
 export const useTaskRunner = ({
   tasks,
   setTasks,
   isConnected,
+  controller,
   setIsProcessing,
   activeDevice,
-  sendRequest,
-  autoSync,
   manualSyncRequestId,
   setManualSyncRequestId
 }: UseTaskRunnerProps) => {
-  // Ref for tracking processing state to avoid duplicate execution
-  const isProcessingRef = useRef(false);
+  const processingRef = useRef(false);
 
   useEffect(() => {
-    if (!isConnected) return;
-    if (isProcessingRef.current) return;
+    const pendingTasks = tasks.filter((t) => t.status === 'pending');
+    if (pendingTasks.length === 0) return;
 
-    // Get pending tasks to check if we should even start
-    const pendingTasks = tasks.filter((task) => task.status === 'pending');
+    if (!isConnected || !activeDevice || !controller) return;
 
-    // Check if queue is empty
-    if (pendingTasks.length === 0) {
-      if (manualSyncRequestId) {
-        console.log('[TaskRunner] All tasks processed, resetting manual sync request');
-        setManualSyncRequestId(null);
-      }
-      return;
-    }
+    // Check autoSync or manual request?
+    // If autoSync is false, maybe we wait for manual request?
+    // But usually tasks added by user (Add Code) should run immediately if connected.
+    // Let's assume manualSync is for full syncs, but specific tasks run always.
 
-    // Auto Sync Check
-    if (!autoSync && !manualSyncRequestId) {
-      // Check for urgent tasks (Unlock/Lock)
-      const hasUrgentTasks = pendingTasks.some(
-        (t) => t.type === TaskType.UNLOCK_DOOR || t.type === TaskType.LOCK_DOOR
-      );
+    if (processingRef.current) return;
 
-      if (!hasUrgentTasks) {
-        return;
-      }
-    }
-
-    const processNextTask = async () => {
-      isProcessingRef.current = true;
+    const processQueue = async () => {
+      processingRef.current = true;
       setIsProcessing(true);
 
-      // Re-evaluate pending and sort within the async execution
-      const currentPending = tasks.filter((t) => t.status === 'pending');
-      if (currentPending.length === 0) {
-        isProcessingRef.current = false;
-        setIsProcessing(false);
-        return;
-      }
-
-      const sorted = sortTasks(currentPending);
-      const taskToRun = sorted[0];
-
-      // Urgency check inside async context
-      if (!autoSync && !manualSyncRequestId) {
-        if (taskToRun.type !== TaskType.UNLOCK_DOOR && taskToRun.type !== TaskType.LOCK_DOOR) {
-          isProcessingRef.current = false;
-          setIsProcessing(false);
-          return;
-        }
-      }
-
-      if (!activeDevice) {
-        isProcessingRef.current = false;
-        setIsProcessing(false);
-        return;
-      }
-
       try {
-        console.log(`[TaskRunner] Executing task: ${taskToRun.type}`, taskToRun.payload);
+        // Sort by priority (0 is highest) then createdAt
+        const sortedPending = [...pendingTasks].sort((a, b) => {
+          const pA = a.priority ?? 10;
+          const pB = b.priority ?? 10;
+          if (pA !== pB) return pA - pB;
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        });
 
-        // Mark as processing if needed?
-        // TaskContext didn't explicitly set 'processing' status in state, only completed/failed.
-        // But logic suggests we might want to?
-        // TaskContext used 'isProcessing' boolean.
-        // But the prompt says: "Updates the task status (pending -> processing -> completed/failed)"
-        // So I should update to 'processing'.
+        const currentTask = sortedPending[0];
 
-        setTasks((prevTasks) =>
-          prevTasks.map((t) => (t.id === taskToRun.id ? { ...t, status: 'processing' } : t))
-        );
-
-        await TaskExecutorService.execute(
-          taskToRun,
-          activeDevice,
-          sendRequest as unknown as SendRequestFn
-        );
-
-        console.log(`[TaskRunner] Task completed: ${taskToRun.type}`);
-
-        setTasks((prevTasks) =>
-          prevTasks.map((t) => (t.id === taskToRun.id ? { ...t, status: 'completed' } : t))
-        );
-      } catch (err) {
-        console.error('[TaskRunner] Task processing error:', err);
-
-        setTasks((prevTasks) =>
-          prevTasks.map((t) =>
-            t.id === taskToRun.id
-              ? {
-                  ...t,
-                  status: 'failed',
-                  error: err instanceof Error ? err.message : String(err),
-                  attempts: t.attempts + 1
-                }
+        // Mark processing
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === currentTask.id
+              ? { ...t, status: 'processing', attempts: (t.attempts || 0) + 1 }
               : t
           )
         );
 
-        // Wait 2s before allowing next task
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        try {
+          // Execute
+          await TaskExecutorService.execute(currentTask, activeDevice, controller);
+
+          // Mark completed
+          setTasks((prev) =>
+            prev.map((t) => (t.id === currentTask.id ? { ...t, status: 'completed' } : t))
+          );
+        } catch (e: any) {
+          console.error(`Task ${currentTask.type} failed`, e);
+          // Mark failed
+          setTasks((prev) =>
+            prev.map((t) =>
+              t.id === currentTask.id ? { ...t, status: 'failed', error: e.message } : t
+            )
+          );
+        }
+      } catch (e) {
+        console.error('Queue processing error', e);
       } finally {
-        isProcessingRef.current = false;
+        processingRef.current = false;
         setIsProcessing(false);
       }
     };
 
-    processNextTask();
-  }, [
-    isConnected,
-    tasks,
-    activeDevice,
-    autoSync,
-    manualSyncRequestId,
-    sendRequest,
-    setTasks,
-    setIsProcessing,
-    setManualSyncRequestId
-  ]);
+    processQueue();
+  }, [tasks, isConnected, controller, activeDevice, setTasks, setIsProcessing]);
+
+  // Handle manual sync request reset
+  useEffect(() => {
+    if (manualSyncRequestId) {
+      setManualSyncRequestId(null);
+    }
+  }, [manualSyncRequestId, setManualSyncRequestId]);
 };
