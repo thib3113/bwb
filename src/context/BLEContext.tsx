@@ -5,7 +5,9 @@ import { BLEContext } from './Contexts';
 import { useLogContext } from '../hooks/useLogContext';
 import { BluetoothDevice } from '../types';
 import { BLEPacket } from '../utils/packetParser';
+
 type BLEServiceState = 'disconnected' | 'scanning' | 'connecting' | 'connected' | 'disconnecting';
+
 export const BLEProvider = ({ children }: { children: ReactNode }) => {
   const { log } = useLogContext();
 
@@ -39,14 +41,23 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       simulatorRef.current = sim;
 
       // Persist state if possible (optional enhancement)
-      // For now, we use the default in-memory simulator or SDK's persistence if configured
-
       const transport = new SimulatorTransport(sim);
       controllerRef.current = new BoksController({ transport });
 
       // Expose for debugging
       if (typeof window !== 'undefined') {
-// eslint-disable-next-line react-hooks/immutability
+        // Mock legacy resilience methods for E2E tests
+        const simAny = sim as any;
+        simAny.failNextConnection = () => {
+          console.log('Simulating next connection failure');
+          simAny._shouldFailNextConnection = true;
+        };
+        simAny.failNextDiscovery = () => {
+          console.log('Simulating next discovery failure');
+          simAny._shouldFailNextDiscovery = true;
+        };
+
+        // eslint-disable-next-line react-hooks/immutability
         window.boksSimulator = sim;
       }
     } else {
@@ -59,14 +70,25 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   // Connection Management
   const connect = useCallback(async () => {
     try {
+      // Legacy simulation support for E2E tests
+      if (simulatorRef.current) {
+        const sim = simulatorRef.current as any;
+        if (sim._shouldFailNextDiscovery) {
+          sim._shouldFailNextDiscovery = false;
+          throw new Error('Simulated discovery failure');
+        }
+        if (sim._shouldFailNextConnection) {
+          sim._shouldFailNextConnection = false;
+          throw new Error('Simulated connection failure');
+        }
+      }
+
       setConnectionState('scanning');
       await controller.connect();
       setConnectionState('connected');
       setError(null);
 
       // Create a mock device object for UI compatibility
-      // In real WebBluetooth, we might get the device from the transport, but SDK hides it.
-      // We'll construct a minimal object.
       const mockDevice: BluetoothDevice = {
         id: 'Boks-Device',
         name: 'Boks Device',
@@ -100,11 +122,10 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsub = controller.onPacket((packet) => {
       // Convert SDK packet to App BLEPacket format if needed, or just pass compatible fields
-      // The App expects { opcode, payload, direction: 'RX', ... }
-
+      // Ensure payload is defined to prevent "Cannot read properties of undefined (reading 'length')"
       const mappedPacket: BLEPacket = {
         opcode: packet.opcode,
-        payload: packet.payload,
+        payload: packet.payload || new Uint8Array(),
         raw: packet.raw || new Uint8Array(),
         direction: 'RX',
         isValidChecksum: true
@@ -127,6 +148,15 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       const strListeners = listenersRef.current.get(strKey);
       if (strListeners) {
         strListeners.forEach((cb) => cb(mappedPacket));
+      }
+
+      // Populate legacy debugging globals for E2E tests
+      if (typeof window !== 'undefined') {
+        if (!(window as any).txEvents) (window as any).txEvents = [];
+        (window as any).txEvents.push({
+          op: packet.opcode,
+          payload: packet.payload ? Array.from(packet.payload) : []
+        });
       }
     });
 
@@ -163,6 +193,13 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // Expose toggleSimulator globally for E2E tests
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).toggleSimulator = toggleSimulator;
+    }
+  }, [toggleSimulator]);
+
   const value = useMemo(
     () => ({
       controller, // Expose the controller directly
@@ -182,9 +219,6 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       },
       sendRequest: async (_arg1: any) => {
         console.warn('sendRequest is deprecated. Please use controller methods.');
-        // If we strictly need to support legacy packets for a moment (transition), we could try.
-        // But for now, we leave it as a stub that might fail if called,
-        // forcing us to update call sites.
         throw new Error('sendRequest is deprecated. Use controller methods.');
       },
       getDeviceInfo: async () => controller.hardwareInfo || {},
