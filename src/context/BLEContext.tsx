@@ -1,3 +1,4 @@
+import { BoksController } from '@thib3113/boks-sdk';
 import { ReactNode, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { BoksHardwareSimulator, SimulatorTransport } from '@thib3113/boks-sdk/simulator';
 import { BLEContext } from './Contexts';
@@ -6,6 +7,7 @@ import { BluetoothDevice } from '../types';
 import { BLEPacket } from '../utils/packetParser';
 type BLEServiceState = 'disconnected' | 'scanning' | 'connecting' | 'connected' | 'disconnecting';
 export const BLEProvider = ({ children }: { children: ReactNode }) => {
+  const { log } = useLogContext();
 
   // Singleton controller reference
   const controllerRef = useRef<BoksController | null>(null);

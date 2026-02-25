@@ -224,7 +224,7 @@ const cleanMasterCodesScript: ScriptDefinition = {
             // If failed (likely code not found or error), stop retrying this index
             log(t('status.error_index', { index: i }));
           }
-        } catch (_e: unknown) {
+        } catch (e: unknown) {
           const msg = e instanceof Error ? e.message : String(e);
           log(t('status.error', { message: `Index ${i}: ${msg}` }));
           success = false;

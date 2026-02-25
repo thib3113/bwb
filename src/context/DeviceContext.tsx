@@ -1,3 +1,4 @@
+import { checkDeviceVersion } from '../utils/version';
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';

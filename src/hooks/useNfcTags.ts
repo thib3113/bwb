@@ -27,7 +27,7 @@ export const useNfcTags = () => {
     if (!secrets?.configuration_key) throw new Error('Configuration Key required');
     try {
       controller.setCredentials(secrets.configuration_key);
-    } catch (_e) {
+    } catch (e) {
       // ignore if already set
     }
     return secrets.configuration_key;
@@ -104,7 +104,7 @@ export const useNfcTags = () => {
 
         setScanStatus(NfcScanStatus.IDLE);
         setScannedUid(null);
-      } catch (_e) {
+      } catch (e) {
         console.error('Failed to register tag', e);
         throw e;
       }
@@ -122,7 +122,7 @@ export const useNfcTags = () => {
 
         // Remove from DB
         await db.nfc_tags.delete(tag.id);
-      } catch (_e) {
+      } catch (e) {
         console.error('Failed to unregister tag', e);
         throw e;
       }
