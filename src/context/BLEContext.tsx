@@ -154,7 +154,7 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
       if (typeof window !== 'undefined') {
         if (!(window as any).txEvents) (window as any).txEvents = [];
         (window as any).txEvents.push({
-          op: packet.opcode,
+          opcode: packet.opcode, // Fix: Use 'opcode' to match fixture expectations
           payload: packet.payload ? Array.from(packet.payload) : []
         });
       }

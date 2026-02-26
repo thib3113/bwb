@@ -210,17 +210,27 @@ export const test = base.extend<{ simulator: Simulator }>({
         await page.evaluate(async () => {
           if (window.toggleSimulator) {
             window.toggleSimulator(true);
-            await new Promise((r) => setTimeout(r, 200));
+            // Return immediately to avoid execution context destruction if reload happens
           } else {
             throw new Error('toggleSimulator not found');
           }
         });
 
+        // Wait for potential reload
+        try {
+            await page.waitForNavigation({ timeout: 2000, waitUntil: 'domcontentloaded' });
+        } catch (e) {
+            // It might not reload if already enabled? But implementation forces reload.
+            // Or it happened too fast?
+        }
+
         // Click Connect if in Onboarding
-        const isOnboarding = await onboarding.isVisible();
+        // Re-query the element after reload
+        const onboardingAfterReload = page.getByTestId('onboarding-view').first();
+        const isOnboarding = await onboardingAfterReload.isVisible();
         console.log('[Simulator Fixture] Onboarding visible:', isOnboarding);
         if (isOnboarding) {
-          await onboarding.getByTestId('connect-button').click();
+          await onboardingAfterReload.getByTestId('connect-button').click();
           await page.waitForTimeout(4000);
 
           try {
