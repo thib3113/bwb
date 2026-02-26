@@ -14,6 +14,8 @@ import { BLEContextType } from './types';
 
 export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
   const bleContext = useContext(BLEContext);
+
+  // Handle potentially missing context
   const controller = bleContext?.controller;
   const isConnected = bleContext?.isConnected;
 
