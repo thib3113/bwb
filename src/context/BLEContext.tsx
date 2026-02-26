@@ -189,7 +189,11 @@ export const BLEProvider = ({ children }: { children: ReactNode }) => {
     if (typeof window !== 'undefined') {
       window.BOKS_SIMULATOR_ENABLED = enable;
       localStorage.setItem('BOKS_SIMULATOR_ENABLED', String(enable));
-      window.location.reload(); // Simple reload to re-init controller
+      // Reload page to re-init controller with/without simulator
+      // Using setTimeout to allow Playwright execution context to survive long enough to return
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
   }, []);
 

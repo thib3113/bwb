@@ -1,42 +1,33 @@
-import { checkDeviceVersion } from '../utils/version';
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/db';
-import { StorageService } from '../services/StorageService';
-import { BluetoothDevice, BoksDevice, UserRole } from '../types';
+import { useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BoksDevice, UserRole } from '../types';
 import { DeviceSecrets } from '../types/db';
+import { SIMULATOR_BLE_ID, SIMULATOR_DEFAULT_CONFIG_KEY, SIMULATOR_DEFAULT_PIN, BLEOpcode } from '../utils/bleConstants';
+import { db } from '../db/db';
 import { DeviceContext } from './Contexts';
-import { useBLE } from '../hooks/useBLE';
-import {
-  BLEOpcode,
-  SIMULATOR_BLE_ID,
-  SIMULATOR_DEFAULT_CONFIG_KEY,
-  SIMULATOR_DEFAULT_PIN
-} from '../utils/bleConstants';
+import { BLEContext } from './Contexts';
+import { BluetoothDevice } from '../types';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { StorageService } from '../services/StorageService';
+import { checkDeviceVersion } from '../utils/version';
+import { BLEContextType } from './types';
 
-// Ensure StorageService is exposed for debugging
-if (typeof window !== 'undefined') {
-  window.boksDebug = window.boksDebug || {};
-  window.boksDebug.StorageService = StorageService;
-}
+export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
+  const bleContext = useContext(BLEContext);
+  const controller = bleContext?.controller;
+  const isConnected = bleContext?.isConnected;
 
-export const DeviceProvider = ({ children }: { children: ReactNode }) => {
-  const { controller, isConnected } = useBLE();
-  const devicesQuery = useLiveQuery(() => db.devices.toArray(), [], []) as BoksDevice[] | undefined;
-  const secretsQuery = useLiveQuery(() => db.device_secrets.toArray(), [], []) as
-    | DeviceSecrets[]
-    | undefined;
+  const { t } = useTranslation();
 
   const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
-  const activeDeviceIdRef = useRef(activeDeviceId);
-
-  // New state for syncing codes
   const [isSyncingCodes, setIsSyncingCodes] = useState(false);
+  const activeDeviceIdRef = useRef<string | null>(null);
 
-  // Fusionner les appareils et les secrets pour la compatibilité avec le reste de l'app
+  const devicesQuery = useLiveQuery(() => db.devices.toArray());
+  const secretsQuery = useLiveQuery(() => db.device_secrets.toArray());
+
   const knownDevices = useMemo(() => {
-    if (!devicesQuery) return [];
-    return devicesQuery.map((device) => ({
+    return (devicesQuery || []).map((device) => ({
       ...device,
       ...(secretsQuery?.find((s) => s.device_id === device.id) || {})
     })) as (BoksDevice & Partial<DeviceSecrets>)[];
@@ -51,17 +42,13 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
     if (!controller) return;
 
     const handlePacket = async (packet: any) => {
-      // SDK packet structure might differ slightly, but we map it in BLEContext.
-      // However, here we might be getting the raw SDK packet if we subscribed directly via controller?
-      // No, we are using BLEContext's controller directly? Yes.
-      // controller.onPacket returns SDK packets.
-
       const currentId = activeDeviceIdRef.current;
       if (!currentId) return;
 
       if (packet.opcode === BLEOpcode.NOTIFY_CODES_COUNT) {
         setIsSyncingCodes(false);
-        if (packet.payload.length >= 4) {
+        // Safety check for payload existence
+        if (packet.payload && packet.payload.length >= 4) {
           const master = (packet.payload[0] << 8) | packet.payload[1];
           const single = (packet.payload[2] << 8) | packet.payload[3];
 
@@ -73,25 +60,22 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
           });
         }
       }
-      // Battery Logic is handled via controller.getBatteryLevel usually,
-      // but if we receive a notification for battery (Proprietary opcode?)
-      // The SDK might handle standard battery service notifications internally.
-      // For proprietary battery packets (TEST_BATTERY response):
-      // The SDK opcode for TEST_BATTERY is 0xA4, response is... usually via a read or notification?
-      // Wait, standard battery is UUID based.
     };
 
     const unsub = controller.onPacket(handlePacket);
     return () => unsub();
   }, [controller]);
 
-  // Load active device from settings on init
+  // Load active device from settings on mount
   useEffect(() => {
     const loadActiveDevice = async () => {
       try {
-        const value = await StorageService.getSetting('lastActiveDeviceId');
-        if (value) {
-          setActiveDeviceId(value as string);
+        const lastId = await StorageService.getSetting('lastActiveDeviceId');
+        if (lastId) {
+          const exists = await db.devices.get(lastId);
+          if (exists) {
+            setActiveDeviceId(lastId);
+          }
         }
       } catch (e) {
         console.error('Failed to load active device from db', e);
@@ -181,11 +165,8 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
         setActiveDeviceId(targetId);
 
         // Retrieve info from controller
-        // Note: We need to set credentials on the controller if we have them!
-        // This is crucial. When we connect and identify the device, we must load the key.
         const secrets = await db.device_secrets.get(targetId);
         if (secrets && secrets.configuration_key) {
-          // SDK: controller?.setCredentials(key)
           try {
             controller?.setCredentials(secrets.configuration_key);
             console.log('[DeviceContext] Credentials set for controller');
@@ -371,8 +352,6 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       // SDK High Level
       const counts = await controller.countCodes();
 
-      // Update DB directly with result (no need to wait for packet listener technically,
-      // but the listener is already there for consistency)
       if (currentId) {
         await db.devices.update(currentId, {
           master_code_count: counts.masterCount,
