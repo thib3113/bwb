@@ -7,6 +7,6 @@ export class NotifyLogsCountPayload extends BasePayload {
 
   constructor(opcode: number, payload: Uint8Array, raw: Uint8Array) {
     super(opcode, payload, raw);
-    this.count = (payload[0] << 8) | payload[1];
+    this.count = (payload[1] << 8) | payload[0];
   }
 }

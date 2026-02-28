@@ -198,6 +198,15 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
             if (info.softwareRevision) updates.software_revision = info.softwareRevision;
             if (info.hardwareVersion) updates.hardware_version = info.hardwareVersion;
 
+            // Fallback for mapping hardware_version from firmware_revision
+            if (!updates.hardware_version && updates.firmware_revision) {
+              const { PCB_VERSIONS } = await import('../utils/version');
+              const mapped = PCB_VERSIONS[updates.firmware_revision.toLowerCase()];
+              if (mapped) {
+                updates.hardware_version = mapped;
+              }
+            }
+
             if (Object.keys(updates).length > 0) {
               await db.devices.update(targetId, updates);
             }

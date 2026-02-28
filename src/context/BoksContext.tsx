@@ -1,11 +1,12 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBLE } from '../hooks/useBLE';
 import { useDevice } from '../hooks/useDevice';
+import { BLEOpcode } from '../utils/bleConstants';
+import { BLEPacket } from '../utils/packetParser';
 import { StorageService } from '../services/StorageService';
 import { BoksLog } from '../types';
 import { BoksContext } from './Contexts';
 import { useNavigate } from 'react-router-dom';
-import { BoksOpcode } from '@thib3113/boks-sdk';
 
 interface BoksProviderProps {
   children: ReactNode;
@@ -20,15 +21,6 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
   const [isOpening, setIsOpening] = useState(false);
   const [isSynchronizing, setIsSynchronizing] = useState(false);
   const openTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Synchronize door status from controller when connected
-  useEffect(() => {
-    if (isConnected && controller) {
-      setDoorStatus(controller.doorOpen ? 'open' : 'closed');
-    } else {
-      setDoorStatus(null);
-    }
-  }, [isConnected, controller]);
 
   // Sync Active Device with BLE Connection
   useEffect(() => {
@@ -50,6 +42,7 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
   // Reset state on disconnect
   useEffect(() => {
     if (!isConnected) {
+      setDoorStatus(null);
       setIsOpening(false);
       setIsSynchronizing(false);
       if (openTimeoutRef.current) {
@@ -59,19 +52,22 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     }
   }, [isConnected]);
 
-  // Handle door status notifications (using SDK controller for real-time updates)
+  // Handle door status notifications (using low-level listener for real-time updates)
   useEffect(() => {
-    if (!controller) return;
+    const handleDoorStatus = (packet: BLEPacket) => {
+      if (packet.isValidChecksum === false) {
+        log(`Door status packet checksum error`, 'error');
+        return;
+      }
 
-    const unsub = controller.onPacket((packet) => {
-      if (
-        packet.opcode === BoksOpcode.NOTIFY_DOOR_STATUS ||
-        packet.opcode === BoksOpcode.ANSWER_DOOR_STATUS
-      ) {
-        const isOpen = controller.doorOpen;
+      if (packet.payload.length >= 2) {
+        const inverted = packet.payload[0];
+        const live = packet.payload[1];
+
+        const isOpen = live === 0x01;
         const status = isOpen ? 'open' : 'closed';
         setDoorStatus(status);
-        log(`Door status updated: ${status}`, 'info');
+        log(`Door status: ${status} (Inv: ${inverted}, Live: ${live})`, 'info');
 
         if (isOpening) {
           setIsOpening(false);
@@ -80,11 +76,21 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
             openTimeoutRef.current = null;
           }
         }
+      } else {
+        log(
+          `Malformed door status packet: insufficient data (len=${packet.payload.length})`,
+          'warning'
+        );
       }
-    });
+    };
 
-    return () => unsub();
-  }, [controller, log, isOpening]);
+    addListener(BLEOpcode.NOTIFY_DOOR_STATUS, handleDoorStatus);
+    addListener(BLEOpcode.ANSWER_DOOR_STATUS, handleDoorStatus);
+    return () => {
+      removeListener(BLEOpcode.NOTIFY_DOOR_STATUS, handleDoorStatus);
+      removeListener(BLEOpcode.ANSWER_DOOR_STATUS, handleDoorStatus);
+    };
+  }, [addListener, removeListener, log, isOpening]);
 
   // Open the door with a code
   const openDoor = useCallback(
@@ -133,57 +139,6 @@ export const BoksProvider = ({ children }: BoksProviderProps) => {
     },
     [isConnected, controller, log]
   );
-
-  // Synchronize logs from Boks
-  const syncLogs = useCallback(async () => {
-    if (!isConnected || !activeDevice || !controller) {
-      log('Cannot sync logs: Not connected or no active device', 'error');
-      return;
-    }
-
-    setIsSynchronizing(true);
-    log('Starting log synchronization...', 'info');
-
-    try {
-      // Use SDK's fetchHistory
-      const history = await controller.fetchHistory();
-      log(`Received ${history.length} log events. Saving...`, 'success');
-
-      const logsToSave: Partial<BoksLog>[] = history.map((event: any) => ({
-        deviceId: activeDevice.id,
-        opcode: event.opcode || 0, // Fallback if opcode missing
-        // Try to access raw payload if available on the event instance
-        payload: event.payload ? new Uint8Array(event.payload as Uint8Array) : new Uint8Array(0),
-        timestamp: event.date ? event.date.toISOString() : new Date().toISOString(),
-        event: event.constructor.name || 'LogEvent',
-        type: 'info',
-        synced: false
-      }));
-
-      await StorageService.saveLogs(activeDevice.id, logsToSave as any);
-      log('Logs saved successfully', 'success');
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      log(`Log sync failed: ${errorMessage}`, 'error');
-    } finally {
-      setIsSynchronizing(false);
-    }
-  }, [isConnected, activeDevice, controller, log]);
-
-  const value = useMemo(
-    () => ({
-      doorStatus,
-      isOpening,
-      openDoor,
-      isSynchronizing,
-      setIsSynchronizing,
-      syncLogs
-    }),
-    [doorStatus, isOpening, isSynchronizing, openDoor, syncLogs]
-  );
-
-  return <BoksContext.Provider value={value}>{children}</BoksContext.Provider>;
-};
 
   // Synchronize logs from Boks
   const syncLogs = useCallback(async () => {

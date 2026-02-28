@@ -94,12 +94,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       <BLEContext.Provider
         value={{
           isConnected: false,
-          controller: {
-            onPacket: vi.fn(() => vi.fn()),
-            doorOpen: false,
-            codeCount: { master: 0, single: 0 },
-            logCount: 0
-          } as any,
+controller: null,
           isConnecting: false,
           connect: vi.fn(),
           disconnect: vi.fn(),

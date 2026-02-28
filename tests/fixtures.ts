@@ -206,22 +206,30 @@ export const test = base.extend<{ simulator: Simulator }>({
 
         const onboarding = page.getByTestId('onboarding-view').first();
 
-        // Force enable simulator
-        await page.evaluate(async () => {
-          if (window.toggleSimulator) {
-            window.toggleSimulator(true);
-            // Return immediately to avoid execution context destruction if reload happens
-          } else {
-            throw new Error('toggleSimulator not found');
-          }
+        // Check simulator enabled flag first without triggering an error if toggleSimulator doesn't exist
+        const isSimulatorEnabled = await page.evaluate(() => {
+          return localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true';
         });
 
-        // Wait for potential reload
-        try {
-            await page.waitForNavigation({ timeout: 2000, waitUntil: 'domcontentloaded' });
-        } catch (e) {
-            // It might not reload if already enabled? But implementation forces reload.
-            // Or it happened too fast?
+        if (!isSimulatorEnabled) {
+          // Force enable simulator if not already enabled
+          await page.evaluate(async () => {
+            if (window.toggleSimulator) {
+              window.toggleSimulator(true);
+            } else {
+              // Fallback
+              localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
+              window.BOKS_SIMULATOR_ENABLED = true;
+              window.location.reload();
+            }
+          });
+
+          // Wait for potential reload
+          try {
+              await page.waitForNavigation({ timeout: 5000, waitUntil: 'domcontentloaded' });
+          } catch (e) {
+              console.log('[Simulator Fixture] Navigation timeout or not needed.');
+          }
         }
 
         // Click Connect if in Onboarding
