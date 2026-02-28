@@ -1,34 +1,32 @@
 import { CodeCreationData } from '../types';
 import { BLEPacket } from '../utils/packetParser';
 import { BLEOpcode } from '../utils/bleConstants';
-import { BLECommandOptions } from '../utils/BLEQueue';
 import { BLEConnectionState, BluetoothDevice, BoksDevice, BoksCode, Settings } from '../types';
-import { BoksTXPacket } from '../ble/packets/BoksTXPacket';
 import { BatteryAnalysis, BatteryData } from '../hooks/useBatteryDiagnostics';
 import { HardwareInference } from '../utils/bleUtils';
 import { BoksTask } from '../types/task';
+import { BoksController } from '@thib3113/boks-sdk';
 
 export { BLEOpcode };
 
 export interface BLEContextType {
   device: BluetoothDevice | null;
+  controller: BoksController | null;
   connectionState: BLEConnectionState;
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
   connect: (customServices?: string[]) => Promise<void>;
   disconnect: () => void;
-  sendPacket: (packet: BoksTXPacket | Uint8Array) => Promise<void>;
+  sendPacket: (packet: any | Uint8Array) => Promise<void>;
   sendRequest: (
-    packetOrOpcode: BoksTXPacket | BLEOpcode,
-    payloadOrOptions?: Uint8Array | BLECommandOptions,
-    options?: BLECommandOptions
+    packetOrOpcode: any | BLEOpcode,
+    payloadOrOptions?: any,
+    options?: any
   ) => Promise<BLEPacket | BLEPacket[]>;
   getDeviceInfo: () => Promise<Record<string, string>>;
-  getBatteryInfo: () => Promise<DataView | null>;
+  getBatteryInfo: () => Promise<number | undefined | null>;
   readCharacteristic: (serviceUuid: string, charUuid: string) => Promise<DataView>;
-  registerCallback: (opcode: number, callback: (packet: BLEPacket) => void) => void;
-  unregisterCallback: (opcode: number) => void;
   addListener: (event: string | number, callback: (packet: BLEPacket) => void) => void;
   removeListener: (event: string | number, callback: (packet: BLEPacket) => void) => void;
   toggleSimulator?: (enable: boolean) => void;

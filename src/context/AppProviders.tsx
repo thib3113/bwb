@@ -21,9 +21,9 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
     <AppThemeProvider>
       <DeveloperProvider>
         <SettingsProvider>
-          <DeviceProvider>
-            <LogProvider>
-              <BLEProvider>
+          <LogProvider>
+            <BLEProvider>
+              <DeviceProvider>
                 <BoksProvider>
                   <ErrorProvider>
                     <SessionProvider>
@@ -35,9 +35,9 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
                     </SessionProvider>
                   </ErrorProvider>
                 </BoksProvider>
-              </BLEProvider>
-            </LogProvider>
-          </DeviceProvider>
+              </DeviceProvider>
+            </BLEProvider>
+          </LogProvider>
         </SettingsProvider>
       </DeveloperProvider>
     </AppThemeProvider>

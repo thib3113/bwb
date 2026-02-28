@@ -20,6 +20,9 @@ importers:
       '@mui/material':
         specifier: ^7.3.6
         version: 7.3.7(@emotion/react@11.14.0(@types/react@19.2.13)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.13)(react@19.2.4))(@types/react@19.2.13)(react@19.2.4))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@thib3113/boks-sdk':
+        specifier: ^0.0.10
+        version: 0.0.10
       '@thib3113/web-bluetooth-dfu':
         specifier: ^2.3.0
         version: 2.3.0
@@ -1402,6 +1405,9 @@ packages:
         optional: true
       '@types/react-dom':
         optional: true
+
+  '@thib3113/boks-sdk@0.0.10':
+    resolution: {integrity: sha512-jH3O3CkPqT/QWzPkVqeebswORhrSHQR1sw5MTZHbvlCRFgi+quumZdrwVYS3Mzhr5PPPjwnexP0BH+qIsPPz/Q==}
 
   '@thib3113/web-bluetooth-dfu@2.3.0':
     resolution: {integrity: sha512-4IFC5z1cPQ7jsES5ZLy8KQsNRPwsmIV1hz6UwJ6K65nTUfYN/ZRCtHeJHIZdUwzbLL6U2cMCJuZa7mbho/2kYw==}
@@ -5203,6 +5209,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.13
       '@types/react-dom': 19.2.3(@types/react@19.2.13)
+
+  '@thib3113/boks-sdk@0.0.10': {}
 
   '@thib3113/web-bluetooth-dfu@2.3.0':
     dependencies:

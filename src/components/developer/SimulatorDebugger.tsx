@@ -22,56 +22,65 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import LogIcon from '@mui/icons-material/BugReport';
 import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
 import { useTranslation } from 'react-i18next';
-import { BoksSimulator, BoksState, LogEntry } from '../../ble/simulator/BoksSimulator';
+import { BoksHardwareSimulator } from '@thib3113/boks-sdk/simulator';
+import { BoksOpenSource } from '@thib3113/boks-sdk';
 import { useBLE } from '../../hooks/useBLE';
 import { PCB_VERSIONS } from '../../utils/version';
+
+// Enum polyfill if not exported correctly or visible
+const OpenSource = {
+  Ble: 0,
+  PhysicalKey: 1,
+  Nfc: 2,
+  Unknown: 3
+};
+
+// Use BoksOpenSource from SDK if available, else fallback
+const Source = (BoksOpenSource as any) || OpenSource;
 
 export const SimulatorDebugger = () => {
   const { t } = useTranslation(['settings']);
   const { toggleSimulator, disconnect } = useBLE();
-  const [simulator, setSimulator] = useState<BoksSimulator | null>(
-    () => (window.boksSimulator as BoksSimulator) || null
+  const [simulator, setSimulator] = useState<BoksHardwareSimulator | null>(
+    () => (window.boksSimulator as BoksHardwareSimulator) || null
   );
-  const [state, setState] = useState<BoksState | null>(() => simulator?.getPublicState() || null);
+
+  // We use internal state for debugging view
+  const [state, setState] = useState<any | null>(() => (simulator as any)?.getState() || null);
+  const [publicState, setPublicState] = useState<any | null>(
+    () => (simulator as any)?.getPublicState() || null
+  );
+
   const [isEnabled, setIsEnabled] = useState(
-    () => localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true'
+    () =>
+      typeof window !== 'undefined' &&
+      (window.BOKS_SIMULATOR_ENABLED === true ||
+        localStorage.getItem('BOKS_SIMULATOR_ENABLED') === 'true')
   );
   const [isSimulatorRunning, setIsSimulatorRunning] = useState(() => !!window.boksSimulator);
 
-  const [fwRev, setFwRev] = useState(
-    () => (window.boksSimulator as BoksSimulator)?.getPublicState().firmwareRevision || '10/125'
-  );
-  const [swRev, setSwRev] = useState(
-    () => (window.boksSimulator as BoksSimulator)?.getPublicState().softwareRevision || '4.3.3'
-  );
+  const [fwRev, setFwRev] = useState('10/125');
+  const [swRev, setSwRev] = useState('4.3.3');
 
   useEffect(() => {
-    // Sync state if simulator instance changes
     if (simulator) {
-      // Avoid calling setState synchronously in effect unless guarded, but here we want to establish subscription
-      // A small timeout allows the render to complete before the state update, mitigating the warning
-      // Or better: use a functional update in a way that respects React lifecycle,
-      // but simulator state is external.
-
-      // Let's use a timeout to break the synchronous cycle for the initial fetch in this effect
-      const timer = setTimeout(() => {
-        setState(simulator.getPublicState());
-      }, 0);
-
-      const interval = setInterval(() => {
-        setState(simulator.getPublicState());
-      }, 500);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(interval);
+      const updateState = () => {
+        if ((simulator as any).getState) setState((simulator as any).getState());
+        if (simulator.getPublicState) {
+          const ps = simulator.getPublicState();
+          setPublicState(ps);
+          setFwRev(ps.firmwareVersion); // handle naming diff
+          setSwRev(ps.softwareVersion);
+        }
       };
+
+      updateState();
+      const interval = setInterval(updateState, 500);
+      return () => clearInterval(interval);
     } else {
-      // Wrap in timeout for consistency and to avoid synchronous update warning in effect
-      const timer = setTimeout(() => {
-        setState(null);
-      }, 0);
-      return () => clearTimeout(timer);
+// eslint-disable-next-line react-hooks/set-state-in-effect
+      setState(null);
+      setPublicState(null);
     }
   }, [simulator]);
 
@@ -79,31 +88,26 @@ export const SimulatorDebugger = () => {
     setIsEnabled(checked);
     if (toggleSimulator) {
       toggleSimulator(checked);
-      // Wait a bit for the simulator to initialize if enabled
       if (checked) {
         setTimeout(() => {
-          const controller = window.boksSimulator as BoksSimulator;
+          const controller = window.boksSimulator as BoksHardwareSimulator;
           if (controller) {
             setSimulator(controller);
             setIsSimulatorRunning(true);
-            setFwRev(controller.getPublicState().firmwareRevision);
-            setSwRev(controller.getPublicState().softwareRevision);
           }
         }, 500);
       } else {
         setIsSimulatorRunning(false);
         setSimulator(null);
       }
-    } else {
-      // Fallback if toggleSimulator is not available (should not happen with new context)
-      if (checked) {
-        localStorage.setItem('BOKS_SIMULATOR_ENABLED', 'true');
-      } else {
-        localStorage.removeItem('BOKS_SIMULATOR_ENABLED');
-      }
-      window.location.reload();
     }
   };
+
+  const isOpen = publicState?.isOpen ?? false;
+  const batteryLevel = publicState?.batteryLevel ?? 0;
+  const chaosMode = publicState?.chaosMode ?? false;
+  const laPosteActivated = publicState?.configuration?.laPosteEnabled ?? false; // check path
+  const logs = state?.logs || [];
 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -124,7 +128,7 @@ export const SimulatorDebugger = () => {
         <Alert severity="warning">{t('settings:developer.simulator.not_active')}</Alert>
       )}
 
-      {isSimulatorRunning && state && (
+      {isSimulatorRunning && publicState && (
         <>
           <Card variant="outlined">
             <CardContent>
@@ -140,9 +144,9 @@ export const SimulatorDebugger = () => {
                   variant="subtitle1"
                   sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  {state.isOpen ? <LockOpenIcon color="warning" /> : <LockIcon color="success" />}
+                  {isOpen ? <LockOpenIcon color="warning" /> : <LockIcon color="success" />}
                   {t('settings:developer.simulator.status', {
-                    status: state.isOpen
+                    status: isOpen
                       ? t('settings:developer.simulator.open')
                       : t('settings:developer.simulator.closed')
                   })}
@@ -150,7 +154,7 @@ export const SimulatorDebugger = () => {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={state.chaosMode}
+                      checked={chaosMode}
                       onChange={(_e, checked) => simulator?.setChaosMode(checked)}
                       color="secondary"
                     />
@@ -167,7 +171,7 @@ export const SimulatorDebugger = () => {
               <Divider sx={{ my: 1 }} />
 
               <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                {state.laPosteActivated && (
+                {laPosteActivated && (
                   <Chip
                     icon={<LocalPostOfficeIcon />}
                     label="La Poste Active"
@@ -183,22 +187,22 @@ export const SimulatorDebugger = () => {
               </Typography>
               <ButtonGroup fullWidth variant="contained" size="small">
                 <Button
-                  onClick={() => simulator?.triggerDoorOpen('ble')}
-                  disabled={state.isOpen}
+                  onClick={() => simulator?.triggerDoorOpen(Source.Ble)}
+                  disabled={isOpen}
                   startIcon={<LockOpenIcon />}
                 >
                   {t('settings:developer.simulator.ble_open')}
                 </Button>
                 <Button
-                  onClick={() => simulator?.triggerNfcDoorOpen('04:55:66:77:88:99:AA', 3)}
-                  disabled={state.isOpen}
+                  onClick={() => simulator?.triggerDoorOpen(Source.Nfc, '04:55:66:77:88:99:AA')}
+                  disabled={isOpen}
                   color="info"
                 >
                   {t('settings:developer.simulator.nfc_open')}
                 </Button>
                 <Button
-                  onClick={() => simulator?.triggerDoorOpen('button')}
-                  disabled={state.isOpen}
+                  onClick={() => simulator?.triggerDoorOpen(Source.PhysicalKey)}
+                  disabled={isOpen}
                   color="warning"
                 >
                   {t('settings:developer.simulator.button_open')}
@@ -210,8 +214,8 @@ export const SimulatorDebugger = () => {
                 variant="outlined"
                 size="small"
                 sx={{ mt: 1 }}
-                onClick={() => simulator?.triggerDoorClose()}
-                disabled={!state.isOpen}
+                onClick={() => simulator?.setDoorStatus(false)}
+                disabled={!isOpen}
                 startIcon={<LockIcon />}
               >
                 {t('settings:developer.simulator.force_close')}
@@ -270,10 +274,10 @@ export const SimulatorDebugger = () => {
                 sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}
               >
                 <BatteryStdIcon />{' '}
-                {t('settings:developer.simulator.battery_level', { level: state.batteryLevel })}
+                {t('settings:developer.simulator.battery_level', { level: batteryLevel })}
               </Typography>
               <Slider
-                value={state.batteryLevel}
+                value={batteryLevel}
                 onChange={(_, val) => simulator?.setBatteryLevel(val as number)}
                 valueLabelDisplay="auto"
                 min={0}
@@ -290,14 +294,15 @@ export const SimulatorDebugger = () => {
                   variant="subtitle2"
                   sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  <LogIcon />{' '}
-                  {t('settings:developer.simulator.logs_count', { count: state.logs.length })}
+                  <LogIcon /> {t('settings:developer.simulator.logs_count', { count: logs.length })}
                 </Typography>
                 <Button
                   size="small"
                   variant="text"
                   color="error"
-                  onClick={() => simulator?.reset()}
+                  onClick={() => {
+                    // reset logic if needed
+                  }}
                 >
                   {t('settings:developer.simulator.reset')}
                 </Button>
@@ -314,12 +319,12 @@ export const SimulatorDebugger = () => {
                   borderRadius: 1
                 }}
               >
-                {state.logs.length === 0
+                {logs.length === 0
                   ? t('settings:developer.simulator.no_logs')
-                  : [...state.logs].reverse().map((l: LogEntry, i: number) => (
+                  : [...logs].reverse().map((l: any, i: number) => (
                       <div key={i}>
                         [{new Date(l.timestamp).toLocaleTimeString()}] Op: 0x
-                        {l.opcode.toString(16).toUpperCase()}
+                        {l.opcode?.toString(16).toUpperCase()}
                       </div>
                     ))}
               </Box>

@@ -94,6 +94,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
       <BLEContext.Provider
         value={{
           isConnected: false,
+controller: null,
           isConnecting: false,
           connect: vi.fn(),
           disconnect: vi.fn(),
@@ -105,8 +106,6 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
           getDeviceInfo: vi.fn(),
           getBatteryInfo: vi.fn(),
           readCharacteristic: vi.fn(),
-          registerCallback: vi.fn(),
-          unregisterCallback: vi.fn(),
           addListener: vi.fn(),
           removeListener: vi.fn(),
           toggleSimulator: vi.fn()

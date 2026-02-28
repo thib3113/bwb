@@ -21,16 +21,13 @@ export const DoorControlButton = ({ showNotification }: DoorControlButtonProps) 
   // Monitor door status for closing event
   useEffect(() => {
     if (waitingForClose && doorStatus === 'closed') {
-      // Defer state update to next tick to avoid cascading renders error
       setTimeout(() => {
         setWaitingForClose(false);
         showNotification(t('door_closed'), 'success');
 
-        // Get battery info after door closes (Quirk: Battery/Temp update after open/close)
         getBatteryInfo()
-          .then(async (info) => {
-            if (info) {
-              const level = info.getUint8(0);
+          .then(async (level) => {
+            if (typeof level === 'number') {
               showNotification(t('battery_level', { level }), 'info');
 
               if (activeDevice?.id) {
@@ -58,7 +55,6 @@ export const DoorControlButton = ({ showNotification }: DoorControlButtonProps) 
   ]);
 
   const handleOpenDoor = async () => {
-    // Get the master code from active device
     const masterCode = activeDevice?.door_pin_code || '';
 
     if (!masterCode) {
