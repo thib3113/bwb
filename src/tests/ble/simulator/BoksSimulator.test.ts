@@ -211,4 +211,32 @@ describe('BoksSimulator', () => {
     expect(simulator.getPublicState().rssi).toBe(-80);
     expect(emitSpy).toHaveBeenCalledWith('rssi-update', -80);
   });
+
+  it('should handle get logs count', () => {
+    const emitSpy = vi.spyOn(simulator, 'emit');
+
+    // Add 23 logs
+    for (let i = 0; i < 23; i++) {
+      simulator.injectLog(0x91, [0, 0, 0]);
+    }
+
+    simulator.handlePacket(BLEOpcode.GET_LOGS_COUNT, new Uint8Array([]));
+
+    // Response should be immediate relative to the old 150ms timeout, 
+    // but the simulator has an internal 20-60ms delay
+    vi.advanceTimersByTime(100);
+
+    // Check if emission happened
+    expect(emitSpy).toHaveBeenCalledWith('notification', expect.any(Uint8Array));
+
+    // Get the packet emitted
+    const lastCall = emitSpy.mock.calls.find(call => call[0] === 'notification');
+    const packet = lastCall[1] as Uint8Array;
+
+    // Opcode=0x79, Len=0x02, Payload=[0x00, 0x17], Checksum
+    expect(packet[0]).toBe(BLEOpcode.NOTIFY_LOGS_COUNT);
+    expect(packet[1]).toBe(2);
+    expect(packet[2]).toBe(0); // High byte (23 >> 8)
+    expect(packet[3]).toBe(23); // Low byte (23 & 0xFF)
+  });
 });

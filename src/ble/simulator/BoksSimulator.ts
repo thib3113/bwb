@@ -516,13 +516,11 @@ export class BoksSimulator extends EventEmitter {
   }
 
   private handleGetLogsCount() {
-    // Quirk: Send 0 first, then real count
-    this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [0, 0]);
-
-    setTimeout(() => {
-      const count = this.state.logs.length;
-      this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [count & 0xFF, (count >> 8) & 0xFF]);
-    }, 150);
+    const count = this.state.logs.length;
+    this.sendNotification(BLEOpcode.NOTIFY_LOGS_COUNT, [
+      (count >> 8) & 0xFF,
+      count & 0xFF
+    ]);
   }
 
   private handleRequestLogs() {
