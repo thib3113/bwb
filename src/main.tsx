@@ -27,6 +27,7 @@ import './index.css';
 import './i18n';
 import { AppProviders } from './context/AppProviders';
 import './services/StorageService';
+import { packetLogger } from './services/PacketLoggerService';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { initPWA } from './pwa';
 
@@ -41,6 +42,8 @@ window.enableBoksSimulator = () => {
 };
 
 console.log('[Main] React initialized');
+
+packetLogger.start();
 
 const appElement = document.getElementById('app');
 
